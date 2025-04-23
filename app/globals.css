@@ -1,26 +1,80 @@
 @import "tailwindcss";
+@config "../tailwind.config.ts";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Dark mode colors */
+    --background: 0 0% 7%;
+    --foreground: 0 0% 88%;
+
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 88%;
+
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 88%;
+
+    --primary: 25 91% 36%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 88%;
+
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 56%;
+
+    --accent: 0 0% 18%;
+    --accent-foreground: 0 0% 88%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 25 91% 36%;
+
+    --radius: 0.5rem;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .card-gradient {
+    background: linear-gradient(145deg, rgba(36, 36, 36, 0.7), rgba(24, 24, 24, 0.7));
+  }
+
+  .active-gradient {
+    background: linear-gradient(145deg, rgba(179, 83, 9, 0.9), rgba(179, 83, 9, 0.7));
+  }
+
+  .glass-card {
+    @apply bg-dark-bg1/80 backdrop-blur-sm border border-dark-bg2;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-dark-orange to-dark-orange-light text-white hover:from-dark-orange/90 hover:to-dark-orange-light/90 shadow-md transition-all duration-300;
+  }
+
+  .btn-secondary {
+    @apply bg-dark-bg2 text-dark-fg0 hover:bg-dark-bg3 transition-all duration-300;
+  }
+
+  .input-dark {
+    @apply bg-dark-bg0 border-dark-bg2 text-dark-fg0 focus:border-dark-orange focus:ring-dark-orange;
+  }
+
+  .progress-bar {
+    @apply h-2 rounded-full bg-dark-bg2 overflow-hidden;
+  }
+
+  .progress-value {
+    @apply h-full bg-gradient-to-r from-dark-orange to-dark-orange-light rounded-full;
+  }
 }

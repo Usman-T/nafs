@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 7%;
+    --foreground: 0 0% 88%;
+
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 88%;
+
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 88%;
+
+    --primary: 21 87% 36%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 88%;
+
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 56%;
+
+    --accent: 0 0% 18%;
+    --accent-foreground: 0 0% 88%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 21 87% 36%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark-bg0 {
+    @apply bg-[#121212];
+  }
+
+  .dark-bg1 {
+    @apply bg-[#1e1e1e];
+  }
+
+  .dark-bg2 {
+    @apply bg-[#2e2e2e];
+  }
+
+  .dark-fg0 {
+    @apply text-[#e0e0e0];
+  }
+
+  .dark-fg1 {
+    @apply text-[#b0b0b0];
+  }
+
+  .dark-fg2 {
+    @apply text-[#909090];
+  }
+
+  .dark-orange {
+    @apply text-[#b35309];
+  }
+
+  .dark-orange-light {
+    @apply text-[#d65d0e];
+  }
+
+  .card-gradient {
+    @apply relative bg-gradient-to-br from-[#1e1e1e] to-[#1a1a1a];
+  }
+
+  .shadow-dark-glow {
+    @apply shadow-lg shadow-black/20;
+  }
+
+  .shadow-orange-glow {
+    @apply shadow-lg shadow-[#b35309]/20;
+  }
+
+  .bg-dark-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23232323' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-in-out;
+  }
+
+  .animate-pulse-slow {
+    animation: pulseSlow 3s infinite;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes pulseSlow {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  .delay-100 {
+    animation-delay: 0.1s;
+  }
+
+  .delay-200 {
+    animation-delay: 0.2s;
+  }
+
+  .delay-300 {
+    animation-delay: 0.3s;
+  }
+}
