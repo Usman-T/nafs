@@ -10,12 +10,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <Link href="/" className="flex items-center gap-2">
             <MoonIcon className="h-6 w-6 text-[#d65d0e]" />
             <span className="text-xl font-bold text-[#e0e0e0]">
-              Spiritual Path
+              Nafs
             </span>
           </Link>
           <nav className="flex items-center gap-4">
             <Link
-              href="/sign-in"
+              href="/login"
               className="inline-flex h-9 items-center justify-center rounded-md border border-[#2e2e2e] bg-transparent px-4 py-2 text-sm font-medium text-[#e0e0e0] shadow-sm transition-colors hover:bg-[#1e1e1e] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#d65d0e]"
             >
               Sign In
@@ -33,11 +33,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div className="flex items-center gap-2 mb-4 md:mb-0">
               <MoonIcon className="h-5 w-5 text-[#d65d0e]" />
               <span className="text-lg font-bold text-[#e0e0e0]">
-                Spiritual Path
+                Nafs
               </span>
             </div>
             <div className="text-sm text-[#909090]">
-              &copy; {new Date().getFullYear()} Spiritual Path. All rights
+              &copy; {new Date().getFullYear()} Nafs. All rights
               reserved.
             </div>
           </div>

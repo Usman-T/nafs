@@ -30,7 +30,7 @@ export default function CompletePage() {
         </div>
         <h1 className="text-3xl font-bold text-dark-fg0">You're All Set!</h1>
         <p className="text-lg text-dark-fg1 max-w-2xl mx-auto">
-          You're ready to begin your spiritual journey with Spiritual Path
+          You're ready to begin your spiritual journey with Nafs
         </p>
       </div>
 

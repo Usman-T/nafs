@@ -7,7 +7,7 @@ export default function OnboardingPage() {
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-dark-fg0">Welcome to Spiritual Path</h1>
+        <h1 className="text-4xl font-bold text-dark-fg0">Welcome to Nafs</h1>
         <p className="text-xl text-dark-fg1 max-w-2xl mx-auto">Your journey to spiritual enlightenment begins here</p>
       </div>
 
@@ -18,7 +18,7 @@ export default function OnboardingPage() {
             <div className="space-y-4 animate-slide-up">
               <h2 className="text-2xl font-bold text-dark-fg0">Track Your Spiritual Journey</h2>
               <p className="text-dark-fg1">
-                Spiritual Path helps you monitor your progress across seven key dimensions of Islamic spirituality,
+                Nafs helps you monitor your progress across seven key dimensions of Islamic spirituality,
                 complete challenges, and grow closer to Allah.
               </p>
               <ul className="space-y-2">

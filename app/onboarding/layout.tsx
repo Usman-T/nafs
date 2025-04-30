@@ -13,7 +13,7 @@ export default function OnboardingLayout({
         <div className="container flex h-16 items-center justify-between py-4">
           <Link href="/" className="flex items-center gap-2">
             <Moon className="h-6 w-6 text-dark-orange-light" />
-            <span className="text-xl font-bold text-dark-fg0">Spiritual Path</span>
+            <span className="text-xl font-bold text-dark-fg0">Nafs</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/sign-in" className="text-sm font-medium text-dark-fg1 hover:text-dark-fg0 transition-colors">
@@ -30,10 +30,10 @@ export default function OnboardingLayout({
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
               <Moon className="h-5 w-5 text-dark-orange-light" />
-              <span className="text-lg font-bold text-dark-fg0">Spiritual Path</span>
+              <span className="text-lg font-bold text-dark-fg0">Nafs</span>
             </div>
             <div className="text-sm text-dark-fg2">
-              &copy; {new Date().getFullYear()} Spiritual Path. All rights reserved.
+              &copy; {new Date().getFullYear()} Nafs. All rights reserved.
             </div>
           </div>
         </div>

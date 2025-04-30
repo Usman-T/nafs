@@ -112,7 +112,7 @@ export default function LandingPage() {
         <div className="container flex h-16 items-center justify-between py-4">
           <div className="flex items-center gap-2">
             <Moon className="h-6 w-6 text-[#d65d0e]" />
-            <span className="text-xl font-bold text-[#e0e0e0]">Spiritual Path</span>
+            <span className="text-xl font-bold text-[#e0e0e0]">Nafs</span>
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <Link href="#features" className="text-sm font-medium text-[#909090] hover:text-[#d65d0e]">
@@ -471,7 +471,7 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
               <Moon className="h-5 w-5 text-[#d65d0e]" />
-              <span className="text-lg font-bold text-[#e0e0e0]">Spiritual Path</span>
+              <span className="text-lg font-bold text-[#e0e0e0]">Nafs</span>
             </div>
             <nav className="flex flex-wrap justify-center gap-6 mb-4 md:mb-0">
               <Link href="#" className="text-sm text-[#909090] hover:text-[#d65d0e]">
@@ -491,7 +491,7 @@ export default function LandingPage() {
               </Link>
             </nav>
             <div className="text-sm text-[#909090]">
-              &copy; {new Date().getFullYear()} Spiritual Path. All rights reserved.
+              &copy; {new Date().getFullYear()} Nafs. All rights reserved.
             </div>
           </div>
         </div>
