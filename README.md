@@ -14,3 +14,6 @@ We'll be using next-auth along with Auth.js to setup the authentication. The ste
 - Install next-auth and setup the auth.config.ts
 - Setup the server actions
 - Connect the actions with the form actions
+
+## Authenticaton - UXs
+Alright, now the form actions are correctly linked up witht he registration forms and stuff, i think we should now opt to making the Register and Login Pages more user friendly in the UX point of things, doing basic error handling like "unique" constraint errors and stuff
