@@ -36,7 +36,7 @@ export default function DashboardPage() {
             <div className="text-sm font-medium text-dark-fg0">1/3 days</div>
           </div>
           <Progress
-            value={33.33}
+      value={33.33}
             className="h-2 bg-dark-bg2"
             indicatorClassName="bg-gradient-to-r from-dark-orange to-dark-orange-light"
           />
@@ -88,7 +88,6 @@ export default function DashboardPage() {
         </CardFooter>
       </Card>
 
-      {/* Dimension Tracker */}
       <Card className="border-dark-bg2 bg-dark-bg1 card-gradient shadow-dark-glow overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-dark-orange to-dark-orange-light opacity-50"></div>
         <CardHeader className="flex flex-row items-center justify-between pb-2">

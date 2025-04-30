@@ -112,7 +112,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   )
 
   const DesktopSidebar = () => (
-    <div className="hidden h-screen w-64 flex-col border-r border-dark-bg2 bg-dark-bg0 md:flex">
+    <div className="sticky z-10 top-0  hidden h-screen w-64 flex-col border-r border-dark-bg2 bg-dark-bg0 md:flex">
       <div className="flex h-16 items-center border-b border-dark-bg2 px-6">
         <Link href="/dashboard" className="flex items-center gap-2">
           <Moon className="h-6 w-6 text-dark-orange-light" />
@@ -189,7 +189,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-dark-bg1 border-dark-bg2 text-dark-fg0">
+         <DropdownMenuContent align="end" className="bg-dark-bg1 border-dark-bg2 text-dark-fg0">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-dark-bg2" />
                 <DropdownMenuItem className="hover:bg-dark-bg2">
@@ -214,38 +214,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <MobileNav />
       </div>
 
-      <Sheet open={isOpen && isMobile} onOpenChange={setIsOpen}>
-        <SheetContent side="left" className="w-64 border-r border-dark-bg2 bg-dark-bg0 p-0">
-          <div className="flex h-16 items-center justify-between border-b border-dark-bg2 px-6">
-            <Link href="/dashboard" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
-              <Moon className="h-6 w-6 text-dark-orange-light" />
-              <span className="text-xl font-bold text-dark-fg0">Spiritual Path</span>
-            </Link>
-            <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-          <div className="flex-1 overflow-auto p-4">
-            <nav className="flex flex-col gap-2">
-              {navItems.map((item) => (
-                <NavLink key={item.name} item={item} />
-              ))}
-            </nav>
-          </div>
-          <div className="border-t border-dark-bg2 p-4">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-8 w-8 border border-dark-bg2">
-                <AvatarImage src="/placeholder.svg?height=32&width=32" alt="@abdullah" />
-                <AvatarFallback className="bg-dark-bg2 text-dark-fg0">A</AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="text-sm font-medium text-dark-fg0">Abdullah</p>
-                <p className="text-xs text-dark-fg2">abdullah@example.com</p>
-              </div>
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
     </div>
   )
 }

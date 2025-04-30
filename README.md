@@ -17,3 +17,6 @@ We'll be using next-auth along with Auth.js to setup the authentication. The ste
 
 ## Authenticaton - UXs
 Alright, now the form actions are correctly linked up witht he registration forms and stuff, i think we should now opt to making the Register and Login Pages more user friendly in the UX point of things, doing basic error handling like "unique" constraint errors and stuff
+
+## App Work
+After the UX has been put in place for the website, we will then put the entire app onto mobile and set up the .apk and try to make it work offline too
