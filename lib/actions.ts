@@ -72,7 +72,7 @@ export const createUser = async (prevState: State, formData: FormData) => {
   const passwordHash = await bcrypt.hash(password, saltRounds);
 
   try {
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         name: name,
         email: email,
@@ -81,7 +81,6 @@ export const createUser = async (prevState: State, formData: FormData) => {
     });
 
     await signIn("credentials", {
-      redirect: false,
       email,
       password,
     });
@@ -123,7 +122,6 @@ export const login = async (prevState: loginState, formData: FormData) => {
     await signIn("credentials", {
       email,
       password,
-      redirect: false,
     });
 
     return { message: "Login successful!", errors: {} };
@@ -144,8 +142,6 @@ export const login = async (prevState: loginState, formData: FormData) => {
     }
     throw error;
   }
-
-
 };
 
 export const logout = async () => {

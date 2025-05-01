@@ -35,7 +35,7 @@ export default function SignupPage() {
   );
 
   const getFirstError = (field: keyof State["errors"]) =>
-    state.errors?.[field]?.[0];
+    state?.errors?.[field]?.[0];
 
   return (
     <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2] flex flex-col">
@@ -89,17 +89,22 @@ export default function SignupPage() {
                   />
                 </svg>
               )}
-              <span>{isPending ? "Signing up..." : "Continue with Google"}</span>
+              <span>
+                {isPending ? "Signing up..." : "Continue with Google"}
+              </span>
             </Button>
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <Separator className="w-full bg-[#3c3836]" />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-[#1d2021] px-2 text-xs text-[#a89984]">OR CONTINUE WITH EMAIL</span>
+                <span className="bg-[#1d2021] px-2 text-xs text-[#a89984]">
+                  OR CONTINUE WITH EMAIL
+                </span>
               </div>
             </div>
             <form ref={formRef} action={formAction} className="space-y-4">
+              <input type="hidden" name="redirectTo" value="/dashboard" />
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2 col-span-2">
                   <Label htmlFor="name">Name</Label>
@@ -133,7 +138,7 @@ export default function SignupPage() {
                     </p>
                   )}
                 </div>
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
                   <Input
                     id="password"
@@ -149,7 +154,7 @@ export default function SignupPage() {
                     </p>
                   )}
                 </div>
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2 ">
                   <Label htmlFor="confirm">Confirm Password</Label>
                   <Input
                     id="confirm"

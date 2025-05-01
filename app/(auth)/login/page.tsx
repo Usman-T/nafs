@@ -3,7 +3,7 @@
 import type React from "react";
 
 import Link from "next/link";
-import { useActionState, useRef, } from "react";
+import { useActionState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Moon, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,18 +12,17 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { login, loginState } from "@/lib/actions";
-import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const initialState: loginState = { message: null, errors: {} };
   const formRef = useRef<HTMLFormElement>(null);
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
   const [state, formAction, isPending] = useActionState(login, initialState);
 
   const getFirstError = (field: keyof loginState["errors"]) =>
-    state.errors?.[field]?.[0];
+    state?.errors?.[field]?.[0];
+
+  console.log('Yes we logged in haha')
 
   return (
     <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2] flex flex-col">
@@ -94,6 +93,7 @@ export default function LoginPage() {
             </div>
 
             <form action={formAction} ref={formRef} className="space-y-4">
+              <input type="hidden" name="redirectTo" value="/dashboard" />
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -161,13 +161,12 @@ export default function LoginPage() {
                   </>
                 )}
               </Button>{" "}
-              <input type="hidden" name="redirectTo" value={callbackUrl} />
             </form>
           </motion.div>
 
           <div className="mt-6 text-center text-sm text-[#a89984]">
             Don&apos;t have an account?{" "}
-            <Link href="/regsiter" className="text-[#fe8019] hover:underline">
+            <Link href="/register" className="text-[#fe8019] hover:underline">
               Sign up
             </Link>
           </div>
