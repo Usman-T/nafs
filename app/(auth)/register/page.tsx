@@ -1,19 +1,21 @@
 "use client";
 
+import type React from "react";
+
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Moon, ArrowRight, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useRef } from "react";
 import { useActionState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
-import Link from "next/link";
-
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { createUser, State } from "@/lib/actions";
 
-export default function RegisterPage() {
+export default function SignupPage() {
   const initialState: State = { message: null, errors: {} };
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
@@ -32,56 +34,144 @@ export default function RegisterPage() {
     initialState
   );
 
-  const getFirstError = (field: keyof State["errors"]) => state.errors?.[field]?.[0];
+  const getFirstError = (field: keyof State["errors"]) =>
+    state.errors?.[field]?.[0];
 
   return (
-    <form ref={formRef} action={formAction}>
-      <Card className="border-[#2e2e2e] bg-[#1e1e1e]/50 backdrop-blur-sm">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center text-[#e0e0e0]">
-            Create an account
-          </CardTitle>
-          <CardDescription className="text-center text-[#909090]">
-            Begin your journey to spiritual enlightenment
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {["name", "email", "password", "confirm"].map((field) => (
-            <div className="space-y-2" key={field}>
-              <Label htmlFor={field} className="text-[#e0e0e0]">
-                {field.charAt(0).toUpperCase() + field.slice(1)}
-              </Label>
-              <Input
-                id={field}
-                name={field}
-                type={field.includes("password") ? "password" : "text"}
-                className="border-[#2e2e2e] bg-[#121212] text-[#e0e0e0] focus-visible:ring-[#d65d0e]"
-              />
-              {getFirstError(field as keyof State["errors"]) && (
-                <p className="mt-1 text-sm text-red-500">{getFirstError(field as keyof State["errors"])}</p>
-              )}
-            </div>
-          ))}
-          <div className="flex items-center space-x-2">
-            <Checkbox id="terms" name="terms" className="border-[#2e2e2e] data-[state=checked]:bg-[#d65d0e]" />
-            <label htmlFor="terms" className="text-sm text-[#909090]">
-              I agree to the{" "}
-              <Link href="#" className="text-[#d65d0e] underline hover:text-[#fe8019]">terms</Link> and{" "}
-              <Link href="#" className="text-[#d65d0e] underline hover:text-[#fe8019]">privacy</Link>
-            </label>
+    <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2] flex flex-col">
+      <div className="flex-1 flex flex-col justify-center items-center p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <Link href="/" className="inline-flex items-center gap-2 mb-8">
+              <Moon className="h-6 w-6 text-[#fe8019]" />
+              <span className="text-xl font-bold">Nafs</span>
+            </Link>
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h1 className="text-3xl font-bold mb-2">Create an account</h1>
+              <p className="text-[#a89984]">
+                Start your spiritual journey today
+              </p>
+            </motion.div>
           </div>
-          <input type="hidden" name="redirectTo" value={callbackUrl} />
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          <Button type="submit" disabled={isPending} className="w-full bg-[#d65d0e] hover:bg-[#b35309] text-white">
-            {isPending ? "Creating..." : "Create Account"}
-          </Button>
-          <p className="text-center text-sm text-[#909090]">
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <form ref={formRef} action={formAction} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2 col-span-2">
+                    <Label htmlFor="name">Name</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="name@example.com"
+                      className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] focus-visible:ring-[#fe8019]"
+                    />
+                    {getFirstError("name" as keyof State["errors"]) && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {getFirstError("name" as keyof State["errors"])}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      name="email"
+                      placeholder="name@example.com"
+                      className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] focus-visible:ring-[#fe8019]"
+                    />
+                    {getFirstError("email" as keyof State["errors"]) && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {getFirstError("email" as keyof State["errors"])}
+                      </p>
+                    )}
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    name="password"
+                    placeholder="••••••••"
+                    className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] focus-visible:ring-[#fe8019]"
+                  />
+                  {getFirstError("password" as keyof State["errors"]) && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {getFirstError("password" as keyof State["errors"])}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="confirm">Confirm Password</Label>
+                  <Input
+                    id="confirm"
+                    type="password"
+                    name="confirm"
+                    placeholder="••••••••"
+                    className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] focus-visible:ring-[#fe8019]"
+                  />
+                  {getFirstError("confirm" as keyof State["errors"]) && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {getFirstError("confirm" as keyof State["errors"])}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="terms"
+                  name="terms"
+                  className="border-[#3c3836] data-[state=checked]:bg-[#fe8019] data-[state=checked]:border-[#fe8019]"
+                />
+                <label
+                  htmlFor="terms"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#a89984]"
+                >
+                  I agree to the{" "}
+                  <Link href="#" className="text-[#fe8019] hover:underline">
+                    terms of service
+                  </Link>{" "}
+                  and{" "}
+                  <Link href="#" className="text-[#fe8019] hover:underline">
+                    privacy policy
+                  </Link>
+                </label>
+              </div>
+              <Button
+                type="submit"
+                className="w-full bg-[#fe8019] hover:bg-[#d65d0e] text-[#1d2021]"
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please
+                    wait
+                  </>
+                ) : (
+                  <>
+                    Create Account <ArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </form>
+          </motion.div>
+
+          <div className="mt-6 text-center text-sm text-[#a89984]">
             Already have an account?{" "}
-            <Link href="/login" className="text-[#d65d0e] hover:text-[#fe8019] underline">Sign in</Link>
-          </p>
-        </CardFooter>
-      </Card>
-    </form>
+            <Link href="/login" className="text-[#fe8019] hover:underline">
+              Sign in
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

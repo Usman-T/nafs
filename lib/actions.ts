@@ -4,7 +4,6 @@ import { signIn, signOut } from "@/auth";
 import prisma from "@/prisma";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 
 export type State = {

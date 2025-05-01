@@ -1,37 +1,73 @@
+"use client"
+
+import type React from "react"
+
 import Link from "next/link"
+import Image from "next/image"
+import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
 import {
-  Calendar,
-  Star,
-  Award,
-  ChevronRight,
-  Users,
+  Moon,
+  Menu,
+  X,
+  ArrowRight,
+  CheckCircle,
   BookOpen,
   Heart,
-  Moon,
+  Users,
   Compass,
-  HandIcon as PrayingHands,
   Sunrise,
+  Calendar,
 } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+// Custom PrayingHands icon
+function PrayingHands({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M7 11h3v7c0 .6-.4 1-1 1H7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1z" />
+      <path d="M15 7h3a1 1 0 0 1 1 1v7h-4" />
+      <path d="M4.6 9a9 9 0 0 1 .4-2.8A1 1 0 0 1 6 5.5h12a1 1 0 0 1 1 .7 9 9 0 0 1 .4 2.8" />
+      <path d="M7 5.5V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v.5" />
+      <path d="M14 16v-3a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3" />
+    </svg>
+  )
+}
 
-// Update the SpiderChart function to use dark mode colors
-function SpiderChart({ small, large }: { small?: boolean; large?: boolean }) {
-  const size = small ? 120 : large ? 350 : 250
+// Animated radar chart component
+function AnimatedRadarChart() {
+  const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setProgress(1)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  const dimensions = [
+    { name: "Salah", value: 0.8 * progress },
+    { name: "Quran", value: 0.6 * progress },
+    { name: "Charity", value: 0.7 * progress },
+    { name: "Community", value: 0.5 * progress },
+    { name: "Dhikr", value: 0.9 * progress },
+    { name: "Knowledge", value: 0.7 * progress },
+    { name: "Character", value: 0.8 * progress },
+  ]
+
+  const size = 300
   const center = size / 2
   const radius = size * 0.4
-
-  // 7 dimensions with different values (0-1)
-  const dimensions = [
-    { name: "Salah", value: 0.8 },
-    { name: "Quran", value: 0.6 },
-    { name: "Charity", value: 0.7 },
-    { name: "Community", value: 0.5 },
-    { name: "Dhikr", value: 0.9 },
-    { name: "Knowledge", value: 0.7 },
-    { name: "Character", value: 0.8 },
-  ]
 
   // Calculate points on the chart
   const points = dimensions.map((dim, i) => {
@@ -61,437 +97,514 @@ function SpiderChart({ small, large }: { small?: boolean; large?: boolean }) {
           stroke="#2e2e2e"
           strokeWidth="1"
           strokeDasharray={i === 4 ? "none" : "2,2"}
+          style={{ transition: "all 0.5s ease-out" }}
         />
       ))}
 
       {/* Axis lines */}
       {points.map((point, i) => (
-        <line key={i} x1={center} y1={center} x2={point.fullX} y2={point.fullY} stroke="#2e2e2e" strokeWidth="1" />
+        <line
+          key={i}
+          x1={center}
+          y1={center}
+          x2={point.fullX}
+          y2={point.fullY}
+          stroke="#2e2e2e"
+          strokeWidth="1"
+          style={{ transition: "all 0.5s ease-out" }}
+        />
       ))}
 
+      {/* Define gradient for filled area */}
+      <defs>
+        <linearGradient id="spiderGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#d65d0e" stopOpacity="0.7" />
+          <stop offset="100%" stopColor="#fe8019" stopOpacity="0.5" />
+        </linearGradient>
+      </defs>
+
       {/* Filled area */}
-      <path d={path} fill="#b35309" fillOpacity="0.3" stroke="#d65d0e" strokeWidth="2" />
+      <path
+        d={path}
+        fill="url(#spiderGradient)"
+        stroke="#fe8019"
+        strokeWidth="2"
+        style={{ transition: "all 0.8s ease-out" }}
+      />
 
       {/* Data points */}
       {points.map((point, i) => (
-        <circle key={i} cx={point.x} cy={point.y} r="4" fill="#d65d0e" />
+        <circle key={i} cx={point.x} cy={point.y} r="4" fill="#fe8019" style={{ transition: "all 0.8s ease-out" }} />
       ))}
 
-      {/* Labels (only for large version) */}
-      {large &&
-        points.map((point, i) => {
-          const angle = (Math.PI * 2 * i) / dimensions.length - Math.PI / 2
-          const labelRadius = radius * 1.15
-          const labelX = center + labelRadius * Math.cos(angle)
-          const labelY = center + labelRadius * Math.sin(angle)
+      {/* Labels */}
+      {points.map((point, i) => {
+        const angle = (Math.PI * 2 * i) / dimensions.length - Math.PI / 2
+        const labelRadius = radius * 1.15
+        const labelX = center + labelRadius * Math.cos(angle)
+        const labelY = center + labelRadius * Math.sin(angle)
 
-          return (
-            <text
-              key={i}
-              x={labelX}
-              y={labelY}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fontSize="12"
-              fill="#e0e0e0"
-              fontWeight="500"
-            >
-              {point.name}
-            </text>
-          )
-        })}
+        return (
+          <text
+            key={i}
+            x={labelX}
+            y={labelY}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="12"
+            fill="#ebdbb2"
+            fontWeight="500"
+          >
+            {point.name}
+          </text>
+        )
+      })}
     </svg>
   )
 }
 
-// Replace the entire return statement with this dark mode version
-export default function LandingPage() {
+// Feature card component
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
-    <div className="flex min-h-screen flex-col bg-[#121212]">
-      <header className="sticky top-0 z-40 border-b border-[#2e2e2e] bg-[#121212]/80 backdrop-blur-sm">
-        <div className="container flex h-16 items-center justify-between py-4">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      viewport={{ once: true }}
+      className="bg-[#282828] border border-[#3c3836] rounded-lg p-6 hover:border-[#fe8019] transition-all duration-300"
+    >
+      <div className="h-12 w-12 rounded-lg bg-[#3c3836] flex items-center justify-center mb-4">{icon}</div>
+      <h3 className="text-xl font-bold mb-2 text-[#ebdbb2]">{title}</h3>
+      <p className="text-[#a89984]">{description}</p>
+    </motion.div>
+  )
+}
+
+export default function LandingPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  return (
+    <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2]">
+      {/* Header */}
+      <header className="sticky top-0 left-0 right-0 z-50 border-b border-[#3c3836] bg-[#1d2021]/95 backdrop-blur-md">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Moon className="h-6 w-6 text-[#d65d0e]" />
-            <span className="text-xl font-bold text-[#e0e0e0]">Nafs</span>
+            <Moon className="h-6 w-6 text-[#fe8019]" />
+            <span className="text-xl font-bold">Nafs</span>
           </div>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="#features" className="text-sm font-medium text-[#909090] hover:text-[#d65d0e]">
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-8">
+            <Link
+              href="#features"
+              className="text-sm font-medium text-[#a89984] hover:text-[#fe8019] transition-colors"
+            >
               Features
             </Link>
-            <Link href="#dimensions" className="text-sm font-medium text-[#909090] hover:text-[#d65d0e]">
+            <Link
+              href="#dimensions"
+              className="text-sm font-medium text-[#a89984] hover:text-[#fe8019] transition-colors"
+            >
               Dimensions
             </Link>
-            <Link href="#challenges" className="text-sm font-medium text-[#909090] hover:text-[#d65d0e]">
-              Challenges
+            <Link href="#about" className="text-sm font-medium text-[#a89984] hover:text-[#fe8019] transition-colors">
+              About
             </Link>
           </nav>
+
           <div className="flex items-center gap-4">
             <Link
-              href="#"
-              className="hidden sm:inline-flex h-9 items-center justify-center rounded-md border border-[#2e2e2e] bg-transparent px-4 py-2 text-sm font-medium text-[#e0e0e0] shadow-sm transition-colors hover:bg-[#1e1e1e] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#d65d0e]"
+              href="/login"
+              className="hidden sm:inline-flex h-9 items-center justify-center rounded-md border border-[#3c3836] bg-transparent px-4 py-2 text-sm font-medium text-[#ebdbb2] shadow-sm transition-colors hover:bg-[#3c3836]"
             >
-              Sign In
+              Login
             </Link>
             <Link
-              href="#"
-              className="inline-flex h-9 items-center justify-center rounded-md bg-[#d65d0e] px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#b35309] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#d65d0e]"
+              href="/register"
+              className="inline-flex h-9 items-center justify-center rounded-md bg-[#fe8019] px-4 py-2 text-sm font-medium text-[#1d2021] shadow-sm transition-colors hover:bg-[#d65d0e]"
             >
-              Get Started
+              Sign Up
             </Link>
+
+            {/* Mobile menu button */}
+            <button
+              className="md:hidden rounded-md p-2 text-[#a89984] hover:bg-[#3c3836] hover:text-[#ebdbb2]"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-[#3c3836] bg-[#1d2021]/95 backdrop-blur-md">
+            <div className="container mx-auto py-3 space-y-1">
+              {["Features", "Dimensions", "About"].map((item) => (
+                <Link
+                  key={item}
+                  href={`#${item.toLowerCase()}`}
+                  className="block px-3 py-2 rounded-md text-base font-medium text-[#a89984] hover:text-[#fe8019] hover:bg-[#3c3836]"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item}
+                </Link>
+              ))}
+              <div className="pt-2 border-t border-[#3c3836] mt-2">
+                <Link
+                  href="/login"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-[#a89984] hover:text-[#fe8019] hover:bg-[#3c3836]"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Login
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
-      <main className="flex-1">
-        <section className="relative overflow-hidden py-12 md:py-20 lg:py-24">
-          <div className="absolute inset-0 bg-[url('/placeholder.svg?height=600&width=800')] opacity-5 bg-repeat"></div>
-          <div className="container relative">
-            <div className="grid gap-8 md:grid-cols-2 md:gap-12">
-              <div className="flex flex-col justify-center space-y-4">
-                <div className="inline-flex items-center rounded-full border border-[#2e2e2e] bg-[#1e1e1e] px-3 py-1 text-sm">
-                  <Star className="mr-1 h-3.5 w-3.5 text-[#d65d0e]" />
-                  <span className="text-[#e0e0e0]">Islamic Spiritual Growth</span>
-                </div>
-                <h1 className="text-4xl font-extrabold tracking-tight text-[#e0e0e0] sm:text-5xl md:text-6xl">
-                  Track Your Journey to Spiritual Enlightenment
-                </h1>
-                <p className="max-w-[600px] text-lg text-[#909090]">
-                  Monitor your spiritual progress, strengthen your faith, and grow closer to Allah with our
-                  comprehensive Islamic enlightenment tracker.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                  <Link
-                    href="#"
-                    className="inline-flex h-10 items-center justify-center rounded-md bg-[#d65d0e] px-8 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#b35309] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#d65d0e]"
-                  >
-                    Begin Your Journey
-                  </Link>
-                  <Link
-                    href="#features"
-                    className="inline-flex h-10 items-center justify-center rounded-md border border-[#2e2e2e] bg-transparent px-8 text-sm font-medium text-[#e0e0e0] shadow-sm transition-colors hover:bg-[#1e1e1e] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#d65d0e]"
-                  >
-                    Learn More
-                  </Link>
-                </div>
+
+      {/* Main Content */}
+      <main>
+        {/* Hero Section */}
+        <section className="pt-16 pb-16 md:pt-24 md:pb-20">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col md:flex-row items-center">
+              {/* Left Column - Text Content */}
+              <div className="w-full md:w-1/2 md:pr-8 mb-10 md:mb-0">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="max-w-xl"
+                >
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+                    Nurture Your <span className="text-[#fe8019]">Spiritual Growth</span>
+                  </h1>
+                  <p className="text-lg text-[#a89984] mb-8">
+                    Track your Islamic habits, visualize your spiritual dimensions, and embark on a journey of
+                    self-improvement with our comprehensive habit tracking app.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Link
+                      href="/signup"
+                      className="inline-flex h-12 items-center justify-center rounded-md bg-[#fe8019] px-6 text-base font-medium text-[#1d2021] shadow-md transition-colors hover:bg-[#d65d0e]"
+                    >
+                      Start Free Trial
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                    <Link
+                      href="#features"
+                      className="inline-flex h-12 items-center justify-center rounded-md border border-[#3c3836] bg-[#282828] px-6 text-base font-medium text-[#ebdbb2] shadow-sm transition-colors hover:bg-[#3c3836]"
+                    >
+                      Learn More
+                    </Link>
+                  </div>
+                </motion.div>
               </div>
-              <div className="flex items-center justify-center">
-                <div className="relative h-[350px] w-[350px] overflow-hidden rounded-lg border-4 border-[#2e2e2e] bg-[#1e1e1e] shadow-xl">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="h-[250px] w-[250px]">
-                      <SpiderChart />
-                    </div>
+
+              {/* Right Column - Animated Visualization */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                className="w-full md:w-1/2 flex justify-center"
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-[#fe8019]/10 rounded-full blur-[100px]"></div>
+                  <div className="relative bg-[#282828] border border-[#3c3836] rounded-2xl p-8 shadow-lg">
+                    <AnimatedRadarChart />
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </section>
 
-        <section id="features" className="py-12 bg-[#1a1a1a]">
-          <div className="container">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-[#e0e0e0] mb-4">Main Features</h2>
-              <p className="text-[#909090] max-w-2xl mx-auto">
-                Track your spiritual journey with our comprehensive set of tools designed to help you grow in your
-                Islamic faith.
+        {/* Features Section */}
+        <section id="features" className="py-16 bg-[#282828]">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Key Features</h2>
+              <p className="text-[#a89984] max-w-2xl mx-auto">
+                Our platform offers tools to help you track, visualize, and improve your spiritual journey.
               </p>
-            </div>
-            <div className="grid gap-8 md:grid-cols-3">
-              <Card className="bg-[#1e1e1e] border-[#2e2e2e]">
-                <CardHeader>
-                  <Calendar className="h-10 w-10 text-[#d65d0e] mb-2" />
-                  <CardTitle className="text-[#e0e0e0]">Progress Calendars</CardTitle>
-                  <CardDescription className="text-[#909090]">
-                    Track your daily prayers, Quran readings, and other spiritual practices.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-7 gap-2">
-                    {Array.from({ length: 14 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className={`h-8 w-8 rounded-md flex items-center justify-center text-xs font-medium ${
-                          i % 3 === 0
-                            ? "bg-[#d65d0e] text-white"
-                            : i % 4 === 0
-                              ? "bg-[#b35309] text-white"
-                              : "bg-[#2e2e2e] text-[#e0e0e0]"
-                        }`}
-                      >
-                        {i + 1}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Link
-                    href="#"
-                    className="inline-flex items-center text-sm font-medium text-[#d65d0e] hover:text-[#fe8019]"
-                  >
-                    Learn more
-                    <ChevronRight className="ml-1 h-4 w-4" />
-                  </Link>
-                </CardFooter>
-              </Card>
+            </motion.div>
 
-              <Card className="bg-[#1e1e1e] border-[#2e2e2e]">
-                <CardHeader>
-                  <Compass className="h-10 w-10 text-[#d65d0e] mb-2" />
-                  <CardTitle className="text-[#e0e0e0]">Spiritual Dimensions</CardTitle>
-                  <CardDescription className="text-[#909090]">
-                    Visualize your growth across 7 key dimensions of Islamic spirituality.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-[150px] flex items-center justify-center">
-                    <div className="h-[120px] w-[120px]">
-                      <SpiderChart small />
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Link
-                    href="#dimensions"
-                    className="inline-flex items-center text-sm font-medium text-[#d65d0e] hover:text-[#fe8019]"
-                  >
-                    Learn more
-                    <ChevronRight className="ml-1 h-4 w-4" />
-                  </Link>
-                </CardFooter>
-              </Card>
-
-              <Card className="bg-[#1e1e1e] border-[#2e2e2e]">
-                <CardHeader>
-                  <Award className="h-10 w-10 text-[#d65d0e] mb-2" />
-                  <CardTitle className="text-[#e0e0e0]">Spiritual Challenges</CardTitle>
-                  <CardDescription className="text-[#909090]">
-                    Complete challenges with 5 tasks each to grow in specific dimensions.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {["Prayer Focus", "Quran Memorization", "Charity"].map((challenge, i) => (
-                      <div key={i} className="flex items-center justify-between">
-                        <span className="text-sm text-[#e0e0e0]">{challenge}</span>
-                        <div className="flex">
-                          {Array.from({ length: 5 }).map((_, j) => (
-                            <div
-                              key={j}
-                              className={`h-4 w-4 rounded-full mx-0.5 ${j < i + 2 ? "bg-[#d65d0e]" : "bg-[#2e2e2e]"}`}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Link
-                    href="#challenges"
-                    className="inline-flex items-center text-sm font-medium text-[#d65d0e] hover:text-[#fe8019]"
-                  >
-                    Learn more
-                    <ChevronRight className="ml-1 h-4 w-4" />
-                  </Link>
-                </CardFooter>
-              </Card>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <FeatureCard
+                icon={<Calendar className="h-8 w-8 text-[#fe8019]" />}
+                title="Habit Tracking"
+                description="Track your daily prayers, Quran readings, charity, and other Islamic practices with streak goals."
+              />
+              <FeatureCard
+                icon={<Compass className="h-8 w-8 text-[#fe8019]" />}
+                title="Spiritual Dimensions"
+                description="Visualize your growth across 7 key dimensions of Islamic spirituality on an interactive radar chart."
+              />
+              <FeatureCard
+                icon={<PrayingHands className="h-8 w-8 text-[#fe8019]" />}
+                title="Prayer Tracking"
+                description="Never miss a prayer with timely reminders and track your consistency over time."
+              />
             </div>
           </div>
         </section>
 
-        <section id="dimensions" className="py-12 md:py-20">
-          <div className="container">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-[#e0e0e0] mb-4">7 Dimensions of Spiritual Growth</h2>
-              <p className="text-[#909090] max-w-2xl mx-auto">
+        {/* Dimensions Section */}
+        <section id="dimensions" className="py-16">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">7 Dimensions of Spiritual Growth</h2>
+              <p className="text-[#a89984] max-w-2xl mx-auto">
                 Our tracker helps you visualize and improve in these key areas of Islamic spirituality.
               </p>
-            </div>
-            <div className="grid gap-8 md:grid-cols-2">
-              <div className="flex items-center justify-center">
-                <div className="h-[350px] w-[350px]">
-                  <SpiderChart large />
-                </div>
-              </div>
-              <div className="space-y-6">
-                {[
-                  {
-                    icon: <PrayingHands className="h-6 w-6 text-[#d65d0e]" />,
-                    title: "Salah (Prayer)",
-                    description: "Consistency and quality of your five daily prayers",
-                  },
-                  {
-                    icon: <BookOpen className="h-6 w-6 text-[#d65d0e]" />,
-                    title: "Quran",
-                    description: "Regular recitation, understanding and memorization",
-                  },
-                  {
-                    icon: <Heart className="h-6 w-6 text-[#d65d0e]" />,
-                    title: "Charity",
-                    description: "Giving zakat, sadaqah and helping others",
-                  },
-                  {
-                    icon: <Users className="h-6 w-6 text-[#d65d0e]" />,
-                    title: "Community",
-                    description: "Involvement with the Muslim ummah",
-                  },
-                  {
-                    icon: <Moon className="h-6 w-6 text-[#d65d0e]" />,
-                    title: "Dhikr",
-                    description: "Remembrance of Allah throughout your day",
-                  },
-                  {
-                    icon: <Compass className="h-6 w-6 text-[#d65d0e]" />,
-                    title: "Knowledge",
-                    description: "Learning Islamic teachings and wisdom",
-                  },
-                  {
-                    icon: <Sunrise className="h-6 w-6 text-[#d65d0e]" />,
-                    title: "Character",
-                    description: "Developing akhlaq (good character) in daily life",
-                  },
-                ].map((dimension, i) => (
-                  <div key={i} className="flex items-start">
-                    <div className="mr-4 mt-1">{dimension.icon}</div>
-                    <div>
-                      <h3 className="font-medium text-[#e0e0e0]">{dimension.title}</h3>
-                      <p className="text-sm text-[#909090]">{dimension.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
+            </motion.div>
 
-        <section id="challenges" className="py-12 md:py-20 bg-[#1a1a1a]">
-          <div className="container">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-[#e0e0e0] mb-4">Spiritual Challenges</h2>
-              <p className="text-[#909090] max-w-2xl mx-auto">
-                Complete challenges to grow in specific dimensions of your spiritual journey.
-              </p>
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {[
                 {
-                  title: "Prayer Excellence",
-                  dimension: "Salah",
-                  tasks: [
-                    "Pray all five daily prayers on time for 7 days",
-                    "Add two sunnah prayers daily for 5 days",
-                    "Learn the meaning of what you recite in prayer",
-                    "Pray with full concentration for all prayers",
-                    "Pray tahajjud (night prayer) for 3 nights",
-                  ],
+                  icon: <PrayingHands className="h-6 w-6 text-[#fe8019]" />,
+                  title: "Salah (Prayer)",
+                  description: "Consistency and quality of your five daily prayers.",
                 },
                 {
-                  title: "Quran Connection",
-                  dimension: "Quran",
-                  tasks: [
-                    "Read Quran daily for at least 15 minutes",
-                    "Memorize a new surah",
-                    "Study tafsir (explanation) of 5 verses",
-                    "Implement one Quranic teaching in your life",
-                    "Teach someone else what you've learned",
-                  ],
+                  icon: <BookOpen className="h-6 w-6 text-[#fe8019]" />,
+                  title: "Quran",
+                  description: "Regular recitation, understanding, and memorization.",
                 },
                 {
-                  title: "Community Service",
-                  dimension: "Community",
-                  tasks: [
-                    "Attend congregational prayer at the masjid",
-                    "Volunteer for a community service project",
-                    "Check on a sick or elderly community member",
-                    "Attend an Islamic lecture or class",
-                    "Invite someone for a meal",
-                  ],
+                  icon: <Heart className="h-6 w-6 text-[#fe8019]" />,
+                  title: "Charity",
+                  description: "Giving zakat, sadaqah, and helping others in need.",
                 },
-              ].map((challenge, i) => (
-                <Card key={i} className="bg-[#1e1e1e] border-[#2e2e2e]">
-                  <CardHeader>
-                    <div className="inline-flex items-center rounded-full border border-[#2e2e2e] bg-[#252525] px-3 py-1 text-sm mb-2">
-                      <span className="text-[#d65d0e]">{challenge.dimension}</span>
+                {
+                  icon: <Users className="h-6 w-6 text-[#fe8019]" />,
+                  title: "Community",
+                  description: "Involvement with the Muslim ummah and building relationships.",
+                },
+                {
+                  icon: <Moon className="h-6 w-6 text-[#fe8019]" />,
+                  title: "Dhikr",
+                  description: "Remembrance of Allah throughout your day.",
+                },
+                {
+                  icon: <Compass className="h-6 w-6 text-[#fe8019]" />,
+                  title: "Knowledge",
+                  description: "Learning Islamic teachings and wisdom.",
+                },
+                {
+                  icon: <Sunrise className="h-6 w-6 text-[#fe8019]" />,
+                  title: "Character",
+                  description: "Developing akhlaq (good character) in daily interactions.",
+                },
+              ].map((dimension, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  viewport={{ once: true }}
+                  className="bg-[#282828] border border-[#3c3836] rounded-lg p-5 hover:border-[#fe8019] transition-all duration-300"
+                >
+                  <div className="flex items-start">
+                    <div className="mr-4 p-2 rounded-md bg-[#3c3836]">{dimension.icon}</div>
+                    <div>
+                      <h3 className="font-medium text-[#ebdbb2]">{dimension.title}</h3>
+                      <p className="text-sm text-[#a89984]">{dimension.description}</p>
                     </div>
-                    <CardTitle className="text-[#e0e0e0]">{challenge.title}</CardTitle>
-                    <CardDescription className="text-[#909090]">
-                      Complete all 5 tasks to master this challenge
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2">
-                      {challenge.tasks.map((task, j) => (
-                        <li key={j} className="flex items-start">
-                          <div
-                            className={`mr-2 mt-1 h-4 w-4 rounded-full ${j < 2 ? "bg-[#d65d0e]" : "bg-[#2e2e2e]"}`}
-                          />
-                          <span className="text-sm text-[#e0e0e0]">{task}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                  <CardFooter>
-                    <Button className="w-full bg-[#d65d0e] hover:bg-[#b35309] text-white">Start Challenge</Button>
-                  </CardFooter>
-                </Card>
+                  </div>
+                </motion.div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="py-12 md:py-20">
-          <div className="container">
-            <div className="rounded-lg bg-[#1e1e1e] p-8 md:p-12 border border-[#2e2e2e]">
-              <div className="grid gap-6 md:grid-cols-2 md:gap-12">
-                <div>
-                  <h2 className="text-3xl font-bold text-[#e0e0e0] mb-4">Begin Your Spiritual Journey Today</h2>
-                  <p className="text-[#909090] mb-6">
-                    Join thousands of Muslims who are using our platform to track their spiritual growth, complete
-                    challenges, and strengthen their connection with Allah.
+        {/* About Section */}
+        <section id="about" className="py-16 bg-[#282828]">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">About Nafs</h2>
+              <p className="text-[#a89984] max-w-2xl mx-auto">
+                Nafs helps you cultivate consistent Islamic habits and track your progress toward spiritual growth.
+              </p>
+            </motion.div>
+
+            <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="w-full md:w-1/2"
+              >
+                <div className="max-w-lg">
+                  <h3 className="text-2xl md:text-3xl font-bold mb-4">Our Mission</h3>
+                  <p className="text-[#a89984] mb-6">
+                    We believe that consistent small actions lead to significant spiritual growth. Our mission is to
+                    help Muslims worldwide build and maintain beneficial habits that strengthen their connection with
+                    Allah.
                   </p>
-                  <Link
-                    href="#"
-                    className="inline-flex h-10 items-center justify-center rounded-md bg-[#d65d0e] px-8 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#b35309] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#d65d0e]"
-                  >
-                    Create Free Account
-                  </Link>
+                  <ul className="space-y-3">
+                    {[
+                      "Provide tools for tracking spiritual practices",
+                      "Visualize growth across multiple dimensions",
+                      "Foster a supportive community of believers",
+                      "Make Islamic self-improvement accessible to all",
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-start">
+                        <CheckCircle className="h-5 w-5 text-[#fe8019] mr-2 mt-0.5 flex-shrink-0" />
+                        <span className="text-[#ebdbb2]">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <div className="flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-4xl font-bold text-[#d65d0e] mb-2">7,500+</div>
-                    <p className="text-[#909090]">Muslims tracking their spiritual journey</p>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="w-full md:w-1/2"
+              >
+                <div className="bg-[#1d2021] border border-[#3c3836] rounded-lg p-6 shadow-lg">
+                  <div className="aspect-video relative overflow-hidden rounded-md">
+                    <Image
+                      src="/placeholder.svg?height=400&width=600&text=Nafs+App+Demo"
+                      alt="Nafs App Demo"
+                      width={600}
+                      height={400}
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#1d2021] to-transparent opacity-60"></div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </section>
+
+        {/* CTA Section */}
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="max-w-4xl mx-auto bg-[#282828] border border-[#3c3836] rounded-lg p-8 md:p-12 text-center relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#fe8019]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#fe8019]/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+
+              <div className="relative z-10">
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">Begin Your Spiritual Journey Today</h2>
+                <p className="text-[#a89984] max-w-2xl mx-auto mb-8">
+                  Join thousands of Muslims who are using our platform to track their spiritual growth and strengthen
+                  their connection with Allah.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link
+                    href="/signup"
+                    className="inline-flex h-12 items-center justify-center rounded-md bg-[#fe8019] px-8 text-base font-medium text-[#1d2021] shadow-md transition-colors hover:bg-[#d65d0e]"
+                  >
+                    Start Free Trial
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="inline-flex h-12 items-center justify-center rounded-md border border-[#3c3836] bg-[#3c3836] px-8 text-base font-medium text-[#ebdbb2] shadow-sm transition-colors hover:bg-[#504945]"
+                  >
+                    Sign In
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
       </main>
-      <footer className="border-t border-[#2e2e2e] bg-[#121212] py-6">
-        <div className="container">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <Moon className="h-5 w-5 text-[#d65d0e]" />
-              <span className="text-lg font-bold text-[#e0e0e0]">Nafs</span>
+
+      {/* Footer */}
+      <footer className="bg-[#1d2021] border-t border-[#3c3836] py-8">
+        <div className="container mx-auto px-4">
+          <div className="grid gap-8 md:grid-cols-3">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Moon className="h-6 w-6 text-[#fe8019]" />
+                <span className="text-xl font-bold">Nafs</span>
+              </div>
+              <p className="text-[#a89984] mb-4">
+                Track your spiritual journey and grow closer to Allah with our comprehensive Islamic self-improvement
+                platform.
+              </p>
             </div>
-            <nav className="flex flex-wrap justify-center gap-6 mb-4 md:mb-0">
-              <Link href="#" className="text-sm text-[#909090] hover:text-[#d65d0e]">
-                About
-              </Link>
-              <Link href="#" className="text-sm text-[#909090] hover:text-[#d65d0e]">
-                Features
-              </Link>
-              <Link href="#" className="text-sm text-[#909090] hover:text-[#d65d0e]">
-                Privacy
-              </Link>
-              <Link href="#" className="text-sm text-[#909090] hover:text-[#d65d0e]">
-                Terms
-              </Link>
-              <Link href="#" className="text-sm text-[#909090] hover:text-[#d65d0e]">
-                Contact
-              </Link>
-            </nav>
-            <div className="text-sm text-[#909090]">
+
+            <div>
+              <h3 className="font-medium text-[#ebdbb2] mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                {["Features", "Dimensions", "About", "Login", "Sign Up"].map((item) => (
+                  <li key={item}>
+                    <Link
+                      href={item === "Login" ? "/login" : item === "Sign Up" ? "/signup" : `#${item.toLowerCase()}`}
+                      className="text-[#a89984] hover:text-[#fe8019] transition-colors"
+                    >
+                      {item}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-medium text-[#ebdbb2] mb-4">Contact</h3>
+              <ul className="space-y-2 text-[#a89984]">
+                <li>Email: support@nafsapp.com</li>
+                <li>Follow us on social media</li>
+              </ul>
+              <div className="flex space-x-4 mt-4">
+                {["Twitter", "Facebook", "Instagram"].map((social) => (
+                  <Link
+                    key={social}
+                    href="#"
+                    className="h-8 w-8 rounded-full bg-[#3c3836] flex items-center justify-center text-[#a89984] hover:bg-[#fe8019] hover:text-[#1d2021] transition-colors"
+                  >
+                    <span className="sr-only">{social}</span>
+                    <div className="h-4 w-4" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-[#3c3836] mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+            <div className="text-sm text-[#a89984] mb-4 md:mb-0">
               &copy; {new Date().getFullYear()} Nafs. All rights reserved.
+            </div>
+            <div className="flex gap-6">
+              <Link href="#" className="text-sm text-[#a89984] hover:text-[#fe8019] transition-colors">
+                Privacy Policy
+              </Link>
+              <Link href="#" className="text-sm text-[#a89984] hover:text-[#fe8019] transition-colors">
+                Terms of Service
+              </Link>
             </div>
           </div>
         </div>
