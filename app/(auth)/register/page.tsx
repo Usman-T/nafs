@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Moon, ArrowRight, Loader2 } from "lucide-react";
@@ -14,6 +13,7 @@ import { useActionState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { createUser, State } from "@/lib/actions";
+import { Separator } from "@/components/ui/separator";
 
 export default function SignupPage() {
   const initialState: State = { message: null, errors: {} };
@@ -63,49 +63,89 @@ export default function SignupPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
+            <Button
+              className="w-full bg-[#3c3836] hover:bg-[#504945] text-[#ebdbb2] flex items-center justify-center gap-2 h-11 mb-6"
+              disabled={isPending}
+            >
+              {isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <svg className="h-5 w-5" viewBox="0 0 24 24">
+                  <path
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    fill="#4285F4"
+                  />
+                  <path
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    fill="#34A853"
+                  />
+                  <path
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    fill="#FBBC05"
+                  />
+                  <path
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    fill="#EA4335"
+                  />
+                </svg>
+              )}
+              <span>{isPending ? "Signing up..." : "Continue with Google"}</span>
+            </Button>
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <Separator className="w-full bg-[#3c3836]" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="bg-[#1d2021] px-2 text-xs text-[#a89984]">OR CONTINUE WITH EMAIL</span>
+              </div>
+            </div>
             <form ref={formRef} action={formAction} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2 col-span-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="name@example.com"
-                      className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] focus-visible:ring-[#fe8019]"
-                    />
-                    {getFirstError("name" as keyof State["errors"]) && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {getFirstError("name" as keyof State["errors"])}
-                      </p>
-                    )}
-                  </div>
-                  <div className="space-y-2 col-span-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      name="email"
-                      placeholder="name@example.com"
-                      className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] focus-visible:ring-[#fe8019]"
-                    />
-                    {getFirstError("email" as keyof State["errors"]) && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {getFirstError("email" as keyof State["errors"])}
-                      </p>
-                    )}
+                <div className="space-y-2 col-span-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    type="text"
+                    placeholder="Your full name"
+                    className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] focus-visible:ring-[#fe8019]"
+                    defaultValue={formRef.current?.name?.value}
+                  />
+                  {getFirstError("name") && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {getFirstError("name")}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2 col-span-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="name@example.com"
+                    className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] focus-visible:ring-[#fe8019]"
+                    defaultValue={formRef.current?.email?.value}
+                  />
+                  {getFirstError("email") && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {getFirstError("email")}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="password">Password</Label>
                   <Input
                     id="password"
-                    type="password"
                     name="password"
+                    type="password"
                     placeholder="••••••••"
                     className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] focus-visible:ring-[#fe8019]"
+                    defaultValue={formRef.current?.password?.value}
                   />
-                  {getFirstError("password" as keyof State["errors"]) && (
+                  {getFirstError("password") && (
                     <p className="mt-1 text-sm text-red-500">
-                      {getFirstError("password" as keyof State["errors"])}
+                      {getFirstError("password")}
                     </p>
                   )}
                 </div>
@@ -113,14 +153,15 @@ export default function SignupPage() {
                   <Label htmlFor="confirm">Confirm Password</Label>
                   <Input
                     id="confirm"
-                    type="password"
                     name="confirm"
+                    type="password"
                     placeholder="••••••••"
                     className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] focus-visible:ring-[#fe8019]"
+                    defaultValue={formRef.current?.confirm?.value}
                   />
-                  {getFirstError("confirm" as keyof State["errors"]) && (
+                  {getFirstError("confirm") && (
                     <p className="mt-1 text-sm text-red-500">
-                      {getFirstError("confirm" as keyof State["errors"])}
+                      {getFirstError("confirm")}
                     </p>
                   )}
                 </div>
@@ -130,6 +171,7 @@ export default function SignupPage() {
                   id="terms"
                   name="terms"
                   className="border-[#3c3836] data-[state=checked]:bg-[#fe8019] data-[state=checked]:border-[#fe8019]"
+                  defaultChecked={formRef.current?.terms?.checked}
                 />
                 <label
                   htmlFor="terms"
@@ -145,6 +187,7 @@ export default function SignupPage() {
                   </Link>
                 </label>
               </div>
+              <input type="hidden" name="redirectTo" value={callbackUrl} />
               <Button
                 type="submit"
                 className="w-full bg-[#fe8019] hover:bg-[#d65d0e] text-[#1d2021]"
