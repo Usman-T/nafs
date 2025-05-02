@@ -15,7 +15,7 @@ import toast from "react-hot-toast";
 import { createUser, State } from "@/lib/actions";
 import { Separator } from "@/components/ui/separator";
 
-export default function SignupPage() {
+const Register = () => {
   const initialState: State = { message: null, errors: {} };
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
@@ -23,10 +23,9 @@ export default function SignupPage() {
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
   const [state, formAction, isPending] = useActionState(
-    async (prevState: State, formData: FormData) => {
+    async (prevState: any, formData: FormData) => {
       const result = await createUser(prevState, formData);
-      if (result?.message === "Account created successfully") {
-        toast.success("Account created!");
+      if (result.message === "Account created successfully!") {
         router.push(callbackUrl);
       }
       return result;
@@ -222,4 +221,6 @@ export default function SignupPage() {
       </div>
     </div>
   );
-}
+};
+
+export default Register;

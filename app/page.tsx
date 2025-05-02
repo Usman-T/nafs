@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import Link from "next/link"
-import Image from "next/image"
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
+import Link from "next/link";
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import {
   Moon,
   Menu,
@@ -18,7 +18,7 @@ import {
   Compass,
   Sunrise,
   Calendar,
-} from "lucide-react"
+} from "lucide-react";
 
 // Custom PrayingHands icon
 function PrayingHands({ className }: { className?: string }) {
@@ -41,19 +41,19 @@ function PrayingHands({ className }: { className?: string }) {
       <path d="M7 5.5V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v.5" />
       <path d="M14 16v-3a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3" />
     </svg>
-  )
+  );
 }
 
 // Animated radar chart component
 function AnimatedRadarChart() {
-  const [progress, setProgress] = useState(0)
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setProgress(1)
-    }, 500)
-    return () => clearTimeout(timer)
-  }, [])
+      setProgress(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const dimensions = [
     { name: "Salah", value: 0.8 * progress },
@@ -63,29 +63,37 @@ function AnimatedRadarChart() {
     { name: "Dhikr", value: 0.9 * progress },
     { name: "Knowledge", value: 0.7 * progress },
     { name: "Character", value: 0.8 * progress },
-  ]
+  ];
 
-  const size = 300
-  const center = size / 2
-  const radius = size * 0.4
+  const size = 300;
+  const center = size / 2;
+  const radius = size * 0.4;
 
   // Calculate points on the chart
   const points = dimensions.map((dim, i) => {
-    const angle = (Math.PI * 2 * i) / dimensions.length - Math.PI / 2
+    const angle = (Math.PI * 2 * i) / dimensions.length - Math.PI / 2;
     return {
       x: center + radius * Math.cos(angle) * dim.value,
       y: center + radius * Math.sin(angle) * dim.value,
       fullX: center + radius * Math.cos(angle),
       fullY: center + radius * Math.sin(angle),
       name: dim.name,
-    }
-  })
+    };
+  });
 
   // Create the path for the filled area
-  const path = points.map((point, i) => (i === 0 ? "M" : "L") + point.x + "," + point.y).join(" ") + "Z"
+  const path =
+    points
+      .map((point, i) => (i === 0 ? "M" : "L") + point.x + "," + point.y)
+      .join(" ") + "Z";
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="overflow-visible">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      className="overflow-visible"
+    >
       {/* Background circles */}
       {[0.2, 0.4, 0.6, 0.8, 1].map((level, i) => (
         <circle
@@ -134,15 +142,22 @@ function AnimatedRadarChart() {
 
       {/* Data points */}
       {points.map((point, i) => (
-        <circle key={i} cx={point.x} cy={point.y} r="4" fill="#fe8019" style={{ transition: "all 0.8s ease-out" }} />
+        <circle
+          key={i}
+          cx={point.x}
+          cy={point.y}
+          r="4"
+          fill="#fe8019"
+          style={{ transition: "all 0.8s ease-out" }}
+        />
       ))}
 
       {/* Labels */}
       {points.map((point, i) => {
-        const angle = (Math.PI * 2 * i) / dimensions.length - Math.PI / 2
-        const labelRadius = radius * 1.15
-        const labelX = center + labelRadius * Math.cos(angle)
-        const labelY = center + labelRadius * Math.sin(angle)
+        const angle = (Math.PI * 2 * i) / dimensions.length - Math.PI / 2;
+        const labelRadius = radius * 1.15;
+        const labelX = center + labelRadius * Math.cos(angle);
+        const labelY = center + labelRadius * Math.sin(angle);
 
         return (
           <text
@@ -157,31 +172,75 @@ function AnimatedRadarChart() {
           >
             {point.name}
           </text>
-        )
+        );
       })}
     </svg>
-  )
+  );
 }
 
-// Feature card component
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+// Feature card component with flicker animation
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      animate={{
+        opacity: [1, 0.98, 1],
+      }}
+      transition={{
+        duration: 2,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
       viewport={{ once: true }}
       className="bg-[#282828] border border-[#3c3836] rounded-lg p-6 hover:border-[#fe8019] transition-all duration-300"
     >
-      <div className="h-12 w-12 rounded-lg bg-[#3c3836] flex items-center justify-center mb-4">{icon}</div>
+      <motion.div
+        animate={{
+          opacity: [1, 0.9, 1],
+          scale: [1, 1.02, 1],
+        }}
+        transition={{
+          duration: 2,
+          repeat: Infinity,
+          repeatType: "reverse",
+        }}
+        className="h-12 w-12 rounded-lg bg-[#3c3836] flex items-center justify-center mb-4"
+      >
+        {icon}
+      </motion.div>
       <h3 className="text-xl font-bold mb-2 text-[#ebdbb2]">{title}</h3>
       <p className="text-[#a89984]">{description}</p>
     </motion.div>
-  )
+  );
 }
 
 export default function LandingPage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const smoothScroll = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
+  const handleScroll = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    smoothScroll(id);
+    setMobileMenuOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2]">
@@ -197,17 +256,23 @@ export default function LandingPage() {
           <nav className="hidden md:flex items-center gap-8">
             <Link
               href="#features"
+              onClick={(e) => handleScroll(e, "features")}
               className="text-sm font-medium text-[#a89984] hover:text-[#fe8019] transition-colors"
             >
               Features
             </Link>
             <Link
               href="#dimensions"
+              onClick={(e) => handleScroll(e, "dimensions")}
               className="text-sm font-medium text-[#a89984] hover:text-[#fe8019] transition-colors"
             >
               Dimensions
             </Link>
-            <Link href="#about" className="text-sm font-medium text-[#a89984] hover:text-[#fe8019] transition-colors">
+            <Link
+              href="#about"
+              onClick={(e) => handleScroll(e, "about")}
+              className="text-sm font-medium text-[#a89984] hover:text-[#fe8019] transition-colors"
+            >
               About
             </Link>
           </nav>
@@ -231,7 +296,11 @@ export default function LandingPage() {
               className="md:hidden rounded-md p-2 text-[#a89984] hover:bg-[#3c3836] hover:text-[#ebdbb2]"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
@@ -244,8 +313,8 @@ export default function LandingPage() {
                 <Link
                   key={item}
                   href={`#${item.toLowerCase()}`}
+                  onClick={(e) => handleScroll(e, item.toLowerCase())}
                   className="block px-3 py-2 rounded-md text-base font-medium text-[#a89984] hover:text-[#fe8019] hover:bg-[#3c3836]"
-                  onClick={() => setMobileMenuOpen(false)}
                 >
                   {item}
                 </Link>
@@ -279,11 +348,13 @@ export default function LandingPage() {
                   className="max-w-xl"
                 >
                   <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                    Nurture Your <span className="text-[#fe8019]">Spiritual Growth</span>
+                    Nurture Your{" "}
+                    <span className="text-[#fe8019]">Spiritual Growth</span>
                   </h1>
                   <p className="text-lg text-[#a89984] mb-8">
-                    Track your Islamic habits, visualize your spiritual dimensions, and embark on a journey of
-                    self-improvement with our comprehensive habit tracking app.
+                    Track your Islamic habits, visualize your spiritual
+                    dimensions, and embark on a journey of self-improvement with
+                    our comprehensive habit tracking app.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4">
                     <Link
@@ -295,6 +366,7 @@ export default function LandingPage() {
                     </Link>
                     <Link
                       href="#features"
+                      onClick={(e) => handleScroll(e, "features")}
                       className="inline-flex h-12 items-center justify-center rounded-md border border-[#3c3836] bg-[#282828] px-6 text-base font-medium text-[#ebdbb2] shadow-sm transition-colors hover:bg-[#3c3836]"
                     >
                       Learn More
@@ -331,9 +403,12 @@ export default function LandingPage() {
               viewport={{ once: true }}
               className="text-center mb-12"
             >
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Key Features</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Key Features
+              </h2>
               <p className="text-[#a89984] max-w-2xl mx-auto">
-                Our platform offers tools to help you track, visualize, and improve your spiritual journey.
+                Our platform offers tools to help you track, visualize, and
+                improve your spiritual journey.
               </p>
             </motion.div>
 
@@ -367,9 +442,12 @@ export default function LandingPage() {
               viewport={{ once: true }}
               className="text-center mb-12"
             >
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">7 Dimensions of Spiritual Growth</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                7 Dimensions of Spiritual Growth
+              </h2>
               <p className="text-[#a89984] max-w-2xl mx-auto">
-                Our tracker helps you visualize and improve in these key areas of Islamic spirituality.
+                Our tracker helps you visualize and improve in these key areas
+                of Islamic spirituality.
               </p>
             </motion.div>
 
@@ -378,22 +456,26 @@ export default function LandingPage() {
                 {
                   icon: <PrayingHands className="h-6 w-6 text-[#fe8019]" />,
                   title: "Salah (Prayer)",
-                  description: "Consistency and quality of your five daily prayers.",
+                  description:
+                    "Consistency and quality of your five daily prayers.",
                 },
                 {
                   icon: <BookOpen className="h-6 w-6 text-[#fe8019]" />,
                   title: "Quran",
-                  description: "Regular recitation, understanding, and memorization.",
+                  description:
+                    "Regular recitation, understanding, and memorization.",
                 },
                 {
                   icon: <Heart className="h-6 w-6 text-[#fe8019]" />,
                   title: "Charity",
-                  description: "Giving zakat, sadaqah, and helping others in need.",
+                  description:
+                    "Giving zakat, sadaqah, and helping others in need.",
                 },
                 {
                   icon: <Users className="h-6 w-6 text-[#fe8019]" />,
                   title: "Community",
-                  description: "Involvement with the Muslim ummah and building relationships.",
+                  description:
+                    "Involvement with the Muslim ummah and building relationships.",
                 },
                 {
                   icon: <Moon className="h-6 w-6 text-[#fe8019]" />,
@@ -408,7 +490,8 @@ export default function LandingPage() {
                 {
                   icon: <Sunrise className="h-6 w-6 text-[#fe8019]" />,
                   title: "Character",
-                  description: "Developing akhlaq (good character) in daily interactions.",
+                  description:
+                    "Developing akhlaq (good character) in daily interactions.",
                 },
               ].map((dimension, i) => (
                 <motion.div
@@ -417,13 +500,38 @@ export default function LandingPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                   viewport={{ once: true }}
+                  animate={{
+                    opacity: [1, 0.98, 1],
+                    transition: {
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    },
+                  }}
                   className="bg-[#282828] border border-[#3c3836] rounded-lg p-5 hover:border-[#fe8019] transition-all duration-300"
                 >
                   <div className="flex items-start">
-                    <div className="mr-4 p-2 rounded-md bg-[#3c3836]">{dimension.icon}</div>
+                    <motion.div
+                      animate={{
+                        opacity: [1, 0.9, 1],
+                        scale: [1, 1.02, 1],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                      }}
+                      className="mr-4 p-2 rounded-md bg-[#3c3836]"
+                    >
+                      {dimension.icon}
+                    </motion.div>
                     <div>
-                      <h3 className="font-medium text-[#ebdbb2]">{dimension.title}</h3>
-                      <p className="text-sm text-[#a89984]">{dimension.description}</p>
+                      <h3 className="font-medium text-[#ebdbb2]">
+                        {dimension.title}
+                      </h3>
+                      <p className="text-sm text-[#a89984]">
+                        {dimension.description}
+                      </p>
                     </div>
                   </div>
                 </motion.div>
@@ -442,9 +550,12 @@ export default function LandingPage() {
               viewport={{ once: true }}
               className="text-center mb-12"
             >
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">About Nafs</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                About Nafs
+              </h2>
               <p className="text-[#a89984] max-w-2xl mx-auto">
-                Nafs helps you cultivate consistent Islamic habits and track your progress toward spiritual growth.
+                Nafs helps you cultivate consistent Islamic habits and track
+                your progress toward spiritual growth.
               </p>
             </motion.div>
 
@@ -457,11 +568,14 @@ export default function LandingPage() {
                 className="w-full md:w-1/2"
               >
                 <div className="max-w-lg">
-                  <h3 className="text-2xl md:text-3xl font-bold mb-4">Our Mission</h3>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-4">
+                    Our Mission
+                  </h3>
                   <p className="text-[#a89984] mb-6">
-                    We believe that consistent small actions lead to significant spiritual growth. Our mission is to
-                    help Muslims worldwide build and maintain beneficial habits that strengthen their connection with
-                    Allah.
+                    We believe that consistent small actions lead to significant
+                    spiritual growth. Our mission is to help Muslims worldwide
+                    build and maintain beneficial habits that strengthen their
+                    connection with Allah.
                   </p>
                   <ul className="space-y-3">
                     {[
@@ -470,10 +584,17 @@ export default function LandingPage() {
                       "Foster a supportive community of believers",
                       "Make Islamic self-improvement accessible to all",
                     ].map((item, i) => (
-                      <li key={i} className="flex items-start">
+                      <motion.li
+                        key={i}
+                        className="flex items-start"
+                        initial={{ opacity: 0, x: -10 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: i * 0.1 }}
+                        viewport={{ once: true }}
+                      >
                         <CheckCircle className="h-5 w-5 text-[#fe8019] mr-2 mt-0.5 flex-shrink-0" />
                         <span className="text-[#ebdbb2]">{item}</span>
-                      </li>
+                      </motion.li>
                     ))}
                   </ul>
                 </div>
@@ -516,10 +637,13 @@ export default function LandingPage() {
               <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#fe8019]/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
               <div className="relative z-10">
-                <h2 className="text-3xl md:text-4xl font-bold mb-6">Begin Your Spiritual Journey Today</h2>
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                  Begin Your Spiritual Journey Today
+                </h2>
                 <p className="text-[#a89984] max-w-2xl mx-auto mb-8">
-                  Join thousands of Muslims who are using our platform to track their spiritual growth and strengthen
-                  their connection with Allah.
+                  Join thousands of Muslims who are using our platform to track
+                  their spiritual growth and strengthen their connection with
+                  Allah.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
@@ -552,24 +676,37 @@ export default function LandingPage() {
                 <span className="text-xl font-bold">Nafs</span>
               </div>
               <p className="text-[#a89984] mb-4">
-                Track your spiritual journey and grow closer to Allah with our comprehensive Islamic self-improvement
-                platform.
+                Track your spiritual journey and grow closer to Allah with our
+                comprehensive Islamic self-improvement platform.
               </p>
             </div>
 
             <div>
               <h3 className="font-medium text-[#ebdbb2] mb-4">Quick Links</h3>
               <ul className="space-y-2">
-                {["Features", "Dimensions", "About", "Login", "Sign Up"].map((item) => (
-                  <li key={item}>
-                    <Link
-                      href={item === "Login" ? "/login" : item === "Sign Up" ? "/signup" : `#${item.toLowerCase()}`}
-                      className="text-[#a89984] hover:text-[#fe8019] transition-colors"
-                    >
-                      {item}
-                    </Link>
-                  </li>
-                ))}
+                {["Features", "Dimensions", "About", "Login", "Sign Up"].map(
+                  (item) => (
+                    <li key={item}>
+                      <Link
+                        href={
+                          item === "Login"
+                            ? "/login"
+                            : item === "Sign Up"
+                            ? "/signup"
+                            : `#${item.toLowerCase()}`
+                        }
+                        onClick={(e) =>
+                          item !== "Login" &&
+                          item !== "Sign Up" &&
+                          handleScroll(e, item.toLowerCase())
+                        }
+                        className="text-[#a89984] hover:text-[#fe8019] transition-colors"
+                      >
+                        {item}
+                      </Link>
+                    </li>
+                  )
+                )}
               </ul>
             </div>
 
@@ -599,10 +736,16 @@ export default function LandingPage() {
               &copy; {new Date().getFullYear()} Nafs. All rights reserved.
             </div>
             <div className="flex gap-6">
-              <Link href="#" className="text-sm text-[#a89984] hover:text-[#fe8019] transition-colors">
+              <Link
+                href="#"
+                className="text-sm text-[#a89984] hover:text-[#fe8019] transition-colors"
+              >
                 Privacy Policy
               </Link>
-              <Link href="#" className="text-sm text-[#a89984] hover:text-[#fe8019] transition-colors">
+              <Link
+                href="#"
+                className="text-sm text-[#a89984] hover:text-[#fe8019] transition-colors"
+              >
                 Terms of Service
               </Link>
             </div>
@@ -610,5 +753,5 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

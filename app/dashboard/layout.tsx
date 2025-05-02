@@ -11,7 +11,6 @@ import {
   BarChart3,
   Settings,
   User,
-  LogOut,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -133,11 +132,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             >
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-[#2e2e2e]" />
-              <DropdownMenuItem className="hover:bg-[#2e2e2e]">
-                <User className="mr-2 h-4 w-4" /> Profile
+              <DropdownMenuItem className="hover:bg-[#2e2e2e]" asChild>
+                <Link href="/dashboard/profile">
+                  <User className="mr-2 h-4 w-4" /> Profile
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="hover:bg-[#2e2e2e]">
-                <Settings className="mr-2 h-4 w-4" /> Settings
+              <DropdownMenuItem className="hover:bg-[#2e2e2e]" asChild>
+                <Link href="/dashboard/settings">
+                  <Settings className="mr-2 h-4 w-4" /> Settings
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-[#2e2e2e]" />
               <DropdownMenuItem className="text-red-500 hover:bg-[#2e2e2e] hover:text-red-400">
@@ -186,11 +189,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               >
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-[#2e2e2e]" />
-                <DropdownMenuItem className="hover:bg-[#2e2e2e]">
-                  <User className="mr-2 h-4 w-4" /> Profile
+                <DropdownMenuItem className="hover:bg-[#2e2e2e]" asChild>
+                  <Link href="/dashboard/profile">
+                    <User className="mr-2 h-4 w-4" /> Profile
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-[#2e2e2e]">
-                  <Settings className="mr-2 h-4 w-4" /> Settings
+                <DropdownMenuItem className="hover:bg-[#2e2e2e]" asChild>
+                  <Link href="/dashboard/settings">
+                    <Settings className="mr-2 h-4 w-4" /> Settings
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-[#2e2e2e]" />
                 <DropdownMenuItem className="text-red-500 hover:bg-[#2e2e2e] hover:text-red-400">

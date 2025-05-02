@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { login, loginState } from "@/lib/actions";
 
-export default function LoginPage() {
+const Login = () => {
   const initialState: loginState = { message: null, errors: {} };
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -21,8 +21,6 @@ export default function LoginPage() {
 
   const getFirstError = (field: keyof loginState["errors"]) =>
     state?.errors?.[field]?.[0];
-
-  console.log('Yes we logged in haha')
 
   return (
     <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2] flex flex-col">
@@ -174,4 +172,6 @@ export default function LoginPage() {
       </div>
     </div>
   );
-}
+};
+
+export default Login;

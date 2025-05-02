@@ -83,6 +83,7 @@ export const createUser = async (prevState: State, formData: FormData) => {
     await signIn("credentials", {
       email,
       password,
+      redirect: false
     });
 
     return { message: "Account created successfully!", errors: {} };
