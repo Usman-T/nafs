@@ -87,7 +87,7 @@ export const createUser = async (prevState: State, formData: FormData) => {
     });
 
     return { message: "Account created successfully!", errors: {} };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(error);
     if (error.code === "P2002") {
       return {

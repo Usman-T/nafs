@@ -19,7 +19,7 @@ const Login = () => {
 
   const [state, formAction, isPending] = useActionState(login, initialState);
 
-  const getFirstError = (field: keyof loginState["errors"]) =>
+  const getFirstError = (field: "email" | "password") =>
     state?.errors?.[field]?.[0];
 
   return (

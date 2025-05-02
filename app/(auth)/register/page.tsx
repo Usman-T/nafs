@@ -11,7 +11,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useRef } from "react";
 import { useActionState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import toast from "react-hot-toast";
 import { createUser, State } from "@/lib/actions";
 import { Separator } from "@/components/ui/separator";
 
@@ -23,7 +22,7 @@ const Register = () => {
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
   const [state, formAction, isPending] = useActionState(
-    async (prevState: any, formData: FormData) => {
+    async (prevState: State, formData: FormData) => {
       const result = await createUser(prevState, formData);
       if (result.message === "Account created successfully!") {
         router.push(callbackUrl);
@@ -33,8 +32,9 @@ const Register = () => {
     initialState
   );
 
-  const getFirstError = (field: keyof State["errors"]) =>
-    state?.errors?.[field]?.[0];
+  const getFirstError = (
+    field: "name" | "email" | "password" | "confirm" | "terms"
+  ) => state?.errors?.[field]?.[0];
 
   return (
     <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2] flex flex-col">
