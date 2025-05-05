@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import SignOutButton from "../(auth)/register/SignOutButton";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -132,15 +133,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             >
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-[#2e2e2e]" />
-              <DropdownMenuItem className="hover:bg-[#2e2e2e]" asChild>
-                <Link href="/dashboard/profile">
-                  <User className="mr-2 h-4 w-4" /> Profile
-                </Link>
+              <DropdownMenuItem className="hover:bg-[#2e2e2e]">
+                <User className="mr-2 h-4 w-4" /> Profile
               </DropdownMenuItem>
-              <DropdownMenuItem className="hover:bg-[#2e2e2e]" asChild>
-                <Link href="/dashboard/settings">
-                  <Settings className="mr-2 h-4 w-4" /> Settings
-                </Link>
+              <DropdownMenuItem className="hover:bg-[#2e2e2e]">
+                <Settings className="mr-2 h-4 w-4" /> Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-[#2e2e2e]" />
               <DropdownMenuItem className="text-red-500 hover:bg-[#2e2e2e] hover:text-red-400">
@@ -189,15 +186,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               >
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-[#2e2e2e]" />
-                <DropdownMenuItem className="hover:bg-[#2e2e2e]" asChild>
-                  <Link href="/dashboard/profile">
-                    <User className="mr-2 h-4 w-4" /> Profile
-                  </Link>
+                <DropdownMenuItem className="hover:bg-[#2e2e2e]">
+                  <User className="mr-2 h-4 w-4" /> Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-[#2e2e2e]" asChild>
-                  <Link href="/dashboard/settings">
-                    <Settings className="mr-2 h-4 w-4" /> Settings
-                  </Link>
+                <DropdownMenuItem className="hover:bg-[#2e2e2e]">
+                  <Settings className="mr-2 h-4 w-4" /> Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-[#2e2e2e]" />
                 <DropdownMenuItem className="text-red-500 hover:bg-[#2e2e2e] hover:text-red-400">
@@ -208,7 +201,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </header>
         <main className="flex-1 overflow-auto pb-16 md:pb-0">
-          <div className="container py-6 md:py-8">{children}</div>
+          <div className="px-2 py-6 md:py-8">{children}</div>
         </main>
         <MobileNav />
       </div>

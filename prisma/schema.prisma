@@ -8,8 +8,188 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(uuid())
-  name     String
-  email    String @unique
-  password String
+  id        String   @id @default(cuid())
+  name      String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  level          Int       @default(1)
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  lastActiveDate DateTime?
+
+  dimensionValues DimensionValue[]
+  dailyTasks      DailyTask[]
+  completedTasks  CompletedTask[]
+  achievements    UserAchievement[]
+  challenges      UserChallenge[]
+  settings        UserSettings?
+  reflections     Reflection[]
+}
+
+model Dimension {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String   @db.Text
+  color       String
+  icon        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  values DimensionValue[]
+  tasks  Task[]
+}
+
+model DimensionValue {
+  id          String   @id @default(cuid())
+  userId      String
+  dimensionId String
+  value       Float
+  date        DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dimension Dimension @relation(fields: [dimensionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dimensionId, date])
+  @@index([userId, date])
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  dimensionId String
+  points      Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  dimension  Dimension       @relation(fields: [dimensionId], references: [id])
+  dailyTasks DailyTask[]
+  challenges ChallengeTask[]
+}
+
+model DailyTask {
+  id        String   @id @default(cuid())
+  userId    String
+  taskId    String
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task        Task            @relation(fields: [taskId], references: [id])
+  completions CompletedTask[]
+
+  @@unique([userId, taskId, date])
+  @@index([userId, date])
+}
+
+model CompletedTask {
+  id          String   @id @default(cuid())
+  userId      String
+  dailyTaskId String
+  completedAt DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dailyTask DailyTask @relation(fields: [dailyTaskId], references: [id], onDelete: Cascade)
+
+  @@index([userId, completedAt])
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @db.Text
+  icon        String?
+  points      Int      @default(10)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+}
+
+model Challenge {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @db.Text
+  duration    Int
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tasks ChallengeTask[]
+  users UserChallenge[]
+}
+
+model ChallengeTask {
+  id          String @id @default(cuid())
+  challengeId String
+  taskId      String
+  day         Int
+
+  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  task      Task      @relation(fields: [taskId], references: [id])
+
+  @@unique([challengeId, taskId, day])
+}
+
+model UserChallenge {
+  id          String    @id @default(cuid())
+  userId      String
+  challengeId String
+  startDate   DateTime  @default(now())
+  endDate     DateTime?
+  completed   Boolean   @default(false)
+  progress    Float     @default(0)
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge Challenge @relation(fields: [challengeId], references: [id])
+
+  @@index([userId, startDate])
+}
+
+model UserSettings {
+  id                       String   @id @default(cuid())
+  userId                   String   @unique
+  theme                    String   @default("dark")
+  language                 String   @default("en")
+  timeZone                 String   @default("UTC")
+  prayerCalculationMethod  String   @default("isna")
+  notificationsEnabled     Boolean  @default(true)
+  emailNotifications       Boolean  @default(true)
+  pushNotifications        Boolean  @default(true)
+  reminderNotifications    Boolean  @default(true)
+  achievementNotifications Boolean  @default(true)
+  profileVisibility        String   @default("friends")
+  activitySharing          Boolean  @default(true)
+  communityParticipation   Boolean  @default(true)
+  analyticsEnabled         Boolean  @default(true)
+  personalizationEnabled   Boolean  @default(true)
+  updatedAt                DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Reflection {
+  id      String   @id @default(cuid())
+  userId  String
+  content String   @db.Text
+  mood    String?
+  date    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
 }

@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Check, Award, ArrowRight, BookOpen, Heart, Users } from "lucide-react"
 
-// Custom PrayingHands icon
 function PrayingHandsIcon({ className }: { className?: string }) {
   return (
     <svg

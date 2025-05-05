@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.className} bg-dark-bg0 text-dark-fg0 min-h-screen`}
+        className={`${inter.className} bg-dark-bg0 text-dark-fg0 `}
       >
         <Toaster />
         {children}
