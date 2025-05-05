@@ -63,7 +63,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const MobileNav = () => (
     <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#2e2e2e] bg-[#1d2021] shadow-lg md:hidden">
       <div className="flex items-center justify-between px-2">
-        {navItems.map((item) => {
+        {navItems.slice(0, -1).map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
@@ -83,6 +83,43 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         })}
       </div>
     </div>
+  );
+
+  const UserDropdown = () => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full text-[#c0c0c0] hover:text-[#e0e0e0]"
+        >
+          <User className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className="bg-[#282828] border-[#2e2e2e] text-[#e0e0e0]"
+      >
+        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuSeparator className="bg-[#2e2e2e]" />
+        <Link href="/dashboard/profile">
+          <DropdownMenuItem className="hover:bg-[#2e2e2e]">
+            <User className="mr-2 h-4 w-4" />
+            Profile
+          </DropdownMenuItem>
+        </Link>{" "}
+        <Link href="/dashboard/settings">
+          <DropdownMenuItem className="hover:bg-[#2e2e2e]">
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
+          </DropdownMenuItem>
+        </Link>{" "}
+        <DropdownMenuSeparator className="bg-[#2e2e2e]" />
+        <DropdownMenuItem className="text-red-500 hover:bg-[#2e2e2e] hover:text-red-400">
+          <SignOutButton />
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 
   const DesktopSidebar = () => (
@@ -117,34 +154,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <p className="text-xs text-[#909090]">abdullah@example.com</p>
             </div>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full text-[#c0c0c0] hover:text-[#e0e0e0]"
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="bg-[#282828] border-[#2e2e2e] text-[#e0e0e0]"
-            >
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-[#2e2e2e]" />
-              <DropdownMenuItem className="hover:bg-[#2e2e2e]">
-                <User className="mr-2 h-4 w-4" /> Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem className="hover:bg-[#2e2e2e]">
-                <Settings className="mr-2 h-4 w-4" /> Settings
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-[#2e2e2e]" />
-              <DropdownMenuItem className="text-red-500 hover:bg-[#2e2e2e] hover:text-red-400">
-                <SignOutButton />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <UserDropdown />
         </div>
       </div>
     </div>
@@ -162,42 +172,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </h1>
           </div>
           <div className="flex items-center gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-full text-[#c0c0c0] hover:text-[#e0e0e0]"
-                >
-                  <Avatar className="h-8 w-8 border border-[#2e2e2e]">
-                    <AvatarImage
-                      src="/placeholder.svg?height=32&width=32"
-                      alt="@abdullah"
-                    />
-                    <AvatarFallback className="bg-[#2e2e2e] text-[#e0e0e0]">
-                      A
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="bg-[#282828] border-[#2e2e2e] text-[#e0e0e0]"
-              >
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-[#2e2e2e]" />
-                <DropdownMenuItem className="hover:bg-[#2e2e2e]">
-                  <User className="mr-2 h-4 w-4" /> Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-[#2e2e2e]">
-                  <Settings className="mr-2 h-4 w-4" /> Settings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-[#2e2e2e]" />
-                <DropdownMenuItem className="text-red-500 hover:bg-[#2e2e2e] hover:text-red-400">
-                  <SignOutButton />
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <UserDropdown />
           </div>
         </header>
         <main className="flex-1 overflow-auto pb-16 md:pb-0">

@@ -358,7 +358,7 @@ export default function LandingPage() {
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4">
                     <Link
-                      href="/signup"
+                      href="/regsiter"
                       className="inline-flex h-12 items-center justify-center rounded-md bg-[#fe8019] px-6 text-base font-medium text-[#1d2021] shadow-md transition-colors hover:bg-[#d65d0e]"
                     >
                       Start Free Trial
@@ -647,7 +647,7 @@ export default function LandingPage() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
-                    href="/signup"
+                    href="/register"
                     className="inline-flex h-12 items-center justify-center rounded-md bg-[#fe8019] px-8 text-base font-medium text-[#1d2021] shadow-md transition-colors hover:bg-[#d65d0e]"
                   >
                     Start Free Trial
@@ -692,7 +692,7 @@ export default function LandingPage() {
                           item === "Login"
                             ? "/login"
                             : item === "Sign Up"
-                            ? "/signup"
+                            ? "/register"
                             : `#${item.toLowerCase()}`
                         }
                         onClick={(e) =>
