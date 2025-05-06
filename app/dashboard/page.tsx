@@ -1,5 +1,3 @@
-'use client'
-
 import Tasks from "@/components/custom/dashboard/tasks";
 import Dimensions from "@/components/custom/dashboard/dimensions";
 import DashboardCalendar from "@/components/custom/dashboard/calendar-dashboard";
