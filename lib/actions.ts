@@ -132,7 +132,7 @@ export const login = async (prevState: loginState, formData: FormData) => {
         case "CredentialsSignin":
           return {
             errors: {},
-            message: "Invalid credentials. Please try again.",
+            message: "invalid"
           };
         default:
           return {

@@ -16,8 +16,20 @@ const getUser = async (email: string) => {
   }
 };
 
-export const { auth, signIn, signOut } = NextAuth({
+export const {
+  auth,
+  signIn,
+  signOut,
+} = NextAuth({
   ...authConfig,
+  callbacks: {
+    async session({ session, token, user }) {
+      return session;
+    },
+    async jwt({ token, user }) {
+      return token;
+    },
+  },
   providers: [
     Credentials({
       async authorize(credentials) {

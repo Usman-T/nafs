@@ -106,6 +106,11 @@ const Login = () => {
                     {getFirstError("email")}
                   </p>
                 )}
+                {state?.message === 'invalid' && (
+                  <p className="mt-1 text-sm text-red-500">
+                    Invalid email address or password
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -128,6 +133,11 @@ const Login = () => {
                 {getFirstError("password") && (
                   <p className="mt-1 text-sm text-red-500">
                     {getFirstError("password")}
+                  </p>
+                )}
+                {state?.message === 'invalid' && (
+                  <p className="mt-1 text-sm text-red-500">
+                    Invalid email address or password
                   </p>
                 )}
               </div>

@@ -10,14 +10,16 @@ datasource db {
 model User {
   id        String   @id @default(cuid())
   name      String
+  email     String   @unique
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  level          Int       @default(1)
-  currentStreak  Int       @default(0)
-  longestStreak  Int       @default(0)
-  lastActiveDate DateTime?
+  level            Int       @default(1)
+  currentStreak    Int       @default(0)
+  longestStreak    Int       @default(0)
+  lastActiveDate   DateTime?
+  currentChallenge Challenge? @relation(fields: [challengeId], references: [id]) 
 
   dimensionValues DimensionValue[]
   dailyTasks      DailyTask[]
@@ -26,6 +28,7 @@ model User {
   challenges      UserChallenge[]
   settings        UserSettings?
   reflections     Reflection[]
+  challengeId     String
 }
 
 model Dimension {
@@ -131,6 +134,7 @@ model Challenge {
 
   tasks ChallengeTask[]
   users UserChallenge[]
+  User  User[]
 }
 
 model ChallengeTask {

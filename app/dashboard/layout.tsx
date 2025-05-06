@@ -25,7 +25,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import SignOutButton from "../(auth)/register/SignOutButton";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useSession } from "next-auth/react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -33,6 +34,9 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
+  const { data: session, status } = useSession();
+
+  console.log(session?.user?.email)
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -122,7 +126,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     </DropdownMenu>
   );
 
-  const DesktopSidebar = () => (
+const DesktopSidebar = () => {
+  return (
     <div className="sticky top-0 z-10 hidden h-screen w-64 flex-col border-r border-[#2e2e2e] bg-[#1d2021] md:flex">
       <div className="flex h-16 items-center border-b border-[#2e2e2e] px-6">
         <Link href="/dashboard" className="flex items-center gap-2">
@@ -130,6 +135,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <span className="text-xl font-bold text-[#e0e0e0]">Nafs</span>
         </Link>
       </div>
+
       <div className="flex-1 overflow-auto p-4">
         <nav className="flex flex-col gap-2">
           {navItems.map((item) => (
@@ -137,28 +143,44 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           ))}
         </nav>
       </div>
+
       <div className="border-t border-[#2e2e2e] p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-8 w-8 border border-[#2e2e2e]">
-              <AvatarImage
-                src="/placeholder.svg?height=32&width=32"
-                alt="@abdullah"
-              />
-              <AvatarFallback className="bg-[#2e2e2e] text-[#e0e0e0]">
-                A
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="text-sm font-medium text-[#e0e0e0]">Abdullah</p>
-              <p className="text-xs text-[#909090]">abdullah@example.com</p>
+          {status === "loading" ? (
+            <div className="flex w-full items-center gap-3">
+              <Skeleton className="h-8 w-8 rounded-full bg-[#2e2e2e]" />
+              <div className="flex-1 space-y-1">
+                <Skeleton className="h-4 w-3/4 bg-[#2e2e2e]" />
+                <Skeleton className="h-3 w-full bg-[#2e2e2e]" />
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <Avatar className="h-8 w-8 border border-[#2e2e2e]">
+                {session?.user?.image ? (
+                  <AvatarImage src={session.user.image} alt="User avatar" />
+                ) : null}
+                <AvatarFallback className="bg-[#2e2e2e] text-[#e0e0e0]">
+                  {session?.user?.name?.charAt(0).toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-sm font-medium text-[#e0e0e0] truncate max-w-[120px]">
+                  {session?.user?.name || 'User'}
+                </p>
+                <p className="text-xs text-[#909090] truncate max-w-[120px]">
+                  {session?.user?.email || 'No email'}
+                </p>
+              </div>
+            </div>
+          )}
+          
           <UserDropdown />
         </div>
       </div>
     </div>
   );
+};
 
   return (
     <div className="flex min-h-screen bg-[#1d2021]">

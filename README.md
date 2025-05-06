@@ -18,5 +18,11 @@ We'll be using next-auth along with Auth.js to setup the authentication. The ste
 ## Authenticaton - UXs
 Alright, now the form actions are correctly linked up witht he registration forms and stuff, i think we should now opt to making the Register and Login Pages more user friendly in the UX point of things, doing basic error handling like "unique" constraint errors and stuff
 
-## App Work
-After the UX has been put in place for the website, we will then put the entire app onto mobile and set up the .apk and try to make it work offline too
+## Dashboard
+The UI for the dashboard has been made and is completely static. We need dynanmic rendering now so we need to hit up the server for that
+Before making *async calls to the prisma API* we need to have a proper client and server based setup for our components
+The way we do this is that there will be a top level **Server Component** and then lower level **Client Components** which handle interactivity and visual feedbacks like Animations and Gestures
+
+To start with, extract all client side functionality based components into seperate granular components in the dashboard folder inside *components* folder
+Then, make async calls to the Prisma ORM and pass the data through props
+Lastly, render and commit the changes to the frontend
