@@ -1,11 +1,17 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Check,
   ChevronRight,
@@ -19,9 +25,9 @@ import {
   Sunrise,
   Compass,
   Loader2,
-} from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 // Custom PrayingHands icon
 function PrayingHandsIcon({ className }: { className?: string }) {
@@ -44,7 +50,7 @@ function PrayingHandsIcon({ className }: { className?: string }) {
       <path d="M7 5.5V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v.5" />
       <path d="M14 16v-3a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3" />
     </svg>
-  )
+  );
 }
 
 // Predefined challenges
@@ -56,11 +62,36 @@ const predefinedChallenges = [
     duration: 30,
     difficulty: "Medium",
     tasks: [
-      { name: "Fasting Monday & Thursday", dimension: "Salah", icon: PrayingHandsIcon, color: "#fb4934" },
-      { name: "Read 5 pages of Quran", dimension: "Quran", icon: BookOpen, color: "#8ec07c" },
-      { name: "Give charity today", dimension: "Charity", icon: Heart, color: "#fe8019" },
-      { name: "Attend Islamic lecture", dimension: "Knowledge", icon: Compass, color: "#fabd2f" },
-      { name: "Extra night prayers", dimension: "Dhikr", icon: Moon, color: "#d3869b" },
+      {
+        name: "Fasting Monday & Thursday",
+        dimension: "Salah",
+        icon: PrayingHandsIcon,
+        color: "#fb4934",
+      },
+      {
+        name: "Read 5 pages of Quran",
+        dimension: "Quran",
+        icon: BookOpen,
+        color: "#8ec07c",
+      },
+      {
+        name: "Give charity today",
+        dimension: "Charity",
+        icon: Heart,
+        color: "#fe8019",
+      },
+      {
+        name: "Attend Islamic lecture",
+        dimension: "Knowledge",
+        icon: Compass,
+        color: "#fabd2f",
+      },
+      {
+        name: "Extra night prayers",
+        dimension: "Dhikr",
+        icon: Moon,
+        color: "#d3869b",
+      },
     ],
   },
   {
@@ -70,11 +101,36 @@ const predefinedChallenges = [
     duration: 21,
     difficulty: "Easy",
     tasks: [
-      { name: "Read 1 page with translation", dimension: "Quran", icon: BookOpen, color: "#8ec07c" },
-      { name: "Memorize 3 new verses", dimension: "Quran", icon: BookOpen, color: "#8ec07c" },
-      { name: "Review previously memorized verses", dimension: "Quran", icon: BookOpen, color: "#8ec07c" },
-      { name: "Listen to Quran recitation", dimension: "Dhikr", icon: Moon, color: "#d3869b" },
-      { name: "Share a verse with a friend", dimension: "Community", icon: Users, color: "#fabd2f" },
+      {
+        name: "Read 1 page with translation",
+        dimension: "Quran",
+        icon: BookOpen,
+        color: "#8ec07c",
+      },
+      {
+        name: "Memorize 3 new verses",
+        dimension: "Quran",
+        icon: BookOpen,
+        color: "#8ec07c",
+      },
+      {
+        name: "Review previously memorized verses",
+        dimension: "Quran",
+        icon: BookOpen,
+        color: "#8ec07c",
+      },
+      {
+        name: "Listen to Quran recitation",
+        dimension: "Dhikr",
+        icon: Moon,
+        color: "#d3869b",
+      },
+      {
+        name: "Share a verse with a friend",
+        dimension: "Community",
+        icon: Users,
+        color: "#fabd2f",
+      },
     ],
   },
   {
@@ -84,14 +140,39 @@ const predefinedChallenges = [
     duration: 14,
     difficulty: "Medium",
     tasks: [
-      { name: "Practice patience in a difficult situation", dimension: "Character", icon: Sunrise, color: "#fb4934" },
-      { name: "Express gratitude to someone", dimension: "Character", icon: Sunrise, color: "#fb4934" },
-      { name: "Forgive someone who wronged you", dimension: "Character", icon: Sunrise, color: "#fb4934" },
-      { name: "Help someone in need", dimension: "Charity", icon: Heart, color: "#fe8019" },
-      { name: "Smile and spread positivity", dimension: "Community", icon: Users, color: "#fabd2f" },
+      {
+        name: "Practice patience in a difficult situation",
+        dimension: "Character",
+        icon: Sunrise,
+        color: "#fb4934",
+      },
+      {
+        name: "Express gratitude to someone",
+        dimension: "Character",
+        icon: Sunrise,
+        color: "#fb4934",
+      },
+      {
+        name: "Forgive someone who wronged you",
+        dimension: "Character",
+        icon: Sunrise,
+        color: "#fb4934",
+      },
+      {
+        name: "Help someone in need",
+        dimension: "Charity",
+        icon: Heart,
+        color: "#fe8019",
+      },
+      {
+        name: "Smile and spread positivity",
+        dimension: "Community",
+        icon: Users,
+        color: "#fabd2f",
+      },
     ],
   },
-]
+];
 
 // Custom task component
 const Task = ({
@@ -99,11 +180,11 @@ const Task = ({
   isSelected = false,
   onClick,
 }: {
-  task: { name: string; dimension: string; icon: any; color: string }
-  isSelected?: boolean
-  onClick?: () => void
+  task: { name: string; dimension: string; icon: any; color: string };
+  isSelected?: boolean;
+  onClick?: () => void;
 }) => {
-  const IconComponent = task.icon
+  const IconComponent = task.icon;
 
   return (
     <motion.div
@@ -113,7 +194,9 @@ const Task = ({
       whileHover={{ scale: 1.02 }}
       className={cn(
         "flex items-center justify-between p-3 rounded-md border transition-all duration-200 cursor-pointer",
-        isSelected ? "bg-[#1d2021] border-[#fe8019]" : "bg-[#1d2021] border-[#3c3836] hover:border-[#504945]",
+        isSelected
+          ? "bg-[#1d2021] border-[#fe8019]"
+          : "bg-[#1d2021] border-[#3c3836] hover:border-[#504945]"
       )}
       onClick={onClick}
     >
@@ -125,7 +208,9 @@ const Task = ({
           <IconComponent className="h-4 w-4 text-[#1d2021]" />
         </div>
         <div>
-          <span className="text-[#ebdbb2] text-sm sm:text-base">{task.name}</span>
+          <span className="text-[#ebdbb2] text-sm sm:text-base">
+            {task.name}
+          </span>
           <div className="text-xs text-[#a89984] mt-1">{task.dimension}</div>
         </div>
       </div>
@@ -139,8 +224,8 @@ const Task = ({
         </motion.div>
       )}
     </motion.div>
-  )
-}
+  );
+};
 
 // Challenge card component
 const ChallengeCard = ({
@@ -148,9 +233,9 @@ const ChallengeCard = ({
   isSelected = false,
   onSelect,
 }: {
-  challenge: (typeof predefinedChallenges)[0]
-  isSelected?: boolean
-  onSelect: () => void
+  challenge: (typeof predefinedChallenges)[0];
+  isSelected?: boolean;
+  onSelect: () => void;
 }) => {
   return (
     <motion.div
@@ -164,7 +249,9 @@ const ChallengeCard = ({
       <Card
         className={cn(
           "bg-[#282828] border transition-all duration-300 h-full cursor-pointer overflow-hidden",
-          isSelected ? "border-[#fe8019]" : "border-[#3c3836] hover:border-[#504945]",
+          isSelected
+            ? "border-[#fe8019]"
+            : "border-[#3c3836] hover:border-[#504945]"
         )}
         onClick={onSelect}
       >
@@ -175,28 +262,44 @@ const ChallengeCard = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-xs sm:text-sm text-[#a89984]">{challenge.description}</p>
+          <p className="text-xs sm:text-sm text-[#a89984]">
+            {challenge.description}
+          </p>
 
           <div className="flex gap-2 flex-wrap">
-            <Badge className="bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945] text-xs">{challenge.duration} days</Badge>
-            <Badge className="bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945] text-xs">{challenge.difficulty}</Badge>
+            <Badge className="bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945] text-xs">
+              {challenge.duration} days
+            </Badge>
+            <Badge className="bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945] text-xs">
+              {challenge.difficulty}
+            </Badge>
           </div>
 
           <div className="space-y-2">
             {challenge.tasks.slice(0, 3).map((task, i) => (
               <div key={i} className="flex items-center">
-                <div className="h-3 w-3 rounded-full flex-shrink-0 mr-2" style={{ backgroundColor: task.color }}></div>
-                <span className="text-xs text-[#ebdbb2] truncate">{task.name}</span>
+                <div
+                  className="h-3 w-3 rounded-full flex-shrink-0 mr-2"
+                  style={{ backgroundColor: task.color }}
+                ></div>
+                <span className="text-xs text-[#ebdbb2] truncate">
+                  {task.name}
+                </span>
               </div>
             ))}
             {challenge.tasks.length > 3 && (
-              <div className="text-xs text-[#a89984]">+{challenge.tasks.length - 3} more tasks</div>
+              <div className="text-xs text-[#a89984]">
+                +{challenge.tasks.length - 3} more tasks
+              </div>
             )}
           </div>
         </CardContent>
         <CardFooter className="pt-0">
           {isSelected ? (
-            <Button className="w-full bg-[#fe8019] text-[#1d2021] hover:bg-[#d65d0e]" size="sm">
+            <Button
+              className="w-full bg-[#fe8019] text-[#1d2021] hover:bg-[#d65d0e]"
+              size="sm"
+            >
               Selected
             </Button>
           ) : (
@@ -211,21 +314,29 @@ const ChallengeCard = ({
         </CardFooter>
       </Card>
     </motion.div>
-  )
-}
+  );
+};
 
 // Custom task form
 const CustomTaskForm = ({
   onAdd,
   onCancel,
 }: {
-  onAdd: (task: { name: string; dimension: string }) => void
-  onCancel: () => void
+  onAdd: (task: { name: string; dimension: string }) => void;
+  onCancel: () => void;
 }) => {
-  const [taskName, setTaskName] = useState("")
-  const [dimension, setDimension] = useState("Salah")
+  const [taskName, setTaskName] = useState("");
+  const [dimension, setDimension] = useState("Salah");
 
-  const dimensions = ["Salah", "Quran", "Charity", "Community", "Dhikr", "Knowledge", "Character"]
+  const dimensions = [
+    "Salah",
+    "Quran",
+    "Charity",
+    "Community",
+    "Dhikr",
+    "Knowledge",
+    "Character",
+  ];
 
   return (
     <motion.div
@@ -254,7 +365,7 @@ const CustomTaskForm = ({
                 "cursor-pointer transition-all",
                 dimension === dim
                   ? "bg-[#fe8019] text-[#1d2021] hover:bg-[#d65d0e]"
-                  : "bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945]",
+                  : "bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945]"
               )}
               onClick={() => setDimension(dim)}
             >
@@ -276,8 +387,8 @@ const CustomTaskForm = ({
           className="flex-1 bg-[#fe8019] text-[#1d2021] hover:bg-[#d65d0e]"
           onClick={() => {
             if (taskName.trim()) {
-              onAdd({ name: taskName, dimension })
-              setTaskName("")
+              onAdd({ name: taskName, dimension });
+              setTaskName("");
             }
           }}
           disabled={!taskName.trim()}
@@ -286,83 +397,93 @@ const CustomTaskForm = ({
         </Button>
       </div>
     </motion.div>
-  )
-}
+  );
+};
 
 // Main onboarding component
-export default function ChallengeOnboarding({ onComplete }: { onComplete: () => void }) {
-  const [step, setStep] = useState(0)
-  const [selectedChallenge, setSelectedChallenge] = useState<(typeof predefinedChallenges)[0] | null>(null)
+export default function ChallengeOnboarding() {
+  const [step, setStep] = useState(0);
+  const [selectedChallenge, setSelectedChallenge] = useState<
+    (typeof predefinedChallenges)[0] | null
+  >(null);
   const [customChallenge, setCustomChallenge] = useState({
     title: "",
     description: "",
     duration: 7,
-    tasks: [] as { name: string; dimension: string; icon: any; color: string }[],
-  })
-  const [showTaskForm, setShowTaskForm] = useState(false)
-  const [selectedTasks, setSelectedTasks] = useState<number[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+    tasks: [] as {
+      name: string;
+      dimension: string;
+      icon: any;
+      color: string;
+    }[],
+  });
+  const [showTaskForm, setShowTaskForm] = useState(false);
+  const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const onComplete = () => {
+    console.log("completed onboarding");
+  };
 
-  const containerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Scroll to top when step changes
   useEffect(() => {
     if (containerRef.current) {
-      containerRef.current.scrollTop = 0
+      containerRef.current.scrollTop = 0;
     }
-  }, [step])
+  }, [step]);
 
   // Get icon and color for a dimension
   const getDimensionIconAndColor = (dimension: string) => {
     switch (dimension) {
       case "Salah":
-        return { icon: PrayingHandsIcon, color: "#fb4934" }
+        return { icon: PrayingHandsIcon, color: "#fb4934" };
       case "Quran":
-        return { icon: BookOpen, color: "#8ec07c" }
+        return { icon: BookOpen, color: "#8ec07c" };
       case "Charity":
-        return { icon: Heart, color: "#fe8019" }
+        return { icon: Heart, color: "#fe8019" };
       case "Community":
-        return { icon: Users, color: "#fabd2f" }
+        return { icon: Users, color: "#fabd2f" };
       case "Dhikr":
-        return { icon: Moon, color: "#d3869b" }
+        return { icon: Moon, color: "#d3869b" };
       case "Knowledge":
-        return { icon: Compass, color: "#fabd2f" }
+        return { icon: Compass, color: "#fabd2f" };
       case "Character":
-        return { icon: Sunrise, color: "#fb4934" }
+        return { icon: Sunrise, color: "#fb4934" };
       default:
-        return { icon: Award, color: "#fe8019" }
+        return { icon: Award, color: "#fe8019" };
     }
-  }
+  };
 
   // Handle adding a custom task
   const handleAddTask = (task: { name: string; dimension: string }) => {
-    const { icon, color } = getDimensionIconAndColor(task.dimension)
+    const { icon, color } = getDimensionIconAndColor(task.dimension);
     setCustomChallenge({
       ...customChallenge,
       tasks: [...customChallenge.tasks, { ...task, icon, color }],
-    })
-    setShowTaskForm(false)
-  }
+    });
+    setShowTaskForm(false);
+  };
 
   // Handle task selection in step 3
   const toggleTaskSelection = (index: number) => {
     if (selectedTasks.includes(index)) {
-      setSelectedTasks(selectedTasks.filter((i) => i !== index))
+      setSelectedTasks(selectedTasks.filter((i) => i !== index));
     } else {
-      setSelectedTasks([...selectedTasks, index])
+      setSelectedTasks([...selectedTasks, index]);
     }
-  }
+  };
 
   // Handle challenge start
   const handleStartChallenge = () => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     // Simulate API call
     setTimeout(() => {
-      setIsLoading(false)
-      onComplete()
-    }, 1500)
-  }
+      setIsLoading(false);
+      onComplete();
+    }, 1500);
+  };
 
   // Render step content
   const renderStepContent = () => {
@@ -384,8 +505,12 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
               >
                 <Award className="h-8 w-8 text-[#1d2021]" />
               </motion.div>
-              <h2 className="text-2xl font-bold text-[#ebdbb2]">Welcome to Nafs</h2>
-              <p className="text-[#a89984]">Let's start your spiritual growth journey with a challenge</p>
+              <h2 className="text-2xl font-bold text-[#ebdbb2]">
+                Welcome to Nafs
+              </h2>
+              <p className="text-[#a89984]">
+                Let&apos;s start your spiritual growth journey with a challenge
+              </p>
             </div>
 
             <div className="space-y-4">
@@ -399,8 +524,12 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
                   <Check className="h-3 w-3 text-[#1d2021]" />
                 </div>
                 <div>
-                  <span className="text-[#ebdbb2]">Track your spiritual growth</span>
-                  <p className="text-sm text-[#a89984]">Monitor progress across 7 spiritual dimensions</p>
+                  <span className="text-[#ebdbb2]">
+                    Track your spiritual growth
+                  </span>
+                  <p className="text-sm text-[#a89984]">
+                    Monitor progress across 7 spiritual dimensions
+                  </p>
                 </div>
               </motion.div>
 
@@ -414,8 +543,12 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
                   <Check className="h-3 w-3 text-[#1d2021]" />
                 </div>
                 <div>
-                  <span className="text-[#ebdbb2]">Build consistent habits</span>
-                  <p className="text-sm text-[#a89984]">Develop routines that strengthen your faith</p>
+                  <span className="text-[#ebdbb2]">
+                    Build consistent habits
+                  </span>
+                  <p className="text-sm text-[#a89984]">
+                    Develop routines that strengthen your faith
+                  </p>
                 </div>
               </motion.div>
 
@@ -430,12 +563,14 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
                 </div>
                 <div>
                   <span className="text-[#ebdbb2]">Achieve your goals</span>
-                  <p className="text-sm text-[#a89984]">Complete challenges and earn achievements</p>
+                  <p className="text-sm text-[#a89984]">
+                    Complete challenges and earn achievements
+                  </p>
                 </div>
               </motion.div>
             </div>
           </motion.div>
-        )
+        );
 
       case 1: // Choose challenge
         return (
@@ -446,12 +581,16 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
             className="space-y-6"
           >
             <div className="text-center">
-              <h2 className="text-xl font-bold text-[#ebdbb2]">Choose a Challenge</h2>
-              <p className="text-[#a89984]">Select a pre-designed challenge or create your own</p>
+              <h2 className="text-xl font-bold text-[#ebdbb2]">
+                Choose a Challenge
+              </h2>
+              <p className="text-[#a89984]">
+                Select a pre-designed challenge or create your own
+              </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {predefinedChallenges.map((challenge, i) => (
+              {predefinedChallenges.map((challenge) => (
                 <ChallengeCard
                   key={challenge.id}
                   challenge={challenge}
@@ -477,7 +616,7 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
               </Button>
             </motion.div>
           </motion.div>
-        )
+        );
 
       case 2: // Challenge details
         return (
@@ -490,17 +629,27 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
             {selectedChallenge && (
               <>
                 <div className="text-center">
-                  <h2 className="text-xl font-bold text-[#ebdbb2]">{selectedChallenge.title}</h2>
-                  <p className="text-[#a89984]">{selectedChallenge.description}</p>
+                  <h2 className="text-xl font-bold text-[#ebdbb2]">
+                    {selectedChallenge.title}
+                  </h2>
+                  <p className="text-[#a89984]">
+                    {selectedChallenge.description}
+                  </p>
                 </div>
 
                 <div className="flex justify-center gap-3 flex-wrap">
-                  <Badge className="bg-[#3c3836] text-[#ebdbb2]">{selectedChallenge.duration} days</Badge>
-                  <Badge className="bg-[#3c3836] text-[#ebdbb2]">{selectedChallenge.difficulty}</Badge>
+                  <Badge className="bg-[#3c3836] text-[#ebdbb2]">
+                    {selectedChallenge.duration} days
+                  </Badge>
+                  <Badge className="bg-[#3c3836] text-[#ebdbb2]">
+                    {selectedChallenge.difficulty}
+                  </Badge>
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="text-[#ebdbb2] font-medium">Challenge Tasks</h3>
+                  <h3 className="text-[#ebdbb2] font-medium">
+                    Challenge Tasks
+                  </h3>
                   <div className="space-y-2">
                     {selectedChallenge.tasks.map((task, i) => (
                       <Task
@@ -515,14 +664,14 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
 
                 <div className="text-sm text-[#a89984]">
                   <p>
-                    Complete these tasks daily to progress in your spiritual journey. You can always modify your
-                    challenge later.
+                    Complete these tasks daily to progress in your spiritual
+                    journey. You can always modify your challenge later.
                   </p>
                 </div>
               </>
             )}
           </motion.div>
-        )
+        );
 
       case 3: // Challenge summary
         return (
@@ -543,18 +692,31 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
                   >
                     <Award className="h-8 w-8 text-[#1d2021]" />
                   </motion.div>
-                  <h2 className="text-xl font-bold text-[#ebdbb2]">Ready to Begin</h2>
-                  <p className="text-[#a89984]">You're all set to start your challenge</p>
+                  <h2 className="text-xl font-bold text-[#ebdbb2]">
+                    Ready to Begin
+                  </h2>
+                  <p className="text-[#a89984]">
+                    You&apos;re all set to start your challenge
+                  </p>
                 </div>
 
                 <div className="bg-[#1d2021] rounded-md p-4 border border-[#3c3836]">
-                  <h3 className="text-[#ebdbb2] font-medium mb-2">{selectedChallenge.title}</h3>
-                  <div className="text-sm text-[#a89984] mb-3">{selectedChallenge.description}</div>
+                  <h3 className="text-[#ebdbb2] font-medium mb-2">
+                    {selectedChallenge.title}
+                  </h3>
+                  <div className="text-sm text-[#a89984] mb-3">
+                    {selectedChallenge.description}
+                  </div>
 
                   <div className="flex gap-2 mb-4 flex-wrap">
-                    <Badge className="bg-[#3c3836] text-[#ebdbb2]">{selectedChallenge.duration} days</Badge>
                     <Badge className="bg-[#3c3836] text-[#ebdbb2]">
-                      {selectedTasks.length > 0 ? selectedTasks.length : selectedChallenge.tasks.length} tasks selected
+                      {selectedChallenge.duration} days
+                    </Badge>
+                    <Badge className="bg-[#3c3836] text-[#ebdbb2]">
+                      {selectedTasks.length > 0
+                        ? selectedTasks.length
+                        : selectedChallenge.tasks.length}{" "}
+                      tasks selected
                     </Badge>
                   </div>
 
@@ -564,26 +726,34 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
                         <div key={index} className="flex items-center">
                           <div
                             className="h-4 w-4 rounded-full mr-2"
-                            style={{ backgroundColor: selectedChallenge.tasks[index].color }}
+                            style={{
+                              backgroundColor:
+                                selectedChallenge.tasks[index].color,
+                            }}
                           ></div>
-                          <span className="text-sm text-[#ebdbb2]">{selectedChallenge.tasks[index].name}</span>
+                          <span className="text-sm text-[#ebdbb2]">
+                            {selectedChallenge.tasks[index].name}
+                          </span>
                         </div>
                       ))
                     ) : (
-                      <div className="text-sm text-[#a89984]">All tasks will be included</div>
+                      <div className="text-sm text-[#a89984]">
+                        All tasks will be included
+                      </div>
                     )}
                   </div>
                 </div>
 
                 <div className="text-sm text-[#a89984]">
                   <p>
-                    Your challenge will begin today. Complete tasks daily to build your streak and grow spiritually.
+                    Your challenge will begin today. Complete tasks daily to
+                    build your streak and grow spiritually.
                   </p>
                 </div>
               </>
             )}
           </motion.div>
-        )
+        );
 
       case 4: // Custom challenge - basic info
         return (
@@ -594,8 +764,12 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
             className="space-y-6"
           >
             <div className="text-center">
-              <h2 className="text-xl font-bold text-[#ebdbb2]">Create Your Challenge</h2>
-              <p className="text-[#a89984]">Design a custom challenge tailored to your needs</p>
+              <h2 className="text-xl font-bold text-[#ebdbb2]">
+                Create Your Challenge
+              </h2>
+              <p className="text-[#a89984]">
+                Design a custom challenge tailored to your needs
+              </p>
             </div>
 
             <div className="space-y-4">
@@ -603,7 +777,12 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
                 <label className="text-sm text-[#a89984]">Challenge Name</label>
                 <Input
                   value={customChallenge.title}
-                  onChange={(e) => setCustomChallenge({ ...customChallenge, title: e.target.value })}
+                  onChange={(e) =>
+                    setCustomChallenge({
+                      ...customChallenge,
+                      title: e.target.value,
+                    })
+                  }
                   placeholder="Enter challenge name"
                   className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] focus:border-[#fe8019] focus:ring-[#fe8019]"
                 />
@@ -613,7 +792,12 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
                 <label className="text-sm text-[#a89984]">Description</label>
                 <Textarea
                   value={customChallenge.description}
-                  onChange={(e) => setCustomChallenge({ ...customChallenge, description: e.target.value })}
+                  onChange={(e) =>
+                    setCustomChallenge({
+                      ...customChallenge,
+                      description: e.target.value,
+                    })
+                  }
                   placeholder="What is this challenge about?"
                   className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] focus:border-[#fe8019] focus:ring-[#fe8019]"
                   rows={3}
@@ -621,7 +805,9 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm text-[#a89984]">Duration (days)</label>
+                <label className="text-sm text-[#a89984]">
+                  Duration (days)
+                </label>
                 <div className="flex items-center space-x-2 flex-wrap gap-2">
                   {[7, 14, 21, 30].map((days) => (
                     <Badge
@@ -630,9 +816,14 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
                         "cursor-pointer transition-all",
                         customChallenge.duration === days
                           ? "bg-[#fe8019] text-[#1d2021] hover:bg-[#d65d0e]"
-                          : "bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945]",
+                          : "bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945]"
                       )}
-                      onClick={() => setCustomChallenge({ ...customChallenge, duration: days })}
+                      onClick={() =>
+                        setCustomChallenge({
+                          ...customChallenge,
+                          duration: days,
+                        })
+                      }
                     >
                       {days} days
                     </Badge>
@@ -641,7 +832,7 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
               </div>
             </div>
           </motion.div>
-        )
+        );
 
       case 5: // Custom challenge - add tasks
         return (
@@ -652,8 +843,12 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
             className="space-y-6"
           >
             <div className="text-center">
-              <h2 className="text-xl font-bold text-[#ebdbb2]">Add Challenge Tasks</h2>
-              <p className="text-[#a89984]">Create tasks to complete daily during your challenge</p>
+              <h2 className="text-xl font-bold text-[#ebdbb2]">
+                Add Challenge Tasks
+              </h2>
+              <p className="text-[#a89984]">
+                Create tasks to complete daily during your challenge
+              </p>
             </div>
 
             <div className="space-y-4">
@@ -672,8 +867,12 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
                           <task.icon className="h-4 w-4 text-[#1d2021]" />
                         </div>
                         <div>
-                          <span className="text-[#ebdbb2] text-sm sm:text-base">{task.name}</span>
-                          <div className="text-xs text-[#a89984] mt-1">{task.dimension}</div>
+                          <span className="text-[#ebdbb2] text-sm sm:text-base">
+                            {task.name}
+                          </span>
+                          <div className="text-xs text-[#a89984] mt-1">
+                            {task.dimension}
+                          </div>
                         </div>
                       </div>
                       <Button
@@ -683,8 +882,10 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
                         onClick={() => {
                           setCustomChallenge({
                             ...customChallenge,
-                            tasks: customChallenge.tasks.filter((_, index) => index !== i),
-                          })
+                            tasks: customChallenge.tasks.filter(
+                              (_, index) => index !== i
+                            ),
+                          });
                         }}
                       >
                         <svg
@@ -712,15 +913,24 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
               ) : (
                 <div className="text-center py-8 border border-dashed border-[#3c3836] rounded-md">
                   <p className="text-[#a89984]">No tasks added yet</p>
-                  <p className="text-xs text-[#a89984] mt-1">Add tasks to complete during your challenge</p>
+                  <p className="text-xs text-[#a89984] mt-1">
+                    Add tasks to complete during your challenge
+                  </p>
                 </div>
               )}
 
               <AnimatePresence>
                 {showTaskForm ? (
-                  <CustomTaskForm onAdd={handleAddTask} onCancel={() => setShowTaskForm(false)} />
+                  <CustomTaskForm
+                    onAdd={handleAddTask}
+                    onCancel={() => setShowTaskForm(false)}
+                  />
                 ) : (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
                     <Button
                       variant="outline"
                       className="w-full border-dashed border-[#3c3836] text-[#a89984] hover:text-[#fe8019] hover:border-[#fe8019] hover:bg-transparent"
@@ -735,10 +945,13 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
             </div>
 
             <div className="text-sm text-[#a89984]">
-              <p>Add at least 3 tasks to create a balanced challenge. Tasks should be achievable daily.</p>
+              <p>
+                Add at least 3 tasks to create a balanced challenge. Tasks
+                should be achievable daily.
+              </p>
             </div>
           </motion.div>
-        )
+        );
 
       case 6: // Custom challenge summary
         return (
@@ -757,19 +970,29 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
               >
                 <Award className="h-8 w-8 text-[#1d2021]" />
               </motion.div>
-              <h2 className="text-xl font-bold text-[#ebdbb2]">Challenge Created</h2>
-              <p className="text-[#a89984]">You're ready to begin your custom challenge</p>
+              <h2 className="text-xl font-bold text-[#ebdbb2]">
+                Challenge Created
+              </h2>
+              <p className="text-[#a89984]">
+                You&apos;re ready to begin your custom challenge
+              </p>
             </div>
 
             <div className="bg-[#1d2021] rounded-md p-4 border border-[#3c3836]">
-              <h3 className="text-[#ebdbb2] font-medium mb-2">{customChallenge.title || "Untitled Challenge"}</h3>
+              <h3 className="text-[#ebdbb2] font-medium mb-2">
+                {customChallenge.title || "Untitled Challenge"}
+              </h3>
               <div className="text-sm text-[#a89984] mb-3">
                 {customChallenge.description || "No description provided"}
               </div>
 
               <div className="flex gap-2 mb-4 flex-wrap">
-                <Badge className="bg-[#3c3836] text-[#ebdbb2]">{customChallenge.duration} days</Badge>
-                <Badge className="bg-[#3c3836] text-[#ebdbb2]">{customChallenge.tasks.length} tasks</Badge>
+                <Badge className="bg-[#3c3836] text-[#ebdbb2]">
+                  {customChallenge.duration} days
+                </Badge>
+                <Badge className="bg-[#3c3836] text-[#ebdbb2]">
+                  {customChallenge.tasks.length} tasks
+                </Badge>
               </div>
 
               <div className="space-y-2">
@@ -786,62 +1009,64 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
             </div>
 
             <div className="text-sm text-[#a89984]">
-              <p>Your challenge will begin today. Complete tasks daily to build your streak and grow spiritually.</p>
+              <p>
+                Your challenge will begin today. Complete tasks daily to build
+                your streak and grow spiritually.
+              </p>
             </div>
           </motion.div>
-        )
+        );
 
       default:
-        return null
+        return null;
     }
-  }
+  };
 
-  // Determine if next button should be disabled
   const isNextDisabled = () => {
     switch (step) {
-      case 1: // Choose challenge
-        return !selectedChallenge && step !== 4
-      case 4: // Custom challenge - basic info
-        return !customChallenge.title.trim()
-      case 5: // Custom challenge - add tasks
-        return customChallenge.tasks.length === 0
+      case 1:
+        return !selectedChallenge && step !== 4;
+      case 4:
+        return !customChallenge.title.trim();
+      case 5:
+        return customChallenge.tasks.length === 0;
       default:
-        return false
+        return false;
     }
-  }
+  };
 
   // Determine if finish button should be shown
   const showFinishButton = () => {
-    return (step === 3 && selectedChallenge) || step === 6
-  }
+    return (step === 3 && selectedChallenge) || step === 6;
+  };
 
   // Handle next step
   const handleNext = () => {
     if (step === 1 && !selectedChallenge) {
       // If no challenge selected, go to custom challenge creation
-      setStep(4)
+      setStep(4);
     } else if (step === 3 || step === 6) {
       // If on summary step, finish onboarding
-      handleStartChallenge()
+      handleStartChallenge();
     } else {
       // Otherwise, go to next step
-      setStep(step + 1)
+      setStep(step + 1);
     }
-  }
+  };
 
   // Handle back step
   const handleBack = () => {
     if (step === 4) {
       // If on custom challenge creation, go back to challenge selection
-      setStep(1)
+      setStep(1);
     } else {
       // Otherwise, go to previous step
-      setStep(Math.max(0, step - 1))
+      setStep(Math.max(0, step - 1));
     }
-  }
+  };
 
   return (
-    <div className="fixed inset-0 bg-[#1d2021]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 h-screen bg-[#1d2021]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -850,7 +1075,9 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
         <div className="p-4 border-b border-[#3c3836] flex items-center justify-between">
           <div className="flex items-center">
             <Award className="h-5 w-5 text-[#fe8019] mr-2" />
-            <span className="text-[#ebdbb2] font-medium">Challenge Onboarding</span>
+            <span className="text-[#ebdbb2] font-medium">
+              Challenge Onboarding
+            </span>
           </div>
           <div className="text-[#a89984] text-sm">
             Step {step + 1} of {selectedChallenge ? 4 : 7}
@@ -896,5 +1123,5 @@ export default function ChallengeOnboarding({ onComplete }: { onComplete: () => 
         </div>
       </motion.div>
     </div>
-  )
+  );
 }

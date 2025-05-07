@@ -2,8 +2,12 @@ import Tasks from "@/components/custom/dashboard/tasks";
 import Dimensions from "@/components/custom/dashboard/dimensions";
 import DashboardCalendar from "@/components/custom/dashboard/calendar-dashboard";
 import StatsCards from "@/components/custom/dashboard/stats-cards";
+import { fetchCurrentChallenge } from "@/lib/data";
+import { redirect } from "next/navigation";
 
-export default function DashboardPage() {
+const DashboardPage = async () => {
+  const currentChallenge = await fetchCurrentChallenge();
+
   const dailyTasks = [
     { id: 1, name: "Fajr and Asr in congregation", color: "#fb4934" },
     { id: 2, name: "Work on self-improvement", color: "#83a598" },
@@ -11,6 +15,10 @@ export default function DashboardPage() {
     { id: 4, name: "Quran memorization (15+ min)", color: "#fabd2f" },
     { id: 5, name: "Read, speak, record", color: "#fe8019" },
   ];
+
+  if (!currentChallenge) {
+    redirect("/onboarding");
+  }
 
   return (
     <div className="space-y-8">
@@ -22,4 +30,6 @@ export default function DashboardPage() {
       <StatsCards />
     </div>
   );
-}
+};
+
+export default DashboardPage;

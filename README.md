@@ -26,3 +26,4 @@ The way we do this is that there will be a top level **Server Component** and th
 To start with, extract all client side functionality based components into seperate granular components in the dashboard folder inside *components* folder
 Then, make async calls to the Prisma ORM and pass the data through props
 Lastly, render and commit the changes to the frontend
+
