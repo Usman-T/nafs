@@ -25,11 +25,7 @@ import CustomTaskForm from "./onboarding-task-form";
 import Task from "./onboarding-task";
 import ChallengeCard from "./onboarding-challenge";
 
-function PrayingHandsIcon({
-  className,
-}: {
-  className?: string;
-}) {
+function PrayingHandsIcon({ className }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -52,7 +48,7 @@ function PrayingHandsIcon({
   );
 }
 
-const ChallengeOnboarding = ({ predefinedChallenges }) => {
+export default function ChallengeOnboarding({ predefinedChallenges }) {
   const [step, setStep] = useState(0);
   const [selectedChallenge, setSelectedChallenge] = useState<
     (typeof predefinedChallenges)[0] | null
@@ -775,6 +771,4 @@ const ChallengeOnboarding = ({ predefinedChallenges }) => {
       </motion.div>
     </div>
   );
-};
-
-export default ChallengeOnboarding;
+}

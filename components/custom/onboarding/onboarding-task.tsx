@@ -1,19 +1,18 @@
-import { motion} from "framer-motion";
-import {
-  Check,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { iconMap } from "@/lib/iconMap";
 
 const Task = ({
   task,
   isSelected = false,
   onClick,
 }: {
-  task: { name: string; dimension: string; icon: any; color: string };
+  task: { name: string; dimension: string; icon: string; color: string };
   isSelected?: boolean;
   onClick?: () => void;
 }) => {
-  const IconComponent = task.icon;
+  const IconComponent = iconMap[task.icon] || BookOpen;
 
   return (
     <motion.div
@@ -56,4 +55,4 @@ const Task = ({
   );
 };
 
-export default Task
+export default Task;
