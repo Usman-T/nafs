@@ -1,9 +1,12 @@
-import ChallengeOnboarding from "@/components/custom/onboarding/onboarding";
+import { fetchChallenges } from "@/lib/data";
+import ChallengeOnboarding from "@/components/custom/onboarding/challenge-onboarding";
 
-const Onboarding = () => {
+const Onboarding = async () => {
+  const predefinedChallenges = await fetchChallenges();
+
   return (
     <div className="flex h-screen justify-center items-center">
-      <ChallengeOnboarding />
+      <ChallengeOnboarding predefinedChallenges={predefinedChallenges} />
     </div>
   );
 };
