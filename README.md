@@ -36,3 +36,26 @@ This is will be done in 5 commits:
 - Make basic async calls to the ORM 
 - Form actions of creating a challenge
 - Form actions for enrolling a challenge
+
+
+## Dimensions
+Faith – Iman in practice
+Salah, sincerity, intentions, tawakkul.
+
+Remembrance – Inner connection to Allah
+Dhikr, du'a, istighfar, presence.
+
+Knowledge – Learning for the soul
+Quran, Hadith, Islamic studies, reflection.
+
+Character – The Sunnah in action
+Manners, patience, honesty, humility.
+
+Discipline – Mastering the self
+Fajr wake-ups, fasting, time management, resisting the nafs.
+
+Body – The amana of your health
+Sleep, exercise, energy, nutrition.
+
+Purpose – Ambition for the akhirah & dunya
+Vision, goals, service, community, leadership.

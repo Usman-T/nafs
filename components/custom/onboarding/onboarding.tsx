@@ -73,14 +73,10 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to top when step changes
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = 0;
-    }
-  }, [step]);
-
-  // Get icon and color for a dimension
+    } }, [step]); // Get icon and color for a dimension
   const getDimensionIconAndColor = (dimension: string) => {
     switch (dimension) {
       case "Salah":
@@ -256,7 +252,7 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
               <Button
                 variant="outline"
                 className="border-[#3c3836] text-[#ebdbb2] hover:bg-[#3c3836] hover:text-[#fe8019]"
-                onClick={() => setStep(4)} // Skip to custom challenge creation
+                onClick={() => setStep(4)} 
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Custom Challenge

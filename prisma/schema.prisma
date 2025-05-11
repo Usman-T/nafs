@@ -141,12 +141,11 @@ model ChallengeTask {
   id          String @id @default(cuid())
   challengeId String
   taskId      String
-  day         Int
 
   challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
   task      Task      @relation(fields: [taskId], references: [id])
 
-  @@unique([challengeId, taskId, day])
+  @@unique([challengeId, taskId])
 }
 
 model UserChallenge {

@@ -1,4 +1,3 @@
-import { BookOpen, Heart, Users, Moon, Sunrise, Compass } from "lucide-react";
 
 const predefinedChallenges = [
   {
