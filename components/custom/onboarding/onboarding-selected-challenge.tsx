@@ -1,9 +1,43 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+<<<<<<< HEAD
 import { Challenge } from "@prisma/client";
 
 const SelectedChallenge = ({ challenge }: { challenge: Challenge }) => {
+=======
+import { fetchChallengeById } from "@/lib/data";
+import { Loader2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+
+const SelectedChallenge = ({
+  challengeId,
+}: {
+  challengeId: string | undefined;
+}) => {
+  const [challenge, setChallenge] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadChallenge = async () => {
+      try {
+        const selectedChallenge = await fetchChallengeById(challengeId);
+        setChallenge(selectedChallenge);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadChallenge();
+  }, [challengeId]);
+
+  if (loading) {
+    return <Loader2 className="h-6 w-6 animate-spin" />;
+  }
+
+>>>>>>> ff1d490b6917e4b4a79e64a7e68bbb6a6bc45e9a
   return (
     <>
       <div className="text-center">

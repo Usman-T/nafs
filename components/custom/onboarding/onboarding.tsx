@@ -49,17 +49,11 @@ function PrayingHandsIcon({ className }: { className?: string }) {
   );
 }
 
-export default function ChallengeOnboarding({
-  predefinedChallenges,
-  getChallengeById,
-}: {
-  predefinedChallenges: Challenge[];
-  getChallengeById: (id: string) => Promise<Challenge | null>;
-}) {
+export default function ChallengeOnboarding({ predefinedChallenges }) {
   const [step, setStep] = useState(0);
-  const [selectedChallenge, setselectedChallenge] = useState<string | null>(
-    null
-  );
+  const [selectedChallenge, setSelectedChallenge] = useState<
+    (typeof predefinedChallenges)[0] | null
+  >(null);
   const [customChallenge, setCustomChallenge] = useState({
     title: "",
     description: "",
@@ -246,8 +240,8 @@ export default function ChallengeOnboarding({
                 <ChallengeCard
                   key={challenge.id}
                   challenge={challenge}
-                  isSelected={selectedChallenge === challenge.id}
-                  onSelect={() => setselectedChallenge(challenge.id)}
+                  isSelected={selectedChallenge?.id === challenge.id}
+                  onSelect={() => setSelectedChallenge(challenge)}
                 />
               ))}
             </div>
@@ -278,7 +272,50 @@ export default function ChallengeOnboarding({
             exit={{ opacity: 0, y: -20 }}
             className="space-y-6"
           >
-            <SelectedChallenge challenge={selectedChallenge} />
+            {selectedChallenge && (
+              <>
+                <div className="text-center">
+                  <h2 className="text-xl font-bold text-[#ebdbb2]">
+                    {selectedChallenge.title}
+                  </h2>
+                  <p className="text-[#a89984]">
+                    {selectedChallenge.description}
+                  </p>
+                </div>
+
+                <div className="flex justify-center gap-3 flex-wrap">
+                  <Badge className="bg-[#3c3836] text-[#ebdbb2]">
+                    {selectedChallenge.duration} days
+                  </Badge>
+                  <Badge className="bg-[#3c3836] text-[#ebdbb2]">
+                    {selectedChallenge.difficulty}
+                  </Badge>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-[#ebdbb2] font-medium">
+                    Challenge Tasks
+                  </h3>
+                  <div className="space-y-2">
+                    {selectedChallenge.tasks.map((task, i) => (
+                      <Task
+                        key={i}
+                        task={task}
+                        isSelected={selectedTasks.includes(i)}
+                        onClick={() => toggleTaskSelection(i)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="text-sm text-[#a89984]">
+                  <p>
+                    Complete these tasks daily to progress in your spiritual
+                    journey. You can always modify your challenge later.
+                  </p>
+                </div>
+              </>
+            )}
           </motion.div>
         );
 
@@ -290,7 +327,7 @@ export default function ChallengeOnboarding({
             exit={{ opacity: 0, y: -20 }}
             className="space-y-6"
           >
-            {selectedChallenge && (
+            {selectedChallengeId && (
               <>
                 <div className="text-center space-y-2">
                   <motion.div
@@ -311,20 +348,20 @@ export default function ChallengeOnboarding({
 
                 <div className="bg-[#1d2021] rounded-md p-4 border border-[#3c3836]">
                   <h3 className="text-[#ebdbb2] font-medium mb-2">
-                    {selectedChallenge.title}
+                    {selectedChallengeId.title}
                   </h3>
                   <div className="text-sm text-[#a89984] mb-3">
-                    {selectedChallenge.description}
+                    {selectedChallengeId.description}
                   </div>
 
                   <div className="flex gap-2 mb-4 flex-wrap">
                     <Badge className="bg-[#3c3836] text-[#ebdbb2]">
-                      {selectedChallenge.duration} days
+                      {selectedChallengeId.duration} days
                     </Badge>
                     <Badge className="bg-[#3c3836] text-[#ebdbb2]">
                       {selectedTasks.length > 0
                         ? selectedTasks.length
-                        : selectedChallenge.tasks.length}{" "}
+                        : selectedChallengeId.tasks.length}{" "}
                       tasks selected
                     </Badge>
                   </div>
@@ -337,11 +374,11 @@ export default function ChallengeOnboarding({
                             className="h-4 w-4 rounded-full mr-2"
                             style={{
                               backgroundColor:
-                                selectedChallenge.tasks[index].color,
+                                selectedChallengeId.tasks[index].color,
                             }}
                           ></div>
                           <span className="text-sm text-[#ebdbb2]">
-                            {.tasks[index].name}
+                            {selectedChallenge.tasks[index].name}
                           </span>
                         </div>
                       ))
@@ -634,7 +671,7 @@ export default function ChallengeOnboarding({
   const isNextDisabled = () => {
     switch (step) {
       case 1:
-        return !selectedChallenge && step !== 4;
+        return !selectedChallengeId && step !== 4;
       case 4:
         return !customChallenge.title.trim();
       case 5:
@@ -646,12 +683,12 @@ export default function ChallengeOnboarding({
 
   // Determine if finish button should be shown
   const showFinishButton = () => {
-    return (step === 3 && selectedChallenge) || step === 6;
+    return (step === 3 && selectedChallengeId) || step === 6;
   };
 
   // Handle next step
   const handleNext = () => {
-    if (step === 1 && !selectedChallenge) {
+    if (step === 1 && !selectedChallengeId) {
       // If no challenge selected, go to custom challenge creation
       setStep(4);
     } else if (step === 3 || step === 6) {
@@ -689,7 +726,7 @@ export default function ChallengeOnboarding({
             </span>
           </div>
           <div className="text-[#a89984] text-sm">
-            Step {step + 1} of {selectedChallenge ? 4 : 7}
+            Step {step + 1} of {selectedChallengeId ? 4 : 7}
           </div>
         </div>
 
