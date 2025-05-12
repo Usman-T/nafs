@@ -1,30 +1,40 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-<<<<<<< HEAD
-import { Challenge } from "@prisma/client";
-
-const SelectedChallenge = ({ challenge }: { challenge: Challenge }) => {
-=======
-import { fetchChallengeById } from "@/lib/data";
+import { Challenge, Dimension, Task as TaskType } from "@prisma/client";
 import { Loader2 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import Task from "./onboarding-task";
 
-const SelectedChallenge = ({
-  challengeId,
-}: {
-  challengeId: string | undefined;
-}) => {
-  const [challenge, setChallenge] = useState(null);
+type ChallengeTask = {
+  task: TaskType & {
+    dimension: Dimension;
+  };
+};
+
+const SelectedChallenge = ({ challengeId }: { challengeId: string }) => {
+  const [challenge, setChallenge] = useState<
+    (Challenge & { tasks: ChallengeTask[] }) | null
+  >(null);
   const [loading, setLoading] = useState(true);
+  const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
+
+  const toggleTaskSelection = (taskIndex: number) => {
+    setSelectedTasks((prev) =>
+      prev.includes(taskIndex)
+        ? prev.filter((index) => index !== taskIndex)
+        : [...prev, taskIndex]
+    );
+  };
 
   useEffect(() => {
     const loadChallenge = async () => {
       try {
-        const selectedChallenge = await fetchChallengeById(challengeId);
-        setChallenge(selectedChallenge);
+        const response = await fetch(`/api/challenges/${challengeId}`);
+        const data = await response.json();
+        setChallenge(data.challenge); 
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching challenge:", error);
       } finally {
         setLoading(false);
       }
@@ -33,11 +43,54 @@ const SelectedChallenge = ({
     loadChallenge();
   }, [challengeId]);
 
+
+
   if (loading) {
-    return <Loader2 className="h-6 w-6 animate-spin" />;
+    return (
+      <div className="space-y-6 animate-pulse">
+        {/* Title Skeleton */}
+        <div className="text-center space-y-2">
+          <div className="h-7 w-3/4 bg-[#3c3836] rounded mx-auto"></div>
+          <div className="h-4 w-5/6 bg-[#3c3836] rounded mx-auto"></div>
+        </div>
+
+        {/* Badge Skeleton */}
+        <div className="flex justify-center">
+          <div className="h-8 w-24 bg-[#3c3836] rounded-full"></div>
+        </div>
+
+        {/* Tasks Skeleton */}
+        <div className="space-y-3">
+          <div className="h-5 w-1/3 bg-[#3c3836] rounded"></div>
+          <div className="space-y-2">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-14 bg-[#3c3836] rounded-lg"></div>
+            ))}
+          </div>
+        </div>
+
+        {/* Description Skeleton */}
+        <div className="space-y-2">
+          <div className="h-3 w-full bg-[#3c3836] rounded"></div>
+          <div className="h-3 w-5/6 bg-[#3c3836] rounded"></div>
+        </div>
+      </div>
+    );
   }
 
->>>>>>> ff1d490b6917e4b4a79e64a7e68bbb6a6bc45e9a
+  if (!challenge) {
+    return (
+      <div className="text-center space-y-4">
+        <div className="text-[#fb4934] text-lg font-medium">
+          Challenge not found
+        </div>
+        <p className="text-[#a89984]">
+          The requested challenge could not be loaded. Please try again later.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="text-center">
@@ -46,7 +99,7 @@ const SelectedChallenge = ({
       </div>
 
       <div className="flex justify-center gap-3 flex-wrap">
-        <Badge className="bg-[#3c3836] text-[#ebdbb2]">
+        <Badge className="bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945] transition-colors">
           {challenge.duration} days
         </Badge>
       </div>
@@ -54,7 +107,7 @@ const SelectedChallenge = ({
       <div className="space-y-3">
         <h3 className="text-[#ebdbb2] font-medium">Challenge Tasks</h3>
         <div className="space-y-2">
-          {selectedChallenge.tasks.map((task, i) => (
+          {challenge.tasks.map(({ task }, i) => (
             <Task
               key={i}
               task={task}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, Suspense } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,11 +49,15 @@ function PrayingHandsIcon({ className }: { className?: string }) {
   );
 }
 
-export default function ChallengeOnboarding({ predefinedChallenges }) {
+export default function ChallengeOnboarding({
+  predefinedChallenges,
+}: {
+  predefinedChallenges: Challenge[];
+}) {
   const [step, setStep] = useState(0);
-  const [selectedChallenge, setSelectedChallenge] = useState<
-    (typeof predefinedChallenges)[0] | null
-  >(null);
+  const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(
+    null
+  );
   const [customChallenge, setCustomChallenge] = useState({
     title: "",
     description: "",
@@ -120,18 +124,15 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
     }
   };
 
-  // Handle challenge start
   const handleStartChallenge = () => {
     setIsLoading(true);
 
-    // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       onComplete();
     }, 1500);
   };
 
-  // Render step content
   const renderStepContent = () => {
     switch (step) {
       case 0: // Welcome
@@ -240,8 +241,8 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
                 <ChallengeCard
                   key={challenge.id}
                   challenge={challenge}
-                  isSelected={selectedChallenge?.id === challenge.id}
-                  onSelect={() => setSelectedChallenge(challenge)}
+                  isSelected={selectedChallengeId === challenge.id}
+                  onSelect={() => setSelectedChallengeId(challenge.id)}
                 />
               ))}
             </div>
@@ -272,48 +273,9 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
             exit={{ opacity: 0, y: -20 }}
             className="space-y-6"
           >
-            {selectedChallenge && (
+            {selectedChallengeId && (
               <>
-                <div className="text-center">
-                  <h2 className="text-xl font-bold text-[#ebdbb2]">
-                    {selectedChallenge.title}
-                  </h2>
-                  <p className="text-[#a89984]">
-                    {selectedChallenge.description}
-                  </p>
-                </div>
-
-                <div className="flex justify-center gap-3 flex-wrap">
-                  <Badge className="bg-[#3c3836] text-[#ebdbb2]">
-                    {selectedChallenge.duration} days
-                  </Badge>
-                  <Badge className="bg-[#3c3836] text-[#ebdbb2]">
-                    {selectedChallenge.difficulty}
-                  </Badge>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="text-[#ebdbb2] font-medium">
-                    Challenge Tasks
-                  </h3>
-                  <div className="space-y-2">
-                    {selectedChallenge.tasks.map((task, i) => (
-                      <Task
-                        key={i}
-                        task={task}
-                        isSelected={selectedTasks.includes(i)}
-                        onClick={() => toggleTaskSelection(i)}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="text-sm text-[#a89984]">
-                  <p>
-                    Complete these tasks daily to progress in your spiritual
-                    journey. You can always modify your challenge later.
-                  </p>
-                </div>
+                <SelectedChallenge challengeId={selectedChallengeId}/>
               </>
             )}
           </motion.div>
@@ -378,7 +340,7 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
                             }}
                           ></div>
                           <span className="text-sm text-[#ebdbb2]">
-                            {selectedChallenge.tasks[index].name}
+                            {selectedChallengeId.tasks[index].name}
                           </span>
                         </div>
                       ))
