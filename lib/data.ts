@@ -1,7 +1,6 @@
 import prisma from "@/prisma";
 import { auth } from "@/auth";
-import predefinedChallenges from "@/lib/predefined"
- 
+
 export const getUsers = async () => {
   try {
     const users = prisma.user.findMany({});
@@ -32,6 +31,50 @@ export const fetchCurrentChallenge = async () => {
 };
 
 export const fetchChallenges = async () => {
+  const challenges = await prisma.challenge.findMany({
+    take: 3,
+    orderBy: {
+      createdAt: "asc",
+    },
+    include: {
+      tasks: {
+        include: {
+          task: {
+            include: {
+              dimension: true,
+            },
+          },
+        },
+      },
+    },
+  });
 
-  return predefinedChallenges;
+  console.log({ fetched: challenges });
+
+  return challenges;
+};
+
+export const fetchChallengeById = async (id: string | undefined) => {
+  const challenge = await prisma.challenge.findUnique({
+    where: {
+      id: id,
+    },
+    include: {
+      tasks: {
+        include: {
+          task: {
+            include: {
+              dimension: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!challenge) {
+    throw new Error("Challenge not found");
+  }
+
+  return challenge;
 };

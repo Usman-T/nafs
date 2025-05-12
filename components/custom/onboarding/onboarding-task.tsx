@@ -2,17 +2,18 @@ import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { iconMap } from "@/lib/iconMap";
+import { Dimension, Task as TaskType } from "@prisma/client";
 
 const Task = ({
   task,
   isSelected = false,
   onClick,
 }: {
-  task: { name: string; dimension: string; icon: string; color: string };
+  task: TaskType & { dimension: Dimension };
   isSelected?: boolean;
   onClick?: () => void;
 }) => {
-  const IconComponent = iconMap[task.icon] || BookOpen;
+  const IconComponent = iconMap[task.dimension.icon] || "BookOpen";
 
   return (
     <motion.div
@@ -31,7 +32,7 @@ const Task = ({
       <div className="flex items-center">
         <div
           className="h-8 w-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
-          style={{ backgroundColor: task.color }}
+          style={{ backgroundColor: task.dimension.color }}
         >
           <IconComponent className="h-4 w-4 text-[#1d2021]" />
         </div>
@@ -39,7 +40,9 @@ const Task = ({
           <span className="text-[#ebdbb2] text-sm sm:text-base">
             {task.name}
           </span>
-          <div className="text-xs text-[#a89984] mt-1">{task.dimension}</div>
+          <div className="text-xs text-[#a89984] mt-1">
+            {task.dimension.name}
+          </div>
         </div>
       </div>
       {isSelected && (
