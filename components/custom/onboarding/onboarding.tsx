@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,8 +22,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import CustomTaskForm from "./onboarding-task-form";
-import Task from "./onboarding-task";
 import ChallengeCard from "./onboarding-challenge";
+import { Challenge } from "@prisma/client";
+import SelectedChallenge from "@/components/custom/onboarding/onboarding-selected-challenge";
 
 function PrayingHandsIcon({ className }: { className?: string }) {
   return (
@@ -48,11 +49,17 @@ function PrayingHandsIcon({ className }: { className?: string }) {
   );
 }
 
-export default function ChallengeOnboarding({ predefinedChallenges }) {
+export default function ChallengeOnboarding({
+  predefinedChallenges,
+  getChallengeById,
+}: {
+  predefinedChallenges: Challenge[];
+  getChallengeById: (id: string) => Promise<Challenge | null>;
+}) {
   const [step, setStep] = useState(0);
-  const [selectedChallenge, setSelectedChallenge] = useState<
-    (typeof predefinedChallenges)[0] | null
-  >(null);
+  const [selectedChallenge, setselectedChallenge] = useState<string | null>(
+    null
+  );
   const [customChallenge, setCustomChallenge] = useState({
     title: "",
     description: "",
@@ -76,7 +83,9 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = 0;
-    } }, [step]); // Get icon and color for a dimension
+    }
+  }, [step]);
+
   const getDimensionIconAndColor = (dimension: string) => {
     switch (dimension) {
       case "Salah":
@@ -237,8 +246,8 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
                 <ChallengeCard
                   key={challenge.id}
                   challenge={challenge}
-                  isSelected={selectedChallenge?.id === challenge.id}
-                  onSelect={() => setSelectedChallenge(challenge)}
+                  isSelected={selectedChallenge === challenge.id}
+                  onSelect={() => setselectedChallenge(challenge.id)}
                 />
               ))}
             </div>
@@ -252,7 +261,7 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
               <Button
                 variant="outline"
                 className="border-[#3c3836] text-[#ebdbb2] hover:bg-[#3c3836] hover:text-[#fe8019]"
-                onClick={() => setStep(4)} 
+                onClick={() => setStep(4)}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Custom Challenge
@@ -261,7 +270,7 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
           </motion.div>
         );
 
-      case 2: // Challenge details
+      case 2:
         return (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -269,50 +278,7 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
             exit={{ opacity: 0, y: -20 }}
             className="space-y-6"
           >
-            {selectedChallenge && (
-              <>
-                <div className="text-center">
-                  <h2 className="text-xl font-bold text-[#ebdbb2]">
-                    {selectedChallenge.title}
-                  </h2>
-                  <p className="text-[#a89984]">
-                    {selectedChallenge.description}
-                  </p>
-                </div>
-
-                <div className="flex justify-center gap-3 flex-wrap">
-                  <Badge className="bg-[#3c3836] text-[#ebdbb2]">
-                    {selectedChallenge.duration} days
-                  </Badge>
-                  <Badge className="bg-[#3c3836] text-[#ebdbb2]">
-                    {selectedChallenge.difficulty}
-                  </Badge>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="text-[#ebdbb2] font-medium">
-                    Challenge Tasks
-                  </h3>
-                  <div className="space-y-2">
-                    {selectedChallenge.tasks.map((task, i) => (
-                      <Task
-                        key={i}
-                        task={task}
-                        isSelected={selectedTasks.includes(i)}
-                        onClick={() => toggleTaskSelection(i)}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="text-sm text-[#a89984]">
-                  <p>
-                    Complete these tasks daily to progress in your spiritual
-                    journey. You can always modify your challenge later.
-                  </p>
-                </div>
-              </>
-            )}
+            <SelectedChallenge challenge={selectedChallenge} />
           </motion.div>
         );
 
@@ -375,7 +341,7 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
                             }}
                           ></div>
                           <span className="text-sm text-[#ebdbb2]">
-                            {selectedChallenge.tasks[index].name}
+                            {.tasks[index].name}
                           </span>
                         </div>
                       ))

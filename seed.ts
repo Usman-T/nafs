@@ -11,7 +11,6 @@ async function main() {
   for (const challenge of predefinedChallenges) {
     console.log(`🌟 Creating challenge: ${challenge.title}`);
 
-    // Create or find dimension records and cache their IDs
     for (const task of challenge.tasks) {
       if (!dimensionCache.has(task.dimension)) {
         const dimension = await prisma.dimension.upsert({
@@ -28,7 +27,6 @@ async function main() {
       }
     }
 
-    // Create challenge
     const createdChallenge = await prisma.challenge.create({
       data: {
         id: challenge.id,
@@ -38,7 +36,6 @@ async function main() {
       },
     });
 
-    // Create tasks and associate them with challenge
     for (let i = 0; i < challenge.tasks.length; i++) {
       const task = challenge.tasks[i];
       const dimensionId = dimensionCache.get(task.dimension)!;

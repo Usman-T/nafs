@@ -1,5 +1,4 @@
-
-import { motion} from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Card,
   CardContent,
@@ -8,21 +7,23 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Award,
-} from "lucide-react";
+import { Award } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Challenge, ChallengeTask, Dimension, Task } from "@prisma/client";
 
 const ChallengeCard = ({
   challenge,
   isSelected = false,
   onSelect,
 }: {
-  challenge: (typeof predefinedChallenges)[0];
+  challenge: Challenge & {
+    tasks: ChallengeTask[] & { task: Task & { dimension: Dimension } };
+  };
   isSelected?: boolean;
   onSelect: () => void;
 }) => {
+  console.log(challenge);
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -44,7 +45,7 @@ const ChallengeCard = ({
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center text-[#ebdbb2] text-base sm:text-lg">
             <Award className="h-5 w-5 text-[#fe8019] mr-2 flex-shrink-0" />
-            {challenge.title}
+            {challenge.name}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -56,17 +57,14 @@ const ChallengeCard = ({
             <Badge className="bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945] text-xs">
               {challenge.duration} days
             </Badge>
-            <Badge className="bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945] text-xs">
-              {challenge.difficulty}
-            </Badge>
           </div>
 
           <div className="space-y-2">
-            {challenge.tasks.slice(0, 3).map((task, i) => (
+            {challenge.tasks.slice(0, 3).map(({ task }, i) => (
               <div key={i} className="flex items-center">
                 <div
                   className="h-3 w-3 rounded-full flex-shrink-0 mr-2"
-                  style={{ backgroundColor: task.color }}
+                  style={{ backgroundColor: task.dimension.color }}
                 ></div>
                 <span className="text-xs text-[#ebdbb2] truncate">
                   {task.name}
@@ -101,7 +99,5 @@ const ChallengeCard = ({
       </Card>
     </motion.div>
   );
-}
-;
-
-export default ChallengeCard
+};
+export default ChallengeCard;
