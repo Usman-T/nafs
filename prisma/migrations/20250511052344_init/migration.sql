@@ -2,6 +2,7 @@
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -9,6 +10,7 @@ CREATE TABLE "User" (
     "currentStreak" INTEGER NOT NULL DEFAULT 0,
     "longestStreak" INTEGER NOT NULL DEFAULT 0,
     "lastActiveDate" TIMESTAMP(3),
+    "challengeId" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -112,7 +114,6 @@ CREATE TABLE "ChallengeTask" (
     "id" TEXT NOT NULL,
     "challengeId" TEXT NOT NULL,
     "taskId" TEXT NOT NULL,
-    "day" INTEGER NOT NULL,
 
     CONSTRAINT "ChallengeTask_pkey" PRIMARY KEY ("id")
 );
@@ -165,6 +166,9 @@ CREATE TABLE "Reflection" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Dimension_name_key" ON "Dimension"("name");
 
 -- CreateIndex
@@ -186,7 +190,7 @@ CREATE INDEX "CompletedTask_userId_completedAt_idx" ON "CompletedTask"("userId",
 CREATE UNIQUE INDEX "UserAchievement_userId_achievementId_key" ON "UserAchievement"("userId", "achievementId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "ChallengeTask_challengeId_taskId_day_key" ON "ChallengeTask"("challengeId", "taskId", "day");
+CREATE UNIQUE INDEX "ChallengeTask_challengeId_taskId_key" ON "ChallengeTask"("challengeId", "taskId");
 
 -- CreateIndex
 CREATE INDEX "UserChallenge_userId_startDate_idx" ON "UserChallenge"("userId", "startDate");
@@ -196,6 +200,9 @@ CREATE UNIQUE INDEX "UserSettings_userId_key" ON "UserSettings"("userId");
 
 -- CreateIndex
 CREATE INDEX "Reflection_userId_date_idx" ON "Reflection"("userId", "date");
+
+-- AddForeignKey
+ALTER TABLE "User" ADD CONSTRAINT "User_challengeId_fkey" FOREIGN KEY ("challengeId") REFERENCES "Challenge"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "DimensionValue" ADD CONSTRAINT "DimensionValue_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -26,3 +26,14 @@ The way we do this is that there will be a top level **Server Component** and th
 To start with, extract all client side functionality based components into seperate granular components in the dashboard folder inside *components* folder
 Then, make async calls to the Prisma ORM and pass the data through props
 Lastly, render and commit the changes to the frontend
+
+## Onboarding
+Onboarding component is a client component with roughly 1100 lines of code, it needs to be simplifed by modulizing it into simpler more granular components and then all of them can be merged together
+We will be using server actions for the creation and enrollment of challenges as they're far performant
+This is will be done in 5 commits:
+- Modulize the component
+- Convert it into server component
+- What if we make it into a server comp, how would the steps communicate with each other?? How would step 3 and 4 know the selected challenge ID? It must be state so "use client" must be used
+- Make basic async calls to the ORM 
+- Form actions of creating a challenge
+- Form actions for enrolling a challenge
