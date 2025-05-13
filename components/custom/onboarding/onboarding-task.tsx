@@ -30,11 +30,14 @@ const Task = ({
       onClick={onClick}
     >
       <div className="flex items-center">
-        <div
-          className="h-8 w-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
-          style={{ backgroundColor: task.dimension.color }}
-        >
-          <IconComponent className="h-4 w-4 text-[#1d2021]" />
+        <div className="h-8 w-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+          <IconComponent
+            className="h-4 w-4"
+            style={{
+              color: task.dimension.color,
+              borderColor: task.dimension.color,
+            }}
+          />
         </div>
         <div>
           <span className="text-[#ebdbb2] text-sm sm:text-base">

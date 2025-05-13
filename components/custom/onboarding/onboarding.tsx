@@ -25,6 +25,7 @@ import CustomTaskForm from "./onboarding-task-form";
 import ChallengeCard from "./onboarding-challenge";
 import { Challenge } from "@prisma/client";
 import SelectedChallenge from "@/components/custom/onboarding/onboarding-selected-challenge";
+import ChallengeSummary from "./onboarding-challenge-summary";
 
 function PrayingHandsIcon({ className }: { className?: string }) {
   return (
@@ -72,6 +73,11 @@ export default function ChallengeOnboarding({
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [challengeLoading, setChallengeLoading] = useState(false);
+  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(
+    null
+  );
+
   const onComplete = () => {
     console.log("completed onboarding");
   };
@@ -104,6 +110,21 @@ export default function ChallengeOnboarding({
         return { icon: Award, color: "#fe8019" };
     }
   };
+
+  useEffect(() => {
+    const loadChallenge = async () => {
+      try {
+        const response = await fetch(`/api/challenges/${selectedChallengeId}`);
+        const data = await response.json();
+        setSelectedChallenge(data.challenge);
+      } catch (error) {
+        console.error("Error fetching challenge:", error);
+      } finally {
+        setChallengeLoading(false);
+      }
+    };
+    loadChallenge();
+  }, [selectedChallengeId]);
 
   // Handle adding a custom task
   const handleAddTask = (task: { name: string; dimension: string }) => {
@@ -275,7 +296,12 @@ export default function ChallengeOnboarding({
           >
             {selectedChallengeId && (
               <>
-                <SelectedChallenge challengeId={selectedChallengeId}/>
+                <SelectedChallenge
+                  selectedTasks={selectedTasks}
+                  setSelectedTasks={setSelectedTasks}
+                  challenge={selectedChallenge}
+                  loading={challengeLoading}
+                />
               </>
             )}
           </motion.div>
@@ -291,73 +317,10 @@ export default function ChallengeOnboarding({
           >
             {selectedChallengeId && (
               <>
-                <div className="text-center space-y-2">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                    className="mx-auto h-16 w-16 rounded-full bg-[#fe8019] flex items-center justify-center mb-4"
-                  >
-                    <Award className="h-8 w-8 text-[#1d2021]" />
-                  </motion.div>
-                  <h2 className="text-xl font-bold text-[#ebdbb2]">
-                    Ready to Begin
-                  </h2>
-                  <p className="text-[#a89984]">
-                    You&apos;re all set to start your challenge
-                  </p>
-                </div>
-
-                <div className="bg-[#1d2021] rounded-md p-4 border border-[#3c3836]">
-                  <h3 className="text-[#ebdbb2] font-medium mb-2">
-                    {selectedChallengeId.title}
-                  </h3>
-                  <div className="text-sm text-[#a89984] mb-3">
-                    {selectedChallengeId.description}
-                  </div>
-
-                  <div className="flex gap-2 mb-4 flex-wrap">
-                    <Badge className="bg-[#3c3836] text-[#ebdbb2]">
-                      {selectedChallengeId.duration} days
-                    </Badge>
-                    <Badge className="bg-[#3c3836] text-[#ebdbb2]">
-                      {selectedTasks.length > 0
-                        ? selectedTasks.length
-                        : selectedChallengeId.tasks.length}{" "}
-                      tasks selected
-                    </Badge>
-                  </div>
-
-                  <div className="space-y-2">
-                    {selectedTasks.length > 0 ? (
-                      selectedTasks.map((index) => (
-                        <div key={index} className="flex items-center">
-                          <div
-                            className="h-4 w-4 rounded-full mr-2"
-                            style={{
-                              backgroundColor:
-                                selectedChallengeId.tasks[index].color,
-                            }}
-                          ></div>
-                          <span className="text-sm text-[#ebdbb2]">
-                            {selectedChallengeId.tasks[index].name}
-                          </span>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-sm text-[#a89984]">
-                        All tasks will be included
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="text-sm text-[#a89984]">
-                  <p>
-                    Your challenge will begin today. Complete tasks daily to
-                    build your streak and grow spiritually.
-                  </p>
-                </div>
+                <ChallengeSummary
+                  selectedTasks={selectedTasks}
+                  challenge={selectedChallenge}
+                />
               </>
             )}
           </motion.div>
@@ -634,6 +597,8 @@ export default function ChallengeOnboarding({
     switch (step) {
       case 1:
         return !selectedChallengeId && step !== 4;
+      case 2:
+        return selectedTasks.length < 3;
       case 4:
         return !customChallenge.title.trim();
       case 5:

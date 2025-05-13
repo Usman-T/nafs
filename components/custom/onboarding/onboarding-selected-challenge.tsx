@@ -1,24 +1,28 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Challenge, Dimension, Task as TaskType } from "@prisma/client";
-import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import Task from "./onboarding-task";
+import {
+  Challenge,
+  ChallengeTask,
+  Dimension,
+  Task as TaskType,
+} from "@prisma/client";
+import { Dispatch, SetStateAction } from "react";
+import Task from "@/components/custom/onboarding/onboarding-task";
 
-type ChallengeTask = {
-  task: TaskType & {
-    dimension: Dimension;
+const SelectedChallenge = ({
+  challenge,
+  loading,
+  selectedTasks,
+  setSelectedTasks,
+}: {
+  challenge: Challenge & {
+    tasks: ChallengeTask[] & { task: TaskType & { dimension: Dimension } };
   };
-};
-
-const SelectedChallenge = ({ challengeId }: { challengeId: string }) => {
-  const [challenge, setChallenge] = useState<
-    (Challenge & { tasks: ChallengeTask[] }) | null
-  >(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
-
+  loading: boolean;
+  selectedTasks: number[];
+  setSelectedTasks: Dispatch<SetStateAction<number[]>>;
+}) => {
   const toggleTaskSelection = (taskIndex: number) => {
     setSelectedTasks((prev) =>
       prev.includes(taskIndex)
@@ -26,24 +30,6 @@ const SelectedChallenge = ({ challengeId }: { challengeId: string }) => {
         : [...prev, taskIndex]
     );
   };
-
-  useEffect(() => {
-    const loadChallenge = async () => {
-      try {
-        const response = await fetch(`/api/challenges/${challengeId}`);
-        const data = await response.json();
-        setChallenge(data.challenge); 
-      } catch (error) {
-        console.error("Error fetching challenge:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadChallenge();
-  }, [challengeId]);
-
-
 
   if (loading) {
     return (
@@ -113,15 +99,16 @@ const SelectedChallenge = ({ challengeId }: { challengeId: string }) => {
               task={task}
               isSelected={selectedTasks.includes(i)}
               onClick={() => toggleTaskSelection(i)}
+              selectedTasks={selectedTasks}
+              setSelectedTasks={setSelectedTasks}
             />
           ))}
         </div>
       </div>
 
-      <div className="text-sm text-[#a89984]">
+      <div className="text-sm text-[#a89984] text-center">
         <p>
-          Complete these tasks daily to progress in your spiritual journey. You
-          can always modify your challenge later.
+          Select at least 3 tasks and complete them daily to progress in your spiritual journey. 
         </p>
       </div>
     </>

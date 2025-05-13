@@ -1,15 +1,18 @@
-"use client"
+"use client";
 
 import { Challenge, Task as TaskType } from "@prisma/client";
 import Task from "@/components/custom/onboarding/onboarding-task";
-import { useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 const TaskSelection = ({
   selectedChallenge,
+  selectedTasks,
+  setSelectedTasks,
 }: {
   selectedChallenge: Challenge & { tasks: TaskType[] };
+  selectedTasks: number[];
+  setSelectedTasks: Dispatch<SetStateAction<number[]>>;
 }) => {
-  const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
   const toggleTaskSelection = (taskIndex: number) => {
     setSelectedTasks((prev) =>
       prev.includes(taskIndex)
