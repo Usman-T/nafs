@@ -8,9 +8,9 @@ import {
   Target,
   AlarmClock,
   Sparkles,
-  HeartHandshake,
+  Dumbbell,
   Brain,
-  Activity,
+  Scale,
 } from "lucide-react";
 
 import type { LucideIcon } from "lucide-react";
@@ -25,7 +25,7 @@ export const iconMap: Record<string, LucideIcon> = {
   Target,
   AlarmClock,
   Sparkles,
-  HeartHandshake,
+  Dumbbell,
   Brain,
-  Activity,
+  Scale,
 };

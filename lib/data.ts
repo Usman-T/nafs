@@ -25,8 +25,6 @@ export const fetchCurrentChallenge = async () => {
     },
   });
 
-  console.log({ user });
-
   return user?.currentChallenge;
 };
 
@@ -49,32 +47,11 @@ export const fetchChallenges = async () => {
     },
   });
 
-  console.log({ fetched: challenges });
-
   return challenges;
 };
 
-export const fetchChallengeById = async (id: string | undefined) => {
-  const challenge = await prisma.challenge.findUnique({
-    where: {
-      id: id,
-    },
-    include: {
-      tasks: {
-        include: {
-          task: {
-            include: {
-              dimension: true,
-            },
-          },
-        },
-      },
-    },
-  });
+export const fetchDimensions = async () => {
+  const dimensions = await prisma.dimension.findMany({});
 
-  if (!challenge) {
-    throw new Error("Challenge not found");
-  }
-
-  return challenge;
+  return dimensions;
 };

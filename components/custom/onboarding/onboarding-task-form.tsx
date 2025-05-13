@@ -6,27 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Dimension } from "@prisma/client";
 
 const CustomTaskForm = ({
   onAdd,
   onCancel,
+  dimensions
 }: {
   onAdd: (task: { name: string; dimension: string }) => void;
   onCancel: () => void;
+  dimensions: Dimension[]
 }) => {
   const [taskName, setTaskName] = useState("");
-  const [dimension, setDimension] = useState("Salah");
-
-  const dimensions = [
-    "Salah",
-    "Quran",
-    "Charity",
-    "Community",
-    "Dhikr",
-    "Knowledge",
-    "Character",
-  ];
-
+  const [dimension, setDimension] = useState<Dimension>(dimensions[0]);
+  
   return (
     <motion.div
       initial={{ opacity: 0, height: 0 }}
@@ -49,7 +42,7 @@ const CustomTaskForm = ({
         <div className="flex flex-wrap gap-2">
           {dimensions.map((dim) => (
             <Badge
-              key={dim}
+              key={dim.id}
               className={cn(
                 "cursor-pointer transition-all",
                 dimension === dim
@@ -58,7 +51,7 @@ const CustomTaskForm = ({
               )}
               onClick={() => setDimension(dim)}
             >
-              {dim}
+              {dim.name}
             </Badge>
           ))}
         </div>
@@ -76,7 +69,7 @@ const CustomTaskForm = ({
           className="flex-1 bg-[#fe8019] text-[#1d2021] hover:bg-[#d65d0e]"
           onClick={() => {
             if (taskName.trim()) {
-              onAdd({ name: taskName, dimension });
+              onAdd({ name: taskName, dimension: dimension});
               setTaskName("");
             }
           }}
