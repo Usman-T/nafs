@@ -5,6 +5,7 @@ import prisma from "@/prisma";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { z } from "zod";
+import { getCurrentUserId, requireAuth } from "./auth";
 
 export type State = {
   errors?: {
@@ -150,15 +151,13 @@ export const enrollInExistingChallenge = async (
   selectedTasks: number[]
 ) => {
   try {
-    const session = await auth();
-    if (!session?.user?.id) throw new Error("User not authenticated");
+    const userId = await requireAuth();
 
     const challenge = await prisma.challenge.findUnique({
       where: { id: challengeId },
       include: {
         tasks: {
           include: { task: true },
-          orderBy: { createdAt: "asc" },
         },
       },
     });
@@ -169,42 +168,38 @@ export const enrollInExistingChallenge = async (
       .filter((_, index) => selectedTasks.includes(index))
       .map((task) => task.taskId);
 
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setDate(startDate.getDate() + challenge.duration);
+    const [userChallenge] = await prisma.$transaction([
+      prisma.userChallenge.create({
+        data: {
+          userId,
+          challengeId,
+          startDate: new Date(),
+          endDate: new Date(
+            new Date().setDate(new Date().getDate() + challenge.duration)
+          ),
+          progress: 0,
+        },
+      }),
+      prisma.user.update({
+        where: { id: userId },
+        data: { challengeId },
+      }),
+    ]);
 
-    const userChallenge = await prisma.userChallenge.create({
-      data: {
-        userId: session.user.id,
-        challengeId,
-        startDate,
-        endDate,
-        progress: 0,
-      },
-    });
-
-    const dailyTasks = [];
-    for (let day = 0; day < challenge.duration; day++) {
-      const taskDate = new Date(startDate);
-      taskDate.setDate(startDate.getDate() + day);
-
-      for (const taskId of selectedTaskIds) {
-        dailyTasks.push({
-          userId: session.user.id,
-          taskId,
-          date: taskDate,
-        });
-      }
-    }
+    const dailyTasks = Array.from({ length: challenge.duration }, (_, day) => ({
+      date: new Date(new Date().setDate(new Date().getDate() + day)),
+      taskIds: selectedTaskIds,
+    })).flatMap(({ date, taskIds }) =>
+      taskIds.map((taskId) => ({
+        userId,
+        taskId,
+        date,
+      }))
+    );
 
     await prisma.dailyTask.createMany({
       data: dailyTasks,
       skipDuplicates: true,
-    });
-
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: { challengeId },
     });
 
     return { success: true };
@@ -224,8 +219,7 @@ export const createCustomChallenge = async (challengeData: {
   tasks: Array<{ name: string; dimensionId: string }>;
 }) => {
   try {
-    const session = await auth();
-    if (!session?.user?.id) throw new Error("User not authenticated");
+    const userId = await requireAuth();
 
     return await prisma.$transaction(async (tx) => {
       const challenge = await tx.challenge.create({
@@ -237,30 +231,32 @@ export const createCustomChallenge = async (challengeData: {
         },
       });
 
-      for (const task of challengeData.tasks) {
-        const newTask = await tx.task.create({
-          data: {
-            name: task.name,
-            dimensionId: task.dimensionId,
-            points: 1,
-          },
-        });
+      const tasks = await Promise.all(
+        challengeData.tasks.map((task) =>
+          tx.task.create({
+            data: {
+              name: task.name,
+              dimensionId: task.dimensionId,
+              points: 1,
+            },
+          })
+        )
+      );
 
-        await tx.challengeTask.create({
-          data: {
-            challengeId: challenge.id,
-            taskId: newTask.id,
-          },
-        });
-      }
+      await tx.challengeTask.createMany({
+        data: tasks.map((task) => ({
+          challengeId: challenge.id,
+          taskId: task.id,
+        })),
+      });
 
       const startDate = new Date();
-      const endDate = new Date();
+      const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + challengeData.duration);
 
-      const userChallenge = await tx.userChallenge.create({
+      await tx.userChallenge.create({
         data: {
-          userId: session.user.id,
+          userId,
           challengeId: challenge.id,
           startDate,
           endDate,
@@ -268,42 +264,38 @@ export const createCustomChallenge = async (challengeData: {
         },
       });
 
-      const challengeTasks = await tx.challengeTask.findMany({
-        where: { challengeId: challenge.id },
-        orderBy: { createdAt: "asc" },
+      await tx.user.update({
+        where: { id: userId },
+        data: { challengeId: challenge.id },
       });
 
-      const dailyTasks = [];
-      for (let day = 0; day < challengeData.duration; day++) {
-        const taskDate = new Date(startDate);
-        taskDate.setDate(startDate.getDate() + day);
-        
-        for (const ct of challengeTasks) {
-          dailyTasks.push({
-            userId: session.user.id,
-            taskId: ct.taskId,
-            date: taskDate,
-          });
-        }
-      }
+      const dailyTasks = Array.from(
+        { length: challengeData.duration },
+        (_, day) => ({
+          date: new Date(startDate.setDate(startDate.getDate() + day)),
+          taskIds: tasks.map((t) => t.id),
+        })
+      ).flatMap(({ date, taskIds }) =>
+        taskIds.map((taskId) => ({
+          userId,
+          taskId,
+          date,
+        }))
+      );
 
       await tx.dailyTask.createMany({
         data: dailyTasks,
         skipDuplicates: true,
       });
 
-      await tx.user.update({
-        where: { id: session.user.id },
-        data: { challengeId: challenge.id },
-      });
-
       return { success: true, challengeId: challenge.id };
     });
   } catch (error) {
-    console.error("Custom challenge creation failed:", error);
-    return { 
-      success: false, 
-      message: error instanceof Error ? error.message : "Creation failed" 
+    console.error("Creation failed:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Challenge creation failed",
     };
   }
 };

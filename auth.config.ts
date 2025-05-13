@@ -4,21 +4,38 @@ export const authConfig = {
   pages: {
     signIn: "/login",
   },
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, 
+  },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isAllowed =
-        nextUrl.pathname.startsWith("/dashboard") ||
-        nextUrl.pathname.startsWith("/onboarding");
-
-      if (isAllowed) {
+      const protectedRoutes = ["/dashboard", "/onboarding"];
+      
+      if (protectedRoutes.some(path => nextUrl.pathname.startsWith(path))) {
         if (isLoggedIn) return true;
-        return false;
-      } else if (isLoggedIn) {
+        return Response.redirect(new URL("/login", nextUrl));
+      }
+      
+      if (isLoggedIn && nextUrl.pathname === "/login") {
         return Response.redirect(new URL("/dashboard", nextUrl));
       }
+      
       return true;
     },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token?.id && session.user) {
+        session.user.id = token.id;
+      }
+      return session;
+    }
   },
   providers: [],
 } satisfies NextAuthConfig;
