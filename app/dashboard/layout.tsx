@@ -36,8 +36,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
 
-  console.log(session?.user?.email)
-
   const navItems = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Challenges", href: "/dashboard/challenges", icon: Award },

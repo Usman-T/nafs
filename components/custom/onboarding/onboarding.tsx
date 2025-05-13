@@ -1,74 +1,98 @@
 "use client";
 
-import { useState, useRef, useEffect, Suspense } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Check,
   ChevronRight,
   ChevronLeft,
   Plus,
   Award,
-  BookOpen,
-  Heart,
-  Users,
-  Moon,
-  Sunrise,
-  Compass,
   Loader2,
+  Trash,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import CustomTaskForm from "./onboarding-task-form";
-import ChallengeCard from "./onboarding-challenge";
-import { Challenge } from "@prisma/client";
+import { iconMap } from "@/lib/iconMap";
+import { Challenge, Dimension } from "@prisma/client";
+import CustomTaskForm from "@/components/custom/onboarding/onboarding-task-form";
+import ChallengeCard from "@/components/custom/onboarding/onboarding-challenge";
 import SelectedChallenge from "@/components/custom/onboarding/onboarding-selected-challenge";
+import OnboardingWelcome from "@/components/custom/onboarding/onboarding-welcome";
+import ChallengeSummary from "@/components/custom/onboarding/onboarding-challenge-summary";
+import {
+  createCustomChallenge,
+  enrollInExistingChallenge,
+} from "@/lib/actions";
+import { useRouter } from "next/navigation";
 
-function PrayingHandsIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M7 11h3v7c0 .6-.4 1-1 1H7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1z" />
-      <path d="M15 7h3a1 1 0 0 1 1 1v7h-4" />
-      <path d="M4.6 9a9 9 0 0 1 .4-2.8A1 1 0 0 1 6 5.5h12a1 1 0 0 1 1 .7 9 9 0 0 1 .4 2.8" />
-      <path d="M7 5.5V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v.5" />
-      <path d="M14 16v-3a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3" />
-    </svg>
-  );
-}
-
-export default function ChallengeOnboarding({ predefinedChallenges }) {
+export default function ChallengeOnboarding({
+  predefinedChallenges,
+  dimensions,
+}: {
+  predefinedChallenges: Challenge[];
+  dimensions: Dimension[];
+}) {
+  const router = useRouter();
   const [step, setStep] = useState(0);
-  const [selectedChallenge, setSelectedChallenge] = useState<
-    (typeof predefinedChallenges)[0] | null
-  >(null);
+  const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(
+    null
+  );
   const [customChallenge, setCustomChallenge] = useState({
-    title: "",
-    description: "",
-    duration: 7,
+    title: "Custom Challenge",
+    description: "Your personalized 3 day challenge",
+    duration: 3,
     tasks: [] as {
       name: string;
-      dimension: string;
-      icon: any;
-      color: string;
+      dimension: Dimension;
     }[],
   });
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const onComplete = () => {
+  const [challengeLoading, setChallengeLoading] = useState(false);
+  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(
+    null
+  );
+
+  const onComplete = async () => {
+    try {
+      setIsLoading(true);
+
+      if (selectedChallengeId) {
+        // Existing challenge enrollment
+        const result = await enrollInExistingChallenge(
+          selectedChallengeId,
+          selectedTasks
+        );
+        if (!result.success) throw new Error(result.message);
+      } else if (customChallenge.tasks.length > 0) {
+        const creationResult = await createCustomChallenge({
+          title: customChallenge.title,
+          description: customChallenge.description,
+          duration: customChallenge.duration,
+          tasks: customChallenge.tasks.map((t) => ({
+            name: t.name,
+            dimensionId: t.dimension.id,
+          })),
+        });
+
+        if (!creationResult.success) {
+          throw new Error(creationResult.message);
+        }
+
+        console.log(
+          "Custom challenge created with ID:",
+          creationResult.challengeId
+        );
+      }
+
+      console.log("Onboarding completed successfully");
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Onboarding error:", error);
+    } finally {
+      setIsLoading(false);
+    }
     console.log("completed onboarding");
   };
 
@@ -80,144 +104,42 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
     }
   }, [step]);
 
-  const getDimensionIconAndColor = (dimension: string) => {
-    switch (dimension) {
-      case "Salah":
-        return { icon: PrayingHandsIcon, color: "#fb4934" };
-      case "Quran":
-        return { icon: BookOpen, color: "#8ec07c" };
-      case "Charity":
-        return { icon: Heart, color: "#fe8019" };
-      case "Community":
-        return { icon: Users, color: "#fabd2f" };
-      case "Dhikr":
-        return { icon: Moon, color: "#d3869b" };
-      case "Knowledge":
-        return { icon: Compass, color: "#fabd2f" };
-      case "Character":
-        return { icon: Sunrise, color: "#fb4934" };
-      default:
-        return { icon: Award, color: "#fe8019" };
-    }
-  };
+  useEffect(() => {
+    const loadChallenge = async () => {
+      try {
+        const response = await fetch(`/api/challenges/${selectedChallengeId}`);
+        const data = await response.json();
+        setSelectedChallenge(data.challenge);
+      } catch (error) {
+        console.error("Error fetching challenge:", error);
+      } finally {
+        setChallengeLoading(false);
+      }
+    };
+    loadChallenge();
+  }, [selectedChallengeId]);
 
-  // Handle adding a custom task
-  const handleAddTask = (task: { name: string; dimension: string }) => {
-    const { icon, color } = getDimensionIconAndColor(task.dimension);
+  const handleAddTask = (task: { name: string; dimension: Dimension }) => {
     setCustomChallenge({
       ...customChallenge,
-      tasks: [...customChallenge.tasks, { ...task, icon, color }],
+      tasks: [...customChallenge.tasks, { ...task, dimension: task.dimension }],
     });
     setShowTaskForm(false);
   };
 
-  // Handle task selection in step 3
-  const toggleTaskSelection = (index: number) => {
-    if (selectedTasks.includes(index)) {
-      setSelectedTasks(selectedTasks.filter((i) => i !== index));
-    } else {
-      setSelectedTasks([...selectedTasks, index]);
-    }
-  };
-
-  // Handle challenge start
   const handleStartChallenge = () => {
     setIsLoading(true);
 
-    // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       onComplete();
     }, 1500);
   };
 
-  // Render step content
   const renderStepContent = () => {
     switch (step) {
       case 0: // Welcome
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
-          >
-            <div className="text-center space-y-2">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                className="mx-auto h-16 w-16 rounded-full bg-[#fe8019] flex items-center justify-center mb-4"
-              >
-                <Award className="h-8 w-8 text-[#1d2021]" />
-              </motion.div>
-              <h2 className="text-2xl font-bold text-[#ebdbb2]">
-                Welcome to Nafs
-              </h2>
-              <p className="text-[#a89984]">
-                Let&apos;s start your spiritual growth journey with a challenge
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                className="flex items-start"
-              >
-                <div className="h-6 w-6 rounded-full bg-[#fe8019] flex items-center justify-center mr-3 flex-shrink-0">
-                  <Check className="h-3 w-3 text-[#1d2021]" />
-                </div>
-                <div>
-                  <span className="text-[#ebdbb2]">
-                    Track your spiritual growth
-                  </span>
-                  <p className="text-sm text-[#a89984]">
-                    Monitor progress across 7 spiritual dimensions
-                  </p>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-                className="flex items-start"
-              >
-                <div className="h-6 w-6 rounded-full bg-[#fe8019] flex items-center justify-center mr-3 flex-shrink-0">
-                  <Check className="h-3 w-3 text-[#1d2021]" />
-                </div>
-                <div>
-                  <span className="text-[#ebdbb2]">
-                    Build consistent habits
-                  </span>
-                  <p className="text-sm text-[#a89984]">
-                    Develop routines that strengthen your faith
-                  </p>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-                className="flex items-start"
-              >
-                <div className="h-6 w-6 rounded-full bg-[#fe8019] flex items-center justify-center mr-3 flex-shrink-0">
-                  <Check className="h-3 w-3 text-[#1d2021]" />
-                </div>
-                <div>
-                  <span className="text-[#ebdbb2]">Achieve your goals</span>
-                  <p className="text-sm text-[#a89984]">
-                    Complete challenges and earn achievements
-                  </p>
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
-        );
-
+        return <OnboardingWelcome />;
       case 1: // Choose challenge
         return (
           <motion.div
@@ -240,8 +162,8 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
                 <ChallengeCard
                   key={challenge.id}
                   challenge={challenge}
-                  isSelected={selectedChallenge?.id === challenge.id}
-                  onSelect={() => setSelectedChallenge(challenge)}
+                  isSelected={selectedChallengeId === challenge.id}
+                  onSelect={() => setSelectedChallengeId(challenge.id)}
                 />
               ))}
             </div>
@@ -272,48 +194,14 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
             exit={{ opacity: 0, y: -20 }}
             className="space-y-6"
           >
-            {selectedChallenge && (
+            {selectedChallengeId && (
               <>
-                <div className="text-center">
-                  <h2 className="text-xl font-bold text-[#ebdbb2]">
-                    {selectedChallenge.title}
-                  </h2>
-                  <p className="text-[#a89984]">
-                    {selectedChallenge.description}
-                  </p>
-                </div>
-
-                <div className="flex justify-center gap-3 flex-wrap">
-                  <Badge className="bg-[#3c3836] text-[#ebdbb2]">
-                    {selectedChallenge.duration} days
-                  </Badge>
-                  <Badge className="bg-[#3c3836] text-[#ebdbb2]">
-                    {selectedChallenge.difficulty}
-                  </Badge>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="text-[#ebdbb2] font-medium">
-                    Challenge Tasks
-                  </h3>
-                  <div className="space-y-2">
-                    {selectedChallenge.tasks.map((task, i) => (
-                      <Task
-                        key={i}
-                        task={task}
-                        isSelected={selectedTasks.includes(i)}
-                        onClick={() => toggleTaskSelection(i)}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="text-sm text-[#a89984]">
-                  <p>
-                    Complete these tasks daily to progress in your spiritual
-                    journey. You can always modify your challenge later.
-                  </p>
-                </div>
+                <SelectedChallenge
+                  selectedTasks={selectedTasks}
+                  setSelectedTasks={setSelectedTasks}
+                  challenge={selectedChallenge}
+                  loading={challengeLoading}
+                />
               </>
             )}
           </motion.div>
@@ -329,158 +217,16 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
           >
             {selectedChallengeId && (
               <>
-                <div className="text-center space-y-2">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                    className="mx-auto h-16 w-16 rounded-full bg-[#fe8019] flex items-center justify-center mb-4"
-                  >
-                    <Award className="h-8 w-8 text-[#1d2021]" />
-                  </motion.div>
-                  <h2 className="text-xl font-bold text-[#ebdbb2]">
-                    Ready to Begin
-                  </h2>
-                  <p className="text-[#a89984]">
-                    You&apos;re all set to start your challenge
-                  </p>
-                </div>
-
-                <div className="bg-[#1d2021] rounded-md p-4 border border-[#3c3836]">
-                  <h3 className="text-[#ebdbb2] font-medium mb-2">
-                    {selectedChallengeId.title}
-                  </h3>
-                  <div className="text-sm text-[#a89984] mb-3">
-                    {selectedChallengeId.description}
-                  </div>
-
-                  <div className="flex gap-2 mb-4 flex-wrap">
-                    <Badge className="bg-[#3c3836] text-[#ebdbb2]">
-                      {selectedChallengeId.duration} days
-                    </Badge>
-                    <Badge className="bg-[#3c3836] text-[#ebdbb2]">
-                      {selectedTasks.length > 0
-                        ? selectedTasks.length
-                        : selectedChallengeId.tasks.length}{" "}
-                      tasks selected
-                    </Badge>
-                  </div>
-
-                  <div className="space-y-2">
-                    {selectedTasks.length > 0 ? (
-                      selectedTasks.map((index) => (
-                        <div key={index} className="flex items-center">
-                          <div
-                            className="h-4 w-4 rounded-full mr-2"
-                            style={{
-                              backgroundColor:
-                                selectedChallengeId.tasks[index].color,
-                            }}
-                          ></div>
-                          <span className="text-sm text-[#ebdbb2]">
-                            {selectedChallenge.tasks[index].name}
-                          </span>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-sm text-[#a89984]">
-                        All tasks will be included
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="text-sm text-[#a89984]">
-                  <p>
-                    Your challenge will begin today. Complete tasks daily to
-                    build your streak and grow spiritually.
-                  </p>
-                </div>
+                <ChallengeSummary
+                  selectedTasks={selectedTasks}
+                  challenge={selectedChallenge}
+                />
               </>
             )}
           </motion.div>
         );
 
-      case 4: // Custom challenge - basic info
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
-          >
-            <div className="text-center">
-              <h2 className="text-xl font-bold text-[#ebdbb2]">
-                Create Your Challenge
-              </h2>
-              <p className="text-[#a89984]">
-                Design a custom challenge tailored to your needs
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm text-[#a89984]">Challenge Name</label>
-                <Input
-                  value={customChallenge.title}
-                  onChange={(e) =>
-                    setCustomChallenge({
-                      ...customChallenge,
-                      title: e.target.value,
-                    })
-                  }
-                  placeholder="Enter challenge name"
-                  className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] focus:border-[#fe8019] focus:ring-[#fe8019]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm text-[#a89984]">Description</label>
-                <Textarea
-                  value={customChallenge.description}
-                  onChange={(e) =>
-                    setCustomChallenge({
-                      ...customChallenge,
-                      description: e.target.value,
-                    })
-                  }
-                  placeholder="What is this challenge about?"
-                  className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] focus:border-[#fe8019] focus:ring-[#fe8019]"
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm text-[#a89984]">
-                  Duration (days)
-                </label>
-                <div className="flex items-center space-x-2 flex-wrap gap-2">
-                  {[7, 14, 21, 30].map((days) => (
-                    <Badge
-                      key={days}
-                      className={cn(
-                        "cursor-pointer transition-all",
-                        customChallenge.duration === days
-                          ? "bg-[#fe8019] text-[#1d2021] hover:bg-[#d65d0e]"
-                          : "bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945]"
-                      )}
-                      onClick={() =>
-                        setCustomChallenge({
-                          ...customChallenge,
-                          duration: days,
-                        })
-                      }
-                    >
-                      {days} days
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        );
-
-      case 5: // Custom challenge - add tasks
+      case 4: // Custom challenge - add tasks
         return (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -500,61 +246,51 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
             <div className="space-y-4">
               {customChallenge.tasks.length > 0 ? (
                 <div className="space-y-2">
-                  {customChallenge.tasks.map((task, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between p-3 rounded-md bg-[#1d2021] border border-[#3c3836]"
-                    >
-                      <div className="flex items-center">
-                        <div
-                          className="h-8 w-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
-                          style={{ backgroundColor: task.color }}
-                        >
-                          <task.icon className="h-4 w-4 text-[#1d2021]" />
-                        </div>
-                        <div>
-                          <span className="text-[#ebdbb2] text-sm sm:text-base">
-                            {task.name}
-                          </span>
-                          <div className="text-xs text-[#a89984] mt-1">
-                            {task.dimension}
+                  {customChallenge.tasks.map((task, i) => {
+                    const IconComponent =
+                      iconMap[task.dimension.icon] || "BookOpen";
+                    return (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between p-3 rounded-md bg-[#1d2021] border border-[#3c3836]"
+                      >
+                        <div className="flex items-center">
+                          <div className="h-8 w-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                            <IconComponent
+                              className="h-4 w-4"
+                              style={{
+                                color: task.dimension.color,
+                                borderColor: task.dimension.color,
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <span className="text-[#ebdbb2] text-sm sm:text-base">
+                              {task.name}
+                            </span>
+                            <div className="text-xs text-[#a89984] mt-1">
+                              {task.dimension.name}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 text-[#a89984] hover:text-[#fb4934] hover:bg-transparent flex-shrink-0"
-                        onClick={() => {
-                          setCustomChallenge({
-                            ...customChallenge,
-                            tasks: customChallenge.tasks.filter(
-                              (_, index) => index !== i
-                            ),
-                          });
-                        }}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="lucide lucide-trash-2"
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-[#a89984] hover:text-[#fb4934] hover:bg-transparent flex-shrink-0"
+                          onClick={() => {
+                            setCustomChallenge({
+                              ...customChallenge,
+                              tasks: customChallenge.tasks.filter(
+                                (_, index) => index !== i
+                              ),
+                            });
+                          }}
                         >
-                          <path d="M3 6h18" />
-                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                          <line x1="10" x2="10" y1="11" y2="17" />
-                          <line x1="14" x2="14" y1="11" y2="17" />
-                        </svg>
-                      </Button>
-                    </div>
-                  ))}
+                          <Trash className="w-6 h-6" />
+                        </Button>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="text-center py-8 border border-dashed border-[#3c3836] rounded-md">
@@ -569,6 +305,7 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
                 {showTaskForm ? (
                   <CustomTaskForm
                     onAdd={handleAddTask}
+                    dimensions={dimensions}
                     onCancel={() => setShowTaskForm(false)}
                   />
                 ) : (
@@ -590,16 +327,15 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
               </AnimatePresence>
             </div>
 
-            <div className="text-sm text-[#a89984]">
+            <div className="text-sm text-[#a89984] text-center">
               <p>
-                Add at least 3 tasks to create a balanced challenge. Tasks
-                should be achievable daily.
+                Add at least 3 and at max 5 do-able tasks to your challenge.
               </p>
             </div>
           </motion.div>
         );
 
-      case 6: // Custom challenge summary
+      case 5: // Custom challenge summary
         return (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -646,7 +382,7 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
                   <div key={i} className="flex items-center">
                     <div
                       className="h-4 w-4 rounded-full mr-2 flex-shrink-0"
-                      style={{ backgroundColor: task.color }}
+                      style={{ backgroundColor: task.dimension.color }}
                     ></div>
                     <span className="text-sm text-[#ebdbb2]">{task.name}</span>
                   </div>
@@ -654,11 +390,8 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
               </div>
             </div>
 
-            <div className="text-sm text-[#a89984]">
-              <p>
-                Your challenge will begin today. Complete tasks daily to build
-                your streak and grow spiritually.
-              </p>
+            <div className="text-sm text-[#a89984] text-center">
+              <p>Your challenge will begin today.</p>
             </div>
           </motion.div>
         );
@@ -671,9 +404,13 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
   const isNextDisabled = () => {
     switch (step) {
       case 1:
-        return !selectedChallengeId && step !== 4;
+        return !selectedChallengeId && step !== 3;
+      case 2:
+        return selectedTasks.length < 3;
       case 4:
-        return !customChallenge.title.trim();
+        return !(
+          customChallenge.tasks.length >= 3 && customChallenge.tasks.length <= 5
+        );
       case 5:
         return customChallenge.tasks.length === 0;
       default:
@@ -681,32 +418,24 @@ export default function ChallengeOnboarding({ predefinedChallenges }) {
     }
   };
 
-  // Determine if finish button should be shown
   const showFinishButton = () => {
-    return (step === 3 && selectedChallengeId) || step === 6;
+    return (step === 3 && selectedChallengeId) || step === 5;
   };
 
-  // Handle next step
   const handleNext = () => {
     if (step === 1 && !selectedChallengeId) {
-      // If no challenge selected, go to custom challenge creation
       setStep(4);
-    } else if (step === 3 || step === 6) {
-      // If on summary step, finish onboarding
+    } else if (step === 3 || step === 5) {
       handleStartChallenge();
     } else {
-      // Otherwise, go to next step
       setStep(step + 1);
     }
   };
 
-  // Handle back step
   const handleBack = () => {
     if (step === 4) {
-      // If on custom challenge creation, go back to challenge selection
       setStep(1);
     } else {
-      // Otherwise, go to previous step
       setStep(Math.max(0, step - 1));
     }
   };
