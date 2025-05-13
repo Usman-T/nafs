@@ -19,7 +19,11 @@ import ChallengeCard from "@/components/custom/onboarding/onboarding-challenge";
 import SelectedChallenge from "@/components/custom/onboarding/onboarding-selected-challenge";
 import OnboardingWelcome from "@/components/custom/onboarding/onboarding-welcome";
 import ChallengeSummary from "@/components/custom/onboarding/onboarding-challenge-summary";
-import { enrollInExistingChallenge } from "@/lib/actions";
+import {
+  createCustomChallenge,
+  enrollInExistingChallenge,
+} from "@/lib/actions";
+import { useRouter } from "next/navigation";
 
 export default function ChallengeOnboarding({
   predefinedChallenges,
@@ -28,6 +32,7 @@ export default function ChallengeOnboarding({
   predefinedChallenges: Challenge[];
   dimensions: Dimension[];
 }) {
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(
     null
@@ -50,30 +55,44 @@ export default function ChallengeOnboarding({
   );
 
   const onComplete = async () => {
- try {
-    setIsLoading(true);
-    
-    if (selectedChallengeId) {
-      const result = await enrollInExistingChallenge(
-        selectedChallengeId, 
-        selectedTasks
-      );
-      
-      if (!result.success) {
-        throw new Error(result.message);
-      }
-    } else if (customChallenge.tasks.length > 0) {
-      // Handle custom challenge creation here
-    }
+    try {
+      setIsLoading(true);
 
-    console.log("Completed onboarding");
-    // Add redirect or success notification here
-  } catch (error) {
-    console.error("Enrollment error:", error);
-    // Handle error display to user
-  } finally {
-    setIsLoading(false);
-  }
+      if (selectedChallengeId) {
+        // Existing challenge enrollment
+        const result = await enrollInExistingChallenge(
+          selectedChallengeId,
+          selectedTasks
+        );
+        if (!result.success) throw new Error(result.message);
+      } else if (customChallenge.tasks.length > 0) {
+        const creationResult = await createCustomChallenge({
+          title: customChallenge.title,
+          description: customChallenge.description,
+          duration: customChallenge.duration,
+          tasks: customChallenge.tasks.map((t) => ({
+            name: t.name,
+            dimensionId: t.dimension.id,
+          })),
+        });
+
+        if (!creationResult.success) {
+          throw new Error(creationResult.message);
+        }
+
+        console.log(
+          "Custom challenge created with ID:",
+          creationResult.challengeId
+        );
+      }
+
+      console.log("Onboarding completed successfully");
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Onboarding error:", error);
+    } finally {
+      setIsLoading(false);
+    }
     console.log("completed onboarding");
   };
 

@@ -217,6 +217,97 @@ export const enrollInExistingChallenge = async (
   }
 };
 
+export const createCustomChallenge = async (challengeData: {
+  title: string;
+  description: string;
+  duration: number;
+  tasks: Array<{ name: string; dimensionId: string }>;
+}) => {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) throw new Error("User not authenticated");
+
+    return await prisma.$transaction(async (tx) => {
+      const challenge = await tx.challenge.create({
+        data: {
+          name: challengeData.title,
+          description: challengeData.description,
+          duration: challengeData.duration,
+          icon: "custom",
+        },
+      });
+
+      for (const task of challengeData.tasks) {
+        const newTask = await tx.task.create({
+          data: {
+            name: task.name,
+            dimensionId: task.dimensionId,
+            points: 1,
+          },
+        });
+
+        await tx.challengeTask.create({
+          data: {
+            challengeId: challenge.id,
+            taskId: newTask.id,
+          },
+        });
+      }
+
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setDate(startDate.getDate() + challengeData.duration);
+
+      const userChallenge = await tx.userChallenge.create({
+        data: {
+          userId: session.user.id,
+          challengeId: challenge.id,
+          startDate,
+          endDate,
+          progress: 0,
+        },
+      });
+
+      const challengeTasks = await tx.challengeTask.findMany({
+        where: { challengeId: challenge.id },
+        orderBy: { createdAt: "asc" },
+      });
+
+      const dailyTasks = [];
+      for (let day = 0; day < challengeData.duration; day++) {
+        const taskDate = new Date(startDate);
+        taskDate.setDate(startDate.getDate() + day);
+        
+        for (const ct of challengeTasks) {
+          dailyTasks.push({
+            userId: session.user.id,
+            taskId: ct.taskId,
+            date: taskDate,
+          });
+        }
+      }
+
+      await tx.dailyTask.createMany({
+        data: dailyTasks,
+        skipDuplicates: true,
+      });
+
+      await tx.user.update({
+        where: { id: session.user.id },
+        data: { challengeId: challenge.id },
+      });
+
+      return { success: true, challengeId: challenge.id };
+    });
+  } catch (error) {
+    console.error("Custom challenge creation failed:", error);
+    return { 
+      success: false, 
+      message: error instanceof Error ? error.message : "Creation failed" 
+    };
+  }
+};
+
 export const logout = async () => {
   console.log("Logging out...");
   await signOut({ redirectTo: "/" });
