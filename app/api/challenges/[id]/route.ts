@@ -18,7 +18,6 @@ export const GET = async (request: NextRequest) => {
         },
       },
     });
-    console.log(challenge);
 
     return NextResponse.json({ challenge });
   } catch (error) {

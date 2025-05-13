@@ -1,6 +1,6 @@
 "use server";
 
-import { signIn, signOut } from "@/auth";
+import { auth, signIn, signOut } from "@/auth";
 import prisma from "@/prisma";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
@@ -83,7 +83,7 @@ export const createUser = async (prevState: State, formData: FormData) => {
     await signIn("credentials", {
       email,
       password,
-      redirect: false
+      redirect: false,
     });
 
     return { message: "Account created successfully!", errors: {} };
@@ -132,7 +132,7 @@ export const login = async (prevState: loginState, formData: FormData) => {
         case "CredentialsSignin":
           return {
             errors: {},
-            message: "invalid"
+            message: "invalid",
           };
         default:
           return {
@@ -142,6 +142,78 @@ export const login = async (prevState: loginState, formData: FormData) => {
       }
     }
     throw error;
+  }
+};
+
+export const enrollInExistingChallenge = async (
+  challengeId: string,
+  selectedTasks: number[]
+) => {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) throw new Error("User not authenticated");
+
+    const challenge = await prisma.challenge.findUnique({
+      where: { id: challengeId },
+      include: {
+        tasks: {
+          include: { task: true },
+          orderBy: { createdAt: "asc" },
+        },
+      },
+    });
+
+    if (!challenge) throw new Error("Challenge not found");
+
+    const selectedTaskIds = challenge.tasks
+      .filter((_, index) => selectedTasks.includes(index))
+      .map((task) => task.taskId);
+
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(startDate.getDate() + challenge.duration);
+
+    const userChallenge = await prisma.userChallenge.create({
+      data: {
+        userId: session.user.id,
+        challengeId,
+        startDate,
+        endDate,
+        progress: 0,
+      },
+    });
+
+    const dailyTasks = [];
+    for (let day = 0; day < challenge.duration; day++) {
+      const taskDate = new Date(startDate);
+      taskDate.setDate(startDate.getDate() + day);
+
+      for (const taskId of selectedTaskIds) {
+        dailyTasks.push({
+          userId: session.user.id,
+          taskId,
+          date: taskDate,
+        });
+      }
+    }
+
+    await prisma.dailyTask.createMany({
+      data: dailyTasks,
+      skipDuplicates: true,
+    });
+
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { challengeId },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Enrollment failed:", error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Enrollment failed",
+    };
   }
 };
 

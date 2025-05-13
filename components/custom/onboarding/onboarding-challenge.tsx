@@ -23,7 +23,6 @@ const ChallengeCard = ({
   isSelected?: boolean;
   onSelect: () => void;
 }) => {
-  console.log(challenge);
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}

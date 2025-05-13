@@ -14,9 +14,11 @@ export const getUsers = async () => {
 export const fetchCurrentChallenge = async () => {
   const session = await auth();
 
+
   if (!session?.user) {
     throw new Error("Not authenticated");
   }
+  console.log(session.user)
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email ?? undefined },
