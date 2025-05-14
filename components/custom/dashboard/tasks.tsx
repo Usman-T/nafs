@@ -82,6 +82,7 @@ const Tasks = ({
                 id="date-scroll-container"
                 className="flex-1 flex gap-4 overflow-x-auto scrollbar-hide py-2"
               >
+                
                 {dates.reverse().map((date, i) => {
                   const dateTasks = dailyTasks.filter(
                     (t) => t.date.toDateString() === date.toDateString()
@@ -95,6 +96,7 @@ const Tasks = ({
                     date.toDateString() === selectedDate.toDateString();
 
                   return (
+                
                     <button
                       key={i}
                       onClick={() => setSelectedDate(date)}
