@@ -14,11 +14,9 @@ export const getUsers = async () => {
 export const fetchCurrentChallenge = async () => {
   const session = await auth();
 
-
   if (!session?.user) {
     throw new Error("Not authenticated");
   }
-  console.log(session.user)
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email ?? undefined },
@@ -28,6 +26,32 @@ export const fetchCurrentChallenge = async () => {
   });
 
   return user?.currentChallenge;
+};
+
+export const fetchDailyTasks = async () => {
+  const session = await auth();
+
+  if (!session?.user) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email ?? undefined },
+    include: {
+      dailyTasks: {
+        include: {
+          task: {
+            include: {
+              dimension: true,
+            },
+          },
+          completions: true,
+        },
+      },
+    },
+  });
+
+  return user?.dailyTasks;
 };
 
 export const fetchChallenges = async () => {
