@@ -51,14 +51,6 @@ const Tasks = ({
     selectedDayTasks.length > 0 &&
     selectedDayTasks.every((task) => task.completions.length > 0);
 
-  const handleScroll = (direction: "left" | "right") => {
-    const container = document.getElementById("date-scroll-container");
-    if (container) {
-      const scrollAmount = direction === "right" ? 200 : -200;
-      container.scrollBy({ left: scrollAmount, behavior: "smooth" });
-    }
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
