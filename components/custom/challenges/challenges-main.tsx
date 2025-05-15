@@ -101,7 +101,8 @@ const Challenges = ({ challenge, tasks }: ChallengesProps) => {
   const currentDay = Math.min(
     Math.floor(
       (new Date().getTime() - new Date(challenge.startDate).getTime()) /
-        (1000 * 3600 * 24) + 1
+        (1000 * 3600 * 24) +
+        1
     ),
     challenge.challenge.duration
   );
@@ -171,7 +172,11 @@ const Challenges = ({ challenge, tasks }: ChallengesProps) => {
                       </span>
                     </div>
                     <Link
-                      href={`/dashboard/challenges/complete/${dailyTask.id}`}
+                      href={`${
+                        !isCompleted
+                          ? `/dashboard/challenges/complete/${dailyTask.id}`
+                          : `#`
+                      }`}
                     >
                       <Button
                         variant="outline"

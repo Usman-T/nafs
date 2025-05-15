@@ -8,6 +8,7 @@ const CompleteChallengePage = async ({
 }) => {
   const dailyTasks = await fetchDailyTasks();
   const task = dailyTasks?.find((task) => task.id === params.id);
+  console.log(task)
 
   return <ChallengesComplete task={task} />;
 };

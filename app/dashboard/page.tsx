@@ -17,10 +17,8 @@ const DashboardPage = async () => {
   return (
     <div className="space-y-8 p-8">
       <SpiritualPath currentLevel={1} currentStreak={3} />
-     {/* <div className="grid gap-6 md:grid-cols-2"> */}
-        <Tasks challenge={currentChallenge} dailyTasks={dailyTasks} />
-        <Dimensions />
-      {/* </div>  */}
+      <Tasks challenge={currentChallenge} dailyTasks={dailyTasks} />
+      <Dimensions />
       <DashboardCalendar />
       <StatsCards />
     </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -9,10 +11,15 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Award } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DailyTask } from "@prisma/client";
+import { DailyTask, Dimension, Task } from "@prisma/client";
 import { completeTask as completeTaskAction } from "@/lib/actions";
+import { iconMap } from "@/lib/iconMap";
 
-const ChallengesComplete = ({ task }: { task: DailyTask }) => {
+const ChallengesComplete = ({
+  task,
+}: {
+  task: DailyTask & { task: Task & { dimension: Dimension } };
+}) => {
   const router = useRouter();
   const [isHolding, setIsHolding] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -69,32 +76,27 @@ const ChallengesComplete = ({ task }: { task: DailyTask }) => {
 
   const completeTask = async () => {
     try {
-      const completedTask = await completeTaskAction(task.id);
-      if (!compeltedTask.success) {
-        throw new Error(completedTask.message);
+      const result = await completeTaskAction(task.id);
+      if (!result.success) {
+        throw new Error(result.message);
       }
 
-      console.log(
-        "Custom challenge created with ID:",
-        completedtask.challengeId
-      );
+      setCompleted(true);
+      pathLength.set(1);
+      controls.start({
+        scale: [1, 1.2, 1],
+        transition: { duration: 0.5 },
+      });
+
+      setTimeout(() => {
+        router.refresh();
+        router.push("/dashboard/challenges");
+      }, 1500);
     } catch (error) {
       console.log(error);
     }
-    if (progressTimer.current) {
-      clearInterval(progressTimer.current);
-    }
-    setCompleted(true);
-    pathLength.set(1);
-    controls.start({
-      scale: [1, 1.2, 1],
-      transition: { duration: 0.5 },
-    });
-
-    setTimeout(() => {
-      router.push("/dashboard/challenges");
-    }, 1500);
   };
+  const IconComponent = iconMap[task.task.dimension.icon] || "BookOpen";
 
   if (!isMounted || isLoading) {
     return (
@@ -148,16 +150,23 @@ const ChallengesComplete = ({ task }: { task: DailyTask }) => {
           </CardHeader>
           <CardContent className="space-y-8 flex flex-col items-center">
             <div className="text-center">
-              <div
-                className="inline-block h-12 w-12 rounded-full mb-4"
-                style={{ backgroundColor: task.color }}
-              >
-                <div className="h-full w-full flex items-center justify-center">
-                  <Award className="h-6 w-6 text-[#1d2021]" />
-                </div>
+              <div className="inline-block h-12 w-12 rounded-full mb-4">
+                {
+                  <div
+                    className="h-12 w-12 border-2 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
+                  >
+                    <IconComponent
+                      className="h-12 w-12 rounded-full"
+                      style={{
+                        color: task.task.dimension.color,
+                        borderColor: task.task.dimension.color,
+                      }}
+                    />
+                  </div>
+                }
               </div>
               <h2 className="text-xl font-medium text-[#ebdbb2] mb-2">
-                {task.name}
+                {task.task.name}
               </h2>
               <p className="text-sm text-[#a89984]">
                 Hold the button below to mark this task as complete

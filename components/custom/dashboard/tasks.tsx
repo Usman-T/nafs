@@ -18,8 +18,7 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-} from "@/components/ui/carousel"; // Adjust import path
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/carousel";
 
 const Tasks = ({
   dailyTasks,
@@ -86,7 +85,7 @@ const Tasks = ({
             <div className="flex items-center gap-2 w-full">
               <Carousel
                 opts={{
-                  startIndex: 7
+                  startIndex: 7,
                 }}
                 className="w-full overflow-x-auto"
               >
