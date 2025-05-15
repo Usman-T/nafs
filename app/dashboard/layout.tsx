@@ -196,7 +196,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </header>
         <main className="flex-1 overflow-auto pb-16 md:pb-0">
-          <div className="px-2 ">{children}</div>
+          <div >{children}</div>
         </main>
         <MobileNav />
       </div>

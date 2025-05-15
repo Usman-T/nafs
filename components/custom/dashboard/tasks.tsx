@@ -14,6 +14,12 @@ import {
 import { iconMap } from "@/lib/iconMap";
 import Link from "next/link";
 import { useState } from "react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel"; // Adjust import path
+import { Button } from "@/components/ui/button";
 
 const Tasks = ({
   dailyTasks,
@@ -56,9 +62,9 @@ const Tasks = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="col-span-1 h-full"
+      className="w-full"
     >
-      <Card className="h-full flex flex-col bg-[#282828] border-[#3c3836]">
+      <Card className="flex flex-col bg-[#282828] border-[#3c3836] w-full">
         <CardHeader className="pb-0">
           <CardTitle className="flex items-center justify-between text-[#ebdbb2]">
             <span className="text-2xl font-bold">Daily Tasks</span>
@@ -77,51 +83,63 @@ const Tasks = ({
               className="h-2 bg-[#1d2021]"
             />
 
-            <div className="flex items-center gap-2">
-              <div
-                id="date-scroll-container"
-                className="flex-1 flex gap-4 overflow-x-auto scrollbar-hide py-2"
+            <div className="flex items-center gap-2 w-full">
+              <Carousel
+                opts={{
+                  startIndex: 7
+                }}
+                className="w-full overflow-x-auto"
               >
-                
-                {dates.reverse().map((date, i) => {
-                  const dateTasks = dailyTasks.filter(
-                    (t) => t.date.toDateString() === date.toDateString()
-                  );
-                  const allCompleted =
-                    dateTasks.length > 0 &&
-                    dateTasks.every((t) => t.completions.length > 0);
+                <CarouselContent className="flex gap-2 px-1">
+                  {dates.reverse().map((date, i) => {
+                    const dateTasks = dailyTasks.filter(
+                      (t) => t.date.toDateString() === date.toDateString()
+                    );
+                    const allCompleted =
+                      dateTasks.length > 0 &&
+                      dateTasks.every((t) => t.completions.length > 0);
 
-                  const isToday = date.toDateString() === today.toDateString();
-                  const isSelected =
-                    date.toDateString() === selectedDate.toDateString();
+                    const isToday =
+                      date.toDateString() === today.toDateString();
+                    const isSelected =
+                      date.toDateString() === selectedDate.toDateString();
 
-                  return (
-                
-                    <button
-                      key={i}
-                      onClick={() => setSelectedDate(date)}
-                      className={`flex flex-col items-center min-w-[50px] p-2 rounded-lg transition-colors relative
-        ${isSelected ? "bg-[#3c3836] text-[#fe8019]" : "hover:bg-[#3c3836]/50"}
-        ${isToday ? "border border-[#fe8019]" : ""}`}
-                    >
-                      <div className="text-sm font-medium">
-                        {weekdays[date.getDay()].substring(0, 1)}
-                      </div>
-                      <div className="text-base mt-1">{date.getDate()}</div>
-                      {isToday && (
-                        <div className="absolute -top-2 right-0 text-[10px] text-[#fe8019] font-bold">
-                          Today
-                        </div>
-                      )}
-                      <div
-                        className={`h-1.5 w-1.5 rounded-full mt-1.5 ${
-                          allCompleted ? "bg-[#fe8019]" : "bg-[#3c3836]"
-                        }`}
-                      />
-                    </button>
-                  );
-                })}
-              </div>
+                    return (
+                      <CarouselItem
+                        key={i}
+                        className="basis-1/6  shrink-0 grow-0 snap-start"
+                      >
+                        <button
+                          onClick={() => setSelectedDate(date)}
+                          className={`flex flex-col items-center px-2 py-2 rounded-lg transition-colors relative w-full h-[72px]
+              ${
+                isSelected
+                  ? "bg-[#3c3836] text-[#fe8019]"
+                  : "hover:bg-[#3c3836]/50"
+              }
+              ${isToday ? "border-2 border-[#fe8019]" : ""}
+            `}
+                        >
+                          <div className="text-sm font-medium">
+                            {weekdays[date.getDay()].substring(0, 1)}
+                          </div>
+                          <div className="text-base mt-1">{date.getDate()}</div>
+                          {isToday && (
+                            <div className="absolute bottom-1 text-[8px] text-[#fe8019] font-bold">
+                              Today
+                            </div>
+                          )}
+                          <div
+                            className={`h-1.5 w-1.5 rounded-full mt-1.5 ${
+                              allCompleted ? "bg-[#fe8019]" : "bg-[#3c3836]"
+                            }`}
+                          />
+                        </button>
+                      </CarouselItem>
+                    );
+                  })}
+                </CarouselContent>
+              </Carousel>
             </div>
 
             <p className="text-[#a89984] text-base">

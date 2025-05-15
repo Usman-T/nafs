@@ -115,7 +115,7 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-8">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         <Card className="bg-[#282828] border-[#3c3836] overflow-hidden">
           <CardHeader className="pb-3">
