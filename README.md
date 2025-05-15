@@ -37,3 +37,12 @@ This is will be done in 5 commits:
 - Make basic async calls to the ORM 
 - Form actions of creating a challenge
 - Form actions for enrolling a challenge
+
+## Dashboard
+User registration and onboarding is now completetly functional. Now we display the data on the user's dashboard one card at a time.
+- Use of suspense and displaying of fallback UI
+There will be 4 commits on "dashboard-finalize" branch and then it will be merged. That is the NON-NEGOTIATABLE TASK for today.
+
+
+## Complete Task
+To compelte a task, a user must hold down the button for a set amount of time. This will hit up the API most probably

@@ -4,107 +4,217 @@ import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import {
+  Challenge,
+  CompletedTask,
+  DailyTask,
+  Dimension,
+  Task,
+} from "@prisma/client";
+import { iconMap } from "@/lib/iconMap";
+import Link from "next/link";
 import { useState } from "react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
 
-const Tasks = ({ dailyTasks }) => {
-  const [completedTasks, setCompletedTasks] = useState<number[]>([]);
-
-  const toggleTask = (index: number) => {
-    if (completedTasks.includes(index)) {
-      setCompletedTasks(completedTasks.filter((i) => i !== index));
-    } else {
-      setCompletedTasks([...completedTasks, index]);
-    }
-  };
+const Tasks = ({
+  dailyTasks,
+  challenge,
+}: {
+  dailyTasks: (DailyTask & {
+    completions: CompletedTask[];
+    task: Task & { dimension: Dimension };
+  })[];
+  challenge: Challenge;
+}) => {
   const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const generateDateRange = (start: Date, days: number) =>
+    Array.from({ length: days }).map((_, i) => {
+      const date = new Date(start);
+      date.setDate(date.getDate() - i);
+      return date;
+    });
+
   const today = new Date();
-  const currentWeekDates = Array.from({ length: 7 }).map((_, i) => {
-    const date = new Date(today);
-    date.setDate(today.getDate() - today.getDay() + i);
-    return date;
-  });
+  today.setHours(0, 0, 0, 0);
+
+  const dates = generateDateRange(today, 8);
+  const selectedDayTasks = dailyTasks.filter(
+    (t) => t.date.toDateString() === selectedDate.toDateString()
+  );
+
+  const completedTasks = selectedDayTasks.filter(
+    (task) => task.completions.length > 0
+  );
+
+  const allTasksCompleted =
+    selectedDayTasks.length > 0 &&
+    selectedDayTasks.every((task) => task.completions.length > 0);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="col-span-1"
+      className="w-full"
     >
-      <Card className="bg-[#282828] border-[#3c3836] overflow-hidden h-full">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center justify-between">
-            <div className="text-[#ebdbb2]">Daily Tasks</div>
-            <div className="text-sm text-[#a89984]">
-              {completedTasks.length}/{dailyTasks.length}
-            </div>
+      <Card className="flex flex-col bg-[#282828] border-[#3c3836] w-full">
+        <CardHeader className="pb-0">
+          <CardTitle className="flex items-center justify-between text-[#ebdbb2]">
+            <span className="text-2xl font-bold">Daily Tasks</span>
+            <span className="text-lg font-medium text-[#a89984]">
+              {completedTasks.length}/{selectedDayTasks.length}
+            </span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <Progress
-            value={(completedTasks.length / dailyTasks.length) * 100}
-            className="h-2 bg-[#1d2021]"
-          />
 
-          <div className="text-[#a89984] text-sm">
-            Complete all daily tasks for{" "}
-            <span className="text-[#fe8019]">5 consecutive days</span> to
-            advance to the next level
+        <CardContent className="flex-1 flex flex-col gap-6">
+          <div className="space-y-4">
+            <Progress
+              value={
+                (completedTasks.length / (selectedDayTasks.length || 1)) * 100
+              }
+              className="h-2 bg-[#1d2021]"
+            />
+
+            <div className="flex items-center gap-2 w-full">
+              <Carousel
+                opts={{
+                  startIndex: 7,
+                }}
+                className="w-full overflow-x-auto"
+              >
+                <CarouselContent className="flex gap-2 px-1">
+                  {dates.reverse().map((date, i) => {
+                    const dateTasks = dailyTasks.filter(
+                      (t) => t.date.toDateString() === date.toDateString()
+                    );
+                    const allCompleted =
+                      dateTasks.length > 0 &&
+                      dateTasks.every((t) => t.completions.length > 0);
+
+                    const isToday =
+                      date.toDateString() === today.toDateString();
+                    const isSelected =
+                      date.toDateString() === selectedDate.toDateString();
+
+                    return (
+                      <CarouselItem
+                        key={i}
+                        className="basis-1/6  shrink-0 grow-0 snap-start"
+                      >
+                        <button
+                          onClick={() => setSelectedDate(date)}
+                          className={`flex flex-col items-center px-2 py-2 rounded-lg transition-colors relative w-full h-[72px]
+              ${
+                isSelected
+                  ? "bg-[#3c3836] text-[#fe8019]"
+                  : "hover:bg-[#3c3836]/50"
+              }
+              ${isToday ? "border-2 border-[#fe8019]" : ""}
+            `}
+                        >
+                          <div className="text-sm font-medium">
+                            {weekdays[date.getDay()].substring(0, 1)}
+                          </div>
+                          <div className="text-base mt-1">{date.getDate()}</div>
+                          {isToday && (
+                            <div className="absolute bottom-1 text-[8px] text-[#fe8019] font-bold">
+                              Today
+                            </div>
+                          )}
+                          <div
+                            className={`h-1.5 w-1.5 rounded-full mt-1.5 ${
+                              allCompleted ? "bg-[#fe8019]" : "bg-[#3c3836]"
+                            }`}
+                          />
+                        </button>
+                      </CarouselItem>
+                    );
+                  })}
+                </CarouselContent>
+              </Carousel>
+            </div>
+
+            <p className="text-[#a89984] text-base">
+              {allTasksCompleted ? (
+                <span className="text-[#fe8019] font-medium">
+                  All tasks completed for this day! 🎉
+                </span>
+              ) : selectedDayTasks.length === 0 ? (
+                <span className="text-[#a89984] italic">
+                  No tasks scheduled for this day
+                </span>
+              ) : (
+                <>
+                  Complete all tasks for{" "}
+                  <span className="text-[#fe8019] font-medium">
+                    {challenge.duration} consecutive days
+                  </span>{" "}
+                  to advance
+                </>
+              )}
+            </p>
           </div>
 
-          <div className="border-t border-[#3c3836] pt-4 mt-4">
-            <div className="text-[#a89984] text-sm mb-4">
-              Today,{" "}
-              {today.toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-              })}
-            </div>
+          <div className="space-y-6 flex-1 min-h-[300px]">
+            {selectedDayTasks.length > 0 ? (
+              <div className="space-y-4">
+                {selectedDayTasks.map((dayTask, i) => {
+                  const IconComponent =
+                    iconMap[dayTask.task.dimension.icon] || "BookOpen";
+                  const isCompleted = dayTask.completions.length > 0;
 
-            <div className="flex justify-between mb-6">
-              {weekdays.map((day, i) => (
-                <div
-                  key={i}
-                  className={`flex flex-col items-center ${
-                    i === today.getDay() ? "text-[#fe8019]" : "text-[#a89984]"
-                  }`}
-                >
-                  <div className="text-xs">{day.substring(0, 1)}</div>
-                  <div className="text-sm mt-1">
-                    {currentWeekDates[i].getDate()}
-                  </div>
-                  <div
-                    className={`h-1 w-1 rounded-full mt-1 ${
-                      i === today.getDay() ? "bg-[#fe8019]" : "bg-[#3c3836]"
-                    }`}
-                  ></div>
-                </div>
-              ))}
-            </div>
-
-            <div className="space-y-4">
-              {dailyTasks.map((task, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <span className="text-[#a89984] mr-2">
-                      {String(i + 1).padStart(2, "0")}.
-                    </span>
-                    <span className="text-[#ebdbb2]">{task.name}</span>
-                  </div>
-                  <button
-                    onClick={() => toggleTask(i)}
-                    className={`h-6 w-6 rounded-full border ${
-                      completedTasks.includes(i)
-                        ? "bg-[#fe8019] border-[#fe8019]"
-                        : "bg-transparent border-[#3c3836]"
-                    } flex items-center justify-center transition-all duration-200`}
-                  >
-                    {completedTasks.includes(i) && (
-                      <Check className="h-4 w-4 text-[#1d2021]" />
-                    )}
-                  </button>
-                </div>
-              ))}
-            </div>
+                  return (
+                    <Link
+                      key={i}
+                      href="/dashboard/challenges"
+                      className="flex items-center justify-between"
+                    >
+                      <div className="flex hover:cursor-pointer items-center">
+                        <div className="h-10 w-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                          <IconComponent
+                            className="h-5 w-5"
+                            style={{
+                              color: dayTask.task.dimension.color,
+                              borderColor: dayTask.task.dimension.color,
+                            }}
+                          />
+                        </div>
+                        <span
+                          className="text-base font-medium"
+                          style={{ color: dayTask.task.dimension.color }}
+                        >
+                          {dayTask.task.name}
+                        </span>
+                      </div>
+                      <div
+                        className={`h-7 w-7 rounded-full border ${
+                          isCompleted
+                            ? "bg-[#fe8019] border-[#fe8019]"
+                            : "bg-transparent border-[#3c3836]"
+                        } flex items-center justify-center transition-all duration-200`}
+                      >
+                        {isCompleted ? (
+                          <Check className="h-4 w-4 text-[#1d2021]" />
+                        ) : (
+                          <Check className="h-4 w-4 text-[#3c3836] opacity-0" />
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="h-full flex items-center justify-center text-[#a89984] italic">
+                No tasks for this day
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -1,5 +1,6 @@
 import prisma from "@/prisma";
 import { auth } from "@/auth";
+import { Challenge } from "@prisma/client";
 
 export const getUsers = async () => {
   try {
@@ -14,11 +15,9 @@ export const getUsers = async () => {
 export const fetchCurrentChallenge = async () => {
   const session = await auth();
 
-
   if (!session?.user) {
     throw new Error("Not authenticated");
   }
-  console.log(session.user)
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email ?? undefined },
@@ -28,6 +27,56 @@ export const fetchCurrentChallenge = async () => {
   });
 
   return user?.currentChallenge;
+};
+
+export const fetchDailyTasks = async () => {
+  const session = await auth();
+
+  if (!session?.user) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email ?? undefined },
+    include: {
+      dailyTasks: {
+        include: {
+          task: {
+            include: {
+              dimension: true,
+            },
+          },
+          completions: true,
+        },
+      },
+    },
+  });
+
+  return user?.dailyTasks;
+};
+
+export const fetchUserChallenge = async () => {
+  const session = await auth();
+
+  if (!session?.user) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email ?? undefined },
+    include: {
+      currentChallenge: true,
+      challenges: {
+        include: {
+          challenge: true,
+        },
+      },
+    },
+  });
+
+  return user?.challenges.find(
+    (userChallenge) => userChallenge.challengeId === user.challengeId
+  );
 };
 
 export const fetchChallenges = async () => {

@@ -3,93 +3,138 @@ import prisma from "@/prisma";
 
 export const GET = async () => {
   try {
+    // Clear existing data
     await prisma.challengeTask.deleteMany();
     await prisma.task.deleteMany();
     await prisma.challenge.deleteMany();
 
+    // Get all dimensions to map names to IDs
+    const dimensions = await prisma.dimension.findMany();
+    
+    const getDimensionId = (name: string) => 
+      dimensions.find(d => d.name === name)?.id || "";
+
+    // Create improved tasks with better point distribution
     await prisma.task.createMany({
       data: [
+        // Faith tasks
         {
-          name: "Pray Fajr on time",
-          dimensionId: "cmaj7v6pn0000jv0skzwkvlf4",
-          points: 3,
-        },
-        {
-          name: "No social media till Dhuhr",
-          dimensionId: "cmaj7v6pn0000jv0skzwkvlf4",
-          points: 2,
-        },
-        {
-          name: "Fast Sunnah day",
-          dimensionId: "cmaj7v6pn0000jv0skzwkvlf4",
-          points: 3,
-        },
-
-        {
-          name: "Morning/evening adhkar",
-          dimensionId: "cmaj7v6pt0001jv0svpuk0qrx",
-          points: 2,
-        },
-        {
-          name: "Istighfar 100x",
-          dimensionId: "cmaj7v6pt0001jv0svpuk0qrx",
-          points: 3,
-        },
-
-        {
-          name: "Walk 30 mins",
-          dimensionId: "cmaj7v6q10004jv0sko65qau0",
-          points: 2,
-        },
-        {
-          name: "Workout 20 mins",
-          dimensionId: "cmaj7v6q10004jv0sko65qau0",
-          points: 3,
-        },
-
-        {
-          name: "Read Quran + translation",
-          dimensionId: "cmaj7v6px0003jv0satiehs0u",
-          points: 3,
-        },
-        {
-          name: "Learn 1 hadith",
-          dimensionId: "cmaj7v6px0003jv0satiehs0u",
-          points: 2,
-        },
-        {
-          name: "Listen Islamic podcast",
-          dimensionId: "cmaj7v6px0003jv0satiehs0u",
-          points: 2,
-        },
-
-        {
-          name: "Give secret charity",
-          dimensionId: "cmaj7v6q50005jv0s5nr0aomg",
-          points: 3,
-        },
-        {
-          name: "Call family member",
-          dimensionId: "cmaj7v6q50005jv0s5nr0aomg",
-          points: 2,
-        },
-        {
-          name: "Smile at 3 people",
-          dimensionId: "cmaj7v6q50005jv0s5nr0aomg",
-          points: 1,
-        },
-
-        {
-          name: "Pray Tahajjud",
-          dimensionId: "cmaj7v6q50006jv0sk6iwtmz1",
+          name: "Pray Fajr in congregation/masjid",
+          dimensionId: getDimensionId("Faith"),
           points: 4,
         },
-
         {
-          name: "Set daily intention",
-          dimensionId: "cmaj7v6pw0002jv0sck3pshp0",
+          name: "Recite morning/evening adhkar",
+          dimensionId: getDimensionId("Faith"),
+          points: 3,
+        },
+        {
+          name: "Fast a sunnah day (Mon/Thurs)",
+          dimensionId: getDimensionId("Faith"),
+          points: 5,
+        },
+
+        // Remembrance tasks
+        {
+          name: "Istighfar 100 times",
+          dimensionId: getDimensionId("Remembrance"),
+          points: 3,
+        },
+        {
+          name: "Send salawat 50 times",
+          dimensionId: getDimensionId("Remembrance"),
+          points: 3,
+        },
+        {
+          name: "5-minute mindful dhikr session",
+          dimensionId: getDimensionId("Remembrance"),
           points: 2,
         },
+
+        // Knowledge tasks
+        {
+          name: "Read Quran with translation (1 page)",
+          dimensionId: getDimensionId("Knowledge"),
+          points: 3,
+        },
+        {
+          name: "Learn and reflect on 1 hadith",
+          dimensionId: getDimensionId("Knowledge"),
+          points: 2,
+        },
+        {
+          name: "Listen to Islamic lecture (15 mins)",
+          dimensionId: getDimensionId("Knowledge"),
+          points: 2,
+        },
+
+        // Character tasks
+        {
+          name: "Give secret charity",
+          dimensionId: getDimensionId("Character"),
+          points: 4,
+        },
+        {
+          name: "Visit/call a family member",
+          dimensionId: getDimensionId("Character"),
+          points: 3,
+        },
+        {
+          name: "Hold back anger in a situation",
+          dimensionId: getDimensionId("Character"),
+          points: 3,
+        },
+
+        // Discipline tasks
+        {
+          name: "No social media before Dhuhr",
+          dimensionId: getDimensionId("Discipline"),
+          points: 3,
+        },
+        {
+          name: "Sleep by 11pm, wake by Fajr",
+          dimensionId: getDimensionId("Discipline"),
+          points: 4,
+        },
+        {
+          name: "Complete most important task first",
+          dimensionId: getDimensionId("Discipline"),
+          points: 3,
+        },
+
+        // Body tasks
+        {
+          name: "30-minute walk or workout",
+          dimensionId: getDimensionId("Body"),
+          points: 3,
+        },
+        {
+          name: "Drink 2L water, avoid junk food",
+          dimensionId: getDimensionId("Body"),
+          points: 3,
+        },
+        {
+          name: "Stretch and posture exercises",
+          dimensionId: getDimensionId("Body"),
+          points: 2,
+        },
+
+        // Purpose tasks
+        {
+          name: "Set and review daily intentions",
+          dimensionId: getDimensionId("Purpose"),
+          points: 2,
+        },
+        {
+          name: "Journal 3 things you're grateful for",
+          dimensionId: getDimensionId("Purpose"),
+          points: 2,
+        },
+        {
+          name: "Plan next day before sleeping",
+          dimensionId: getDimensionId("Purpose"),
+          points: 2,
+        }
       ],
     });
 
@@ -98,85 +143,116 @@ export const GET = async () => {
     const getTaskId = (name: string) =>
       tasks.find((t) => t.name === name)?.id || "";
 
+    // Create improved 3-day challenges
     await prisma.challenge.createMany({
       data: [
         {
-          name: "Daily Sunnah Challenge",
-          description: "Simple acts to follow the Prophet's example",
-          duration: 5,
+          name: "Spiritual Reset",
+          description: "Reconnect with Allah through focused worship",
+          duration: 3,
         },
         {
-          name: "Heart Cleanse Week",
-          description: "Purify your heart through focused worship",
-          duration: 7,
+          name: "Prophetic Lifestyle",
+          description: "Emulate the Sunnah in your daily routine",
+          duration: 3,
         },
         {
-          name: "Balanced Muslim Week",
-          description: "Grow in all dimensions of faith",
-          duration: 5,
+          name: "Holistic Growth",
+          description: "Balance all dimensions of your faith",
+          duration: 3,
         },
       ],
     });
 
     const challenges = await prisma.challenge.findMany();
 
+    // Assign tasks to challenges
     await prisma.challengeTask.createMany({
       data: [
+        // Spiritual Reset Challenge
         {
           challengeId: challenges[0].id,
-          taskId: getTaskId("Pray Fajr on time"),
+          taskId: getTaskId("Pray Fajr in congregation/masjid"),
         },
         {
           challengeId: challenges[0].id,
-          taskId: getTaskId("Read Quran + translation"),
+          taskId: getTaskId("Istighfar 100 times"),
         },
-        { challengeId: challenges[0].id, taskId: getTaskId("Walk 30 mins") },
         {
           challengeId: challenges[0].id,
+          taskId: getTaskId("Read Quran with translation (1 page)"),
+        },
+        {
+          challengeId: challenges[0].id,
+          taskId: getTaskId("5-minute mindful dhikr session"),
+        },
+        {
+          challengeId: challenges[0].id,
+          taskId: getTaskId("Journal 3 things you're grateful for"),
+        },
+
+        // Prophetic Lifestyle Challenge
+        {
+          challengeId: challenges[1].id,
+          taskId: getTaskId("Fast a sunnah day (Mon/Thurs)"),
+        },
+        {
+          challengeId: challenges[1].id,
+          taskId: getTaskId("Send salawat 50 times"),
+        },
+        {
+          challengeId: challenges[1].id,
           taskId: getTaskId("Give secret charity"),
         },
         {
-          challengeId: challenges[0].id,
-          taskId: getTaskId("Morning/evening adhkar"),
+          challengeId: challenges[1].id,
+          taskId: getTaskId("Sleep by 11pm, wake by Fajr"),
         },
-
-        { challengeId: challenges[1].id, taskId: getTaskId("Pray Tahajjud") },
         {
           challengeId: challenges[1].id,
-          taskId: getTaskId("No social media till Dhuhr"),
+          taskId: getTaskId("30-minute walk or workout"),
         },
-        { challengeId: challenges[1].id, taskId: getTaskId("Istighfar 100x") },
-        {
-          challengeId: challenges[1].id,
-          taskId: getTaskId("Call family member"),
-        },
-        { challengeId: challenges[1].id, taskId: getTaskId("Learn 1 hadith") },
 
-        { challengeId: challenges[2].id, taskId: getTaskId("Fast Sunnah day") },
+        // Holistic Growth Challenge
         {
           challengeId: challenges[2].id,
-          taskId: getTaskId("Listen Islamic podcast"),
-        },
-        { challengeId: challenges[2].id, taskId: getTaskId("Workout 20 mins") },
-        {
-          challengeId: challenges[2].id,
-          taskId: getTaskId("Smile at 3 people"),
+          taskId: getTaskId("Recite morning/evening adhkar"),
         },
         {
           challengeId: challenges[2].id,
-          taskId: getTaskId("Set daily intention"),
+          taskId: getTaskId("Learn and reflect on 1 hadith"),
         },
+        {
+          challengeId: challenges[2].id,
+          taskId: getTaskId("Visit/call a family member"),
+        },
+        {
+          challengeId: challenges[2].id,
+          taskId: getTaskId("Drink 2L water, avoid junk food"),
+        },
+        {
+          challengeId: challenges[2].id,
+          taskId: getTaskId("Set and review daily intentions"),
+        }
       ],
     });
 
     return NextResponse.json({
       success: true,
-      message: "Successfully seeded 3 challenges with balanced tasks",
+      message: "Successfully seeded 3 improved 3-day challenges",
+      data: {
+        challenges: challenges.length,
+        tasks: tasks.length,
+        challengeTasks: await prisma.challengeTask.count()
+      }
     });
   } catch (error) {
     console.error("Seeding error:", error);
     return NextResponse.json(
-      { error: "Database seeding failed" },
+      { 
+        error: "Database seeding failed",
+        details: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     );
   }

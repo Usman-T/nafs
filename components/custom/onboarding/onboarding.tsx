@@ -59,7 +59,6 @@ export default function ChallengeOnboarding({
       setIsLoading(true);
 
       if (selectedChallengeId) {
-        // Existing challenge enrollment
         const result = await enrollInExistingChallenge(
           selectedChallengeId,
           selectedTasks

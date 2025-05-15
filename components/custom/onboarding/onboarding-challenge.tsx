@@ -42,12 +42,12 @@ const ChallengeCard = ({
         onClick={onSelect}
       >
         <CardHeader className="pb-2">
-          <CardTitle className="flex items-center text-[#ebdbb2] text-base sm:text-lg">
+          <CardTitle className="flex items-center text-[#ebdbb2]">
             <Award className="h-5 w-5 text-[#fe8019] mr-2 flex-shrink-0" />
-            {challenge.name}
+            <p className="text-xl">{challenge.name}</p>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent>
           <p className="text-xs sm:text-sm text-[#a89984]">
             {challenge.description}
           </p>
@@ -77,7 +77,7 @@ const ChallengeCard = ({
             )}
           </div>
         </CardContent>
-        <CardFooter className="pt-0">
+        <CardFooter className="pt-4">
           {isSelected ? (
             <Button
               className="w-full bg-[#fe8019] text-[#1d2021] hover:bg-[#d65d0e]"
