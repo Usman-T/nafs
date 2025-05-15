@@ -73,13 +73,15 @@ export const createUser = async (prevState: State, formData: FormData) => {
   const passwordHash = await bcrypt.hash(password, saltRounds);
 
   try {
-    await prisma.user.create({
+     await prisma.user.create({
       data: {
         name: name,
         email: email,
         password: passwordHash,
       },
     });
+
+
 
     await signIn("credentials", {
       email,
@@ -296,6 +298,37 @@ export const createCustomChallenge = async (challengeData: {
       success: false,
       message:
         error instanceof Error ? error.message : "Challenge creation failed",
+    };
+  }
+};
+
+export const completeTask = async (taskId: string) => {
+  try {
+    const userId = await requireAuth();
+    const task = await prisma.dailyTask.findUnique({
+
+      where: { id: taskId },
+      include: {
+        task: {
+          inlcude: {
+            dimension:{
+              true
+            }
+          }
+        }
+      }
+    });
+
+    const completedTask = await prisma.completedTask.create({
+      userId ,
+      taskRd: taskId,
+    });
+
+  } catch (error) {
+    console.error("Error completing task:", error);
+    return {
+      success: false,
+      message: "Failed to complete task",
     };
   }
 };
