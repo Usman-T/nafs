@@ -100,7 +100,7 @@ const ChallengesComplete = ({
 
   if (!isMounted || isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[80vh]">
+      <div className="flex p-8 items-center justify-center min-h-[80vh]">
         <div className="w-full max-w-md">
           <Card className="bg-[#282828] border-[#3c3836] overflow-hidden">
             <CardHeader className="pb-3">
