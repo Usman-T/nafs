@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.className} bg-dark-bg0 text-dark-fg0 `}
+        className={`${inter.className} bg-dark-bg0 text-dark-fg0`}
       >
         <SessionProvider>
           <Toaster />

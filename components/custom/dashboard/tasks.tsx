@@ -18,6 +18,8 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
 } from "@/components/ui/carousel";
 
 const Tasks = ({
@@ -86,10 +88,15 @@ const Tasks = ({
               <Carousel
                 opts={{
                   startIndex: 7,
+                  slidesToScroll: 3,
+                  breakpoints: {
+                    "(min-width: 640px)": { slidesToScroll: 5 },
+                    "(min-width: 1024px)": { slidesToScroll: 7 },
+                  },
                 }}
-                className="w-full overflow-x-auto"
+                className="w-full"
               >
-                <CarouselContent className="flex gap-2 px-1">
+                <CarouselContent className="-ml-1">
                   {dates.reverse().map((date, i) => {
                     const dateTasks = dailyTasks.filter(
                       (t) => t.date.toDateString() === date.toDateString()
@@ -104,45 +111,42 @@ const Tasks = ({
                       date.toDateString() === selectedDate.toDateString();
 
                     return (
-                      <div key={i} className="flex items-center justify-center">
-                        <CarouselItem className="basis-1/3 shrink-0 grow-0 snap-start">
-                          <button
-                            onClick={() => setSelectedDate(date)}
-                            className={`flex flex-col items-center px-2 py-2 rounded-lg transition-colors relative w-full h-[72px]
-                                      ${
-                                        isSelected
-                                          ? "bg-[#3c3836] text-[#fe8019]"
-                                          : "hover:bg-[#3c3836]/50"
-                                      }
-                                      ${
-                                        isToday
-                                          ? "border-2 border-[#fe8019]"
-                                          : ""
-                                      }
-                                    `}
-                          >
-                            <div className="text-sm font-medium">
-                              {weekdays[date.getDay()].substring(0, 1)}
+                      <CarouselItem
+                        key={i}
+                        className="basis-1/3 sm:basis-1/5 lg:basis-1/7 pl-1"
+                      >
+                        <button
+                          onClick={() => setSelectedDate(date)}
+                          className={`flex flex-col items-center px-2 py-2 rounded-lg transition-colors relative w-full h-[72px]
+                      ${
+                        isSelected
+                          ? "bg-[#3c3836] text-[#fe8019]"
+                          : "hover:bg-[#3c3836]/50"
+                      }
+                      ${isToday ? "border-2 border-[#fe8019]" : ""}
+                    `}
+                        >
+                          <div className="text-sm font-medium">
+                            {weekdays[date.getDay()].substring(0, 1)}
+                          </div>
+                          <div className="text-base mt-1">{date.getDate()}</div>
+                          {isToday && (
+                            <div className="absolute bottom-1 text-[8px] text-[#fe8019] font-bold">
+                              Today
                             </div>
-                            <div className="text-base mt-1">
-                              {date.getDate()}
-                            </div>
-                            {isToday && (
-                              <div className="absolute bottom-1 text-[8px] text-[#fe8019] font-bold">
-                                Today
-                              </div>
-                            )}
-                            <div
-                              className={`h-1.5 w-1.5 rounded-full mt-1.5 ${
-                                allCompleted ? "bg-[#fe8019]" : "bg-[#3c3836]"
-                              }`}
-                            />
-                          </button>
-                        </CarouselItem>
-                      </div>
+                          )}
+                          <div
+                            className={`h-1.5 w-1.5 rounded-full mt-1.5 ${
+                              allCompleted ? "bg-[#fe8019]" : "bg-[#3c3836]"
+                            }`}
+                          />
+                        </button>
+                      </CarouselItem>
                     );
                   })}
                 </CarouselContent>
+                <CarouselPrevious className="hidden sm:flex" />
+                <CarouselNext className="hidden sm:flex" />
               </Carousel>
             </div>
 

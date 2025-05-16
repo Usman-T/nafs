@@ -180,26 +180,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     );
   };
 
-  return (
-    <div className="flex min-h-screen bg-[#1d2021]">
-      <DesktopSidebar />
-      <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex h-16 items-center border-b border-[#2e2e2e] bg-[#1d2021]/80 px-6 backdrop-blur-md md:px-8 shadow-lg">
-          <div className="flex-1">
-            <h1 className="text-lg font-semibold text-[#e0e0e0]">
-              {navItems.find((item) => item.href === pathname)?.name ||
-                "Dashboard"}
-            </h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <UserDropdown />
-          </div>
-        </header>
-        <main className="flex-1 overflow-auto pb-16 md:pb-0">
-          <div >{children}</div>
-        </main>
-        <MobileNav />
-      </div>
+return (
+  <div className="md:flex bg-[#1d2021] min-h-screen">
+    <DesktopSidebar />
+    <div className="flex flex-col flex-1">
+      <header className="sticky top-0 z-10 flex h-16 items-center border-b border-[#2e2e2e] bg-[#1d2021]/80 px-6 backdrop-blur-md md:px-8 shadow-lg">
+        <div className="flex-1">
+          <h1 className="text-lg font-semibold text-[#e0e0e0]">
+            {navItems.find((item) => item.href === pathname)?.name ||
+              "Dashboard"}
+          </h1>
+        </div>
+        <div className="flex items-center gap-4">
+          <UserDropdown />
+        </div>
+      </header>
+      <main className="flex-1 bg-[#1d2021] pb-16 md:pb-0 overflow-auto">
+        <div>{children}</div>
+      </main>
+      <MobileNav />
     </div>
-  );
+  </div>
+);
 }

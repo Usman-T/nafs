@@ -18,7 +18,9 @@ const CalendarMain = ({
   dailyTasks,
 }: {
   dailyTasks: (Omit<DailyTask, "date"> & {
-    completions: (Omit<CompletedTask, "completedAt"> & { completedAt: string })[];
+    completions: (Omit<CompletedTask, "completedAt"> & {
+      completedAt: string;
+    })[];
     task: Task & { dimension: Dimension };
     date: string;
   })[];
@@ -38,11 +40,15 @@ const CalendarMain = ({
   }, [dailyTasks]);
 
   const goToPreviousMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+    setCurrentMonth(
+      new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)
+    );
   };
 
   const goToNextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+    setCurrentMonth(
+      new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)
+    );
   };
 
   const goToToday = () => {
@@ -66,7 +72,8 @@ const CalendarMain = ({
 
   const calendarDays = [];
   for (let i = 0; i < firstDayOfMonth; i++) calendarDays.push(null);
-  for (let i = 1; i <= daysInMonth; i++) calendarDays.push(new Date(year, month, i));
+  for (let i = 1; i <= daysInMonth; i++)
+    calendarDays.push(new Date(year, month, i));
 
   const isSameDay = (date1: Date, date2: Date) => {
     return (
@@ -82,21 +89,30 @@ const CalendarMain = ({
 
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
-    if (date.getMonth() !== currentMonth.getMonth() || date.getFullYear() !== currentMonth.getFullYear()) {
+    if (
+      date.getMonth() !== currentMonth.getMonth() ||
+      date.getFullYear() !== currentMonth.getFullYear()
+    ) {
       setCurrentMonth(new Date(date.getFullYear(), date.getMonth()));
     }
   };
 
   const selectedDateTasks = getDailyTasks(selectedDate);
-  const completedTasks = selectedDateTasks.filter((task) => task.completions.length > 0);
+  const completedTasks = selectedDateTasks.filter(
+    (task) => task.completions.length > 0
+  );
 
   const getCompletionStatus = (date: Date | null) => {
     if (!date) return "empty";
+
     const tasks = getDailyTasks(date);
     if (tasks.length === 0) return "none";
-    const completed = tasks.filter((t) => t.completions.length > 0);
-    if (completed.length === tasks.length) return "complete";
-    if (completed.length > 0) return "partial";
+
+    const allComplete = tasks.every((task) => task.completions.length > 0);
+    const anyComplete = tasks.some((task) => task.completions.length > 0);
+
+    if (allComplete) return "complete";
+    if (anyComplete) return "partial";
     return "none";
   };
 
@@ -184,6 +200,7 @@ const CalendarMain = ({
                 {calendarDays.map((date, index) => {
                   const status = getCompletionStatus(date);
                   const dayKey = date ? date.toISOString() : `empty-${index}`;
+                  console.log({ status, index });
 
                   return (
                     <motion.div
@@ -205,9 +222,9 @@ const CalendarMain = ({
                               : isToday(date)
                               ? "border-2 border-[#fe8019] text-[#ebdbb2]"
                               : status === "complete"
-                              ? "bg-[#3c3836] text-[#ebdbb2]"
+                              ? "bg-[#fe8019] text-[#1d2021]"
                               : status === "partial"
-                              ? "bg-[#3c3836]/50 text-[#ebdbb2]"
+                              ? "bg-[#3c3836] text-[#ebdbb2]"
                               : "border border-[#3c3836] text-[#a89984]"
                           }`}
                         >
@@ -294,9 +311,7 @@ const CalendarMain = ({
                           </div>
                           <span
                             className={`text-[#ebdbb2] ${
-                              isCompleted
-                                ? "line-through opacity-70"
-                                : ""
+                              isCompleted ? "line-through opacity-70" : ""
                             }`}
                           >
                             {dailyTask.task.name}
