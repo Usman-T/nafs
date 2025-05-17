@@ -6,22 +6,53 @@ export const authConfig = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, 
+    maxAge: 30 * 24 * 60 * 60,
+  },
+  cookies: {
+    sessionToken: {
+      name: `__Secure-next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+        path: "/",
+      },
+    },
+    callbackUrl: {
+      name: `__Secure-next-auth.callback-url`,
+      options: {
+        sameSite: "none",
+        secure: true,
+        path: "/",
+      },
+    },
+    csrfToken: {
+      name: `__Host-next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+        path: "/",
+      },
+    },
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const protectedRoutes = ["/dashboard", "/onboarding"];
-      
-      if (protectedRoutes.some(path => nextUrl.pathname.startsWith(path))) {
+
+      if (protectedRoutes.some((path) => nextUrl.pathname.startsWith(path))) {
         if (isLoggedIn) return true;
         return Response.redirect(new URL("/login", nextUrl));
       }
-      
-      if (isLoggedIn && (nextUrl.pathname === "/login" || nextUrl.pathname === "/")) {
+
+      if (
+        isLoggedIn &&
+        (nextUrl.pathname === "/login" || nextUrl.pathname === "/")
+      ) {
         return Response.redirect(new URL("/dashboard", nextUrl));
       }
-      
+
       return true;
     },
     async jwt({ token, user }) {
@@ -35,7 +66,7 @@ export const authConfig = {
         session.user.id = token.id;
       }
       return session;
-    }
+    },
   },
   providers: [],
 } satisfies NextAuthConfig;
