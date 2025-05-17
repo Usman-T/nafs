@@ -105,3 +105,37 @@ export const fetchDimensions = async () => {
 
   return dimensions;
 };
+
+export const fetchUserDimensions = async () => {
+  const session = await auth();
+
+  if (!session?.user) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: session.user.email ?? undefined,
+    },
+    include: {
+      dimensionValues: {
+        include: {
+          dimension: true,
+        },
+      },
+    },
+  });
+
+  return user?.dimensionValues?.map((dimensionValue) => ({
+    id: dimensionValue.id,
+    value: dimensionValue.value / 100,
+
+    dimension: {
+      id: dimensionValue.dimension.id,
+      name: dimensionValue.dimension.name,
+      description: dimensionValue.dimension.description,
+      color: dimensionValue.dimension.color,
+      icon: dimensionValue.dimension.icon,
+    },
+  }));
+};

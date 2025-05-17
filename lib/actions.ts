@@ -83,10 +83,14 @@ export const createUser = async (prevState: State, formData: FormData) => {
 
     const dimensions = await prisma.dimension.findMany();
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const dimVals = dimensions.map((dimension) => ({
       userId: user.id,
       dimensionId: dimension.id,
       value: 0,
+      date: today,
     }));
 
     await prisma.dimensionValue.createMany({
@@ -318,7 +322,6 @@ export const completeTask = async (taskId: string) => {
   try {
     const userId = await requireAuth();
 
-    // Get daily task with related data
     const dailyTask = await prisma.dailyTask.findUnique({
       where: { id: taskId },
       include: {
@@ -332,7 +335,6 @@ export const completeTask = async (taskId: string) => {
 
     if (!dailyTask) throw new Error("Task not found");
 
-    // Check for existing completion
     const existingCompletion = await prisma.completedTask.findFirst({
       where: { dailyTaskId: taskId, userId },
     });
@@ -341,7 +343,6 @@ export const completeTask = async (taskId: string) => {
       return { success: false, message: "Task already completed" };
     }
 
-    // Create completed task
     await prisma.completedTask.create({
       data: {
         userId,
@@ -349,7 +350,6 @@ export const completeTask = async (taskId: string) => {
       },
     });
 
-    // Update dimension value
     await prisma.dimensionValue.upsert({
       where: {
         userId_dimensionId_date: {
@@ -369,7 +369,6 @@ export const completeTask = async (taskId: string) => {
       },
     });
 
-    // Update challenge progress
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { challengeId: true },
