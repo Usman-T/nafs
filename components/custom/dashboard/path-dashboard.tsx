@@ -211,7 +211,7 @@ function SpiritualPathComponent({
             </p>
           ) : (
             <p className="text-sm text-[#fe8019]">
-              You've reached the highest level!
+              You&apos;ve reached the highest level!
             </p>
           )}
         </div>
@@ -231,7 +231,6 @@ function SpiritualPathComponent({
             {progressionLevels.map((level, index) => {
               const isPast = level.level < currentLevel;
               const isCurrent = level.level === currentLevel;
-              const isFuture = level.level > currentLevel;
 
               const IconComponent = level.icon;
 

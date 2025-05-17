@@ -1,11 +1,11 @@
 "use server";
 
-import { auth, signIn, signOut } from "@/auth";
+import { signIn, signOut } from "@/auth";
 import prisma from "@/prisma";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { z } from "zod";
-import { getCurrentUserId, requireAuth } from "./auth";
+import { requireAuth } from "./auth";
 
 export type State = {
   errors?: {
@@ -83,14 +83,14 @@ export const createUser = async (prevState: State, formData: FormData) => {
 
     const dimensions = await prisma.dimension.findMany();
 
-    const dimVals = dimensions.map(dimension => ({
+    const dimVals = dimensions.map((dimension) => ({
       userId: user.id,
       dimensionId: dimension.id,
-      value: 0
+      value: 0,
     }));
 
     await prisma.dimensionValue.createMany({
-      data: dimVals
+      data: dimVals,
     });
 
     await signIn("credentials", {
@@ -180,7 +180,7 @@ export const enrollInExistingChallenge = async (
       .filter((_, index) => selectedTasks.includes(index))
       .map((task) => task.taskId);
 
-    const [userChallenge] = await prisma.$transaction([
+    await prisma.$transaction([
       prisma.userChallenge.create({
         data: {
           userId,
@@ -284,7 +284,9 @@ export const createCustomChallenge = async (challengeData: {
       const dailyTasks = Array.from(
         { length: challengeData.duration },
         (_, day) => ({
-          date: new Date(new Date(startDate).setDate(startDate.getDate() + day)),
+          date: new Date(
+            new Date(startDate).setDate(startDate.getDate() + day)
+          ),
           taskIds: tasks.map((t) => t.id),
         })
       ).flatMap(({ date, taskIds }) =>
@@ -362,8 +364,8 @@ export const completeTask = async (taskId: string) => {
         value: dailyTask.task.points,
         date: new Date(new Date().setHours(0, 0, 0, 0)),
       },
-      update: { 
-        value: { increment: dailyTask.task.points } 
+      update: {
+        value: { increment: dailyTask.task.points },
       },
     });
 
@@ -385,19 +387,16 @@ export const completeTask = async (taskId: string) => {
       where: {
         userId,
         dailyTask: {
-          task: { 
-            challenges: { 
-              some: { challengeId: user.challengeId } 
-            } 
+          task: {
+            challenges: {
+              some: { challengeId: user.challengeId },
+            },
           },
         },
       },
     });
 
-    const progress = Math.min(
-      (completedTasks / totalTasks) * 100,
-      100
-    );
+    const progress = Math.min((completedTasks / totalTasks) * 100, 100);
 
     await prisma.userChallenge.updateMany({
       where: { userId, challengeId: user.challengeId },
@@ -411,7 +410,8 @@ export const completeTask = async (taskId: string) => {
     console.error("Error completing task:", error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Failed to complete task",
+      message:
+        error instanceof Error ? error.message : "Failed to complete task",
     };
   }
 };
@@ -477,7 +477,8 @@ export const completeChallenge = async (challengeId: string) => {
     console.error("Error completing challenge:", error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Failed to complete challenge",
+      message:
+        error instanceof Error ? error.message : "Failed to complete challenge",
     };
   }
 };

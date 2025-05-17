@@ -8,16 +8,13 @@ export const GET = async () => {
     await prisma.task.deleteMany();
     await prisma.challenge.deleteMany();
 
-    // Get all dimensions to map names to IDs
     const dimensions = await prisma.dimension.findMany();
     
     const getDimensionId = (name: string) => 
       dimensions.find(d => d.name === name)?.id || "";
 
-    // Create improved tasks with better point distribution
     await prisma.task.createMany({
       data: [
-        // Faith tasks
         {
           name: "Pray Fajr in congregation/masjid",
           dimensionId: getDimensionId("Faith"),

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -204,7 +204,7 @@ const InteractiveRadarChart = () => {
               {selectedDimensionData?.name}
             </div>
             <div className="text-3xl font-bold text-[#ebdbb2]">
-              {Math.round(selectedDimensionData?.value! * 100)}%
+              Math.round((selectedDimensionData?.value ?? 0) * 100)
             </div>
             <div className="text-xs text-[#a89984] max-w-[220px]">
               {selectedDimensionData?.description}

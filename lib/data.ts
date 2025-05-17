@@ -1,6 +1,5 @@
 import prisma from "@/prisma";
 import { auth } from "@/auth";
-import { Challenge } from "@prisma/client";
 
 export const getUsers = async () => {
   try {

@@ -20,15 +20,13 @@ import {
 } from "@prisma/client";
 import { iconMap } from "@/lib/iconMap";
 import { useEffect, useState } from "react";
+import { Dimension } from "@prisma/client";
 
 interface ChallengesProps {
   challenge: UserChallenge & { challenge: Challenge };
   tasks: (DailyTask & {
     task: {
-      dimension: {
-        icon: string;
-        color: string;
-      };
+      dimension: Dimension;
     };
     completions: CompletedTask[];
   })[];
@@ -137,7 +135,7 @@ const Challenges = ({ challenge, tasks }: ChallengesProps) => {
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-[#ebdbb2] font-medium">Today's Tasks</h3>
+            <h3 className="text-[#ebdbb2] font-medium">Today&apos;s Tasks</h3>
             <AnimatePresence mode="wait">
               {tasks.map((dailyTask) => {
                 const IconComponent =
@@ -168,7 +166,7 @@ const Challenges = ({ challenge, tasks }: ChallengesProps) => {
                           isCompleted ? "line-through opacity-70" : ""
                         }`}
                       >
-                        {dailyTask.task.name}
+                        {dailyTask.task.dimension.name}
                       </span>
                     </div>
                     <Link

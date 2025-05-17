@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 const InteractiveRadarChart = () => {
   const [selectedDimension, setSelectedDimension] = useState<string | null>(
@@ -203,7 +204,7 @@ const InteractiveRadarChart = () => {
               {selectedDimensionData?.name}
             </div>
             <div className="text-3xl font-bold text-[#ebdbb2]">
-              {Math.round(selectedDimensionData?.value! * 100)}%
+              Math.round((selectedDimensionData?.value ?? 0) * 100)
             </div>
             <div className="text-xs text-[#a89984] max-w-[220px]">
               {selectedDimensionData?.description}
