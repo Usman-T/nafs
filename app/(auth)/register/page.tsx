@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRef } from "react";
 import { useActionState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { createUser, State } from "@/lib/actions";
 import { Separator } from "@/components/ui/separator";
 
@@ -18,8 +18,7 @@ const Register = () => {
   const initialState: State = { message: null, errors: {} };
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  const callbackUrl = "/dashboard";
 
   const [state, formAction, isPending] = useActionState(
     async (prevState: State, formData: FormData) => {

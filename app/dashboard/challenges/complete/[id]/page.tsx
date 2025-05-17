@@ -1,11 +1,13 @@
 import ChallengesComplete from "@/components/custom/challenges/challenges-complete";
 import { fetchDailyTasks } from "@/lib/data";
 
-const CompleteChallengePage = async ({
-  params,
-}: {
-  params: { id: string };
-}) => {
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
+
+const CompleteChallengePage = async ({ params }: PageProps) => {
   const dailyTasks = await fetchDailyTasks();
   const task = dailyTasks?.find((task) => task.id === params.id);
 
