@@ -129,7 +129,6 @@ export const fetchUserDimensions = async () => {
   return user?.dimensionValues?.map((dimensionValue) => ({
     id: dimensionValue.id,
     value: dimensionValue.value / 100,
-
     dimension: {
       id: dimensionValue.dimension.id,
       name: dimensionValue.dimension.name,

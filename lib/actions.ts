@@ -83,14 +83,10 @@ export const createUser = async (prevState: State, formData: FormData) => {
 
     const dimensions = await prisma.dimension.findMany();
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     const dimVals = dimensions.map((dimension) => ({
       userId: user.id,
       dimensionId: dimension.id,
-      value: 0,
-      date: today,
+      value: 5,
     }));
 
     await prisma.dimensionValue.createMany({
@@ -350,22 +346,17 @@ export const completeTask = async (taskId: string) => {
       },
     });
 
-    await prisma.dimensionValue.upsert({
+    await prisma.dimensionValue.update({
       where: {
-        userId_dimensionId_date: {
+        userId_dimensionId: {
           userId,
           dimensionId: dailyTask.task.dimensionId,
-          date: new Date(new Date().setHours(0, 0, 0, 0)),
         },
       },
-      create: {
-        userId,
-        dimensionId: dailyTask.task.dimensionId,
-        value: dailyTask.task.points,
-        date: new Date(new Date().setHours(0, 0, 0, 0)),
-      },
-      update: {
-        value: { increment: dailyTask.task.points },
+      data: {
+        value: {
+          increment: 1,
+        },
       },
     });
 
