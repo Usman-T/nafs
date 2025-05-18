@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Dimension, DimensionValue } from "@prisma/client";
 import { ArrowLeft } from "lucide-react";
 import { iconMap } from "@/lib/iconMap";
+import ProgressSkeleton from "./progress-skelton";
 
 interface DimensionValueWithDimension extends DimensionValue {
   dimension: Dimension;
@@ -34,6 +35,14 @@ const ProgressComponent = ({
   );
   const [animationPhase, setAnimationPhase] = useState(0);
   const [size, setSize] = useState(400);
+  const [isMounted, setIsMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsMounted(true);
+    const timer = setTimeout(() => setIsLoading(false));
+    return () => clearTimeout(timer);
+  }, []);
 
   const center = useMemo(() => size / 2, [size]);
   const radius = useMemo(() => size * 0.4, [size]);
@@ -126,6 +135,10 @@ const ProgressComponent = ({
   const handleDimensionSelect = useCallback((name: string | null) => {
     setSelectedDimension(name);
   }, []);
+
+  if (!isMounted || isLoading) {
+    return <ProgressSkeleton />;
+  }
 
   return (
     <div className="space-y-8 p-8">
