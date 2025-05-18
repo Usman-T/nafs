@@ -1,13 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const ProgressSkeleton = () => {
-  const size = 400; // Default size, no need for dynamic calculation on server
+  const size = 400;
   const center = size / 2;
   const radius = size * 0.4;
   const hexRadius = radius * 0.8;
 
-  // Generate hex points (pure function, no state)
   const generateHexPoints = (level: number) => {
     return Array.from({ length: 6 }).map((_, j) => {
       const angle = (Math.PI * 2 * j) / 6 - Math.PI / 2;
@@ -37,7 +41,6 @@ const ProgressSkeleton = () => {
                     viewBox={`0 0 ${size} ${size}`}
                     className="overflow-visible"
                   >
-                    {/* Hexagon grid */}
                     {[0.2, 0.4, 0.6, 0.8, 1].map((level, i) => (
                       <polygon
                         key={i}
@@ -51,26 +54,46 @@ const ProgressSkeleton = () => {
                       />
                     ))}
 
-                    {/* Radial lines */}
                     {Array.from({ length: 6 }).map((_, i) => (
                       <line
                         key={i}
                         x1={center}
                         y1={center}
-                        x2={center + radius * Math.cos((Math.PI * 2 * i) / 6 - Math.PI / 2)}
-                        y2={center + radius * Math.sin((Math.PI * 2 * i) / 6 - Math.PI / 2)}
+                        x2={
+                          center +
+                          radius * Math.cos((Math.PI * 2 * i) / 6 - Math.PI / 2)
+                        }
+                        y2={
+                          center +
+                          radius * Math.sin((Math.PI * 2 * i) / 6 - Math.PI / 2)
+                        }
                         stroke="#3c3836"
                         strokeWidth="1"
                         opacity={0.5}
                       />
                     ))}
 
-                    {/* Dimension points */}
                     {Array.from({ length: 6 }).map((_, i) => {
-                      const pointX = center + radius * 0.8 * Math.cos((Math.PI * 2 * i) / 6 - Math.PI / 2);
-                      const pointY = center + radius * 0.8 * Math.sin((Math.PI * 2 * i) / 6 - Math.PI / 2);
-                      const labelX = center + radius * 1.15 * Math.cos((Math.PI * 2 * i) / 6 - Math.PI / 2);
-                      const labelY = center + radius * 1.15 * Math.sin((Math.PI * 2 * i) / 6 - Math.PI / 2);
+                      const pointX =
+                        center +
+                        radius *
+                          0.8 *
+                          Math.cos((Math.PI * 2 * i) / 6 - Math.PI / 2);
+                      const pointY =
+                        center +
+                        radius *
+                          0.8 *
+                          Math.sin((Math.PI * 2 * i) / 6 - Math.PI / 2);
+                      const labelX =
+                        center +
+                        radius *
+                          1.15 *
+                          Math.cos((Math.PI * 2 * i) / 6 - Math.PI / 2);
+                      const labelY =
+                        center +
+                        radius *
+                          1.15 *
+                          Math.sin((Math.PI * 2 * i) / 6 - Math.PI / 2);
 
                       return (
                         <g key={i}>
@@ -87,8 +110,7 @@ const ProgressSkeleton = () => {
                             dominantBaseline="middle"
                             fontSize="14"
                             fill="#3c3836"
-                          >
-                          </text>
+                          ></text>
                         </g>
                       );
                     })}
@@ -96,21 +118,24 @@ const ProgressSkeleton = () => {
                 </div>
               </div>
 
-              {/* Center metrics */}
               <div className="mt-4 text-center space-y-2">
                 <Skeleton className="h-6 w-48 mx-auto bg-[#3c3836]" />
                 <Skeleton className="h-12 w-24 mx-auto bg-[#3c3836]" />
               </div>
 
-              {/* Dimension icons */}
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2 sm:gap-4 mt-12">
-                {Array.from({ length: 7 }).map((_, i) => (
-                  <div key={i} className="flex flex-col items-center">
-                    <Skeleton className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-[#3c3836]" />
-                    <Skeleton className="h-4 w-16 mt-2 bg-[#3c3836]" />
-                  </div>
-                ))}
-              </div>
+              <Carousel className="gap-2 w-full">
+                <CarouselContent className="w-full -ml-1">
+                  {Array.from({ length: 7 }).map((_, i) => (
+                    <CarouselItem
+                      className="basis-1/3 flex items-center flex-col justify-center sm:basis-1/5 lg:basis-1/7 pt-4 pl-1 "
+                      key={i}
+                    >
+                      <Skeleton className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-[#3c3836]" />
+                      <Skeleton className="h-4 w-16 mt-2 bg-[#3c3836]" />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+              </Carousel>
             </div>
           </CardContent>
         </Card>

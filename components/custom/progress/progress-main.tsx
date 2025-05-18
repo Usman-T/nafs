@@ -8,6 +8,13 @@ import { Dimension, DimensionValue } from "@prisma/client";
 import { ArrowLeft } from "lucide-react";
 import { iconMap } from "@/lib/iconMap";
 import ProgressSkeleton from "./progress-skelton";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 interface DimensionValueWithDimension extends DimensionValue {
   dimension: Dimension;
@@ -141,7 +148,7 @@ const ProgressComponent = ({
   }
 
   return (
-    <div className="space-y-8 p-8">
+    <div className="space-y-8 p-8 select-none">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -358,46 +365,57 @@ const ProgressComponent = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2 sm:gap-4 mt-12">
-              {dimensions.map((dim) => {
-                const IconComponent = iconMap[dim.dimension.icon] || "BookOpen";
-                const isSelected = selectedDimension === dim.dimension.name;
+            <Carousel className="gap-2 w-full">
+              <CarouselContent className="w-full -ml-1">
+                {dimensions.map((dim) => {
+                  const IconComponent =
+                    iconMap[dim.dimension.icon] || "BookOpen";
+                  const isSelected = selectedDimension === dim.dimension.name;
 
-                return (
-                  <motion.div
-                    key={dim.dimension.id}
-                    whileHover={{ y: -5 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`flex flex-col items-center cursor-pointer ${
-                      isSelected ? "scale-110" : ""
-                    }`}
-                    onClick={() => handleDimensionSelect(dim.dimension.name)}
-                  >
-                    <div
-                      className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full flex items-center justify-center ${
-                        isSelected
-                          ? "bg-[#fe8019] text-[#1d2021]"
-                          : "bg-[#3c3836]"
-                      }`}
+                  return (
+                    <CarouselItem
+                      className="basis-1/3 sm:basis-1/5 lg:basis-1/7 pt-4 pl-1 "
+                      key={dim.dimension.id}
                     >
-                      <IconComponent
-                        className="h-4 w-4"
-                        style={{
-                          color: isSelected ? "#1d2021" : dim.dimension.color,
-                        }}
-                      />
-                    </div>
-                    <div
-                      className={`text-xs mt-2 font-medium ${
-                        isSelected ? "text-[#fe8019]" : "text-[#a89984]"
-                      }`}
-                    >
-                      {dim.dimension.name}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
+                      <motion.div
+                        whileHover={{ y: -5 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`flex flex-col items-center cursor-pointer ${
+                          isSelected ? "scale-110" : ""
+                        }`}
+                        onClick={() =>
+                          handleDimensionSelect(dim.dimension.name)
+                        }
+                      >
+                        <div
+                          className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full flex items-center justify-center ${
+                            isSelected
+                              ? "bg-[#fe8019] text-[#1d2021]"
+                              : "bg-[#3c3836]"
+                          }`}
+                        >
+                          <IconComponent
+                            className="h-4 w-4"
+                            style={{
+                              color: isSelected
+                                ? "#1d2021"
+                                : dim.dimension.color,
+                            }}
+                          />
+                        </div>
+                        <div
+                          className={`text-xs mt-2 font-medium ${
+                            isSelected ? "text-[#fe8019]" : "text-[#a89984]"
+                          }`}
+                        >
+                          {dim.dimension.name}
+                        </div>
+                      </motion.div>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+            </Carousel>
           </CardContent>
         </Card>
       </motion.div>
