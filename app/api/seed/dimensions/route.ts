@@ -8,7 +8,7 @@ export const GET = async () => {
         name: "Faith",
         description:
           "Iman in practice - Salah, sincerity, intentions, tawakkul",
-        color: "#2E86AB",
+        color: "#00FFF7",
         icon: "Sparkles",
       },
     }),
@@ -18,7 +18,7 @@ export const GET = async () => {
         name: "Remembrance",
         description:
           "Inner connection to Allah - Dhikr, du'a, istighfar, presence",
-        color: "#5D5C61",
+        color: "#FF6EC7",
         icon: "Brain",
       },
     }),
@@ -28,7 +28,7 @@ export const GET = async () => {
         name: "Knowledge",
         description:
           "Learning for the soul - Quran, Hadith, Islamic studies, reflection",
-        color: "#F18F01",
+        color: "#FFD300",
         icon: "BookOpen",
       },
     }),
@@ -38,7 +38,7 @@ export const GET = async () => {
         name: "Character",
         description:
           "The Sunnah in action - Manners, patience, honesty, humility",
-        color: "#3A7D44",
+        color: "#39FF14",
         icon: "HeartHandshake",
       },
     }),
@@ -48,7 +48,7 @@ export const GET = async () => {
         name: "Discipline",
         description:
           "Mastering the self - Fajr wake-ups, fasting, time management, resisting the nafs",
-        color: "#6B2737",
+        color: "#FF073A",
         icon: "AlarmClock",
       },
     }),
@@ -58,8 +58,8 @@ export const GET = async () => {
         name: "Body",
         description:
           "The amana of your health - Sleep, exercise, energy, nutrition",
-        color: "#48ACF0",
-        icon: "Activity",
+        color: "#00BFFF",
+        icon: "Dumbbell",
       },
     }),
 
@@ -68,7 +68,7 @@ export const GET = async () => {
         name: "Purpose",
         description:
           "Ambition for the akhirah & dunya - Meaningful goals with divine intention",
-        color: "#6A4C93",
+        color: "#B026FF",
         icon: "Target",
       },
     }),

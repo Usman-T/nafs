@@ -16,6 +16,7 @@ import {
   Challenge,
   CompletedTask,
   DailyTask,
+  Task,
   UserChallenge,
 } from "@prisma/client";
 import { iconMap } from "@/lib/iconMap";
@@ -25,7 +26,7 @@ import { Dimension } from "@prisma/client";
 interface ChallengesProps {
   challenge: UserChallenge & { challenge: Challenge };
   tasks: (DailyTask & {
-    task: {
+    task: Task & {
       dimension: Dimension;
     };
     completions: CompletedTask[];
@@ -166,7 +167,7 @@ const Challenges = ({ challenge, tasks }: ChallengesProps) => {
                           isCompleted ? "line-through opacity-70" : ""
                         }`}
                       >
-                        {dailyTask.task.dimension.name}
+                        {dailyTask.task?.name}
                       </span>
                     </div>
                     <Link

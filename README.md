@@ -45,4 +45,7 @@ There will be 4 commits on "dashboard-finalize" branch and then it will be merge
 
 
 ## Complete Task
-To compelte a task, a user must hold down the button for a set amount of time. This will hit up the API most probably
+To compelte a task, a user must hold down the button for a set amount of time. This will hit up the API most probably. This has been completed 
+
+## Progress Page
+On the progress, page we have to map the Dimension Values. 

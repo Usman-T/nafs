@@ -49,13 +49,12 @@ model DimensionValue {
   userId      String
   dimensionId String
   value       Float
-  date        DateTime @default(now())
 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   dimension Dimension @relation(fields: [dimensionId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, dimensionId, date])
-  @@index([userId, date])
+  @@unique([userId, dimensionId])
+  @@index([userId])
 }
 
 model Task {

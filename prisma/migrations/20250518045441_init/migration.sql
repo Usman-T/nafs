@@ -34,7 +34,6 @@ CREATE TABLE "DimensionValue" (
     "userId" TEXT NOT NULL,
     "dimensionId" TEXT NOT NULL,
     "value" DOUBLE PRECISION NOT NULL,
-    "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "DimensionValue_pkey" PRIMARY KEY ("id")
 );
@@ -172,10 +171,10 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "Dimension_name_key" ON "Dimension"("name");
 
 -- CreateIndex
-CREATE INDEX "DimensionValue_userId_date_idx" ON "DimensionValue"("userId", "date");
+CREATE INDEX "DimensionValue_userId_idx" ON "DimensionValue"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "DimensionValue_userId_dimensionId_date_key" ON "DimensionValue"("userId", "dimensionId", "date");
+CREATE UNIQUE INDEX "DimensionValue_userId_dimensionId_key" ON "DimensionValue"("userId", "dimensionId");
 
 -- CreateIndex
 CREATE INDEX "DailyTask_userId_date_idx" ON "DailyTask"("userId", "date");

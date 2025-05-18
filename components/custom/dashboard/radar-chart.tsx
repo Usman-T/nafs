@@ -4,63 +4,26 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { Dimension, DimensionValue } from "@prisma/client";
 
-const InteractiveRadarChart = () => {
+interface DimensionValueWithDimension extends DimensionValue {
+  dimension: Dimension;
+}
+
+const InteractiveRadarChart = ({
+  dimensions,
+}: {
+  dimensions: DimensionValueWithDimension[];
+}) => {
   const [selectedDimension, setSelectedDimension] = useState<string | null>(
     null
   );
-
-  const dimensions = [
-    {
-      name: "Salah",
-      value: 0.7,
-      color: "#83a598",
-      description: "Prayer consistency and quality",
-    },
-    {
-      name: "Quran",
-      value: 0.5,
-      color: "#8ec07c",
-      description: "Recitation, understanding, and memorization",
-    },
-    {
-      name: "Charity",
-      value: 0.6,
-      color: "#fe8019",
-      description: "Giving zakat, sadaqah, and helping others",
-    },
-    {
-      name: "Community",
-      value: 0.4,
-      color: "#fabd2f",
-      description: "Involvement with the Muslim ummah",
-    },
-    {
-      name: "Dhikr",
-      value: 0.8,
-      color: "#d3869b",
-      description: "Remembrance of Allah throughout the day",
-    },
-    {
-      name: "Knowledge",
-      value: 0.6,
-      color: "#b8bb26",
-      description: "Learning Islamic teachings and wisdom",
-    },
-    {
-      name: "Character",
-      value: 0.7,
-      color: "#fb4934",
-      description: "Developing good character in daily interactions",
-    },
-  ];
 
   const size = 280;
   const center = size / 2;
   const radius = size * 0.4;
   const hexRadius = radius * 0.8;
 
-  // Calculate points on the chart
   const points = dimensions.map((dim, i) => {
     const angle = (Math.PI * 2 * i) / dimensions.length - Math.PI / 2;
     return {
@@ -68,10 +31,10 @@ const InteractiveRadarChart = () => {
       y: center + radius * Math.sin(angle) * dim.value,
       fullX: center + radius * Math.cos(angle),
       fullY: center + radius * Math.sin(angle),
-      name: dim.name,
-      color: dim.color,
+      name: dim.dimension.name,
+      color: dim.dimension.color,
       value: dim.value,
-      description: dim.description,
+      description: dim.dimension.description,
       angle,
     };
   });
@@ -93,7 +56,7 @@ const InteractiveRadarChart = () => {
   };
 
   const selectedDimensionData = dimensions.find(
-    (d) => d.name === selectedDimension
+    (d) => d.dimension.name === selectedDimension
   );
 
   return (
@@ -153,7 +116,6 @@ const InteractiveRadarChart = () => {
               <circle
                 cx={point.x}
                 cy={point.y}
-                r="6"
                 fill={
                   selectedDimension === point.name ? "#fe8019" : point.color
                 }
@@ -163,7 +125,6 @@ const InteractiveRadarChart = () => {
               <circle
                 cx={point.x}
                 cy={point.y}
-                r="15"
                 fill="transparent"
                 className="cursor-pointer"
               />
@@ -201,13 +162,13 @@ const InteractiveRadarChart = () => {
         {selectedDimension ? (
           <div className="space-y-2">
             <div className="text-sm text-[#a89984]">
-              {selectedDimensionData?.name}
+              {selectedDimensionData?.dimension.name}
             </div>
             <div className="text-3xl font-bold text-[#ebdbb2]">
-              Math.round((selectedDimensionData?.value ?? 0) * 100)
+              {Math.round((selectedDimensionData?.value ?? 0) * 100)}
             </div>
             <div className="text-xs text-[#a89984] max-w-[220px]">
-              {selectedDimensionData?.description}
+              {selectedDimensionData?.dimension.description.split('-')[0]}
             </div>
             <Button variant="link" size="sm" className="text-[#fe8019]" asChild>
               <Link href="/dashboard/progress">
