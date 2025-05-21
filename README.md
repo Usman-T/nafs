@@ -43,9 +43,26 @@ User registration and onboarding is now completetly functional. Now we display t
 - Use of suspense and displaying of fallback UI
 There will be 4 commits on "dashboard-finalize" branch and then it will be merged. That is the NON-NEGOTIATABLE TASK for today.
 
-
 ## Complete Task
 To compelte a task, a user must hold down the button for a set amount of time. This will hit up the API most probably. This has been completed 
 
 ## Progress Page
 On the progress, page we have to map the Dimension Values. 
+
+## Features to be Made:
+  - Complete a day (flow is complete, action is to be instantiated)
+  - Complet a Challegne (UI is built, the re-enrolment needs to be configured)
+  - User flows for streak loss
+  - Guidance Page
+    - See Ayah of the Day
+    - Tafsir and Tarjuma or ayahs
+    - Ayah and Theme Explorer
+    - Listen to ayahs
+    - Surah Reading page
+    - Tafsir Reading page
+    - Search Functionality
+  - Payment Integration
+  - Flows for non-premium users
+
+We are massively overscoping . The app has NOT EVEN STARTED YET
+AHHHHHHHHHHHHHHHHHHHHH
