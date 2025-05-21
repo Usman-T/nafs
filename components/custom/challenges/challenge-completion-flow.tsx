@@ -188,19 +188,21 @@ const TaskCompletionFlow = ({
                 transition={{ duration: 0.3 }}
                 className="text-center"
               >
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: [0, 1.2, 1], rotate: [0, 10, 0] }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 15,
-                    times: [0, 0.6, 1],
-                  }}
-                  className="mb-4"
-                >
-                  <Sparkles className="w-16 h-16 text-[#fe8019] mx-auto" />
-                </motion.div>
+<motion.div
+  initial={{ scale: 0 }}
+  animate={{ 
+    scale: [0, 1.2, 1],
+    rotate: [0, 10, 0]
+  }}
+  transition={{
+    duration: 0.8,
+    ease: "easeInOut",
+    times: [0, 0.6, 1]
+  }}
+  className="mb-4"
+>
+  <Sparkles className="w-16 h-16 text-[#fe8019] mx-auto" />
+</motion.div>
 
                 <motion.h2
                   initial={{ opacity: 0, y: 20 }}

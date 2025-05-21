@@ -37,7 +37,7 @@ interface ChallengesProps {
 const Challenges = ({ challenge, tasks }: ChallengesProps) => {
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [showCompletionFlow, setShowCompletionFlow] = useState(true);
+  const [showCompletionFlow, setShowCompletionFlow] = useState(false);
 
   const completedTasks = tasks.filter((task) => task.completions.length > 0);
   const currentStreak = completedTasks.length;
@@ -234,14 +234,17 @@ const Challenges = ({ challenge, tasks }: ChallengesProps) => {
           </CardFooter>
         </Card>
       </motion.div>
-        <AnimatePresence>
+      <button onClick={() => handleTaskCompletion(true)}>Debug</button>
+      <AnimatePresence>
+        {showCompletionFlow && (
           <TaskCompletionFlow
             tasks={challenge.challenge.tasks}
             completedTasks={completedTasks}
             currentStreak={currentStreak}
             onComplete={handleCompletionFlowFinished}
           />
-        </AnimatePresence>
+        )}
+      </AnimatePresence>
     </>
   );
 };
