@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Flame, Trophy, ArrowRight, TrendingUp } from "lucide-react";
+import StreakFlame from "./streak-flame";
+import Particle from "./particle";
 
 const StreakProgression = ({
   currentStreak,
@@ -85,7 +87,6 @@ const StreakProgression = ({
             initial={{ scale: 0 }}
             animate={{ scale: [0, 1.2, 1] }}
             transition={{
-              type: "spring",
               stiffness: 300,
               damping: 15,
               delay: 1,

@@ -41,7 +41,6 @@ const Celebration = ({
         scalar: 1.2,
       });
 
-      // Second burst after a delay
       setTimeout(() => {
         confetti({
           particleCount: 50,
@@ -75,7 +74,6 @@ const Celebration = ({
         initial={{ scale: 0 }}
         animate={{ scale: [0, 1.2, 1] }}
         transition={{
-          type: "spring",
           stiffness: 300,
           damping: 15,
           times: [0, 0.6, 1],

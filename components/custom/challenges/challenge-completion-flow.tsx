@@ -12,68 +12,51 @@ import DimensionDetail from "./completion/dimension-detail";
 import RadarChart from "./completion/radar-chart";
 import AnimatedCounter from "./completion/animated-counter";
 import Particle from "./completion/particle";
+import {
+  CompletedTask,
+  DailyTask,
+  Dimension,
+  DimensionValue,
+  Task,
+} from "@prisma/client";
 
-const spiritualDimensions = [
-  {
-    name: "Salah",
-    value: 0.7,
-    color: "#83a598",
-    description: "Prayer consistency and quality",
-  },
-  {
-    name: "Quran",
-    value: 0.5,
-    color: "#8ec07c",
-    description: "Recitation, understanding, and memorization",
-  },
-  {
-    name: "Charity",
-    value: 0.6,
-    color: "#fe8019",
-    description: "Giving zakat, sadaqah, and helping others",
-  },
-  {
-    name: "Community",
-    value: 0.4,
-    color: "#fabd2f",
-    description: "Involvement with the Muslim ummah",
-  },
-  {
-    name: "Dhikr",
-    value: 0.8,
-    color: "#d3869b",
-    description: "Remembrance of Allah throughout the day",
-  },
-  {
-    name: "Knowledge",
-    value: 0.6,
-    color: "#b8bb26",
-    description: "Learning Islamic teachings and wisdom",
-  },
-  {
-    name: "Character",
-    value: 0.7,
-    color: "#fb4934",
-    description: "Developing good character in daily interactions",
-  },
-];
+interface DimensionValueWithDimension extends DimensionValue {
+  dimension: Dimension;
+}
+
+interface CompleteFlowProps {
+  tasks: (DailyTask & {
+    task: Task & {
+      dimension: Dimension;
+    };
+    completions: CompletedTask[];
+  })[];
+  currentStreak: number;
+  onComplete: (newStreak: number) => void;
+  dimensionValues: DimensionValueWithDimension[];
+  dimensions: Dimension[];
+}
 
 const TaskCompletionFlow = ({
   tasks,
-  completedTasks,
   currentStreak,
   onComplete,
-}: {
-  tasks: any[];
-  completedTasks: number[];
-  currentStreak: number;
-  onComplete: (newStreak: number) => void;
-}) => {
+  dimensionValues,
+  dimensions,
+}: CompleteFlowProps) => {
   const [flowStep, setFlowStep] = useState("welcome");
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
-  const [updatedDimensions, setUpdatedDimensions] = useState([
-    ...spiritualDimensions,
-  ]);
+  const [updatedDimensions, setUpdatedDimensions] = useState(
+    dimensions.map((dimension) => {
+      const valueEntry = dimensionValues.find(
+        (dv) => dv.dimensionId === dimension.id
+      );
+      return {
+        ...dimension,
+        value: valueEntry ? valueEntry.value : 0,
+      };
+    })
+  );
   const [animatingDimension, setAnimatingDimension] = useState<{
     name: string;
     oldValue: number;
@@ -85,31 +68,32 @@ const TaskCompletionFlow = ({
   );
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Get completed tasks
-  const completedTasksData = completedTasks.map((index) => tasks[index]);
+  const completedTasks = tasks.filter((task) => task.completions.length > 0);
 
-  // Handle task animation
   useEffect(() => {
     if (
       flowStep === "dimensions" &&
-      currentTaskIndex < completedTasksData.length &&
+      currentTaskIndex < completedTasks.length &&
       !isAnimating
     ) {
-      const task = completedTasksData[currentTaskIndex];
+      const task = completedTasks[currentTaskIndex];
       if (!task) return;
 
       const dimensionIndex = updatedDimensions.findIndex(
-        (d) => d.name === task.dimension
+        (d) => d.name === task.task.dimension.name
       );
 
       if (dimensionIndex !== -1) {
         const oldValue = updatedDimensions[dimensionIndex].value;
-        const newValue = Math.min(1, oldValue + task.impact);
+        const impactValue =
+          dimensionValues.find((d) => d.id === task.task.dimensionId)?.value ||
+          0;
+        const newValue = Math.min(1, oldValue + impactValue);
 
         setIsAnimating(true);
 
         setAnimatingDimension({
-          name: task.dimension,
+          name: task.task.dimension.name,
           oldValue,
           newValue,
         });
@@ -131,23 +115,27 @@ const TaskCompletionFlow = ({
         return () => clearTimeout(timer);
       }
     }
-  }, [flowStep, currentTaskIndex, completedTasksData, isAnimating, updatedDimensions]);
+  }, [
+    flowStep,
+    currentTaskIndex,
+    isAnimating,
+    updatedDimensions,
+    completedTasks,
+    dimensionValues,
+  ]);
 
-  // Handle next task
   const handleNextTask = useCallback(() => {
-    if (currentTaskIndex < completedTasksData.length - 1) {
+    if (currentTaskIndex < completedTasks.length - 1) {
       setCurrentTaskIndex((prevIndex) => prevIndex + 1);
     } else {
       setFlowStep("streak");
     }
-  }, [currentTaskIndex, completedTasksData.length]);
+  }, [currentTaskIndex, completedTasks.length]);
 
-  // Handle dimension click
   const handleDimensionClick = useCallback((dimension: string) => {
     setSelectedDimension(dimension);
   }, []);
 
-  // Handle flow navigation
   const handleContinue = useCallback(() => {
     if (flowStep === "welcome") {
       setFlowStep("dimensions");
@@ -188,22 +176,19 @@ const TaskCompletionFlow = ({
                 transition={{ duration: 0.3 }}
                 className="text-center"
               >
-<motion.div
-  initial={{ scale: 0 }}
-  animate={{ 
-    scale: [0, 1.2, 1],
-    rotate: [0, 10, 0]
-  }}
-  transition={{
-    duration: 0.8,
-    ease: "easeInOut",
-    times: [0, 0.6, 1]
-  }}
-  className="mb-4"
->
-  <Sparkles className="w-16 h-16 text-[#fe8019] mx-auto" />
-</motion.div>
-
+                <motion.div
+                  initial={{ scale: 0, rotate: -10 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 10,
+                    duration: 0.8,
+                  }}
+                  className="mb-4"
+                >
+                  <Sparkles className="w-16 h-16 text-[#fe8019] mx-auto" />
+                </motion.div>
                 <motion.h2
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -212,16 +197,15 @@ const TaskCompletionFlow = ({
                 >
                   Day Complete!
                 </motion.h2>
-
                 <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
                   className="text-[#a89984] mb-6"
                 >
-                  Congratulations! You&apos;ve completed all your tasks for today.
+                  Congratulations! You&apos;ve completed all your tasks for
+                  today.
                 </motion.p>
-
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -248,12 +232,12 @@ const TaskCompletionFlow = ({
                           delay: 0.3,
                         }}
                       >
-                        <AnimatedCounter value={completedTasksData.length} />
+                        <AnimatedCounter value={completedTasks.length} />
                       </motion.div>
                     </div>
 
                     <div className="flex justify-center gap-2 mb-4">
-                      {completedTasksData.map((task, i) => (
+                      {completedTasks.map((dailyTask, i) => (
                         <motion.div
                           key={i}
                           initial={{ scale: 0, rotate: -10 }}
@@ -265,7 +249,9 @@ const TaskCompletionFlow = ({
                             damping: 15,
                           }}
                           className="h-8 w-8 rounded-full flex items-center justify-center"
-                          style={{ backgroundColor: task.color }}
+                          style={{
+                            backgroundColor: dailyTask.task.dimension.color,
+                          }}
                         >
                           <Check className="h-4 w-4 text-[#1d2021]" />
                         </motion.div>
@@ -273,12 +259,11 @@ const TaskCompletionFlow = ({
                     </div>
 
                     <p className="text-sm text-[#a89984] text-center">
-                      Let&apos;s see how these tasks have improved your spiritual
-                      dimensions.
+                      Let&apos;s see how these tasks have improved your
+                      spiritual dimensions.
                     </p>
                   </div>
                 </motion.div>
-
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -314,7 +299,7 @@ const TaskCompletionFlow = ({
                     Spiritual Growth
                   </h2>
                   <Badge className="bg-[#3c3836] text-[#a89984]">
-                    {currentTaskIndex + 1}/{completedTasksData.length}
+                    {currentTaskIndex + 1}/{completedTasks.length}
                   </Badge>
                 </div>
 
@@ -325,7 +310,7 @@ const TaskCompletionFlow = ({
                       showAnimation={true}
                       animateDimension={animatingDimension}
                       highlightDimension={
-                        completedTasksData[currentTaskIndex]?.dimension
+                        completedTasks[currentTaskIndex]?.task.dimension.name
                       }
                       interactive={true}
                       onDimensionClick={handleDimensionClick}
@@ -335,32 +320,29 @@ const TaskCompletionFlow = ({
                   <AnimatePresence>
                     {selectedDimension ? (
                       <DimensionDetail
-                        dimension={selectedDimension}
+                        dimension={dimensionValues.find(
+                          (v) => v.dimension.name === selectedDimension
+                        )}
                         value={
                           updatedDimensions.find(
                             (d) => d.name === selectedDimension
                           )?.value || 0
                         }
-                        color={
-                          updatedDimensions.find(
-                            (d) => d.name === selectedDimension
-                          )?.color || "#fe8019"
-                        }
-                        description={
-                          updatedDimensions.find(
-                            (d) => d.name === selectedDimension
-                          )?.description || ""
-                        }
                         onClose={() => setSelectedDimension(null)}
                       />
                     ) : (
                       <TaskImpactVisualization
-                        task={completedTasksData[currentTaskIndex]}
+                        task={completedTasks[currentTaskIndex]?.task}
                         dimension={
-                          completedTasksData[currentTaskIndex]?.dimension
+                          completedTasks[currentTaskIndex]?.task?.dimension
                         }
                         impact={
-                          completedTasksData[currentTaskIndex]?.impact || 0
+                          dimensionValues.find(
+                            (d) =>
+                              d.id ===
+                              completedTasks[currentTaskIndex]?.task
+                                ?.dimensionId
+                          )?.value || 0
                         }
                         onComplete={handleNextTask}
                       />

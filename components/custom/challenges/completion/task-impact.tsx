@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Particle from "./particle";
+import { Dimension, Task } from "@prisma/client";
+import { iconMap } from "@/lib/iconMap";
 
 const TaskImpactVisualization = ({
   task,
@@ -10,8 +12,8 @@ const TaskImpactVisualization = ({
   impact,
   onComplete,
 }: {
-  task: any;
-  dimension: string;
+  task: Task & { dimension: Dimension };
+  dimension: Dimension;
   impact: number;
   onComplete: () => void;
 }) => {
@@ -33,7 +35,7 @@ const TaskImpactVisualization = ({
       className="bg-[#1d2021] rounded-lg p-5 border border-[#3c3836] relative overflow-hidden"
     >
       {Array.from({ length: 8 }).map((_, i) => (
-        <Particle key={i} color={task.color} speed={1.2} />
+        <Particle key={i} color={dimension.color} speed={1.2} />
       ))}
 
       <div className="relative z-10">
@@ -41,15 +43,22 @@ const TaskImpactVisualization = ({
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1, rotate: [0, 10, 0] }}
-            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+            transition={{ stiffness: 300, damping: 15 }}
             className="h-12 w-12 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: task.color }}
           >
             {(() => {
-              const TaskIcon = task.icon;
-              return TaskIcon ? (
-                <TaskIcon className="h-6 w-6 text-[#1d2021]" />
-              ) : null;
+              const IconComponent = iconMap[dimension.icon] || "BookOpen";
+              return (
+                <div className="h-6 w-6 rounded-full flex items-center justify-center flex-shrink-0">
+                  <IconComponent
+                    className="h-6 w-6"
+                    style={{
+                      color: dimension.color,
+                      borderColor: dimension.color,
+                    }}
+                  />
+                </div>
+              );
             })()}
           </motion.div>
 
@@ -67,7 +76,7 @@ const TaskImpactVisualization = ({
               transition={{ delay: 0.2 }}
               className="text-sm text-[#a89984]"
             >
-              Impacts <span className="text-[#fe8019]">{dimension}</span>
+              Impacts <span className="text-[#fe8019]">{dimension.name}</span>
             </motion.div>
           </div>
         </div>

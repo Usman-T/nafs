@@ -233,14 +233,13 @@ const RadarChart = ({
                   transition={{
                     duration: 0.3,
                     delay: animate ? 1 + i * 0.05 : 0,
-                    type: "spring",
+                    type: "keyframes",
                     stiffness: 300,
                     damping: 15,
                   }}
                 />
               )}
 
-              {/* Pulse animation for highlighted dimension */}
               {isHighlighted && (
                 <motion.circle
                   cx={point.x}

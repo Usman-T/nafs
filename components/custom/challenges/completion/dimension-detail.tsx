@@ -1,34 +1,38 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Dimension } from "@prisma/client";
+import { iconMap } from "@/lib/iconMap";
 
 const DimensionDetail = ({
   dimension,
   value,
-  color,
-  description,
   onClose,
 }: {
-  dimension: string;
+  dimension: Dimension;
   value: number;
-  color: string;
-  description: string;
   onClose: () => void;
 }) => {
+  const IconComponent = iconMap[dimension.icon] || "BookOpen";
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      transition={{ stiffness: 300, damping: 20 }}
       className="bg-[#1d2021] rounded-lg p-5 border border-[#3c3836]"
     >
       <div className="flex items-center gap-3 mb-4">
-        <div
-          className="h-10 w-10 rounded-full"
-          style={{ backgroundColor: color }}
-        />
+        <div className="h-8 w-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+          <IconComponent
+            className="h-4 w-4"
+            style={{
+              color: dimension.color,
+              borderColor: dimension.color,
+            }}
+          />
+        </div>
         <div>
-          <h3 className="text-[#ebdbb2] font-medium">{dimension}</h3>
+          <h3 className="text-[#ebdbb2] font-medium">{dimension.name}</h3>
           <div className="text-sm text-[#a89984]">
             {Math.round(value * 100)}% developed
           </div>
@@ -48,7 +52,9 @@ const DimensionDetail = ({
           </div>
         </div>
 
-        <p className="text-sm text-[#a89984]">{description}</p>
+        <p className="text-sm text-[#a89984]">
+          {dimension.description.split("-")}
+        </p>
 
         <div className="flex justify-end">
           <Button
