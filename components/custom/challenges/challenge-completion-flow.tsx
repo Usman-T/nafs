@@ -49,7 +49,7 @@ const TaskCompletionFlow = ({
   const [updatedDimensions, setUpdatedDimensions] = useState(
     dimensions.map((dimension) => {
       const valueEntry = dimensionValues.find(
-        (dv) => dv.dimensionId === dimension.id
+        (dv) => dv.dimension.id === dimension.id
       );
       return {
         ...dimension,
@@ -86,15 +86,17 @@ const TaskCompletionFlow = ({
       if (dimensionIndex !== -1) {
         const oldValue = updatedDimensions[dimensionIndex].value;
         const impactValue =
-          dimensionValues.find((d) => d.id === task.task.dimensionId)?.value ||
-          0;
+          updatedDimensions.find((d) => d.id === task.task.dimension.id)
+            ?.value || 0;
+
+        console.log({oldValue, impactValue});
         const newValue = Math.min(1, oldValue + impactValue);
 
         setIsAnimating(true);
 
         setAnimatingDimension({
           name: task.task.dimension.name,
-          oldValue,
+          oldValue: newValue - 0.01,
           newValue,
         });
 
@@ -320,13 +322,13 @@ const TaskCompletionFlow = ({
                   <AnimatePresence>
                     {selectedDimension ? (
                       <DimensionDetail
-                        dimension={dimensionValues.find(
-                          (v) => v.dimension.name === selectedDimension
+                        dimension={updatedDimensions.find(
+                          (d) => d.name === selectedDimension
                         )}
                         value={
                           updatedDimensions.find(
                             (d) => d.name === selectedDimension
-                          )?.value || 0
+                          )?.value || 5
                         }
                         onClose={() => setSelectedDimension(null)}
                       />
@@ -337,7 +339,7 @@ const TaskCompletionFlow = ({
                           completedTasks[currentTaskIndex]?.task?.dimension
                         }
                         impact={
-                          dimensionValues.find(
+                          updatedDimensions.find(
                             (d) =>
                               d.id ===
                               completedTasks[currentTaskIndex]?.task

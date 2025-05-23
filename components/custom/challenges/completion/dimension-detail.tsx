@@ -8,7 +8,7 @@ const DimensionDetail = ({
   value,
   onClose,
 }: {
-  dimension: Dimension;
+  dimension: Dimension & { value: number };
   value: number;
   onClose: () => void;
 }) => {
@@ -47,7 +47,7 @@ const DimensionDetail = ({
               animate={{ width: `${value * 100}%` }}
               transition={{ duration: 0.8 }}
               className="absolute top-0 left-0 h-full rounded-full"
-              style={{ backgroundColor: color }}
+              style={{ backgroundColor: dimension.color }}
             />
           </div>
         </div>

@@ -18,7 +18,7 @@ const TaskImpactVisualization = ({
   onComplete: () => void;
 }) => {
   const [showDetails, setShowDetails] = useState(false);
-
+  console.log(impact)
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowDetails(true);
@@ -93,7 +93,7 @@ const TaskImpactVisualization = ({
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-[#a89984]">Impact</span>
-                  <span className="text-[#fe8019]">+{impact * 100}%</span>
+                  <span className="text-[#fe8019]">+{Math.round(impact * 100)}%</span>
                 </div>
                 <div className="relative h-2 w-full bg-[#3c3836] rounded-full overflow-hidden">
                   <motion.div

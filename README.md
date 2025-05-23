@@ -66,3 +66,11 @@ On the progress, page we have to map the Dimension Values.
 
 We are massively overscoping . The app has NOT EVEN STARTED YET
 AHHHHHHHHHHHHHHHHHHHHH
+
+## Today's Tasks:
+ - The Day Completion button and Flow must be fully functional
+ - The UI for the calendar page must be updated 
+ - The corresponding Dashboard element for the calendar must be fixed
+ - The streak system must be implmeneted
+ - The breaking of streaks must be implemented as well
+ - UI for spiritual path page must be added as well

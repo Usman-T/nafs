@@ -1,3 +1,4 @@
+import { Dimension } from "@prisma/client";
 import { motion } from "framer-motion";
 
 const RadarChart = ({
@@ -10,14 +11,14 @@ const RadarChart = ({
   interactive = false,
   onDimensionClick = null,
 }: {
-  dimensions: any[];
+  dimensions: (Dimension & { value: number })[];
   size?: number;
   animate?: boolean;
   highlightDimension?: string | null;
   showAnimation?: boolean;
   animateDimension?: {
-    name: string;
     oldValue: number;
+    name: string;
     newValue: number;
   } | null;
   interactive?: boolean;
@@ -78,7 +79,6 @@ const RadarChart = ({
         viewBox={`0 0 ${size} ${size}`}
         className="overflow-visible"
       >
-        {/* Background circles */}
         {[0.2, 0.4, 0.6, 0.8, 1].map((level, i) => (
           <motion.circle
             key={i}
@@ -95,7 +95,6 @@ const RadarChart = ({
           />
         ))}
 
-        {/* Axis lines */}
         {points.map((point, i) => (
           <motion.line
             key={i}
@@ -112,7 +111,6 @@ const RadarChart = ({
           />
         ))}
 
-        {/* Filled area with animation */}
         {animate ? (
           <motion.path
             d={path}
@@ -151,11 +149,9 @@ const RadarChart = ({
           />
         )}
 
-        {/* Data points */}
         {points.map((point, i) => {
           const isHighlighted =
-            highlightDimension === point.name ||
-            animateDimension?.name === point.name;
+            highlightDimension === point.name 
 
           return (
             <g
@@ -175,7 +171,6 @@ const RadarChart = ({
                     center +
                     radius * Math.sin(point.angle) * animateDimension.oldValue
                   }
-                  r="6"
                   fill={point.color}
                   opacity={0.5}
                   initial={{ opacity: 0.5 }}
@@ -184,11 +179,11 @@ const RadarChart = ({
                 />
               )}
 
-              {animateDimension?.name === point.name ? (
+              {highlightDimension === point.name ? (
                 <motion.circle
                   cx={point.x}
                   cy={point.y}
-                  r="6"
+                  r="2"
                   fill={point.color}
                   stroke={isHighlighted ? "#ebdbb2" : "none"}
                   strokeWidth="2"
@@ -197,12 +192,12 @@ const RadarChart = ({
                       center +
                       radius *
                         Math.cos(point.angle) *
-                        animateDimension.oldValue,
+                        animateDimension?.oldValue,
                     cy:
                       center +
                       radius *
                         Math.sin(point.angle) *
-                        animateDimension.oldValue,
+                        animateDimension?.oldValue,
                     scale: 1,
                   }}
                   animate={{
@@ -224,7 +219,6 @@ const RadarChart = ({
                 <motion.circle
                   cx={point.x}
                   cy={point.y}
-                  r="6"
                   fill={isHighlighted ? "#fe8019" : point.color}
                   stroke={isHighlighted ? "#ebdbb2" : "none"}
                   strokeWidth="2"

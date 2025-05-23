@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Check, Award, ArrowRight } from "lucide-react";
+import { Check, Award, ArrowRight, Sparkles } from "lucide-react";
 import {
   Challenge,
   CompletedTask,
@@ -37,7 +37,12 @@ interface ChallengesProps {
   dimensions: Dimension[];
 }
 
-const Challenges = ({ challenge, tasks, dimensionValues, dimensions }: ChallengesProps) => {
+const Challenges = ({
+  challenge,
+  tasks,
+  dimensionValues,
+  dimensions,
+}: ChallengesProps) => {
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showCompletionFlow, setShowCompletionFlow] = useState(false);
@@ -49,8 +54,10 @@ const Challenges = ({ challenge, tasks, dimensionValues, dimensions }: Challenge
     setShowCompletionFlow(false);
   };
 
-  const handleTaskCompletion = () => {
-    setShowCompletionFlow(true);
+  const handleShowCompletionFlow = () => {
+    if (completedTasks.length > 0) {
+      setShowCompletionFlow(true);
+    }
   };
 
   useEffect(() => {
@@ -238,7 +245,23 @@ const Challenges = ({ challenge, tasks, dimensionValues, dimensions }: Challenge
           </CardFooter>
         </Card>
       </motion.div>
-      <button onClick={() => handleTaskCompletion(true)}>Debug</button>
+      {completedTasks.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex justify-center"
+        >
+          <Button
+            className="bg-[#fe8019] font-semibold text-[#1d2021] hover:bg-[#d65d0e] px-8"
+            onClick={handleShowCompletionFlow}
+            size="lg"
+          >
+            <Sparkles className="mr-2 h-5 w-5" />
+            Complete Day
+          </Button>
+        </motion.div>
+      )}
       <AnimatePresence>
         {showCompletionFlow && (
           <TaskCompletionFlow
