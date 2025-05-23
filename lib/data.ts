@@ -46,6 +46,10 @@ export const fetchDailyTasks = async () => {
             },
           },
           completions: true,
+          user: {
+            include: {
+              currentChallenge: true,}
+          },
         },
       },
     },

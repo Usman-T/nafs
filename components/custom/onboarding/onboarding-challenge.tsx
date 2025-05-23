@@ -34,7 +34,7 @@ const ChallengeCard = ({
     >
       <Card
         className={cn(
-          "bg-[#282828] border transition-all duration-300 h-full cursor-pointer overflow-hidden",
+          "bg-[#282828] border-2 transition-all duration-300 h-full cursor-pointer overflow-hidden",
           isSelected
             ? "border-[#fe8019]"
             : "border-[#3c3836] hover:border-[#504945]"
