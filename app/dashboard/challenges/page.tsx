@@ -1,4 +1,5 @@
 import Challenges from "@/components/custom/challenges/challenges-main";
+import { checkUserStreak } from "@/lib/actions";
 import {
   fetchDailyTasks,
   fetchUserChallenge,
@@ -7,16 +8,19 @@ import {
 } from "@/lib/data";
 
 const ChallengesPage = async () => {
-  const currentChallenge = await fetchUserChallenge();
-  const dailyTasks = await fetchDailyTasks();
-  const dimensionValues = await fetchUserDimensions();
-  const dimensions = await fetchDimensions();
+  await checkUserStreak();
+
+  const [currentChallenge, dailyTasks, dimensionValues, dimensions] =
+    await Promise.all([
+      fetchUserChallenge(),
+      fetchDailyTasks(),
+      fetchUserDimensions(),
+      fetchDimensions(),
+    ]);
 
   if (!currentChallenge) {
     return <div>No active challenge</div>;
   }
-
-  console.log(currentChallenge);
 
   const today = new Date();
   const selectedDayTasks = dailyTasks?.filter(

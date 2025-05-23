@@ -6,15 +6,23 @@ import { Flame, Trophy, ArrowRight, TrendingUp } from "lucide-react";
 import StreakFlame from "./streak-flame";
 import Particle from "./particle";
 
+interface StreakProgressionProps {
+  currentStreak: number;
+  newStreak: number;
+  onComplete: () => void;
+  challengeDuration: number;
+  xpBonus: number;
+  impactMultiplier: number;
+}
+
 const StreakProgression = ({
   currentStreak,
   newStreak,
   onComplete,
-}: {
-  currentStreak: number;
-  newStreak: number;
-  onComplete: () => void;
-}) => {
+  challengeDuration,
+  xpBonus,
+  impactMultiplier
+}: StreakProgressionProps) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showButton, setShowButton] = useState(false);
 
@@ -32,6 +40,9 @@ const StreakProgression = ({
       clearTimeout(buttonTimer);
     };
   }, []);
+
+  // Calculate streak progress percentage
+  const streakProgress = (newStreak % 7) / 7 * 100;
 
   return (
     <motion.div
@@ -115,15 +126,15 @@ const StreakProgression = ({
                 </div>
                 <div className="relative h-2 w-full bg-[#3c3836] rounded-full overflow-hidden">
                   <motion.div
-                    initial={{ width: `${((currentStreak % 7) / 7) * 100}%` }}
-                    animate={{ width: `${((newStreak % 7) / 7) * 100}%` }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${streakProgress}%` }}
                     transition={{ duration: 0.8 }}
                     className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#fe8019] to-[#fabd2f] rounded-full"
                   />
                 </div>
                 <div className="flex justify-between text-xs text-[#a89984]">
                   <span>0</span>
-                  <span>7 days</span>
+                  <span>{challengeDuration} days</span>
                 </div>
               </div>
 
@@ -140,7 +151,7 @@ const StreakProgression = ({
                   <div>
                     <div className="text-[#ebdbb2]">Consistency Bonus</div>
                     <div className="text-xs text-[#a89984]">
-                      +50 XP for maintaining your streak
+                      +{xpBonus} XP for maintaining your streak
                     </div>
                   </div>
                 </motion.div>
@@ -157,7 +168,7 @@ const StreakProgression = ({
                   <div>
                     <div className="text-[#ebdbb2]">Growth Multiplier</div>
                     <div className="text-xs text-[#a89984]">
-                      x1.5 impact on spiritual dimensions
+                      x{impactMultiplier} impact on spiritual dimensions
                     </div>
                   </div>
                 </motion.div>

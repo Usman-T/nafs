@@ -5,15 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Flame, BarChart3 } from "lucide-react";
 
+interface CelebrationProps {
+  onComplete: () => void;
+  currentLevel: number;
+  levelUp?: boolean;
+  currentStreak: number;
+  completedTasks: number;
+  totalTasks: number;
+  xpEarned: number;
+}
+
 const Celebration = ({
   onComplete,
   currentLevel,
   levelUp = false,
-}: {
-  onComplete: () => void;
-  currentLevel: number;
-  levelUp?: boolean;
-}) => {
+  currentStreak,
+  completedTasks,
+  totalTasks,
+  xpEarned
+}: CelebrationProps) => {
   const confettiRef = useRef<HTMLDivElement>(null);
   const [showButton, setShowButton] = useState(false);
 
@@ -91,7 +101,7 @@ const Celebration = ({
         transition={{ delay: 0.3 }}
         className="text-2xl font-bold text-[#ebdbb2] mb-2"
       >
-        Day Complete!
+        {levelUp ? `Level Up!` : "Day Complete!"}
       </motion.h2>
 
       <motion.p
@@ -102,7 +112,7 @@ const Celebration = ({
       >
         {levelUp
           ? `Congratulations! You've advanced to Level ${currentLevel + 1}!`
-          : "Great job completing all your tasks for today!"}
+          : "Great job completing your tasks today!"}
       </motion.p>
 
       <motion.div
@@ -124,19 +134,21 @@ const Celebration = ({
         <div className="space-y-3">
           <div className="flex justify-between text-sm">
             <span className="text-[#a89984]">Tasks Completed</span>
-            <span className="text-[#ebdbb2]">5/5</span>
+            <span className="text-[#ebdbb2]">
+              {completedTasks}/{totalTasks}
+            </span>
           </div>
 
           <div className="flex justify-between text-sm">
             <span className="text-[#a89984]">XP Earned</span>
-            <span className="text-[#fe8019]">+150 XP</span>
+            <span className="text-[#fe8019]">+{xpEarned} XP</span>
           </div>
 
           <div className="flex justify-between text-sm">
             <span className="text-[#a89984]">Streak</span>
             <div className="flex items-center gap-1">
               <Flame className="h-4 w-4 text-[#fe8019]" />
-              <span className="text-[#ebdbb2]">7 days</span>
+              <span className="text-[#ebdbb2]">{currentStreak} days</span>
             </div>
           </div>
         </div>

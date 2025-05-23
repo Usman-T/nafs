@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { z } from "zod";
 import { requireAuth } from "./auth";
+import { startOfDay, subDays, isSameDay } from "date-fns";
 
 export type State = {
   errors?: {
@@ -367,12 +368,10 @@ export const completeTask = async (taskId: string) => {
 
     if (!user?.challengeId) return { success: true };
 
-    // Calculate total tasks in challenge
     const totalTasks = await prisma.challengeTask.count({
       where: { challengeId: user.challengeId },
     });
 
-    // Calculate completed tasks in challenge
     const completedTasks = await prisma.completedTask.count({
       where: {
         userId,
@@ -393,8 +392,6 @@ export const completeTask = async (taskId: string) => {
       data: { progress },
     });
 
-    await updateUserStreak(userId);
-
     return { success: true };
   } catch (error) {
     console.error("Error completing task:", error);
@@ -406,7 +403,9 @@ export const completeTask = async (taskId: string) => {
   }
 };
 
-const updateUserStreak = async (userId: string) => {
+export const updateUserStreak = async () => {
+  console.log("updating")
+  const userId = await requireAuth();
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { lastActiveDate: true, currentStreak: true, longestStreak: true },
@@ -418,7 +417,6 @@ const updateUserStreak = async (userId: string) => {
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
 
-  // Reset streak if not consecutive
   if (
     !user.lastActiveDate ||
     user.lastActiveDate.getDate() !== yesterday.getDate() ||
@@ -435,7 +433,6 @@ const updateUserStreak = async (userId: string) => {
     return;
   }
 
-  // Increment streak
   const newStreak = user.currentStreak + 1;
   await prisma.user.update({
     where: { id: userId },
@@ -445,6 +442,64 @@ const updateUserStreak = async (userId: string) => {
       lastActiveDate: today,
     },
   });
+};
+
+export const checkUserStreak = async () => {
+  const userId = await requireAuth();
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      lastActiveDate: true,
+      currentStreak: true,
+      longestStreak: true,
+    },
+  });
+
+  if (!user) return;
+
+  const today = startOfDay(new Date());
+  const yesterday = startOfDay(subDays(today, 1));
+
+  if (user.lastActiveDate && isSameDay(user.lastActiveDate, today)) {
+    return;
+  }
+
+  const dailyTasks = await prisma.dailyTask.findMany({
+    where: {
+      userId,
+      date: {
+        gte: yesterday,
+        lt: today,
+      },
+    },
+    include: {
+      completions: true,
+    },
+  });
+
+  const allCompleted = dailyTasks.length > 0 && dailyTasks.every((task) => task.completions.length > 0);
+
+  if (allCompleted) {
+    const newStreak = user.currentStreak + 1;
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        currentStreak: newStreak,
+        longestStreak: Math.max(user.longestStreak, newStreak),
+        lastActiveDate: today,
+      },
+    });
+  } else {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        currentStreak: 0,
+        lastActiveDate: today,
+      },
+    });
+  }
 };
 
 export const completeChallenge = async (challengeId: string) => {

@@ -35,6 +35,8 @@ interface CompleteFlowProps {
   onComplete: (newStreak: number) => void;
   dimensionValues: DimensionValueWithDimension[];
   dimensions: Dimension[];
+  challengeDuration: number;
+  userLevel: number;
 }
 
 const TaskCompletionFlow = ({
@@ -43,6 +45,8 @@ const TaskCompletionFlow = ({
   onComplete,
   dimensionValues,
   dimensions,
+  challengeDuration,
+  userLevel,
 }: CompleteFlowProps) => {
   const [flowStep, setFlowStep] = useState("welcome");
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
@@ -70,6 +74,16 @@ const TaskCompletionFlow = ({
 
   const completedTasks = tasks.filter((task) => task.completions.length > 0);
 
+  const calculateXpEarned = () => {
+    const baseXp = completedTasks.length * 50;
+    const streakBonus = Math.floor(currentStreak / 7) * 50;
+    return baseXp + streakBonus;
+  };
+
+  const calculateImpactMultiplier = () => {
+    return 1 + Math.floor(currentStreak / 7) * 0.5;
+  };
+
   useEffect(() => {
     if (
       flowStep === "dimensions" &&
@@ -86,14 +100,12 @@ const TaskCompletionFlow = ({
       if (dimensionIndex !== -1) {
         const oldValue = updatedDimensions[dimensionIndex].value;
         const impactValue =
-          updatedDimensions.find((d) => d.id === task.task.dimension.id)
-            ?.value || 0;
+          (updatedDimensions.find((d) => d.id === task.task.dimension.id)
+            ?.value || 0) * calculateImpactMultiplier();
 
-        console.log({oldValue, impactValue});
         const newValue = Math.min(1, oldValue + impactValue);
 
         setIsAnimating(true);
-
         setAnimatingDimension({
           name: task.task.dimension.name,
           oldValue: newValue - 0.01,
@@ -109,7 +121,6 @@ const TaskCompletionFlow = ({
             };
             return newDimensions;
           });
-
           setAnimatingDimension(null);
           setIsAnimating(false);
         }, 800);
@@ -139,13 +150,9 @@ const TaskCompletionFlow = ({
   }, []);
 
   const handleContinue = useCallback(() => {
-    if (flowStep === "welcome") {
-      setFlowStep("dimensions");
-    } else if (flowStep === "streak") {
-      setFlowStep("celebration");
-    } else if (flowStep === "celebration") {
-      onComplete(newStreak);
-    }
+    if (flowStep === "welcome") setFlowStep("dimensions");
+    else if (flowStep === "streak") setFlowStep("celebration");
+    else if (flowStep === "celebration") onComplete(newStreak);
   }, [flowStep, newStreak, onComplete]);
 
   return (
@@ -362,16 +369,13 @@ const TaskCompletionFlow = ({
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="mb-4">
-                  <h2 className="text-xl font-bold text-[#ebdbb2]">
-                    Streak Progress
-                  </h2>
-                </div>
-
                 <StreakProgression
                   currentStreak={currentStreak}
                   newStreak={newStreak}
                   onComplete={handleContinue}
+                  challengeDuration={challengeDuration}
+                  xpBonus={Math.floor(currentStreak / 7) * 50}
+                  impactMultiplier={calculateImpactMultiplier()}
                 />
               </motion.div>
             )}
@@ -379,8 +383,12 @@ const TaskCompletionFlow = ({
             {flowStep === "celebration" && (
               <Celebration
                 onComplete={handleContinue}
-                currentLevel={3}
-                levelUp={false}
+                currentLevel={userLevel}
+                levelUp={newStreak % 7 === 0}
+                currentStreak={newStreak}
+                completedTasks={completedTasks.length}
+                totalTasks={tasks.length}
+                xpEarned={calculateXpEarned()}
               />
             )}
           </AnimatePresence>
