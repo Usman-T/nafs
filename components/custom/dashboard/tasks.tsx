@@ -21,6 +21,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { isSameDay } from "date-fns";
 
 const Tasks = ({
   dailyTasks,
@@ -50,10 +51,9 @@ const Tasks = ({
     (t) => t.date.toDateString() === selectedDate.toDateString()
   );
 
-  const completedTasks = selectedDayTasks.filter(
-    (task) => task.completions.length > 0
+  const completedTasks = selectedDayTasks.filter((task) =>
+    task.completions.some((c) => isSameDay(new Date(c.completedAt), today))
   );
-
   const allTasksCompleted =
     selectedDayTasks.length > 0 &&
     selectedDayTasks.every((task) => task.completions.length > 0);

@@ -19,6 +19,7 @@ import {
   DimensionValue,
   Task,
 } from "@prisma/client";
+import { isSameDay } from "date-fns";
 
 interface DimensionValueWithDimension extends DimensionValue {
   dimension: Dimension;
@@ -72,7 +73,10 @@ const TaskCompletionFlow = ({
   );
   const [isAnimating, setIsAnimating] = useState(false);
 
-  const completedTasks = tasks.filter((task) => task.completions.length > 0);
+  const today = new Date();
+  const completedTasks = tasks.filter((task) =>
+    task.completions.some((c) => isSameDay(new Date(c.completedAt), today))
+  );
 
   const calculateXpEarned = () => {
     const baseXp = completedTasks.length * 50;

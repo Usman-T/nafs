@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CompletedTask, DailyTask, Dimension, Task } from "@prisma/client";
 import { useMemo } from "react";
+import { isSameDay } from "date-fns";
 
 type ProcessedDailyTask = DailyTask & {
   completions: CompletedTask[];
@@ -51,8 +52,9 @@ const DashboardCalendar = ({
 
     if (tasks.length === 0) return "none";
 
-    const completedTasks = tasks.filter(
-      (task) => task.completions.length > 0
+    const today = new Date();
+    const completedTasks = tasks.filter((task) =>
+      task.completions.some((c) => isSameDay(new Date(c.completedAt), today))
     ).length;
 
     if (completedTasks === tasks.length) return "completed";

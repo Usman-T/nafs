@@ -93,8 +93,9 @@ AHHHHHHHHHHHHHHHHHHHHH
 ## Completed Tasks:
 
 - Day completion flow is now functional
--
+- Streak system has been implemented
+- 
+- 
 
 ## Complete Day for Streaks:
-
 You can only do complete day once in a day, and it will set a localStorage item witht he current date, the button and task completions will be disabled. A new confirmation screen will be shown before the user completes the day to ensure good work of it

@@ -28,6 +28,7 @@ import { useLocalStorage } from "@/lib/hooks/use-local-storage";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { updateUserStreak } from "@/lib/actions";
+import { differenceInDays, isSameDay } from "date-fns";
 
 interface ChallengesProps {
   challenge: UserChallenge & { challenge: Challenge };
@@ -57,7 +58,10 @@ const Challenges = ({
     completed: boolean;
   }>("dayCompleted", { date: "", completed: false });
 
-  const completedTasks = tasks.filter((task) => task.completions.length > 0);
+  const today = new Date();
+  const completedTasks = tasks.filter((task) =>
+    task.completions.some((c) => isSameDay(new Date(c.completedAt), today))
+  );
   const currentStreak = tasks[0]?.user.currentStreak || 0;
 
   const isTodayCompleted = () => {
@@ -72,7 +76,7 @@ const Challenges = ({
       date: new Date().toDateString(),
       completed: true,
     });
-    await updateUserStreak()
+    await updateUserStreak();
     router.refresh();
   };
 
@@ -92,13 +96,9 @@ const Challenges = ({
     return <LoadingSkeleton />;
   }
 
-  const progress = challenge?.progress || 0;
+  const progress = (completedTasks.length / tasks.length) * 100 || 0;
   const currentDay = Math.min(
-    Math.floor(
-      (new Date().getTime() - new Date(challenge.startDate).getTime()) /
-        (1000 * 3600 * 24) +
-        1
-    ),
+    differenceInDays(new Date(), new Date(challenge.startDate)) + 1,
     challenge.challenge.duration
   );
 
@@ -244,7 +244,7 @@ const Challenges = ({
         </Card>
       </motion.div>
 
-      {completedTasks.length > 0 && !isTodayCompleted() && (
+      {completedTasks.length === tasks.length && !isTodayCompleted() && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -274,7 +274,7 @@ const Challenges = ({
             size="lg"
           >
             <Sparkles className="mr-2 h-5 w-5" />
-           Day Complete! 
+            Day Complete!
           </Button>
         </motion.div>
       )}

@@ -107,10 +107,10 @@ const CalendarMain = ({
   };
 
   const selectedDateTasks = getDailyTasks(selectedDate);
-  const completedTasks = selectedDateTasks.filter(
-    (task) => task.completions.length > 0
+  const today = new Date();
+  const completedTasks = selectedDateTasks.filter((task) =>
+    task.completions.some((c) => isSameDay(new Date(c.completedAt), today))
   );
-
   const getCompletionStatus = (date: Date | null) => {
     if (!date) return "empty";
 
@@ -279,94 +279,94 @@ const CalendarMain = ({
           <CardContent>
             <div className="space-y-4">
               <AnimatePresence mode="wait">
-                  <motion.div
-                    key={selectedDate.toISOString()}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {selectedDateTasks.map((dailyTask, i) => {
-                      const IconComponent =
-                        iconMap[dailyTask.task.dimension.icon] || Check;
-                      const isCompleted = dailyTask.completions.length > 0;
-                      return (
-                        <motion.div
-                          key={dailyTask.id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.3, delay: i * 0.1 }}
-                          className="flex mb-2 items-center justify-between p-3 rounded-md bg-[#1d2021] border border-[#3c3836]"
-                        >
-                          <div className="flex items-center">
-                            <div
-                              className="h-8 w-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
-                              style={{
-                                backgroundColor:
-                                  dailyTask.task.dimension.color + "20",
-                              }}
-                            >
-                              <IconComponent
-                                className="h-4 w-4"
-                                style={{
-                                  color: dailyTask.task.dimension.color,
-                                }}
-                              />
-                            </div>
-                            <span
-                              className={`text-[#ebdbb2] ${
-                                isCompleted ? "line-through opacity-70" : ""
-                              }`}
-                            >
-                              {dailyTask.task.name}
-                            </span>
-                          </div>
-                          <div
-                            className={`h-7 w-7 rounded-full border flex items-center justify-center transition-colors duration-200 ${
-                              isCompleted
-                                ? "bg-[#fe8019] border-[#fe8019]"
-                                : "border-[#3c3836]"
-                            }`}
-                            style={{ flexShrink: 0 }}
-                          >
-                            {isCompleted && (
-                              <Check
-                                className="h-4 w-4 text-[#1d2021]"
-                                strokeWidth={2.5}
-                              />
-                            )}
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                    {selectedDateTasks.length > 0 && (
+                <motion.div
+                  key={selectedDate.toISOString()}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {selectedDateTasks.map((dailyTask, i) => {
+                    const IconComponent =
+                      iconMap[dailyTask.task.dimension.icon] || Check;
+                    const isCompleted = dailyTask.completions.length > 0;
+                    return (
                       <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="mt-6 p-4 rounded-md bg-[#1d2021] border border-[#3c3836]"
+                        key={dailyTask.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: i * 0.1 }}
+                        className="flex mb-2 items-center justify-between p-3 rounded-md bg-[#1d2021] border border-[#3c3836]"
                       >
-                        <h3 className="text-[#ebdbb2] font-medium mb-2">
-                          Daily Reflection
-                        </h3>
-                        <p className="text-sm text-[#a89984]">
-                          {(() => {
-                            const total = selectedDateTasks.length;
-                            const completed = completedTasks.length;
-                            const ratio = completed / total;
-                            if (completed === total) {
-                              return "Excellent work today! You've completed all your tasks. Keep up the momentum and stay consistent in your spiritual journey.";
-                            } else if (ratio >= 0.5) {
-                              return "Solid progress today. Reflect on what helped you stay on track, and where you might improve tomorrow.";
-                            } else if (completed > 0) {
-                              return "Some effort is better than none. Consider what distractions or obstacles came up today and how to navigate them.";
-                            } else {
-                              return "Today was a tough day. Take a moment to reset, and remind yourself that every new day is a fresh chance to grow.";
-                            }
-                          })()}
-                        </p>
+                        <div className="flex items-center">
+                          <div
+                            className="h-8 w-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
+                            style={{
+                              backgroundColor:
+                                dailyTask.task.dimension.color + "20",
+                            }}
+                          >
+                            <IconComponent
+                              className="h-4 w-4"
+                              style={{
+                                color: dailyTask.task.dimension.color,
+                              }}
+                            />
+                          </div>
+                          <span
+                            className={`text-[#ebdbb2] ${
+                              isCompleted ? "line-through opacity-70" : ""
+                            }`}
+                          >
+                            {dailyTask.task.name}
+                          </span>
+                        </div>
+                        <div
+                          className={`h-7 w-7 rounded-full border flex items-center justify-center transition-colors duration-200 ${
+                            isCompleted
+                              ? "bg-[#fe8019] border-[#fe8019]"
+                              : "border-[#3c3836]"
+                          }`}
+                          style={{ flexShrink: 0 }}
+                        >
+                          {isCompleted && (
+                            <Check
+                              className="h-4 w-4 text-[#1d2021]"
+                              strokeWidth={2.5}
+                            />
+                          )}
+                        </div>
                       </motion.div>
-                    )}
-                  </motion.div>
+                    );
+                  })}
+                  {selectedDateTasks.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="mt-6 p-4 rounded-md bg-[#1d2021] border border-[#3c3836]"
+                    >
+                      <h3 className="text-[#ebdbb2] font-medium mb-2">
+                        Daily Reflection
+                      </h3>
+                      <p className="text-sm text-[#a89984]">
+                        {(() => {
+                          const total = selectedDateTasks.length;
+                          const completed = completedTasks.length;
+                          const ratio = completed / total;
+                          if (completed === total) {
+                            return "Excellent work today! You've completed all your tasks. Keep up the momentum and stay consistent in your spiritual journey.";
+                          } else if (ratio >= 0.5) {
+                            return "Solid progress today. Reflect on what helped you stay on track, and where you might improve tomorrow.";
+                          } else if (completed > 0) {
+                            return "Some effort is better than none. Consider what distractions or obstacles came up today and how to navigate them.";
+                          } else {
+                            return "Today was a tough day. Take a moment to reset, and remind yourself that every new day is a fresh chance to grow.";
+                          }
+                        })()}
+                      </p>
+                    </motion.div>
+                  )}
+                </motion.div>
               </AnimatePresence>
             </div>
           </CardContent>
