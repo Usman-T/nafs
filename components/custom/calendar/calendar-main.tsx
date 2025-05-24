@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -92,9 +92,12 @@ const CalendarMain = ({
     );
   };
 
-  const getDailyTasks = (date: Date) => {
-    return processedDailyTasks.filter((task) => isSameDay(task.date, date));
-  };
+  const getDailyTasks = useCallback(
+    (date: Date) => {
+      return processedDailyTasks.filter((task) => isSameDay(task.date, date));
+    },
+    [processedDailyTasks]
+  );
 
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
@@ -106,10 +109,23 @@ const CalendarMain = ({
     }
   };
 
-  const selectedDateTasks = getDailyTasks(selectedDate);
-  const today = new Date();
-  const completedTasks = selectedDateTasks.filter((task) =>
-    task.completions.some((c) => isSameDay(new Date(c.completedAt), today))
+  const selectedDateTasks = useMemo(() => {
+    const tasks = getDailyTasks(selectedDate);
+
+    if (tasks.length > 0) return tasks;
+
+    const fallbackDates = [...processedDailyTasks]
+      .filter((task) => task.date < selectedDate)
+      .sort((a, b) => b.date.getTime() - a.date.getTime());
+
+    const lastAvailableDate =
+      fallbackDates.length > 0 ? fallbackDates[0].date : null;
+
+    return lastAvailableDate ? getDailyTasks(lastAvailableDate) : [];
+  }, [selectedDate, processedDailyTasks, getDailyTasks]);
+
+  const completedTasks = selectedDateTasks.filter(
+    (task) => task.completions.length > 0
   );
   const getCompletionStatus = (date: Date | null) => {
     if (!date) return "empty";
@@ -365,6 +381,21 @@ const CalendarMain = ({
                         })()}
                       </p>
                     </motion.div>
+                  )}
+                  {selectedDateTasks.length === 0 && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="mt-6 p-4 rounded-md bg-[#1d2021] border border-[#3c3836]"
+                    >
+                      <h3 className="text-[#ebdbb2] font-medium mb-2">
+                   No Tasks Found 
+                      </h3>
+                      <p className="text-sm text-[#a89984]">
+                        You had no tasks on this day
+                      </p>
+                    </motion.div>
+
                   )}
                 </motion.div>
               </AnimatePresence>

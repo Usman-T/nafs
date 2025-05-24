@@ -404,7 +404,7 @@ export const completeTask = async (taskId: string) => {
 };
 
 export const updateUserStreak = async () => {
-  console.log("updating")
+  console.log("updating");
   const userId = await requireAuth();
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -478,7 +478,9 @@ export const checkUserStreak = async () => {
     },
   });
 
-  const allCompleted = dailyTasks.length > 0 && dailyTasks.every((task) => task.completions.length > 0);
+  const allCompleted =
+    dailyTasks.length > 0 &&
+    dailyTasks.every((task) => task.completions.length > 0);
 
   if (allCompleted) {
     const newStreak = user.currentStreak + 1;
@@ -530,5 +532,6 @@ export const completeChallenge = async (challengeId: string) => {
 
 export const logout = async () => {
   console.log("Logging out...");
+  localStorage.clear();
   await signOut({ redirectTo: "/" });
 };
