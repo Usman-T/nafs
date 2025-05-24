@@ -2,7 +2,6 @@
 
 import type React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
   Moon,
   LayoutDashboard,
@@ -27,6 +26,7 @@ import {
 import SignOutButton from "../(auth)/register/SignOutButton";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePathname, useSearchParams } from "next/navigation";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -34,6 +34,8 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const { data: session, status } = useSession();
 
   const navItems = [
@@ -62,30 +64,33 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     );
   };
 
-  const MobileNav = () => (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#2e2e2e] bg-[#1d2021] shadow-lg md:hidden">
-      <div className="flex items-center justify-between px-2">
-        {navItems.slice(0, -1).map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={cn(
-                "flex flex-1 flex-col items-center gap-1 p-2 text-xs",
-                isActive
-                  ? "text-[#fe8019]"
-                  : "text-[#909090] hover:text-[#fe8019]"
-              )}
-            >
-              <item.icon className="h-5 w-5" />
-              <span>{item.name}</span>
-            </Link>
-          );
-        })}
+  const MobileNav = ({ hide }: { hide: boolean }) => {
+    if (hide) return null;
+    return (
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#2e2e2e] bg-[#1d2021] shadow-lg md:hidden">
+        <div className="flex items-center justify-between px-2">
+          {navItems.slice(0, -1).map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={cn(
+                  "flex flex-1 flex-col items-center gap-1 p-2 text-xs",
+                  isActive
+                    ? "text-[#fe8019]"
+                    : "text-[#909090] hover:text-[#fe8019]"
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const UserDropdown = () => (
     <DropdownMenu>
@@ -179,27 +184,29 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
     );
   };
+  const hideMobileNav =
+    searchParams?.get("modal") === "complete";
 
-return (
-  <div className="md:flex bg-[#1d2021] min-h-screen">
-    <DesktopSidebar />
-    <div className="flex flex-col flex-1">
-      <header className="sticky top-0 z-10 flex h-16 items-center border-b border-[#2e2e2e] bg-[#1d2021]/80 px-6 backdrop-blur-md md:px-8 shadow-lg">
-        <div className="flex-1">
-          <h1 className="text-lg font-semibold text-[#e0e0e0]">
-            {navItems.find((item) => item.href === pathname)?.name ||
-              "Dashboard"}
-          </h1>
-        </div>
-        <div className="flex items-center gap-4">
-          <UserDropdown />
-        </div>
-      </header>
-      <main className="flex-1 bg-[#1d2021] pb-16 md:pb-0 overflow-auto">
-        <div>{children}</div>
-      </main>
-      <MobileNav />
+  return (
+    <div className="md:flex bg-[#1d2021] min-h-screen">
+      <DesktopSidebar />
+      <div className="flex flex-col flex-1">
+        <header className="sticky top-0 z-10 flex h-16 items-center border-b border-[#2e2e2e] bg-[#1d2021]/80 px-6 backdrop-blur-md md:px-8 shadow-lg">
+          <div className="flex-1">
+            <h1 className="text-lg font-semibold text-[#e0e0e0]">
+              {navItems.find((item) => item.href === pathname)?.name ||
+                "Dashboard"}
+            </h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <UserDropdown />
+          </div>
+        </header>
+        <main className="flex-1 bg-[#1d2021] pb-16 md:pb-0 overflow-auto">
+          <div>{children}</div>
+        </main>
+        <MobileNav hide={hideMobileNav} />
+      </div>
     </div>
-  </div>
-);
+  );
 }

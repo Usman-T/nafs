@@ -83,6 +83,14 @@ const Challenges = ({
   const handleShowCompletionFlow = () => {
     if (completedTasks.length > 0 && !isTodayCompleted()) {
       setShowCompletionFlow(true);
+      router.push(
+        {
+          pathname: router.pathname,
+          query: { ...router.query, modal: "complete" },
+        },
+        undefined,
+        { shallow: true }
+      );
     }
   };
 

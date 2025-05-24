@@ -11,7 +11,6 @@ interface StreakProgressionProps {
   newStreak: number;
   onComplete: () => void;
   challengeDuration: number;
-  xpBonus: number;
   impactMultiplier: number;
 }
 
@@ -20,7 +19,6 @@ const StreakProgression = ({
   newStreak,
   onComplete,
   challengeDuration,
-  xpBonus,
   impactMultiplier
 }: StreakProgressionProps) => {
   const [showDetails, setShowDetails] = useState(false);
@@ -41,8 +39,7 @@ const StreakProgression = ({
     };
   }, []);
 
-  // Calculate streak progress percentage
-  const streakProgress = (newStreak % 7) / 7 * 100;
+  const streakProgress = (newStreak % challengeDuration) / challengeDuration * 100;
 
   return (
     <motion.div
@@ -122,7 +119,7 @@ const StreakProgression = ({
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-[#a89984]">Streak Progress</span>
-                  <span className="text-[#ebdbb2]">{newStreak} days</span>
+                  <span className="text-[#ebdbb2]">{currentStreak + 1} days</span>
                 </div>
                 <div className="relative h-2 w-full bg-[#3c3836] rounded-full overflow-hidden">
                   <motion.div
@@ -151,7 +148,7 @@ const StreakProgression = ({
                   <div>
                     <div className="text-[#ebdbb2]">Consistency Bonus</div>
                     <div className="text-xs text-[#a89984]">
-                      +{xpBonus} XP for maintaining your streak
+                      You increased your streak
                     </div>
                   </div>
                 </motion.div>

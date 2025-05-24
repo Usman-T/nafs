@@ -378,7 +378,6 @@ const TaskCompletionFlow = ({
                   newStreak={newStreak}
                   onComplete={handleContinue}
                   challengeDuration={challengeDuration}
-                  xpBonus={Math.floor(currentStreak / 7) * 50}
                   impactMultiplier={calculateImpactMultiplier()}
                 />
               </motion.div>
