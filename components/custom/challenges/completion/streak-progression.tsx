@@ -2,7 +2,15 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Flame, Trophy, ArrowRight, TrendingUp } from "lucide-react";
+import {
+  Flame,
+  ArrowRight,
+  Brain,
+  Eye,
+  ShieldCheck,
+  Compass,
+  Zap,
+} from "lucide-react";
 import StreakFlame from "./streak-flame";
 import Particle from "./particle";
 
@@ -14,15 +22,55 @@ interface StreakProgressionProps {
   impactMultiplier: number;
 }
 
+const rewardPool = [
+  {
+    icon: Flame,
+    color: "#fe8019",
+    title: "Momentum",
+    description: "You're moving. Keep going.",
+  },
+  {
+    icon: Eye,
+    color: "#83a598",
+    title: "Focus",
+    description: "No distractions. Just progress.",
+  },
+  {
+    icon: ShieldCheck,
+    color: "#b8bb26",
+    title: "Consistency",
+    description: "You showed up. That's it.",
+  },
+  {
+    icon: Zap,
+    color: "#8ec07c",
+    title: "Energy",
+    description: "Still pushing. Still sharp.",
+  },
+  {
+    icon: Brain,
+    color: "#fabd2f",
+    title: "Clarity",
+    description: "You know why you're here.",
+  },
+  {
+    icon: Compass,
+    color: "#d3869b",
+    title: "Direction",
+    description: "You're not lost. Stay on it.",
+  },
+];
+
 const StreakProgression = ({
   currentStreak,
   newStreak,
   onComplete,
   challengeDuration,
-  impactMultiplier
+  impactMultiplier,
 }: StreakProgressionProps) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showButton, setShowButton] = useState(false);
+  const [rewards, setRewards] = useState<typeof rewardPool>([]);
 
   useEffect(() => {
     const detailsTimer = setTimeout(() => {
@@ -33,13 +81,18 @@ const StreakProgression = ({
       setShowButton(true);
     }, 3000);
 
+    // Pick two random unique rewards
+    const shuffled = [...rewardPool].sort(() => 0.5 - Math.random());
+    setRewards(shuffled.slice(0, 2));
+
     return () => {
       clearTimeout(detailsTimer);
       clearTimeout(buttonTimer);
     };
   }, []);
 
-  const streakProgress = (newStreak % challengeDuration) / challengeDuration * 100;
+  const streakProgress =
+    ((newStreak % challengeDuration) / challengeDuration) * 100;
 
   return (
     <motion.div
@@ -119,7 +172,9 @@ const StreakProgression = ({
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-[#a89984]">Streak Progress</span>
-                  <span className="text-[#ebdbb2]">{currentStreak + 1} days</span>
+                  <span className="text-[#ebdbb2]">
+                    {currentStreak + 1} days
+                  </span>
                 </div>
                 <div className="relative h-2 w-full bg-[#3c3836] rounded-full overflow-hidden">
                   <motion.div
@@ -130,45 +185,39 @@ const StreakProgression = ({
                   />
                 </div>
                 <div className="flex justify-between text-xs text-[#a89984]">
-                  <span>0</span>
+                  <span>0 days</span>
                   <span>{challengeDuration} days</span>
                 </div>
               </div>
 
               <div className="space-y-3 pt-2">
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-center gap-3 p-3 bg-[#282828] rounded-lg"
-                >
-                  <div className="h-8 w-8 rounded-full bg-[#fe8019] flex items-center justify-center">
-                    <Trophy className="h-4 w-4 text-[#1d2021]" />
-                  </div>
-                  <div>
-                    <div className="text-[#ebdbb2]">Consistency Bonus</div>
-                    <div className="text-xs text-[#a89984]">
-                      You increased your streak
-                    </div>
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="flex items-center gap-3 p-3 bg-[#282828] rounded-lg"
-                >
-                  <div className="h-8 w-8 rounded-full bg-[#8ec07c] flex items-center justify-center">
-                    <TrendingUp className="h-4 w-4 text-[#1d2021]" />
-                  </div>
-                  <div>
-                    <div className="text-[#ebdbb2]">Growth Multiplier</div>
-                    <div className="text-xs text-[#a89984]">
-                      x{impactMultiplier} impact on spiritual dimensions
-                    </div>
-                  </div>
-                </motion.div>
+                {rewards.map((reward, idx) => {
+                  const Icon = reward.icon;
+                  return (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 + idx * 0.2 }}
+                      className="flex items-center gap-3 p-3 bg-[#282828] rounded-lg"
+                    >
+                      <div
+                        className="h-10 w-10 rounded-full flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: reward.color }}
+                      >
+                        <Icon className="h-4 w-4 text-[#1d2021]" />
+                      </div>
+                      <div className="flex flex-col justify-center">
+                        <div className="text-[#ebdbb2] leading-tight">
+                          {reward.title}
+                        </div>
+                        <div className="text-xs text-[#a89984] leading-snug">
+                          {reward.description}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
 
               {showButton && (

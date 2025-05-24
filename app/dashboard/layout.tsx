@@ -184,8 +184,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
     );
   };
-  const hideMobileNav =
-    searchParams?.get("modal") === "complete";
+  const hideMobileNav = localStorage.getItem("hideMobileNav") === "true";
 
   return (
     <div className="md:flex bg-[#1d2021] min-h-screen">

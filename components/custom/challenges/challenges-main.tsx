@@ -76,6 +76,7 @@ const Challenges = ({
       date: new Date().toDateString(),
       completed: true,
     });
+    localStorage.removeItem("hideMobileNav");
     await updateUserStreak();
     router.refresh();
   };
@@ -83,14 +84,7 @@ const Challenges = ({
   const handleShowCompletionFlow = () => {
     if (completedTasks.length > 0 && !isTodayCompleted()) {
       setShowCompletionFlow(true);
-      router.push(
-        {
-          pathname: router.pathname,
-          query: { ...router.query, modal: "complete" },
-        },
-        undefined,
-        { shallow: true }
-      );
+      localStorage.setItem("hideMobileNav", "true");
     }
   };
 
@@ -293,6 +287,7 @@ const Challenges = ({
             tasks={tasks}
             currentStreak={currentStreak}
             onComplete={handleCompletionFlowFinished}
+            challengeDuration={challenge.challenge.duration}
             dimensionValues={dimensionValues}
             dimensions={dimensions}
           />
