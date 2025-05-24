@@ -94,7 +94,9 @@ AHHHHHHHHHHHHHHHHHHHHH
 
 - Day completion flow is now functional
 - Streak system has been implemented
-- 
+- Calendar page has been fixed
+- Its corresponding page on dashboard is also fixed
+- Streaks are now checked once a day when the user visits /challenges
 - 
 
 ## Complete Day for Streaks:

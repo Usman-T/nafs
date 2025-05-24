@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { Calendar, Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -171,57 +171,64 @@ const Tasks = ({
             </p>
           </div>
 
-          <div className="space-y-6 flex-1 min-h-[300px]">
+          <div className="flex-1 min-h-[300px]">
             {selectedDayTasks.length > 0 ? (
-              <div className="space-y-4">
+              <div className="divide-y divide-[#3c3836]/30">
                 {selectedDayTasks.map((dayTask, i) => {
                   const IconComponent =
                     iconMap[dayTask.task.dimension.icon] || "BookOpen";
                   const isCompleted = dayTask.completions.length > 0;
+                  const dimensionColor = dayTask.task.dimension.color;
 
                   return (
                     <Link
                       key={i}
                       href="/dashboard/challenges"
-                      className="flex items-center justify-between"
+                      className="block group py-4 transition-colors hover:bg-[#282828]/50"
                     >
-                      <div className="flex hover:cursor-pointer items-center">
-                        <div className="h-10 w-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                          <IconComponent
-                            className="h-5 w-5"
+                      <div className="flex items-center justify-between px-1">
+                        <div className="flex items-center">
+                          <div
+                            className="h-10 w-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0 transition-all"
                             style={{
-                              color: dayTask.task.dimension.color,
-                              borderColor: dayTask.task.dimension.color,
+                              backgroundColor: `${dimensionColor}15`,
+                              border: `1.5px solid ${dimensionColor}`,
                             }}
-                          />
+                          >
+                            <IconComponent
+                              className="h-5 w-5 transition-transform group-hover:scale-110"
+                              style={{ color: dimensionColor }}
+                            />
+                          </div>
+                          <span
+                            className="text-base font-medium transition-colors group-hover:text-[#ebdbb2]"
+                            style={{ color: dimensionColor }}
+                          >
+                            {dayTask.task.name}
+                          </span>
                         </div>
-                        <span
-                          className="text-base font-medium"
-                          style={{ color: dayTask.task.dimension.color }}
+                        <div
+                          className={`h-7 w-7 min-w-[28px] rounded-full border-2 flex items-center justify-center transition-all ${
+                            isCompleted
+                              ? "bg-[#fe8019] border-[#fe8019]"
+                              : "bg-transparent border-[#3c3836] group-hover:border-[#fe8019]/50"
+                          }`}
                         >
-                          {dayTask.task.name}
-                        </span>
-                      </div>
-                      <div
-                        className={`h-7 w-7 rounded-full border ${
-                          isCompleted
-                            ? "bg-[#fe8019] border-[#fe8019]"
-                            : "bg-transparent border-[#3c3836]"
-                        } flex items-center justify-center transition-all duration-200`}
-                      >
-                        {isCompleted ? (
-                          <Check className="h-4 w-4 text-[#1d2021]" />
-                        ) : (
-                          <Check className="h-4 w-4 text-[#3c3836] opacity-0" />
-                        )}
+                          {isCompleted ? (
+                            <Check className="h-4 w-4 text-[#1d2021] transition-transform group-hover:scale-125" />
+                          ) : (
+                            <div className="h-4 w-4" />
+                          )}
+                        </div>
                       </div>
                     </Link>
                   );
                 })}
               </div>
             ) : (
-              <div className="h-full flex items-center justify-center text-[#a89984] italic">
-                No tasks for this day
+              <div className="h-full flex flex-col items-center justify-center text-[#a89984] italic space-y-2">
+                <Calendar className="h-8 w-8 opacity-60" />
+                <p>No tasks scheduled for this day</p>
               </div>
             )}
           </div>

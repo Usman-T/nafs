@@ -52,9 +52,9 @@ const DashboardCalendar = ({
 
     if (tasks.length === 0) return "none";
 
-    const today = new Date();
+    // Compare completions with the current 'date' (day in the calendar), not today's date
     const completedTasks = tasks.filter((task) =>
-      task.completions.some((c) => isSameDay(new Date(c.completedAt), today))
+      task.completions.some((c) => isSameDay(new Date(c.completedAt), date))
     ).length;
 
     if (completedTasks === tasks.length) return "completed";
@@ -90,7 +90,7 @@ const DashboardCalendar = ({
               href="/dashboard/calendar"
               className="text-[#fe8019] text-sm hover:underline"
             >
-              View full calendar
+              Full View
             </Link>
           </CardTitle>
         </CardHeader>
