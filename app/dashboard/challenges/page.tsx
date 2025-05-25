@@ -6,6 +6,7 @@ import {
   fetchUserDimensions,
   fetchDimensions,
   fetchChallengeCompletionStatus,
+  fetchChallenges,
 } from "@/lib/data";
 
 const ChallengesPage = async () => {
@@ -17,12 +18,14 @@ const ChallengesPage = async () => {
     dimensionValues,
     dimensions,
     hasCompletedChallenge,
+    challenges,
   ] = await Promise.all([
     fetchUserChallenge(),
     fetchDailyTasks(),
     fetchUserDimensions(),
     fetchDimensions(),
     fetchChallengeCompletionStatus(),
+    fetchChallenges(),
   ]);
 
   if (!currentChallenge) {
@@ -51,6 +54,7 @@ const ChallengesPage = async () => {
         dimensions={dimensions}
         dimensionValues={dimensionValues}
         hasCompletedChallenge={hasCompletedChallenge}
+        predefinedChallenges={challenges}
       />
     </div>
   );

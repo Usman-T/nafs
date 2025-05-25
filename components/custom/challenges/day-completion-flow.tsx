@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Check, ChevronRight, Sparkles } from "lucide-react";
 import Celebration from "./completion/day/celebration";
 import StreakProgression from "./completion/day/streak-progression";
-import TaskImpactVisualization from "./completion/task-impact";
+import TaskImpactVisualization from "./completion/day/task-impact";
 import DimensionDetail from "./completion/day/dimension-detail";
 import RadarChart from "./completion/day/radar-chart";
 import AnimatedCounter from "./completion/day/animated-counter";

@@ -1,11 +1,25 @@
-
+import { motion } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Award } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { Challenge, ChallengeTask, Dimension, Task } from "@prisma/client";
 
 const ChallengeCard = ({
   challenge,
   isSelected = false,
   onSelect,
 }: {
-  challenge: (typeof predefinedChallenges)[0];
+  challenge: Challenge & {
+    tasks: ChallengeTask[] & { task: Task & { dimension: Dimension } };
+  };
   isSelected?: boolean;
   onSelect: () => void;
 }) => {
@@ -20,7 +34,7 @@ const ChallengeCard = ({
     >
       <Card
         className={cn(
-          "bg-[#282828] border transition-all duration-300 h-full cursor-pointer overflow-hidden",
+          "bg-[#282828] border-2 transition-all duration-300 h-full cursor-pointer overflow-hidden",
           isSelected
             ? "border-[#fe8019]"
             : "border-[#3c3836] hover:border-[#504945]"
@@ -28,12 +42,12 @@ const ChallengeCard = ({
         onClick={onSelect}
       >
         <CardHeader className="pb-2">
-          <CardTitle className="flex items-center text-[#ebdbb2] text-base sm:text-lg">
+          <CardTitle className="flex items-center text-[#ebdbb2]">
             <Award className="h-5 w-5 text-[#fe8019] mr-2 flex-shrink-0" />
-            {challenge.title}
+            <p className="text-xl">{challenge.name}</p>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent>
           <p className="text-xs sm:text-sm text-[#a89984]">
             {challenge.description}
           </p>
@@ -42,17 +56,14 @@ const ChallengeCard = ({
             <Badge className="bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945] text-xs">
               {challenge.duration} days
             </Badge>
-            <Badge className="bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945] text-xs">
-              {challenge.difficulty}
-            </Badge>
           </div>
 
           <div className="space-y-2">
-            {challenge.tasks.slice(0, 3).map((task, i) => (
+            {challenge.tasks.slice(0, 3).map(({ task }, i) => (
               <div key={i} className="flex items-center">
                 <div
                   className="h-3 w-3 rounded-full flex-shrink-0 mr-2"
-                  style={{ backgroundColor: task.color }}
+                  style={{ backgroundColor: task.dimension.color }}
                 ></div>
                 <span className="text-xs text-[#ebdbb2] truncate">
                   {task.name}
@@ -66,7 +77,7 @@ const ChallengeCard = ({
             )}
           </div>
         </CardContent>
-        <CardFooter className="pt-0">
+        <CardFooter className="pt-4">
           {isSelected ? (
             <Button
               className="w-full bg-[#fe8019] text-[#1d2021] hover:bg-[#d65d0e]"

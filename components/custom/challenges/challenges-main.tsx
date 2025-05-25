@@ -30,6 +30,7 @@ import { differenceInDays, isSameDay } from "date-fns";
 import LoadingSkeleton from "./challenges-skeleton";
 import ChallengeTask from "./challenge-tasks";
 import CompletedChallenge from "./completed-challenge";
+import predefinedChallenges from "@/lib/predefined";
 
 interface ChallengesProps {
   challenge: UserChallenge & { challenge: Challenge };
@@ -43,6 +44,7 @@ interface ChallengesProps {
   dimensionValues: DimensionValue[];
   dimensions: Dimension[];
   hasCompletedChallenge: boolean;
+  predefinedChallenges: Challenge[];
 }
 
 const Challenges = ({
@@ -51,6 +53,7 @@ const Challenges = ({
   dimensionValues,
   dimensions,
   hasCompletedChallenge,
+  predefinedChallenges,
 }: ChallengesProps) => {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
@@ -117,7 +120,13 @@ const Challenges = ({
         transition={{ duration: 0.3 }}
       >
         {hasCompletedChallenge ||
-          (true && <CompletedChallenge challenge={challenge} />)}
+          (true && (
+            <CompletedChallenge
+              predefinedChallenges={predefinedChallenges}
+              dimensions={dimensions}
+              challenge={challenge}
+            />
+          ))}
         <Card className="bg-[#282828] border-[#3c3836] overflow-hidden">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center">

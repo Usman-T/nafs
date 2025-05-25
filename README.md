@@ -105,3 +105,6 @@ You can only do complete day once in a day, and it will set a localStorage item 
 ## Complete a Challenge
 If current streak === challenge duration, nahhh
 If completions are all in consecutive *duration* days then we say "challenge completed enroll in new one"
+
+Nice the UI is made, we just gotta fix up all the steps. We do that one step at a time
+Like dont just go ahead and fix every fucking error in there, wire up each and every step one by one

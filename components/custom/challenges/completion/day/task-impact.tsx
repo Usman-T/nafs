@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import Particle from "./day/particle";
 import { Dimension, Task } from "@prisma/client";
 import { iconMap } from "@/lib/iconMap";
+import Particle from "./particle";
 
 const TaskImpactVisualization = ({
   task,
@@ -119,7 +119,10 @@ const TaskImpactVisualization = ({
                   variant="ghost"
                   size="sm"
                   className="text-[#fe8019] hover:text-[#fe8019] hover:bg-[#3c3836]"
-                  onClick={() => {setBarWidth(0);onComplete()}}
+                  onClick={() => {
+                    setBarWidth(0);
+                    onComplete();
+                  }}
                 >
                   Continue <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>

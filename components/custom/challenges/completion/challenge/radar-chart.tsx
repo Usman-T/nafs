@@ -1,10 +1,13 @@
+import { Dimension } from "@prisma/client";
+import { useEffect, useRef, useState } from "react";
+
 const RadarChart = ({
   dimensions,
   previousValues,
   currentValues,
   animate = true,
 }: {
-  dimensions: typeof spiritualDimensions;
+  dimensions: Dimension[];
   previousValues: Record<string, number>;
   currentValues: Record<string, number>;
   animate?: boolean;
@@ -19,28 +22,22 @@ const RadarChart = ({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Set canvas dimensions
     const size = canvas.width;
     const centerX = size / 2;
     const centerY = size / 2;
     const radius = size * 0.4;
 
-    // Clear canvas
     ctx.clearRect(0, 0, size, size);
 
-    // Draw background
     ctx.fillStyle = "#1d2021";
     ctx.fillRect(0, 0, size, size);
 
-    // Draw radar grid
     const sides = dimensions.length;
     const angleStep = (Math.PI * 2) / sides;
 
-    // Draw grid lines
     ctx.strokeStyle = "#3c3836";
     ctx.lineWidth = 1;
 
-    // Draw concentric circles
     for (let i = 1; i <= 5; i++) {
       const circleRadius = (radius * i) / 5;
       ctx.beginPath();
@@ -48,7 +45,6 @@ const RadarChart = ({
       ctx.stroke();
     }
 
-    // Draw axis lines
     for (let i = 0; i < sides; i++) {
       const angle = i * angleStep - Math.PI / 2;
       ctx.beginPath();
@@ -59,7 +55,6 @@ const RadarChart = ({
       );
       ctx.stroke();
 
-      // Draw dimension labels
       const labelRadius = radius * 1.15;
       const labelX = centerX + Math.cos(angle) * labelRadius;
       const labelY = centerY + Math.sin(angle) * labelRadius;
@@ -70,7 +65,6 @@ const RadarChart = ({
       ctx.fillText(dimensions[i].name, labelX, labelY);
     }
 
-    // Draw previous values polygon
     if (Object.keys(previousValues).length > 0) {
       ctx.beginPath();
       for (let i = 0; i < sides; i++) {
@@ -94,7 +88,6 @@ const RadarChart = ({
       ctx.stroke();
     }
 
-    // Draw current values polygon with animation
     if (Object.keys(currentValues).length > 0) {
       ctx.beginPath();
       for (let i = 0; i < sides; i++) {
@@ -120,7 +113,6 @@ const RadarChart = ({
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // Draw points at vertices
       for (let i = 0; i < sides; i++) {
         const angle = i * angleStep - Math.PI / 2;
         const prevValue = previousValues[dimensions[i].id.toLowerCase()] || 0;
@@ -142,7 +134,6 @@ const RadarChart = ({
     }
   }, [dimensions, previousValues, currentValues, animationProgress]);
 
-  // Animate the radar chart
   useEffect(() => {
     if (!animate) return;
 
@@ -152,7 +143,7 @@ const RadarChart = ({
     const animateRadar = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
       const elapsed = timestamp - startTime;
-      const duration = 1500; // 1.5 seconds
+      const duration = 1500;
       const progress = Math.min(elapsed / duration, 1);
 
       setAnimationProgress(progress);

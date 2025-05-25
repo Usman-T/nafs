@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 const AnimatedCounter = ({
   value,
   duration = 1.5,
