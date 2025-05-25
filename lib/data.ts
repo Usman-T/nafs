@@ -143,37 +143,3 @@ export const fetchUserDimensions = async () => {
     },
   }));
 };
-
-export const fetchStatsData = async () => {
-  const session = await auth();
-
-  if (!session?.user) {
-    throw new Error("Not authenticated");
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email ?? undefined },
-    include: {
-      currentChallenge: true,
-      dimensionValues: {
-        include: {
-          dimension: true,
-        },
-      },
-    },
-  });
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  const statsData = {
-    user: user || 0,
-    activeChallenge: user.currentChallenge || "No active challenge",
-    overallGrowth:
-      user.dimensionValues.reduce((acc, dv) => acc + dv.value, 0) /
-        user.dimensionValues.length || 0,
-  };
-
-  return statsData;
-};

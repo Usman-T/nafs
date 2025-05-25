@@ -1,5 +1,5 @@
 import Challenges from "@/components/custom/challenges/challenges-main";
-import { checkUserStreak } from "@/lib/actions";
+import { checkUserStreak, initializeDayTasks } from "@/lib/actions";
 import {
   fetchDailyTasks,
   fetchUserChallenge,
@@ -23,9 +23,18 @@ const ChallengesPage = async () => {
   }
 
   const today = new Date();
-  const selectedDayTasks = dailyTasks?.filter(
+  let selectedDayTasks = dailyTasks?.filter(
     (t) => t.date.toDateString() === today.toDateString()
   );
+
+  if (!selectedDayTasks || selectedDayTasks.length === 0) {
+    await initializeDayTasks(currentChallenge.id);
+
+    const updatedDailyTasks = await fetchDailyTasks();
+    selectedDayTasks = updatedDailyTasks?.filter(
+      (t) => t.date.toDateString() === today.toDateString()
+    );
+  }
 
   return (
     <div className="space-y-8 p-6">
