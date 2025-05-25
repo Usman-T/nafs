@@ -239,7 +239,7 @@ const CalendarMain = ({
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.8 }}
                       transition={{ duration: 0.2 }}
-                      className={`aspect-square p-1 ${
+                      className={`aspect-square  ${
                         date ? "cursor-pointer" : ""
                       }`}
                       onClick={() => date && handleDateClick(date)}

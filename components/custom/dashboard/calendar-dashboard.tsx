@@ -52,7 +52,6 @@ const DashboardCalendar = ({
 
     if (tasks.length === 0) return "none";
 
-    // Compare completions with the current 'date' (day in the calendar), not today's date
     const completedTasks = tasks.filter((task) =>
       task.completions.some((c) => isSameDay(new Date(c.completedAt), date))
     ).length;
@@ -121,7 +120,7 @@ const DashboardCalendar = ({
                 return (
                   <div key={day} className="flex justify-center">
                     <div
-                      className={`h-8 w-8 rounded-md flex items-center justify-center ${
+                      className={`h-8 w-8 p-4 rounded-md flex items-center justify-center ${
                         status === "completed"
                           ? "bg-[#fe8019] text-[#1d2021]"
                           : status === "partial"
@@ -137,19 +136,24 @@ const DashboardCalendar = ({
                 );
               })}
             </div>
-
-            <div className="flex items-center justify-between text-sm text-[#a89984] mt-4">
-              <div className="flex items-center">
-                <div className="h-3 w-3 bg-[#fe8019] rounded-sm mr-2"></div>
-                <span>All tasks completed</span>
+            <div className="flex flex-wrap items-center justify-between text-sm text-[#a89984] mt-4 gap-4">
+              <div className="flex items-center min-w-[150px]">
+                <div className="w-3 h-3 min-w-[0.75rem] min-h-[0.75rem] bg-[#fe8019] rounded-full mr-2 shrink-0"></div>
+                <span className="text-[clamp(0.75rem,1vw,0.875rem)]">
+                  All tasks completed
+                </span>
               </div>
-              <div className="flex items-center">
-                <div className="h-3 w-3 bg-[#3c3836] rounded-sm mr-2"></div>
-                <span>Partial completion</span>
+              <div className="flex items-center min-w-[150px]">
+                <div className="w-3 h-3 min-w-[0.75rem] min-h-[0.75rem] bg-[#3c3836] rounded-full mr-2 shrink-0"></div>
+                <span className="text-[clamp(0.75rem,1vw,0.875rem)]">
+                  Partial completion
+                </span>
               </div>
-              <div className="flex items-center">
-                <div className="h-3 w-3 border border-[#3c3836] rounded-sm mr-2"></div>
-                <span>No tasks completed</span>
+              <div className="flex items-center min-w-[150px]">
+                <div className="w-3 h-3 min-w-[0.75rem] min-h-[0.75rem] border border-[#3c3836] rounded-full mr-2 shrink-0"></div>
+                <span className="text-[clamp(0.75rem,1vw,0.875rem)]">
+                  No tasks completed
+                </span>
               </div>
             </div>
           </div>

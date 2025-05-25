@@ -162,7 +162,7 @@ const ProgressComponent = ({
               {selectedDimension && (
                 <Button
                   size="sm"
-                  className="text-[#a89984] hover:text-[#ebdbb2]"
+                  className="bg-[#fe8019]/80 font-bold text-[#ebdbb2]"
                   onClick={() => handleDimensionSelect(null)}
                 >
                   <ArrowLeft className="mr-1 h-4 w-4" /> Back to all dimensions
@@ -181,9 +181,10 @@ const ProgressComponent = ({
                     className="w-full flex justify-center"
                   >
                     <svg
-                      width={size}
-                      height={size}
+                      width="100%"
+                      height="auto"
                       viewBox={`0 0 ${size} ${size}`}
+                      preserveAspectRatio="xMidYMid meet"
                       className="overflow-visible"
                     >
                       {[0.2, 0.4, 0.6, 0.8, 1].map((level, i) => (
@@ -221,7 +222,7 @@ const ProgressComponent = ({
                         />
                       ))}
 
-                      {!selectedDimension && (
+                      {
                         <motion.path
                           d={getPath(points)}
                           fill="rgba(254, 128, 25, 0.2)"
@@ -231,22 +232,7 @@ const ProgressComponent = ({
                           animate={{ pathLength: 1 }}
                           transition={{ duration: 1, ease: "easeInOut" }}
                         />
-                      )}
-
-                      {selectedDimension && targetPoint && (
-                        <motion.line
-                          initial={{ pathLength: 0 }}
-                          animate={{ pathLength: 1 }}
-                          transition={{ duration: 0.6, ease: "easeOut" }}
-                          x1={center}
-                          y1={center}
-                          x2={targetPoint.x}
-                          y2={targetPoint.y}
-                          stroke="#fe8019"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                      )}
+                      }
 
                       {!selectedDimension &&
                         points.map((point, i) => (
@@ -269,16 +255,19 @@ const ProgressComponent = ({
 
                       {selectedDimension && targetPoint && (
                         <motion.circle
-                          initial={{ cx: center, cy: center, r: 8 }}
-                          animate={{
-                            cx: animationPhase === 0 ? center : targetPoint.x,
-                            cy: animationPhase === 0 ? center : targetPoint.y,
-                            r: 8,
-                          }}
-                          transition={{ duration: 0.6, ease: "easeOut" }}
-                          fill="#fe8019"
-                          stroke="#ebdbb2"
+                          cx={targetPoint.x}
+                          cy={targetPoint.y}
+                          r="6"
+                          fill="transparent"
+                          stroke="#fe8019"
                           strokeWidth="2"
+                          initial={{ r: 6, opacity: 0.8 }}
+                          animate={{ r: 15, opacity: 0 }}
+                          transition={{
+                            duration: 1.2,
+                            repeat: Number.POSITIVE_INFINITY,
+                            ease: "easeOut",
+                          }}
                         />
                       )}
 
