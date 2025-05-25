@@ -26,7 +26,7 @@ import {
 import SignOutButton from "../(auth)/register/SignOutButton";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface DashboardLayoutProps {
@@ -35,7 +35,6 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const { data: session, status } = useSession();
 
