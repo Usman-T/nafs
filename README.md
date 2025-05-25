@@ -101,3 +101,7 @@ AHHHHHHHHHHHHHHHHHHHHH
 
 ## Complete Day for Streaks:
 You can only do complete day once in a day, and it will set a localStorage item witht he current date, the button and task completions will be disabled. A new confirmation screen will be shown before the user completes the day to ensure good work of it
+
+## Complete a Challenge
+If current streak === challenge duration, nahhh
+If completions are all in consecutive *duration* days then we say "challenge completed enroll in new one"

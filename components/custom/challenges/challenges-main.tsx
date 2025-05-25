@@ -1,7 +1,6 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -20,15 +19,17 @@ import {
   Task,
   UserChallenge,
 } from "@prisma/client";
-import { iconMap } from "@/lib/iconMap";
 import { useEffect, useState } from "react";
 import { Dimension, User } from "@prisma/client";
-import TaskCompletionFlow from "./challenge-completion-flow";
+import TaskCompletionFlow from "./day-completion-flow";
 import { useLocalStorage } from "@/lib/hooks/use-local-storage";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { updateUserStreak } from "@/lib/actions";
 import { differenceInDays, isSameDay } from "date-fns";
+import LoadingSkeleton from "./challenges-skeleton";
+import ChallengeTask from "./challenge-tasks";
+import CompletedChallenge from "./completed-challenge";
 
 interface ChallengesProps {
   challenge: UserChallenge & { challenge: Challenge };
@@ -41,6 +42,7 @@ interface ChallengesProps {
   })[];
   dimensionValues: DimensionValue[];
   dimensions: Dimension[];
+  hasCompletedChallenge: boolean;
 }
 
 const Challenges = ({
@@ -48,11 +50,13 @@ const Challenges = ({
   tasks,
   dimensionValues,
   dimensions,
+  hasCompletedChallenge,
 }: ChallengesProps) => {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showCompletionFlow, setShowCompletionFlow] = useState(false);
+  useState(false);
   const [dayCompleted, setDayCompleted] = useLocalStorage<{
     date: string;
     completed: boolean;
@@ -112,6 +116,8 @@ const Challenges = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
+        {hasCompletedChallenge ||
+          (true && <CompletedChallenge challenge={challenge} />)}
         <Card className="bg-[#282828] border-[#3c3836] overflow-hidden">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center">
@@ -148,77 +154,13 @@ const Challenges = ({
                 )}
               </div>
               <AnimatePresence mode="wait">
-                {tasks.map((dailyTask) => {
-                  const IconComponent =
-                    iconMap[dailyTask.task.dimension.icon] || "BookOpen";
-                  const isCompleted = dailyTask.completions.length > 0;
-
-                  return (
-                    <motion.div
-                      key={dailyTask.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className={`flex items-center justify-between p-4 rounded-md border ${
-                        isTodayCompleted()
-                          ? "bg-[#1d2021]/50 border-[#3c3836]/50"
-                          : "bg-[#1d2021] border-[#3c3836]"
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <div className="h-8 w-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                          <IconComponent
-                            className="h-4 w-4"
-                            style={{
-                              color: dailyTask.task.dimension.color,
-                              borderColor: dailyTask.task.dimension.color,
-                            }}
-                          />
-                        </div>
-                        <span
-                          className={`${
-                            isCompleted || isTodayCompleted()
-                              ? "line-through opacity-70"
-                              : ""
-                          } ${
-                            isTodayCompleted()
-                              ? "text-[#a89984]"
-                              : "text-[#ebdbb2]"
-                          }`}
-                        >
-                          {dailyTask.task?.name}
-                        </span>
-                      </div>
-                      <Link
-                        href={
-                          isTodayCompleted()
-                            ? "#"
-                            : !isCompleted
-                            ? `/dashboard/challenges/complete/${dailyTask.id}`
-                            : "#"
-                        }
-                      >
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={`h-8 w-8 rounded-full p-0 ${
-                            isCompleted || isTodayCompleted()
-                              ? "bg-[#fe8019] border-[#fe8019] text-[#1d2021]"
-                              : "border-[#3c3836] hover:border-[#fe8019] hover:text-[#fe8019]"
-                          }`}
-                          disabled={isTodayCompleted()}
-                        >
-                          {isCompleted || isTodayCompleted() ? (
-                            <Check className="h-4 w-4" />
-                          ) : (
-                            <ArrowRight className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </Link>
-                    </motion.div>
-                  );
-                })}
+                {tasks.map((dailyTask) => (
+                  <ChallengeTask
+                    key={dailyTask.id}
+                    dailyTask={dailyTask}
+                    dayCompleted={dayCompleted}
+                  />
+                ))}
               </AnimatePresence>
             </div>
           </CardContent>
@@ -298,56 +240,5 @@ const Challenges = ({
     </>
   );
 };
-
-const LoadingSkeleton = () => (
-  <div className="animate-pulse">
-    <Card className="bg-[#282828] border-[#3c3836] overflow-hidden">
-      <CardHeader className="pb-3">
-        <div className="h-6 w-40 bg-[#3c3836] rounded-md" />
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <div className="h-4 w-20 bg-[#3c3836] rounded" />
-            <div className="h-4 w-16 bg-[#3c3836] rounded" />
-          </div>
-          <div className="h-2 bg-[#1d2021] rounded-full" />
-          <div className="h-4 w-full bg-[#3c3836] rounded-md" />
-        </div>
-        <div className="space-y-4">
-          <div className="h-4 w-32 bg-[#3c3836] rounded" />
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between p-4 rounded-md bg-[#1d2021] border border-[#3c3836]"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="h-8 w-8 rounded-full bg-[#3c3836]" />
-                <div className="h-4 w-40 bg-[#3c3836] rounded" />
-              </div>
-              <div className="h-8 w-8 rounded-full bg-[#3c3836]" />
-            </div>
-          ))}
-        </div>
-      </CardContent>
-      <CardFooter className="border-t border-[#3c3836] pt-4">
-        <div className="w-full space-y-2">
-          <div className="flex justify-between">
-            <div className="h-4 w-24 bg-[#3c3836] rounded" />
-            <div className="h-4 w-10 bg-[#3c3836] rounded" />
-          </div>
-          <div className="flex space-x-1">
-            {Array.from({ length: 7 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-2 flex-1 rounded-full bg-[#3c3836]"
-              ></div>
-            ))}
-          </div>
-        </div>
-      </CardFooter>
-    </Card>
-  </div>
-);
 
 export default Challenges;

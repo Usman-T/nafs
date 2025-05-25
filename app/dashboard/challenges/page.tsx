@@ -5,18 +5,25 @@ import {
   fetchUserChallenge,
   fetchUserDimensions,
   fetchDimensions,
+  fetchChallengeCompletionStatus,
 } from "@/lib/data";
 
 const ChallengesPage = async () => {
   await checkUserStreak();
 
-  const [currentChallenge, dailyTasks, dimensionValues, dimensions] =
-    await Promise.all([
-      fetchUserChallenge(),
-      fetchDailyTasks(),
-      fetchUserDimensions(),
-      fetchDimensions(),
-    ]);
+  const [
+    currentChallenge,
+    dailyTasks,
+    dimensionValues,
+    dimensions,
+    hasCompletedChallenge,
+  ] = await Promise.all([
+    fetchUserChallenge(),
+    fetchDailyTasks(),
+    fetchUserDimensions(),
+    fetchDimensions(),
+    fetchChallengeCompletionStatus(),
+  ]);
 
   if (!currentChallenge) {
     return <div>No active challenge</div>;
@@ -43,6 +50,7 @@ const ChallengesPage = async () => {
         tasks={selectedDayTasks || []}
         dimensions={dimensions}
         dimensionValues={dimensionValues}
+        hasCompletedChallenge={hasCompletedChallenge}
       />
     </div>
   );

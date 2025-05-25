@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import Particle from "./particle";
+import Particle from "./day/particle";
 import { Dimension, Task } from "@prisma/client";
 import { iconMap } from "@/lib/iconMap";
 
@@ -18,7 +18,8 @@ const TaskImpactVisualization = ({
   onComplete: () => void;
 }) => {
   const [showDetails, setShowDetails] = useState(false);
-  console.log(impact)
+  const [barWidth, setBarWidth] = useState(0);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowDetails(true);
@@ -93,14 +94,17 @@ const TaskImpactVisualization = ({
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-[#a89984]">Impact</span>
-                  <span className="text-[#fe8019]">+{Math.round(impact * 100)}%</span>
+                  <span className="text-[#fe8019]">
+                    +{Math.round(impact * 100)}%
+                  </span>
                 </div>
                 <div className="relative h-2 w-full bg-[#3c3836] rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${impact * 100}%` }}
                     transition={{ duration: 0.8, delay: 0.2 }}
-                    className="absolute top-0 left-0 h-full bg-[#fe8019] rounded-full"
+                    className="absolute top-0 left-0 h-full rounded-full"
+                    style={{ backgroundColor: dimension.color }}
                   />
                 </div>
               </div>
@@ -115,7 +119,7 @@ const TaskImpactVisualization = ({
                   variant="ghost"
                   size="sm"
                   className="text-[#fe8019] hover:text-[#fe8019] hover:bg-[#3c3836]"
-                  onClick={onComplete}
+                  onClick={() => {setBarWidth(0);onComplete()}}
                 >
                   Continue <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>

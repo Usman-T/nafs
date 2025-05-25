@@ -1,5 +1,6 @@
 import prisma from "@/prisma";
 import { auth } from "@/auth";
+import { isSameDay, subDays } from "date-fns";
 
 export const getUsers = async () => {
   try {
@@ -142,4 +143,53 @@ export const fetchUserDimensions = async () => {
       icon: dimensionValue.dimension.icon,
     },
   }));
+};
+
+export const fetchChallengeCompletionStatus = async () => {
+  const session = await auth();
+
+  if (!session?.user) throw new Error("Not authenticated");
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email ?? undefined },
+    include: {
+      currentChallenge: true,
+      dailyTasks: true,
+      completedTasks: {
+        include: { dailyTask: true },
+      },
+    },
+  });
+
+  if (!user?.currentChallenge) return false;
+
+  const today = new Date();
+  const duration = user.currentChallenge.duration;
+
+  const completedMap: Record<string, Set<string>> = {};
+  for (const ct of user.completedTasks) {
+    const dateStr = new Date(ct.completedAt).toDateString();
+    if (!completedMap[dateStr]) completedMap[dateStr] = new Set();
+    completedMap[dateStr].add(ct.dailyTaskId);
+  }
+
+  for (let i = 0; i < duration; i++) {
+    const day = subDays(today, i);
+    const dayStr = day.toDateString();
+
+    const tasksForDay = user.dailyTasks.filter((dt) =>
+      isSameDay(new Date(dt.date), day)
+    );
+
+    if (tasksForDay.length === 0) return false;
+
+    for (const task of tasksForDay) {
+      const completedSet = completedMap[dayStr];
+      if (!completedSet || !completedSet.has(task.id)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
 };

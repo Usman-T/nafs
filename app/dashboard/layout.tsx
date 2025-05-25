@@ -130,12 +130,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       >
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-[#2e2e2e]" />
-        <Link href="/dashboard/profile">
-          <DropdownMenuItem className="hover:bg-[#2e2e2e]">
-            <User className="mr-2 h-4 w-4" />
-            Profile
-          </DropdownMenuItem>
-        </Link>{" "}
         <Link href="/dashboard/settings">
           <DropdownMenuItem className="hover:bg-[#2e2e2e]">
             <Settings className="mr-2 h-4 w-4" />
