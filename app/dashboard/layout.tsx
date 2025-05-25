@@ -27,6 +27,7 @@ import SignOutButton from "../(auth)/register/SignOutButton";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -184,7 +185,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
     );
   };
-  const hideMobileNav = localStorage.getItem("hideMobileNav") === "true";
+
+  const [hideMobileNav, setHideMobileNav] = useState(false);
+
+  useEffect(() => {
+    const hidden = localStorage.getItem("hideMobileNav") === "true";
+    setHideMobileNav(hidden);
+  }, []);
 
   return (
     <div className="md:flex bg-[#1d2021] min-h-screen">

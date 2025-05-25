@@ -1,5 +1,3 @@
-import StatsCards from "@/components/custom/dashboard/stats-cards";
-import SpiritualPath from "@/components/custom/dashboard/path-dashboard";
 import { Suspense } from "react";
 import DimensionsWrapper from "@/components/custom/dashboard/wrappers/dimensions-wrapper";
 import DimensionsSkeleton from "@/components/custom/dashboard/skeletons/dimensions-skeleton";
@@ -7,6 +5,7 @@ import TasksWrapper from "@/components/custom/dashboard/wrappers/tasks-wrapper";
 import TasksSkeleton from "@/components/custom/dashboard/skeletons/tasks-skeleton";
 import CalendarWrapper from "@/components/custom/dashboard/wrappers/calendar-wrapper";
 import CalendarSkeleton from "@/components/custom/dashboard/skeletons/calendar-skeleton";
+import SpiritualPath from "@/components/custom/dashboard/path-dashboard";
 
 const DashboardPage = async () => {
   return (
@@ -23,7 +22,6 @@ const DashboardPage = async () => {
       <Suspense fallback={<CalendarSkeleton />}>
         <CalendarWrapper />
       </Suspense>
-      <StatsCards />
     </div>
   );
 };
