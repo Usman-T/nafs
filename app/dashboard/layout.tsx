@@ -27,13 +27,14 @@ import SignOutButton from "../(auth)/register/SignOutButton";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
+  const [hidden, setHidden] = useState(false);
   const pathname = usePathname();
 
   const { data: session, status } = useSession();
@@ -45,6 +46,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: "Progress", href: "/dashboard/progress", icon: BarChart3 },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
   ];
+
+  const updateHiddenState = () => {
+    const hideNav = localStorage.getItem("nafs-hide-mobile-nav") === "true";
+    setHidden(hideNav);
+  };
+
+  useEffect(() => {
+    localStorage.removeItem("nafs-hide-mobile-nav");
+    updateHiddenState();
+
+    const handleStorageChange = () => {
+      updateHiddenState();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
 
   const NavLink = ({ item }: { item: (typeof navItems)[number] }) => {
     const isActive = pathname === item.href;
@@ -185,13 +206,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     );
   };
 
-  const [hideMobileNav, setHideMobileNav] = useState(false);
-
-  useEffect(() => {
-    const hidden = localStorage.getItem("hideMobileNav") === "true";
-    setHideMobileNav(hidden);
-  }, []);
-
   return (
     <div className="md:flex bg-[#1d2021] min-h-screen">
       <DesktopSidebar />
@@ -210,7 +224,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <main className="flex-1 bg-[#1d2021] pb-16 md:pb-0 overflow-auto">
           <div>{children}</div>
         </main>
-        <MobileNav hide={hideMobileNav} />
+        <MobileNav hide={hidden} />
       </div>
     </div>
   );

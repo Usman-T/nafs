@@ -116,7 +116,8 @@ const CalendarMain = ({
 
     const fallbackDates = [...processedDailyTasks]
       .filter((task) => task.date < selectedDate)
-      .sort((a, b) => b.date.getTime() - a.date.getTime());
+      .sort((a, b) => b.date.getTime() - a.date.getTime())
+      .map((task) => ({ ...task, completions: [] }));
 
     const lastAvailableDate =
       fallbackDates.length > 0 ? fallbackDates[0].date : null;
@@ -389,13 +390,12 @@ const CalendarMain = ({
                       className="mt-6 p-4 rounded-md bg-[#1d2021] border border-[#3c3836]"
                     >
                       <h3 className="text-[#ebdbb2] font-medium mb-2">
-                   No Tasks Found 
+                        No Tasks Found
                       </h3>
                       <p className="text-sm text-[#a89984]">
                         You had no tasks on this day
                       </p>
                     </motion.div>
-
                   )}
                 </motion.div>
               </AnimatePresence>

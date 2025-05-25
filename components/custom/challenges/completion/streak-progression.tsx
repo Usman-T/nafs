@@ -66,7 +66,6 @@ const StreakProgression = ({
   newStreak,
   onComplete,
   challengeDuration,
-  impactMultiplier,
 }: StreakProgressionProps) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showButton, setShowButton] = useState(false);
@@ -81,7 +80,6 @@ const StreakProgression = ({
       setShowButton(true);
     }, 3000);
 
-    // Pick two random unique rewards
     const shuffled = [...rewardPool].sort(() => 0.5 - Math.random());
     setRewards(shuffled.slice(0, 2));
 
@@ -92,7 +90,7 @@ const StreakProgression = ({
   }, []);
 
   const streakProgress =
-    ((newStreak % challengeDuration) / challengeDuration) * 100;
+    (((currentStreak - 1) * challengeDuration) / challengeDuration) * 100;
 
   return (
     <motion.div
@@ -101,7 +99,6 @@ const StreakProgression = ({
       exit={{ opacity: 0, scale: 0.9 }}
       className="bg-[#1d2021] rounded-lg p-5 border border-[#3c3836] relative overflow-hidden"
     >
-      {/* Background particles */}
       {Array.from({ length: 12 }).map((_, i) => (
         <Particle key={i} color="#fe8019" speed={1.5} />
       ))}

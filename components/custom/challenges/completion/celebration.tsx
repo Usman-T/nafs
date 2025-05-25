@@ -22,7 +22,7 @@ const Celebration = ({
   currentStreak,
   completedTasks,
   totalTasks,
-  xpEarned
+  xpEarned,
 }: CelebrationProps) => {
   const confettiRef = useRef<HTMLDivElement>(null);
   const [showButton, setShowButton] = useState(false);

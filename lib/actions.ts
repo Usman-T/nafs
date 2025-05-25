@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { z } from "zod";
 import { requireAuth } from "./auth";
-import { startOfDay, subDays, isSameDay } from "date-fns";
+import { startOfDay, subDays, isSameDay, isYesterday } from "date-fns";
 
 export type State = {
   errors?: {
@@ -414,15 +414,22 @@ export const updateUserStreak = async () => {
   if (!user) return;
 
   const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
 
-  if (
-    !user.lastActiveDate ||
-    user.lastActiveDate.getDate() !== yesterday.getDate() ||
-    user.lastActiveDate.getMonth() !== yesterday.getMonth() ||
-    user.lastActiveDate.getFullYear() !== yesterday.getFullYear()
-  ) {
+  if (user.lastActiveDate && isSameDay(user.lastActiveDate, today)) {
+    return;
+  }
+
+  if (user.lastActiveDate && isYesterday(user.lastActiveDate)) {
+    const newStreak = user.currentStreak + 1;
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        currentStreak: newStreak,
+        longestStreak: Math.max(user.longestStreak, newStreak),
+        lastActiveDate: today,
+      },
+    });
+  } else {
     await prisma.user.update({
       where: { id: userId },
       data: {
@@ -430,18 +437,7 @@ export const updateUserStreak = async () => {
         lastActiveDate: today,
       },
     });
-    return;
   }
-
-  const newStreak = user.currentStreak + 1;
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      currentStreak: newStreak,
-      longestStreak: Math.max(user.longestStreak, newStreak),
-      lastActiveDate: today,
-    },
-  });
 };
 
 export const checkUserStreak = async () => {

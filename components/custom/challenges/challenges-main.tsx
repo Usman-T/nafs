@@ -76,7 +76,7 @@ const Challenges = ({
       date: new Date().toDateString(),
       completed: true,
     });
-    localStorage.removeItem("hideMobileNav");
+    localStorage.removeItem("nafs-hide-mobile-nav");
     await updateUserStreak();
     router.refresh();
   };
@@ -84,7 +84,8 @@ const Challenges = ({
   const handleShowCompletionFlow = () => {
     if (completedTasks.length > 0 && !isTodayCompleted()) {
       setShowCompletionFlow(true);
-      localStorage.setItem("hideMobileNav", "true");
+      localStorage.setItem("nafs-hide-mobile-nav", "true");
+      window.dispatchEvent(new Event("storage"));
     }
   };
 
@@ -286,6 +287,7 @@ const Challenges = ({
           <TaskCompletionFlow
             tasks={tasks}
             currentStreak={currentStreak}
+            userLevel={tasks[0].user.level}
             onComplete={handleCompletionFlowFinished}
             challengeDuration={challenge.challenge.duration}
             dimensionValues={dimensionValues}
