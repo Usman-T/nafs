@@ -1,7 +1,15 @@
 import { Award, Star, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import React from "react";
-import { Challenge } from "@prisma/client";
+import {
+  Challenge,
+  User,
+  CompletedTask,
+  DailyTask,
+  Dimension,
+  Task,
+  UserChallenge,
+} from "@prisma/client";
 import Particle from "./particle";
 import { Badge } from "@/components/ui/badge";
 import AnimatedCounter from "./animated-counter";
@@ -9,9 +17,17 @@ import AnimatedCounter from "./animated-counter";
 const ChallengeWelcome = ({
   confettiRef,
   completedChallenge,
+  tasks,
 }: {
   conffetiRef: any;
   completedChallenge: Challenge;
+  tasks: (DailyTask & {
+    task: Task & {
+      dimension: Dimension;
+    };
+    completions: CompletedTask[];
+    user: User & { currentChallenge: UserChallenge };
+  })[];
 }) => {
   return (
     <motion.div
@@ -70,8 +86,8 @@ const ChallengeWelcome = ({
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                <AnimatedCounter value={completedChallenge.tasks.length || 0} />
-                /{completedChallenge.tasks.length || 0}
+                <AnimatedCounter value={tasks.length || 0} />/
+                {tasks.length || 0}
               </motion.span>
             </div>
 

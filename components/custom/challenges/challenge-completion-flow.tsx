@@ -253,6 +253,7 @@ export default function ChallengeCompletionFlow({
         return (
           <ChallengeWelcome
             completedChallenge={completedChallenge}
+            tasks={tasks}
             conffetiRef={confettiRef}
           />
         );
