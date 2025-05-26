@@ -30,7 +30,6 @@ import { differenceInDays, isSameDay } from "date-fns";
 import LoadingSkeleton from "./challenges-skeleton";
 import ChallengeTask from "./challenge-tasks";
 import CompletedChallenge from "./completed-challenge";
-import predefinedChallenges from "@/lib/predefined";
 
 interface ChallengesProps {
   challenge: UserChallenge & { challenge: Challenge };
@@ -125,6 +124,8 @@ const Challenges = ({
               predefinedChallenges={predefinedChallenges}
               dimensions={dimensions}
               challenge={challenge}
+              tasks={tasks}
+              dimensionValues={dimensionValues}
             />
           ))}
         <Card className="bg-[#282828] border-[#3c3836] overflow-hidden">
