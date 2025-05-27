@@ -32,7 +32,16 @@ import ChallengeTask from "./challenge-tasks";
 import CompletedChallenge from "./completed-challenge";
 
 interface ChallengesProps {
-  challenge: UserChallenge & { challenge: Challenge };
+  challenge: UserChallenge & {
+    challenge: Challenge &
+      {
+        tasks: {
+          task: Task & {
+            dimension: Dimension;
+          };
+        };
+      }[];
+  };
   tasks: (DailyTask & {
     task: Task & {
       dimension: Dimension;
@@ -44,6 +53,7 @@ interface ChallengesProps {
   dimensions: Dimension[];
   hasCompletedChallenge: boolean;
   predefinedChallenges: Challenge[];
+  dailyTasks: DailyTask[];
 }
 
 const Challenges = ({
@@ -53,6 +63,7 @@ const Challenges = ({
   dimensions,
   hasCompletedChallenge,
   predefinedChallenges,
+  dailyTasks,
 }: ChallengesProps) => {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
@@ -125,6 +136,7 @@ const Challenges = ({
               dimensions={dimensions}
               challenge={challenge}
               tasks={tasks}
+              dailyTasks={dailyTasks}
               dimensionValues={dimensionValues}
             />
           ))}

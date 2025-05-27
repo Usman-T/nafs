@@ -14,21 +14,55 @@ import Particle from "./particle";
 import { Badge } from "@/components/ui/badge";
 import AnimatedCounter from "./animated-counter";
 
+interface TaskWithDimension extends Task {
+  dimension: Dimension;
+}
+
+interface DailyTaskWithDetails extends DailyTask {
+  task: TaskWithDimension;
+  completions: CompletedTask[];
+  user: User & { 
+    currentChallenge: UserChallenge | null;
+    currentStreak?: number;
+  };
+}
+
+interface ChallengeWelcomeProps {
+  confettiRef: React.RefObject<HTMLDivElement>;
+  completedChallenge: UserChallenge & {
+    challenge: Challenge;
+  };
+  dailyTasks: DailyTaskWithDetails[];
+}
+
 const ChallengeWelcome = ({
   confettiRef,
   completedChallenge,
-  tasks,
-}: {
-  conffetiRef: any;
-  completedChallenge: Challenge;
-  tasks: (DailyTask & {
-    task: Task & {
-      dimension: Dimension;
-    };
-    completions: CompletedTask[];
-    user: User & { currentChallenge: UserChallenge };
-  })[];
-}) => {
+  dailyTasks,
+}: ChallengeWelcomeProps) => {
+  // Get unique tasks from daily tasks (since daily tasks can repeat across days)
+  const uniqueTasks = dailyTasks.reduce((acc, dailyTask) => {
+    const taskId = dailyTask.task.id;
+    if (!acc.find(task => task.id === taskId)) {
+      acc.push(dailyTask.task);
+    }
+    return acc;
+  }, [] as TaskWithDimension[]);
+
+  const totalTasks = uniqueTasks.length;
+  const completedTasksCount = dailyTasks.filter(
+    (dailyTask) => dailyTask.completions.length > 0
+  ).length;
+
+  // Calculate completion percentage
+  const completionPercentage = totalTasks > 0 ? Math.round((completedTasksCount / dailyTasks.length) * 100) : 0;
+
+  const xpGained =
+    completedTasksCount * 100 + (completionPercentage === 100 ? 500 : 0);
+  
+  // Get streak from the first daily task's user (they should all be the same user)
+  const streakBonus = dailyTasks[0]?.user?.currentStreak || 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -45,16 +79,16 @@ const ChallengeWelcome = ({
       >
         <Trophy className="h-10 w-10 text-[#1d2021]" />
       </motion.div>
+
       <h2 className="text-2xl font-bold text-[#ebdbb2]">
         Challenge Completed!
       </h2>
       <p className="text-[#a89984]">
-        Congratulations! You've successfully completed the{" "}
-        {completedChallenge.name} challenge.
+        You&apos;ve successfully completed the{" "}
+        {completedChallenge.challenge.name} challenge.
       </p>
 
       <div className="relative">
-        {/* Background particles */}
         {Array.from({ length: 12 }).map((_, i) => (
           <Particle key={i} color="#fe8019" speed={1.5} />
         ))}
@@ -64,7 +98,7 @@ const ChallengeWelcome = ({
             <div className="flex items-center gap-2">
               <Award className="h-5 w-5 text-[#fe8019]" />
               <span className="text-[#ebdbb2] font-medium">
-                {completedChallenge.name}
+                {completedChallenge.challenge.name}
               </span>
             </div>
             <Badge className="bg-[#fe8019] text-[#1d2021]">Completed</Badge>
@@ -74,32 +108,31 @@ const ChallengeWelcome = ({
             <div className="flex justify-between text-sm">
               <span className="text-[#a89984]">Duration</span>
               <span className="text-[#ebdbb2]">
-                {completedChallenge.duration} days
+                {completedChallenge.challenge.duration} days
               </span>
             </div>
 
             <div className="flex justify-between text-sm">
-              <span className="text-[#a89984]">Tasks Completed</span>
+              <span className="text-[#a89984]">Daily Tasks Completed</span>
               <motion.span
                 className="text-[#ebdbb2]"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                <AnimatedCounter value={tasks.length || 0} />/
-                {tasks.length || 0}
+                <AnimatedCounter value={completedTasksCount} />/{dailyTasks.length}
               </motion.span>
             </div>
 
             <div className="flex justify-between text-sm">
-              <span className="text-[#a89984]">Spiritual Growth</span>
+              <span className="text-[#a89984]">Completion Rate</span>
               <motion.span
                 className="text-[#fe8019]"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.7 }}
               >
-                +<AnimatedCounter value={15} />%
+                <AnimatedCounter value={completionPercentage} />%
               </motion.span>
             </div>
 
@@ -111,7 +144,7 @@ const ChallengeWelcome = ({
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.9 }}
               >
-                +<AnimatedCounter value={500} /> XP
+                +<AnimatedCounter value={xpGained} /> XP
               </motion.span>
             </div>
           </div>
@@ -130,26 +163,30 @@ const ChallengeWelcome = ({
           </div>
           <div>
             <div className="text-[#ebdbb2]">Achievement Unlocked</div>
-            <div className="text-xs text-[#a89984]">Challenge Master</div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.3 }}
-          className="flex items-center gap-3 p-3 bg-[#282828] rounded-lg border border-[#3c3836]"
-        >
-          <div className="h-8 w-8 rounded-full bg-[#8ec07c] flex items-center justify-center">
-            <Star className="h-4 w-4 text-[#1d2021]" />
-          </div>
-          <div>
-            <div className="text-[#ebdbb2]">Streak Bonus</div>
             <div className="text-xs text-[#a89984]">
-              +3 days added to your streak
+              {completedChallenge.challenge.name} Master
             </div>
           </div>
         </motion.div>
+
+        {streakBonus > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.3 }}
+            className="flex items-center gap-3 p-3 bg-[#282828] rounded-lg border border-[#3c3836]"
+          >
+            <div className="h-8 w-8 rounded-full bg-[#8ec07c] flex items-center justify-center">
+              <Star className="h-4 w-4 text-[#1d2021]" />
+            </div>
+            <div>
+              <div className="text-[#ebdbb2]">Current Streak</div>
+              <div className="text-xs text-[#a89984]">
+                {streakBonus} day{streakBonus !== 1 ? "s" : ""} streak maintained
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
     </motion.div>
   );

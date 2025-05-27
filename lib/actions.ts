@@ -608,7 +608,5 @@ export const initializeDayTasks = async (challengeId: string) => {
 };
 
 export const logout = async () => {
-  console.log("Logging out...");
-  localStorage.clear();
   await signOut({ redirectTo: "/" });
 };

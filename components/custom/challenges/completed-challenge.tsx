@@ -5,13 +5,11 @@ import { AnimatePresence } from "framer-motion";
 import ChallengeCompletionFlow from "./challenge-completion-flow";
 import {
   Challenge,
-  CompletedTask,
-  DailyTask,
   Dimension,
   Task,
   UserChallenge,
-  User,
   DimensionValue,
+  DailyTask,
 } from "@prisma/client";
 
 interface DimensionValueWithDimension extends DimensionValue {
@@ -19,16 +17,19 @@ interface DimensionValueWithDimension extends DimensionValue {
 }
 
 interface CompletedChallengeProps {
-  challenge: Challenge;
+  challenge: UserChallenge & {
+    challenge: Challenge &
+      {
+        tasks: {
+          task: Task & {
+            dimension: Dimension;
+          };
+        };
+      }[];
+  };
   dimensions: Dimension[];
   predefinedChallenges: Challenge[];
-  tasks: (DailyTask & {
-    task: Task & {
-      dimension: Dimension;
-    };
-    completions: CompletedTask[];
-    user: User & { currentChallenge: UserChallenge };
-  })[];
+  dailyTasks: DailyTask[];
   dimensionValues: DimensionValueWithDimension[];
 }
 
@@ -36,8 +37,8 @@ const CompletedChallenge = ({
   challenge,
   dimensions,
   predefinedChallenges,
-  tasks,
-  dimensionValues
+  dimensionValues,
+  dailyTasks,
 }: CompletedChallengeProps) => {
   const [showChallengeCompletionFlow, setShowChallengeCompletionFlow] =
     useState(false);
@@ -96,11 +97,11 @@ const CompletedChallenge = ({
         {showChallengeCompletionFlow && (
           <ChallengeCompletionFlow
             completedChallenge={challenge}
+            dailyTasks={dailyTasks}
             onComplete={handleChallengeCompletionFlowFinished}
             dimensions={dimensions}
             dimensionValues={dimensionValues}
             predefinedChallenges={predefinedChallenges}
-            tasks={tasks}
           />
         )}
       </AnimatePresence>{" "}

@@ -130,7 +130,9 @@ export default function ChallengeOnboarding({
     setIsLoading(true);
 
     onComplete();
-    setIsLoading(false);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
   };
 
   const renderStepContent = () => {

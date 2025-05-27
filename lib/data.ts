@@ -73,7 +73,19 @@ export const fetchUserChallenge = async () => {
       currentChallenge: true,
       challenges: {
         include: {
-          challenge: true,
+          challenge: {
+            include: {
+              tasks: {
+                include: {
+                  task: {
+                    include: {
+                      dimension: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
     },

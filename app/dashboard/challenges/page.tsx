@@ -55,6 +55,7 @@ const ChallengesPage = async () => {
         dimensionValues={dimensionValues}
         hasCompletedChallenge={hasCompletedChallenge}
         predefinedChallenges={challenges}
+        dailyTasks={dailyTasks}
       />
     </div>
   );

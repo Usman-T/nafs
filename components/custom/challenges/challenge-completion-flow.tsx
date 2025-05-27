@@ -8,13 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { ChevronRight, ChevronLeft, Plus, Award, Trash } from "lucide-react";
 import {
   Challenge,
-  CompletedTask,
-  DailyTask,
   Dimension,
   Task,
   UserChallenge,
-  User,
   DimensionValue,
+  DailyTask,
+  CompletedTask,
+  User,
 } from "@prisma/client";
 import RadarChart from "./completion/challenge/radar-chart";
 import DimensionProgressCard from "./completion/challenge/dimensions-progress";
@@ -28,27 +28,36 @@ interface DimensionValueWithDimension extends DimensionValue {
   dimension: Dimension;
 }
 
+interface TaskWithDimension extends Task {
+  dimension: Dimension;
+}
+
+interface DailyTaskWithDetails extends DailyTask {
+  task: TaskWithDimension;
+  completions: CompletedTask[];
+  user: User & {
+    currentChallenge: UserChallenge | null;
+    currentStreak?: number;
+  };
+}
+
 interface ChallengeCompletionFlowProps {
-  completedChallenge: Challenge;
+  completedChallenge: UserChallenge & {
+    challenge: Challenge;
+  };
+  dailyTasks: DailyTaskWithDetails[];
   onComplete: () => void;
   predefinedChallenges: Challenge[];
   dimensions: Dimension[];
-  tasks: (DailyTask & {
-    task: Task & {
-      dimension: Dimension;
-    };
-    completions: CompletedTask[];
-    user: User & { currentChallenge: UserChallenge };
-  })[];
   dimensionValues: DimensionValueWithDimension[];
 }
 
 export default function ChallengeCompletionFlow({
   completedChallenge,
+  dailyTasks,
   onComplete,
   predefinedChallenges,
   dimensions,
-  tasks,
   dimensionValues,
 }: ChallengeCompletionFlowProps) {
   const [step, setStep] = useState(0);
@@ -86,6 +95,8 @@ export default function ChallengeCompletionFlow({
   );
   const [showAllDimensions, setShowAllDimensions] = useState(false);
 
+  console.log({ completedChallenge, dailyTasks });
+
   const calculateDimensionProgress = () => {
     const previousValues: Record<string, number> = {
       salah: 35,
@@ -107,12 +118,12 @@ export default function ChallengeCompletionFlow({
       };
     });
 
-    tasks.forEach(({ task }) => {
-      const dimensionId = task.dimension.id.toLowerCase();
+    dailyTasks.forEach((dailyTask) => {
+      const dimensionId = dailyTask.task.dimension.id.toLowerCase();
       if (dimensionImpacts[dimensionId]) {
         const impact = Math.floor(Math.random() * 10) + 5;
         dimensionImpacts[dimensionId].value += impact;
-        dimensionImpacts[dimensionId].tasks.push(task.name);
+        dimensionImpacts[dimensionId].tasks.push(dailyTask.task.name);
       }
     });
 
@@ -153,7 +164,10 @@ export default function ChallengeCompletionFlow({
 
   useEffect(() => {
     const loadChallenge = async () => {
+      if (!selectedChallengeId) return;
+
       try {
+        setChallengeLoading(true);
         const response = await fetch(`/api/challenges/${selectedChallengeId}`);
         const data = await response.json();
         setSelectedChallenge(data.challenge);
@@ -253,8 +267,8 @@ export default function ChallengeCompletionFlow({
         return (
           <ChallengeWelcome
             completedChallenge={completedChallenge}
-            tasks={tasks}
-            conffetiRef={confettiRef}
+            dailyTasks={dailyTasks}
+            confettiRef={confettiRef}
           />
         );
 
@@ -410,40 +424,23 @@ export default function ChallengeCompletionFlow({
 
                 <div className="space-y-3">
                   <h3 className="text-[#ebdbb2] font-medium">
-                    Challenge Tasks
+                    Challenge Overview
                   </h3>
-                  <div className="space-y-2">
-                    {selectedChallenge.tasks.map((task, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: i * 0.1 }}
-                        className="flex items-center justify-between p-4 rounded-md bg-[#1d2021] border border-[#3c3836]"
-                      >
-                        <div className="flex items-center">
-                          <div
-                            className="h-8 w-8 rounded-full flex items-center justify-center mr-3"
-                            style={{ backgroundColor: task.color }}
-                          >
-                            <task.icon className="h-4 w-4 text-[#1d2021]" />
-                          </div>
-                          <div>
-                            <span className="text-[#ebdbb2]">{task.name}</span>
-                            <div className="text-xs text-[#a89984] mt-1">
-                              Impacts: {task.dimension}
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
+                  <div className="p-4 rounded-md bg-[#1d2021] border border-[#3c3836]">
+                    <p className="text-[#a89984] text-sm">
+                      This challenge will help you grow spiritually through
+                      daily tasks that will be assigned to you. Complete them
+                      consistently to see progress across all spiritual
+                      dimensions.
+                    </p>
                   </div>
                 </div>
 
                 <div className="text-sm text-[#a89984]">
                   <p>
-                    Complete these tasks daily to progress in your spiritual
-                    journey. You can always modify your challenge later.
+                    You&apos;ll receive daily tasks to complete during this
+                    challenge. Stay consistent to maximize your spiritual
+                    growth.
                   </p>
                 </div>
               </>
@@ -459,13 +456,11 @@ export default function ChallengeCompletionFlow({
             exit={{ opacity: 0, y: -20 }}
             className="space-y-6"
           >
-            {selectedChallengeId && (
-              <>
-                <ChallengeSummary
-                  selectedTasks={selectedTasks}
-                  challenge={selectedChallenge}
-                />
-              </>
+            {selectedChallenge && (
+              <ChallengeSummary
+                selectedTasks={selectedTasks}
+                challenge={selectedChallenge}
+              />
             )}
           </motion.div>
         );
@@ -647,14 +642,8 @@ export default function ChallengeCompletionFlow({
 
   const isNextDisabled = () => {
     switch (step) {
-      case 1:
-        return selectedChallengeId === null && step !== 3;
       case 2:
-        return selectedTasks.length < 3;
-      case 4:
-        return !(
-          customChallenge.tasks.length >= 3 && customChallenge.tasks.length <= 5
-        );
+        return selectedChallengeId === null;
       case 5:
         return customChallenge.tasks.length === 0;
       default:
@@ -682,7 +671,7 @@ export default function ChallengeCompletionFlow({
           </div>
           <div className="text-[#a89984] text-sm">
             Step {step + 1} of{" "}
-            {step <= 1 ? 3 : selectedChallenge || step > 4 ? 8 : 5}
+            {step <= 1 ? 3 : selectedChallenge || step > 4 ? 7 : 5}
           </div>
         </div>
 
