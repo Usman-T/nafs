@@ -9,7 +9,7 @@ import { ChevronRight, ChevronLeft, Plus, Award, Trash } from "lucide-react";
 import {
   Challenge,
   Dimension,
-  Task,
+  Task as TaskType,
   UserChallenge,
   DimensionValue,
   DailyTask,
@@ -18,17 +18,18 @@ import {
 } from "@prisma/client";
 import RadarChart from "./completion/challenge/radar-chart";
 import DimensionProgressCard from "./completion/challenge/dimensions-progress";
-import CustomTaskForm from "./completion/challenge/custom-task-form";
+import CustomTaskForm from "../onboarding/onboarding-task-form";
 import ChallengeCard from "./completion/challenge/challenge-card";
 import ChallengeWelcome from "./completion/challenge/challenge-welcome";
-import ChallengeSummary from "./completion/challenge/challenge-summary";
+import ChallengeSummary from "../onboarding/onboarding-challenge-summary";
 import { iconMap } from "@/lib/iconMap";
+import Task from "../onboarding/onboarding-task";
 
 interface DimensionValueWithDimension extends DimensionValue {
   dimension: Dimension;
 }
 
-interface TaskWithDimension extends Task {
+interface TaskWithDimension extends TaskType {
   dimension: Dimension;
 }
 
@@ -95,8 +96,6 @@ export default function ChallengeCompletionFlow({
   );
   const [showAllDimensions, setShowAllDimensions] = useState(false);
 
-  console.log({ completedChallenge, dailyTasks });
-
   const calculateDimensionProgress = () => {
     const previousValues: Record<string, number> = {
       salah: 35,
@@ -162,6 +161,14 @@ export default function ChallengeCompletionFlow({
 
   const mostImprovedDimensions = getMostImprovedDimensions();
 
+  const toggleTaskSelection = (taskIndex: number) => {
+    setSelectedTasks((prev) =>
+      prev.includes(taskIndex)
+        ? prev.filter((index) => index !== taskIndex)
+        : [...prev, taskIndex]
+    );
+  };
+
   useEffect(() => {
     const loadChallenge = async () => {
       if (!selectedChallengeId) return;
@@ -177,6 +184,7 @@ export default function ChallengeCompletionFlow({
         setChallengeLoading(false);
       }
     };
+
     loadChallenge();
   }, [selectedChallengeId]);
 
@@ -252,7 +260,6 @@ export default function ChallengeCompletionFlow({
     }
   };
 
-  // Handle back step
   const handleBack = () => {
     if (step === 5) {
       setStep(2);
@@ -405,7 +412,7 @@ export default function ChallengeCompletionFlow({
             exit={{ opacity: 0, y: -20 }}
             className="space-y-6"
           >
-            {selectedChallenge && (
+            {selectedChallenge && !challengeLoading ? (
               <>
                 <div className="text-center">
                   <h2 className="text-xl font-bold text-[#ebdbb2]">
@@ -417,33 +424,68 @@ export default function ChallengeCompletionFlow({
                 </div>
 
                 <div className="flex justify-center gap-3 flex-wrap">
-                  <Badge className="bg-[#3c3836] text-[#ebdbb2]">
+                  <Badge className="bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945] transition-colors">
                     {selectedChallenge.duration} days
                   </Badge>
                 </div>
 
                 <div className="space-y-3">
                   <h3 className="text-[#ebdbb2] font-medium">
-                    Challenge Overview
+                    Challenge Tasks
                   </h3>
-                  <div className="p-4 rounded-md bg-[#1d2021] border border-[#3c3836]">
-                    <p className="text-[#a89984] text-sm">
-                      This challenge will help you grow spiritually through
-                      daily tasks that will be assigned to you. Complete them
-                      consistently to see progress across all spiritual
-                      dimensions.
-                    </p>
+                  <div className="space-y-2">
+                    {selectedChallenge.tasks.map(({ task }, i) => (
+                      <Task
+                        key={i}
+                        task={task}
+                        isSelected={selectedTasks.includes(i)}
+                        onClick={() => toggleTaskSelection(i)}
+                        selectedTasks={selectedTasks}
+                        setSelectedTasks={setSelectedTasks}
+                      />
+                    ))}
                   </div>
                 </div>
 
-                <div className="text-sm text-[#a89984]">
+                <div className="text-sm text-[#a89984] text-center">
                   <p>
-                    You&apos;ll receive daily tasks to complete during this
-                    challenge. Stay consistent to maximize your spiritual
-                    growth.
+                    Select at least 3 tasks and complete them daily to progress
+                    in your spiritual journey.
                   </p>
                 </div>
               </>
+            ) : (
+              <div className="space-y-6 animate-pulse">
+                {/* Title Skeleton */}
+                <div className="text-center space-y-2">
+                  <div className="h-7 w-3/4 bg-[#3c3836] rounded mx-auto"></div>
+                  <div className="h-4 w-5/6 bg-[#3c3836] rounded mx-auto"></div>
+                </div>
+
+                {/* Badge Skeleton */}
+                <div className="flex justify-center">
+                  <div className="h-8 w-24 bg-[#3c3836] rounded-full"></div>
+                </div>
+
+                {/* Tasks Skeleton */}
+                <div className="space-y-3">
+                  <div className="h-5 w-1/3 bg-[#3c3836] rounded"></div>
+                  <div className="space-y-2">
+                    {[...Array(3)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="h-14 bg-[#3c3836] rounded-lg"
+                      ></div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Description Skeleton */}
+                <div className="space-y-2">
+                  <div className="h-3 w-full bg-[#3c3836] rounded"></div>
+                  <div className="h-3 w-5/6 bg-[#3c3836] rounded"></div>
+                </div>
+              </div>
             )}
           </motion.div>
         );

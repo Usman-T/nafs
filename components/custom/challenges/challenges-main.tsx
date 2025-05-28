@@ -25,7 +25,7 @@ import TaskCompletionFlow from "./day-completion-flow";
 import { useLocalStorage } from "@/lib/hooks/use-local-storage";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { updateUserStreak } from "@/lib/actions";
+import { completeDayAndUpdateStreak } from "@/lib/actions";
 import { differenceInDays, isSameDay } from "date-fns";
 import LoadingSkeleton from "./challenges-skeleton";
 import ChallengeTask from "./challenge-tasks";
@@ -69,7 +69,7 @@ const Challenges = ({
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showCompletionFlow, setShowCompletionFlow] = useState(false);
-  useState(false);
+  const [isCompletingDay, setIsCompletingDay] = useState(false);
   const [dayCompleted, setDayCompleted] = useLocalStorage<{
     date: string;
     completed: boolean;
@@ -80,6 +80,7 @@ const Challenges = ({
     task.completions.some((c) => isSameDay(new Date(c.completedAt), today))
   );
   const currentStreak = tasks[0]?.user.currentStreak || 0;
+  console.log(currentStreak);
 
   const isTodayCompleted = () => {
     if (!dayCompleted?.date) return false;
@@ -88,18 +89,43 @@ const Challenges = ({
   };
 
   const handleCompletionFlowFinished = async () => {
-    setShowCompletionFlow(false);
-    setDayCompleted({
-      date: new Date().toDateString(),
-      completed: true,
-    });
-    localStorage.removeItem("nafs-hide-mobile-nav");
-    await updateUserStreak();
-    router.refresh();
+    setIsCompletingDay(true);
+
+    try {
+      // Complete the day and update streak on server
+      const result = await completeDayAndUpdateStreak();
+
+      if (result.success) {
+        setShowCompletionFlow(false);
+        setDayCompleted({
+          date: new Date().toDateString(),
+          completed: true,
+        });
+        localStorage.removeItem("nafs-hide-mobile-nav");
+
+        // Refresh the page to get updated data
+        router.refresh();
+      } else {
+        console.error("Failed to complete day:", result.message);
+        // Still close the flow but don't mark as completed
+        setShowCompletionFlow(false);
+        localStorage.removeItem("nafs-hide-mobile-nav");
+      }
+    } catch (error) {
+      console.error("Error completing day:", error);
+      setShowCompletionFlow(false);
+      localStorage.removeItem("nafs-hide-mobile-nav");
+    } finally {
+      setIsCompletingDay(false);
+    }
   };
 
   const handleShowCompletionFlow = () => {
-    if (completedTasks.length > 0 && !isTodayCompleted()) {
+    if (
+      completedTasks.length === tasks.length &&
+      completedTasks.length > 0 &&
+      !isTodayCompleted()
+    ) {
       setShowCompletionFlow(true);
       localStorage.setItem("nafs-hide-mobile-nav", "true");
       window.dispatchEvent(new Event("storage"));
@@ -112,6 +138,10 @@ const Challenges = ({
     return () => clearTimeout(timer);
   }, []);
 
+  // Check if all tasks are completed
+  const allTasksCompleted =
+    completedTasks.length === tasks.length && tasks.length > 0;
+
   if (!isMounted || isLoading) {
     return <LoadingSkeleton />;
   }
@@ -122,6 +152,19 @@ const Challenges = ({
     challenge.challenge.duration
   );
 
+  if (hasCompletedChallenge) {
+    return (
+      <CompletedChallenge
+        predefinedChallenges={predefinedChallenges}
+        dimensions={dimensions}
+        challenge={challenge}
+        tasks={tasks}
+        dailyTasks={dailyTasks}
+        dimensionValues={dimensionValues}
+      />
+    );
+  }
+
   return (
     <>
       <motion.div
@@ -129,17 +172,6 @@ const Challenges = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        {hasCompletedChallenge ||
-          (true && (
-            <CompletedChallenge
-              predefinedChallenges={predefinedChallenges}
-              dimensions={dimensions}
-              challenge={challenge}
-              tasks={tasks}
-              dailyTasks={dailyTasks}
-              dimensionValues={dimensionValues}
-            />
-          ))}
         <Card className="bg-[#282828] border-[#3c3836] overflow-hidden">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center">
@@ -211,7 +243,8 @@ const Challenges = ({
         </Card>
       </motion.div>
 
-      {completedTasks.length === tasks.length && !isTodayCompleted() && (
+      {/* Show Complete Day button only when all tasks are done and day not completed */}
+      {allTasksCompleted && !isTodayCompleted() && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -222,13 +255,15 @@ const Challenges = ({
             className="bg-gradient-to-r from-[#fe8019] to-[#d65d0e] font-semibold text-[#1d2021] hover:from-[#fe8019]/90 hover:to-[#d65d0e]/90 px-8 shadow-lg hover:shadow-[#fe8019]/20"
             onClick={handleShowCompletionFlow}
             size="lg"
+            disabled={isCompletingDay}
           >
             <Sparkles className="mr-2 h-5 w-5" />
-            Complete Day
+            {isCompletingDay ? "Completing..." : "Complete Day"}
           </Button>
         </motion.div>
       )}
 
+      {/* Show Day Complete button when day is completed */}
       {isTodayCompleted() && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -237,10 +272,11 @@ const Challenges = ({
           className="flex justify-center mt-6"
         >
           <Button
-            className="bg-gradient-to-r from-[#fe8019] to-[#d65d0e] font-semibold text-[#1d2021] hover:from-[#fe8019]/90 hover:to-[#d65d0e]/90 px-8 shadow-lg hover:shadow-[#fe8019]/20"
+            className="bg-gradient-to-r from-[#98971a] to-[#79740e] font-semibold text-[#1d2021] px-8 shadow-lg cursor-default"
             size="lg"
+            disabled
           >
-            <Sparkles className="mr-2 h-5 w-5" />
+            <Check className="mr-2 h-5 w-5" />
             Day Complete!
           </Button>
         </motion.div>

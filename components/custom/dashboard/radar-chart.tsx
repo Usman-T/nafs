@@ -168,7 +168,7 @@ const InteractiveRadarChart = ({
               {Math.round((selectedDimensionData?.value ?? 0) * 100)}
             </div>
             <div className="text-xs text-[#a89984] max-w-[220px]">
-              {selectedDimensionData?.dimension.description.split('-')[0]}
+              {selectedDimensionData?.dimension.description.split("-")[0]}
             </div>
             <Button variant="link" size="sm" className="text-[#fe8019]" asChild>
               <Link href="/dashboard/progress">

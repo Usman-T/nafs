@@ -89,8 +89,11 @@ const StreakProgression = ({
     };
   }, []);
 
-  const streakProgress =
-    (((currentStreak - 1) * challengeDuration) / challengeDuration) * 100;
+const streakProgress = Math.min(
+  (newStreak / challengeDuration) * 100,
+  100
+)
+  console.log({ currentStreak, newStreak, streakProgress, challengeDuration });
 
   return (
     <motion.div
@@ -99,7 +102,7 @@ const StreakProgression = ({
       exit={{ opacity: 0, scale: 0.9 }}
       className="bg-[#1d2021] rounded-lg p-5 border border-[#3c3836] relative overflow-hidden"
     >
-      {Array.from({ length: 12 }).map((_, i) => (
+      {Array.from({ length: 32 }).map((_, i) => (
         <Particle key={i} color="#fe8019" speed={1.5} />
       ))}
 

@@ -148,7 +148,7 @@ const Celebration = ({
             <span className="text-[#a89984]">Streak</span>
             <div className="flex items-center gap-1">
               <Flame className="h-4 w-4 text-[#fe8019]" />
-              <span className="text-[#ebdbb2]">{currentStreak} days</span>
+              <span className="text-[#ebdbb2]">{currentStreak + 1} days</span>
             </div>
           </div>
         </div>

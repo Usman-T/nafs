@@ -97,6 +97,7 @@ const CompletedChallenge = ({
         {showChallengeCompletionFlow && (
           <ChallengeCompletionFlow
             completedChallenge={challenge}
+
             dailyTasks={dailyTasks}
             onComplete={handleChallengeCompletionFlowFinished}
             dimensions={dimensions}

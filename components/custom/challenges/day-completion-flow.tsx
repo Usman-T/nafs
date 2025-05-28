@@ -67,11 +67,11 @@ const TaskCompletionFlow = ({
     oldValue: number;
     newValue: number;
   } | null>(null);
-  const [newStreak, setNewStreak] = useState(currentStreak + 1);
   const [selectedDimension, setSelectedDimension] = useState<string | null>(
     null
   );
   const [isAnimating, setIsAnimating] = useState(false);
+  const [calculatedNewStreak, setCalculatedNewStreak] = useState(currentStreak);
 
   const today = new Date();
   const completedTasks = tasks.filter((task) =>
@@ -80,13 +80,21 @@ const TaskCompletionFlow = ({
 
   const calculateXpEarned = () => {
     const baseXp = completedTasks.length * 50;
-    const streakBonus = Math.floor(currentStreak / 7) * 50;
+    const streakBonus = Math.floor(calculatedNewStreak / 7) * 50;
     return baseXp + streakBonus;
   };
 
   const calculateImpactMultiplier = () => {
-    return 1 + Math.floor(currentStreak / 7) * 0.5;
+    return 1 + Math.floor(calculatedNewStreak / 7) * 0.5;
   };
+
+  // Calculate new streak on component mount
+  useEffect(() => {
+    // Simple streak calculation logic for display
+    // The actual streak will be calculated on the server
+    const newStreak = currentStreak + 1;
+    setCalculatedNewStreak(newStreak);
+  }, [currentStreak]);
 
   useEffect(() => {
     if (
@@ -103,16 +111,16 @@ const TaskCompletionFlow = ({
 
       if (dimensionIndex !== -1) {
         const oldValue = updatedDimensions[dimensionIndex].value;
-        const impactValue =
-          (updatedDimensions.find((d) => d.id === task.task.dimension.id)
-            ?.value || 0) * calculateImpactMultiplier();
+        const baseImpact = 0.1; // Base impact per task
+        const impactMultiplier = calculateImpactMultiplier();
+        const impactValue = baseImpact * impactMultiplier;
 
-        const newValue = Math.min(1, oldValue + impactValue);
+        const newValue = Math.min(100, oldValue + impactValue);
 
         setIsAnimating(true);
         setAnimatingDimension({
           name: task.task.dimension.name,
-          oldValue: newValue - 0.01,
+          oldValue: oldValue,
           newValue,
         });
 
@@ -138,7 +146,7 @@ const TaskCompletionFlow = ({
     isAnimating,
     updatedDimensions,
     completedTasks,
-    dimensionValues,
+    calculatedNewStreak,
   ]);
 
   const handleNextTask = useCallback(() => {
@@ -149,14 +157,15 @@ const TaskCompletionFlow = ({
     }
   }, [currentTaskIndex, completedTasks.length]);
 
-  const handleDimensionClick = useCallback((dimension: string) => { setSelectedDimension(dimension);
+  const handleDimensionClick = useCallback((dimension: string) => {
+    setSelectedDimension(dimension);
   }, []);
 
   const handleContinue = useCallback(() => {
     if (flowStep === "welcome") setFlowStep("dimensions");
     else if (flowStep === "streak") setFlowStep("celebration");
-    else if (flowStep === "celebration") onComplete(newStreak);
-  }, [flowStep, newStreak, onComplete]);
+    else if (flowStep === "celebration") onComplete(calculatedNewStreak);
+  }, [flowStep, calculatedNewStreak, onComplete]);
 
   return (
     <motion.div
@@ -374,7 +383,7 @@ const TaskCompletionFlow = ({
               >
                 <StreakProgression
                   currentStreak={currentStreak}
-                  newStreak={newStreak}
+                  newStreak={calculatedNewStreak}
                   onComplete={handleContinue}
                   challengeDuration={challengeDuration}
                   impactMultiplier={calculateImpactMultiplier()}
@@ -386,8 +395,8 @@ const TaskCompletionFlow = ({
               <Celebration
                 onComplete={handleContinue}
                 currentLevel={userLevel}
-                levelUp={newStreak % 7 === 0}
-                currentStreak={newStreak}
+                levelUp={calculatedNewStreak % challengeDuration === 0}
+                currentStreak={calculatedNewStreak}
                 completedTasks={completedTasks.length}
                 totalTasks={tasks.length}
                 xpEarned={calculateXpEarned()}
