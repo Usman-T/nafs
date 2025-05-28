@@ -92,7 +92,6 @@ const Challenges = ({
     setIsCompletingDay(true);
 
     try {
-      // Complete the day and update streak on server
       const result = await completeDayAndUpdateStreak();
 
       if (result.success) {
@@ -103,11 +102,9 @@ const Challenges = ({
         });
         localStorage.removeItem("nafs-hide-mobile-nav");
 
-        // Refresh the page to get updated data
         router.refresh();
       } else {
         console.error("Failed to complete day:", result.message);
-        // Still close the flow but don't mark as completed
         setShowCompletionFlow(false);
         localStorage.removeItem("nafs-hide-mobile-nav");
       }

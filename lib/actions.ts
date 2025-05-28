@@ -422,18 +422,16 @@ export const updateUserStreak = async () => {
     const today = startOfDay(new Date());
     const yesterday = startOfDay(subDays(today, 1));
 
-    // If already updated today, return current streak
     if (user.lastActiveDate && isSameDay(user.lastActiveDate, today)) {
       return user.currentStreak;
     }
 
-    // Check if all tasks were completed today
     const todayTasks = await prisma.dailyTask.findMany({
       where: {
         userId,
         date: {
           gte: today,
-          lt: new Date(today.getTime() + 24 * 60 * 60 * 1000), // Next day
+          lt: new Date(today.getTime() + 24 * 60 * 60 * 1000), 
         },
       },
       include: {
@@ -566,14 +564,12 @@ export const checkUserStreak = async () => {
   }
 };
 
-// New function to handle day completion and streak update
 export const completeDayAndUpdateStreak = async () => {
   try {
     const userId = await requireAuth();
     
     const today = startOfDay(new Date());
     
-    // Get today's tasks
     const todayTasks = await prisma.dailyTask.findMany({
       where: {
         userId,
@@ -594,7 +590,6 @@ export const completeDayAndUpdateStreak = async () => {
       },
     });
 
-    // Check if all tasks are completed
     const allTasksCompleted = todayTasks.length > 0 && 
       todayTasks.every(task => task.completions.length > 0);
 
@@ -721,4 +716,5 @@ export const initializeDayTasks = async (challengeId: string) => {
 
 export const logout = async () => {
   await signOut({ redirectTo: "/" });
+  localStorage.clear()
 };
