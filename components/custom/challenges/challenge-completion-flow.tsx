@@ -33,6 +33,7 @@ import { iconMap } from "@/lib/iconMap";
 import Task from "../onboarding/onboarding-task";
 import { useRouter } from "next/navigation";
 import {
+  completeChallenge,
   createCustomChallenge,
   enrollInExistingChallenge
 } from "@/lib/actions";
@@ -257,6 +258,7 @@ export default function ChallengeCompletionFlow({
   const handleChallengeCompletion = async () => {
     try {
       setIsLoading(true);
+      await completeChallenge(completedChallenge.id);
 
       if (selectedChallengeId) {
         const result = await enrollInExistingChallenge(
