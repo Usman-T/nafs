@@ -161,7 +161,8 @@ export const login = async (prevState: loginState, formData: FormData) => {
 
 export const enrollInExistingChallenge = async (
   challengeId: string,
-  selectedTasks: number[]
+  selectedTasks: number[],
+  nextDay: boolean | undefined | null
 ) => {
   try {
     const userId = await requireAuth();
@@ -181,15 +182,22 @@ export const enrollInExistingChallenge = async (
       .filter((_, index) => selectedTasks.includes(index))
       .map((task) => task.taskId);
 
+    // Adjust startDate based on nextDay flag
+    const startDate = new Date();
+    if (nextDay) {
+      startDate.setDate(startDate.getDate() + 1);
+    }
+
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + challenge.duration);
+
     await prisma.$transaction([
       prisma.userChallenge.create({
         data: {
           userId,
           challengeId,
-          startDate: new Date(),
-          endDate: new Date(
-            new Date().setDate(new Date().getDate() + challenge.duration)
-          ),
+          startDate,
+          endDate,
           progress: 0,
         },
       }),
@@ -199,8 +207,9 @@ export const enrollInExistingChallenge = async (
       }),
     ]);
 
+    // Generate daily tasks starting from the adjusted startDate
     const dailyTasks = Array.from({ length: challenge.duration }, (_, day) => ({
-      date: new Date(new Date().setDate(new Date().getDate() + day)),
+      date: new Date(new Date(startDate).setDate(startDate.getDate() + day)),
       taskIds: selectedTaskIds,
     })).flatMap(({ date, taskIds }) =>
       taskIds.map((taskId) => ({
@@ -230,6 +239,7 @@ export const createCustomChallenge = async (challengeData: {
   description: string;
   duration: number;
   tasks: Array<{ name: string; dimensionId: string }>;
+  nextDay: boolean | undefined | null;
 }) => {
   try {
     const userId = await requireAuth();
@@ -263,7 +273,10 @@ export const createCustomChallenge = async (challengeData: {
         })),
       });
 
-      const startDate = new Date();
+    const startDate = new Date();
+    if (challengeData.nextDay) {
+      startDate.setDate(startDate.getDate() + 1);
+    }
       const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + challengeData.duration);
 
@@ -406,14 +419,14 @@ export const completeTask = async (taskId: string) => {
 export const updateUserStreak = async () => {
   try {
     const userId = await requireAuth();
-    
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { 
-        lastActiveDate: true, 
-        currentStreak: true, 
+      select: {
+        lastActiveDate: true,
+        currentStreak: true,
         longestStreak: true,
-        challengeId: true 
+        challengeId: true,
       },
     });
 
@@ -431,7 +444,7 @@ export const updateUserStreak = async () => {
         userId,
         date: {
           gte: today,
-          lt: new Date(today.getTime() + 24 * 60 * 60 * 1000), 
+          lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
         },
       },
       include: {
@@ -446,9 +459,10 @@ export const updateUserStreak = async () => {
       },
     });
 
-    console.log(todayTasks)
-    const allTasksCompleted = todayTasks.length > 0 && 
-      todayTasks.every(task => task.completions.length > 0);
+    console.log(todayTasks);
+    const allTasksCompleted =
+      todayTasks.length > 0 &&
+      todayTasks.every((task) => task.completions.length > 0);
 
     if (!allTasksCompleted) {
       return user.currentStreak;
@@ -510,7 +524,11 @@ export const checkUserStreak = async () => {
     }
 
     // Check if user missed yesterday (streak should be broken)
-    if (user.lastActiveDate && !isSameDay(user.lastActiveDate, yesterday) && !isSameDay(user.lastActiveDate, today)) {
+    if (
+      user.lastActiveDate &&
+      !isSameDay(user.lastActiveDate, yesterday) &&
+      !isSameDay(user.lastActiveDate, today)
+    ) {
       // More than 1 day gap, reset streak
       await prisma.user.update({
         where: { id: userId },
@@ -545,8 +563,10 @@ export const checkUserStreak = async () => {
 
     // If there were tasks yesterday and they weren't all completed, reset streak
     if (yesterdayTasks.length > 0) {
-      const allCompleted = yesterdayTasks.every(task => task.completions.length > 0);
-      
+      const allCompleted = yesterdayTasks.every(
+        (task) => task.completions.length > 0
+      );
+
       if (!allCompleted && user.currentStreak > 0) {
         await prisma.user.update({
           where: { id: userId },
@@ -565,9 +585,9 @@ export const checkUserStreak = async () => {
 export const completeDayAndUpdateStreak = async () => {
   try {
     const userId = await requireAuth();
-    
+
     const today = startOfDay(new Date());
-    
+
     const todayTasks = await prisma.dailyTask.findMany({
       where: {
         userId,
@@ -588,16 +608,16 @@ export const completeDayAndUpdateStreak = async () => {
       },
     });
 
-    const allTasksCompleted = todayTasks.length > 0 && 
-      todayTasks.every(task => task.completions.length > 0);
+    const allTasksCompleted =
+      todayTasks.length > 0 &&
+      todayTasks.every((task) => task.completions.length > 0);
 
     if (!allTasksCompleted) {
       return { success: false, message: "Not all tasks completed" };
     }
 
-    // Update streak
     const newStreak = await updateUserStreak();
-    
+
     return { success: true, newStreak };
   } catch (error) {
     console.error("Error completing day:", error);
@@ -714,5 +734,5 @@ export const initializeDayTasks = async (challengeId: string) => {
 
 export const logout = async () => {
   await signOut({ redirectTo: "/" });
-  localStorage.clear()
+  localStorage.clear();
 };

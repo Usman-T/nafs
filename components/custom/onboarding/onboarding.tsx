@@ -124,6 +124,8 @@ export default function ChallengeOnboarding({
       tasks: [...customChallenge.tasks, { ...task, dimension: task.dimension }],
     });
     setShowTaskForm(false);
+    setSelectedChallengeId(null);
+    setSelectedChallenge(null);
   };
 
   const handleStartChallenge = () => {

@@ -5,7 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight, ChevronLeft, Plus, Award, Loader2, Trash } from "lucide-react";
+import {
+  ChevronRight,
+  ChevronLeft,
+  Plus,
+  Award,
+  Loader2,
+  Trash,
+} from "lucide-react";
 import {
   Challenge,
   Dimension,
@@ -27,7 +34,7 @@ import Task from "../onboarding/onboarding-task";
 import { useRouter } from "next/navigation";
 import {
   createCustomChallenge,
-  enrollInExistingChallenge,
+  enrollInExistingChallenge
 } from "@/lib/actions";
 
 interface DimensionValueWithDimension extends DimensionValue {
@@ -68,7 +75,9 @@ export default function ChallengeCompletionFlow({
 }: ChallengeCompletionFlowProps) {
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(null);
+  const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(
+    null
+  );
   const [customChallenge, setCustomChallenge] = useState({
     title: "Custom Challenge",
     description: "Your personalized 3 day challenge",
@@ -82,7 +91,9 @@ export default function ChallengeCompletionFlow({
   const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [challengeLoading, setChallengeLoading] = useState(false);
-  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
+  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(
+    null
+  );
 
   // Calculate dimension progress logic (unchanged)
   const calculateDimensionProgress = () => {
@@ -182,7 +193,8 @@ export default function ChallengeCompletionFlow({
     }
   }, [step]);
 
-  const { previousValues, currentValues, dimensionImpacts } = calculateDimensionProgress();
+  const { previousValues, currentValues, dimensionImpacts } =
+    calculateDimensionProgress();
 
   // Load selected challenge data
   useEffect(() => {
@@ -246,13 +258,13 @@ export default function ChallengeCompletionFlow({
     try {
       setIsLoading(true);
 
-      console.log("king")
       if (selectedChallengeId) {
         const result = await enrollInExistingChallenge(
           selectedChallengeId,
-          selectedTasks
+          selectedTasks,
+          true
         );
-        console.log(result)
+        console.log(result);
         if (!result.success) throw new Error(result.message);
       } else if (customChallenge.tasks.length > 0) {
         const creationResult = await createCustomChallenge({
@@ -263,15 +275,15 @@ export default function ChallengeCompletionFlow({
             name: t.name,
             dimensionId: t.dimension.id,
           })),
+          nextDay: true,
         });
-        console.log(creationResult)
+        console.log(creationResult);
 
         if (!creationResult.success) {
           throw new Error(creationResult.message);
         }
       }
 
-      // Redirect to dashboard after successful enrollment
       router.push("/dashboard");
       onComplete();
     } catch (error) {
@@ -287,6 +299,8 @@ export default function ChallengeCompletionFlow({
       tasks: [...customChallenge.tasks, { ...task, dimension: task.dimension }],
     });
     setShowTaskForm(false);
+    setSelectedChallengeId(null)
+    setSelectedChallenge(null)
   };
 
   const toggleTaskSelection = (taskIndex: number) => {
@@ -477,7 +491,10 @@ export default function ChallengeCompletionFlow({
                   <div className="h-5 w-1/3 bg-[#3c3836] rounded"></div>
                   <div className="space-y-2">
                     {[...Array(3)].map((_, i) => (
-                      <div key={i} className="h-14 bg-[#3c3836] rounded-lg"></div>
+                      <div
+                        key={i}
+                        className="h-14 bg-[#3c3836] rounded-lg"
+                      ></div>
                     ))}
                   </div>
                 </div>
@@ -528,7 +545,8 @@ export default function ChallengeCompletionFlow({
               {customChallenge.tasks.length > 0 ? (
                 <div className="space-y-2">
                   {customChallenge.tasks.map((task, i) => {
-                    const IconComponent = iconMap[task.dimension.icon] || "BookOpen";
+                    const IconComponent =
+                      iconMap[task.dimension.icon] || "BookOpen";
                     return (
                       <div
                         key={i}
@@ -688,7 +706,9 @@ export default function ChallengeCompletionFlow({
       case 3:
         return selectedTasks.length < 3;
       case 5:
-        return !(customChallenge.tasks.length >= 3 && customChallenge.tasks.length <= 5);
+        return !(
+          customChallenge.tasks.length >= 3 && customChallenge.tasks.length <= 5
+        );
       default:
         return false;
     }
