@@ -112,25 +112,6 @@ const RadarChart = ({
       ctx.strokeStyle = "#fe8019";
       ctx.lineWidth = 2;
       ctx.stroke();
-
-      for (let i = 0; i < sides; i++) {
-        const angle = i * angleStep - Math.PI / 2;
-        const prevValue = previousValues[dimensions[i].id.toLowerCase()] || 0;
-        const currentValue = currentValues[dimensions[i].id.toLowerCase()] || 0;
-        const animatedValue =
-          prevValue + (currentValue - prevValue) * animationProgress;
-        const pointRadius = (radius * animatedValue) / 100;
-        const x = centerX + Math.cos(angle) * pointRadius;
-        const y = centerY + Math.sin(angle) * pointRadius;
-
-        ctx.beginPath();
-        ctx.arc(x, y, 4, 0, Math.PI * 2);
-        ctx.fillStyle = dimensions[i].color;
-        ctx.fill();
-        ctx.strokeStyle = "#1d2021";
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
     }
   }, [dimensions, previousValues, currentValues, animationProgress]);
 

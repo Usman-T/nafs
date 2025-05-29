@@ -80,7 +80,6 @@ const Challenges = ({
     task.completions.some((c) => isSameDay(new Date(c.completedAt), today))
   );
   const currentStreak = tasks[0]?.user.currentStreak || 0;
-  console.log(currentStreak);
 
   const isTodayCompleted = () => {
     if (!dayCompleted?.date) return false;
@@ -93,6 +92,7 @@ const Challenges = ({
 
     try {
       const result = await completeDayAndUpdateStreak();
+      console.log(result)
 
       if (result.success) {
         setShowCompletionFlow(false);
@@ -149,7 +149,7 @@ const Challenges = ({
     challenge.challenge.duration
   );
 
-  if (hasCompletedChallenge) {
+  if (hasCompletedChallenge || true) {
     return (
       <CompletedChallenge
         predefinedChallenges={predefinedChallenges}
@@ -240,7 +240,6 @@ const Challenges = ({
         </Card>
       </motion.div>
 
-      {/* Show Complete Day button only when all tasks are done and day not completed */}
       {allTasksCompleted && !isTodayCompleted() && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -260,7 +259,6 @@ const Challenges = ({
         </motion.div>
       )}
 
-      {/* Show Day Complete button when day is completed */}
       {isTodayCompleted() && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -269,7 +267,7 @@ const Challenges = ({
           className="flex justify-center mt-6"
         >
           <Button
-            className="bg-gradient-to-r from-[#98971a] to-[#79740e] font-semibold text-[#1d2021] px-8 shadow-lg cursor-default"
+            className="bg-gradient-to-r from-[#fe8019] to-[#d65d0e] font-semibold text-[#1d2021] hover:from-[#fe8019]/90 hover:to-[#d65d0e]/90 px-8 shadow-lg hover:shadow-[#fe8019]/20"
             size="lg"
             disabled
           >

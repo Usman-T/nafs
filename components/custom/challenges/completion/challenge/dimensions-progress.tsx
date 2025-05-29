@@ -28,10 +28,16 @@ const DimensionProgressCard = ({
     >
       <div className="p-4 border-b border-[#3c3836] flex items-center">
         <div
-          className="h-10 w-10 rounded-full flex items-center justify-center mr-3"
-          style={{ backgroundColor: dimension.color }}
+          className="h-10 w-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0 transition-all"
+          style={{
+            backgroundColor: `${dimension.color}15`,
+            border: `1.5px solid ${dimension.color}`,
+          }}
         >
-          <IconComponent className="h-5 w-5 text-[#1d2021]" />
+          <IconComponent
+            className="h-5 w-5 transition-transform group-hover:scale-110"
+            style={{ color: dimension.color }}
+          />
         </div>
         <div>
           <h3 className="text-[#ebdbb2] font-medium">{dimension.name}</h3>
@@ -80,7 +86,7 @@ const DimensionProgressCard = ({
           </motion.div>
         )}
         <div className="space-y-2">
-          {tasksContributed.map((task, i) => (
+          {[...new Set(tasksContributed)].map((task, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, x: -10 }}

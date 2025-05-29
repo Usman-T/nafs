@@ -94,69 +94,122 @@ export default function ChallengeCompletionFlow({
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(
     null
   );
-  const [showAllDimensions, setShowAllDimensions] = useState(false);
 
   const calculateDimensionProgress = () => {
-    const previousValues: Record<string, number> = {
-      salah: 35,
-      quran: 42,
-      charity: 28,
-      community: 20,
-      dhikr: 30,
-      knowledge: 25,
-      character: 38,
-    };
+    // Get current dimension values from the dimensionValues prop
+    const currentValues: Record<string, number> = {};
+    const previousValues: Record<string, number> = {};
 
-    const dimensionImpacts: Record<string, { value: number; tasks: string[] }> =
-      {};
+    // Initialize current values from dimensionValues prop
+    dimensionValues.forEach((dimensionValue) => {
+      const dimensionKey = dimensionValue.dimension.id;
+      currentValues[dimensionKey] = dimensionValue.value * 100;
+    });
 
+    // Also initialize for dimensions that might not have values yet
     dimensions.forEach((dim) => {
-      dimensionImpacts[dim.id] = {
-        value: previousValues[dim.id] || 0,
+      if (!(dim.id in currentValues)) {
+        currentValues[dim.id] = 0;
+      }
+    });
+
+    // Calculate the total impact from completed tasks during this challenge
+    const dimensionTaskImpacts: Record<
+      string,
+      { totalCompletions: number; tasks: string[] }
+    > = {};
+
+    // Initialize dimension impacts
+    dimensions.forEach((dim) => {
+      dimensionTaskImpacts[dim.id] = {
+        totalCompletions: 0,
         tasks: [],
       };
     });
 
+    // Count completions for each dimension based on the dailyTasks
     dailyTasks.forEach((dailyTask) => {
-      const dimensionId = dailyTask.task.dimension.id.toLowerCase();
-      if (dimensionImpacts[dimensionId]) {
-        const impact = Math.floor(Math.random() * 10) + 5;
-        dimensionImpacts[dimensionId].value += impact;
-        dimensionImpacts[dimensionId].tasks.push(dailyTask.task.name);
+      const dimensionId = dailyTask.task.dimensionId;
+      const completionsCount = dailyTask.completions.length;
+
+      if (dimensionTaskImpacts[dimensionId] && completionsCount > 0) {
+        dimensionTaskImpacts[dimensionId].totalCompletions += completionsCount;
+        // Only add task name once, even if completed multiple times
+        if (
+          !dimensionTaskImpacts[dimensionId].tasks.includes(dailyTask.task.name)
+        ) {
+          dimensionTaskImpacts[dimensionId].tasks.push(dailyTask.task.name);
+        }
       }
     });
 
-    Object.keys(dimensionImpacts).forEach((key) => {
-      dimensionImpacts[key].value = Math.min(dimensionImpacts[key].value, 100);
+    // Calculate previous values and dimension impacts
+    const dimensionImpacts: Record<string, { value: number; tasks: string[] }> =
+      {};
+
+    dimensions.forEach((dim) => {
+      const dimensionId = dim.id;
+      const currentValue = currentValues[dimensionId] || 0;
+      const taskImpactData = dimensionTaskImpacts[dimensionId];
+
+      // Calculate impact: each completion adds points based on the task's point value
+      // For now, we'll use a base impact per completion
+      const impactPerCompletion = 3; // Adjust this value as needed
+      const totalImpact = taskImpactData.totalCompletions * impactPerCompletion;
+
+      // Previous value should be current value minus the impact gained during this challenge
+      // But ensure it doesn't go below 0
+      previousValues[dimensionId] = Math.max(0, currentValue - totalImpact);
+
+      // Set up dimension impacts for display
+      dimensionImpacts[dimensionId] = {
+        value: currentValue,
+        tasks: taskImpactData.tasks,
+      };
     });
 
-    const currentValues: Record<string, number> = {};
-    Object.keys(dimensionImpacts).forEach((key) => {
-      currentValues[key] = dimensionImpacts[key].value;
-    });
+    const totalCompletions = Object.values(dimensionTaskImpacts).reduce(
+      (sum, impact) => sum + impact.totalCompletions,
+      0
+    );
+
+    if (totalCompletions === 0) {
+      dimensions.forEach((dim) => {
+        const dimensionId = dim.id;
+        const currentValue = currentValues[dimensionId] || 0;
+        previousValues[dimensionId] = Math.max(0, currentValue - 2);
+      });
+    }
 
     return { previousValues, currentValues, dimensionImpacts };
   };
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = 0;
+    }
+  }, [step]);
 
   const { previousValues, currentValues, dimensionImpacts } =
     calculateDimensionProgress();
 
   const getMostImprovedDimensions = () => {
-    return Object.entries(dimensionImpacts)
-      .map(([id, data]) => ({
-        id,
-        growth: data.value - (previousValues[id] || 0),
-        tasks: data.tasks,
+    const { previousValues, currentValues, dimensionImpacts } =
+      calculateDimensionProgress();
+
+    return dimensions
+      .map((dimension) => ({
+        dimension,
+        growth:
+          (currentValues[dimension.id] || 0) -
+          (previousValues[dimension.id] || 0),
+        tasks: dimensionImpacts[dimension.id]?.tasks || [],
       }))
+      .filter((item) => item.growth > 0) // Only show dimensions that actually improved
       .sort((a, b) => b.growth - a.growth)
-      .slice(0, 3)
-      .map((item) => ({
-        dimension: dimensions.find(
-          (d) => d.id.toLowerCase() === item.id.toLowerCase()
-        )!,
-        growth: item.growth,
-        tasks: item.tasks,
-      }));
+      .slice(0, 3);
   };
 
   const mostImprovedDimensions = getMostImprovedDimensions();
@@ -295,7 +348,6 @@ export default function ChallengeCompletionFlow({
                 See how your dimensions have grown during this challenge
               </p>
             </div>
-
             <div className="relative bg-[#1d2021] rounded-lg p-4 border border-[#3c3836]">
               <RadarChart
                 dimensions={dimensions}
@@ -303,52 +355,36 @@ export default function ChallengeCompletionFlow({
                 currentValues={currentValues}
               />
             </div>
-
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-[#ebdbb2] font-medium">
-                  Most Improved Dimensions
+                  Dimension Progressed
                 </h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-[#a89984] hover:text-[#fe8019] hover:bg-transparent"
-                  onClick={() => setShowAllDimensions(!showAllDimensions)}
-                >
-                  {showAllDimensions ? "Show Top 3" : "Show All"}
-                </Button>
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {(showAllDimensions
-                  ? dimensions.map((dim) => ({
-                      dimension: dim,
-                      previousValue: previousValues[dim.id.toLowerCase()] || 0,
-                      currentValue: currentValues[dim.id.toLowerCase()] || 0,
-                      tasksContributed:
-                        dimensionImpacts[dim.id.toLowerCase()]?.tasks || [],
-                    }))
-                  : mostImprovedDimensions.map(({ dimension, tasks }) => ({
-                      dimension,
-                      previousValue:
-                        previousValues[dimension.id.toLowerCase()] || 0,
-                      currentValue:
-                        currentValues[dimension.id.toLowerCase()] || 0,
-                      tasksContributed: tasks,
-                    }))
-                ).map((item, i) => (
-                  <DimensionProgressCard
-                    key={item.dimension.id}
-                    dimension={item.dimension}
-                    previousValue={item.previousValue}
-                    currentValue={item.currentValue}
-                    tasksContributed={item.tasksContributed}
-                    delay={i * 0.1}
-                  />
-                ))}
+                {dimensions
+                  .map((dim) => ({
+                    dimension: dim,
+                    previousValue: previousValues[dim.id.toLowerCase()] || 0,
+                    currentValue: currentValues[dim.id.toLowerCase()] || 0,
+                    tasksContributed:
+                      dimensionImpacts[dim.id.toLowerCase()]?.tasks || [],
+                  }))
+                  .filter((item) => item.tasksContributed.length > 0) // Only show dimensions with updates
+                  .map((item, i) => (
+                    <DimensionProgressCard
+                      key={item.dimension.id}
+                      dimension={item.dimension}
+                      previousValue={
+                        item.currentValue - item.tasksContributed.length * 1
+                      }
+                      currentValue={item.currentValue}
+                      tasksContributed={item.tasksContributed}
+                      delay={i * 0.1}
+                    />
+                  ))}
               </div>
             </div>
-
             <div className="text-center text-sm text-[#a89984]">
               <p>
                 Your spiritual journey continues. Choose a new challenge to keep
@@ -357,7 +393,6 @@ export default function ChallengeCompletionFlow({
             </div>
           </motion.div>
         );
-
       case 2: // Choose next challenge
         return (
           <motion.div
@@ -719,7 +754,9 @@ export default function ChallengeCompletionFlow({
 
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <AnimatePresence mode="wait">
-            <div key={step}>{renderStepContent()}</div>
+            <div key={step} ref={containerRef}>
+              {renderStepContent()}
+            </div>
           </AnimatePresence>
         </div>
 

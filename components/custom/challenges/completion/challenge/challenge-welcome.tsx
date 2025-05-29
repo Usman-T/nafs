@@ -1,4 +1,4 @@
-import { Award, Star, Trophy } from "lucide-react";
+import { ArrowUp01, Award, Sparkles, Star, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import React from "react";
 import {
@@ -21,7 +21,7 @@ interface TaskWithDimension extends Task {
 interface DailyTaskWithDetails extends DailyTask {
   task: TaskWithDimension;
   completions: CompletedTask[];
-  user: User & { 
+  user: User & {
     currentChallenge: UserChallenge | null;
     currentStreak?: number;
   };
@@ -43,7 +43,7 @@ const ChallengeWelcome = ({
   // Get unique tasks from daily tasks (since daily tasks can repeat across days)
   const uniqueTasks = dailyTasks.reduce((acc, dailyTask) => {
     const taskId = dailyTask.task.id;
-    if (!acc.find(task => task.id === taskId)) {
+    if (!acc.find((task) => task.id === taskId)) {
       acc.push(dailyTask.task);
     }
     return acc;
@@ -55,13 +55,17 @@ const ChallengeWelcome = ({
   ).length;
 
   // Calculate completion percentage
-  const completionPercentage = totalTasks > 0 ? Math.round((completedTasksCount / dailyTasks.length) * 100) : 0;
+  const completionPercentage =
+    totalTasks > 0
+      ? Math.round((completedTasksCount / dailyTasks.length) * 100)
+      : 0;
 
   const xpGained =
     completedTasksCount * 100 + (completionPercentage === 100 ? 500 : 0);
-  
+
   // Get streak from the first daily task's user (they should all be the same user)
   const streakBonus = dailyTasks[0]?.user?.currentStreak || 0;
+  const userLevel = dailyTasks[0]?.user?.level || 1;
 
   return (
     <motion.div
@@ -89,7 +93,7 @@ const ChallengeWelcome = ({
       </p>
 
       <div className="relative">
-        {Array.from({ length: 12 }).map((_, i) => (
+        {Array.from({ length: 20 }).map((_, i) => (
           <Particle key={i} color="#fe8019" speed={1.5} />
         ))}
 
@@ -120,7 +124,8 @@ const ChallengeWelcome = ({
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                <AnimatedCounter value={completedTasksCount} />/{dailyTasks.length}
+                <AnimatedCounter value={completedTasksCount} />/
+                {dailyTasks.length}
               </motion.span>
             </div>
 
@@ -161,7 +166,7 @@ const ChallengeWelcome = ({
           <div className="h-8 w-8 rounded-full bg-[#fe8019] flex items-center justify-center">
             <Trophy className="h-4 w-4 text-[#1d2021]" />
           </div>
-          <div>
+          <div className="flex flex-col items-start">
             <div className="text-[#ebdbb2]">Achievement Unlocked</div>
             <div className="text-xs text-[#a89984]">
               {completedChallenge.challenge.name} Master
@@ -169,6 +174,24 @@ const ChallengeWelcome = ({
           </div>
         </motion.div>
 
+        {userLevel && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.3 }}
+            className="flex items-center gap-3 p-3 bg-[#282828] rounded-lg border border-[#3c3836]"
+          >
+            <div className="h-8 w-8 rounded-full bg-[#00BFFF] flex items-center justify-center">
+              <Sparkles className="h-4 w-4 text-[#1d2021]" />
+            </div>
+            <div className="flex flex-col items-start">
+              <div className="text-[#ebdbb2]">Level Up</div>
+              <div className="text-xs text-[#a89984]">
+                You have reached Level {userLevel + 1}!
+              </div>
+            </div>
+          </motion.div>
+        )}
         {streakBonus > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -179,10 +202,11 @@ const ChallengeWelcome = ({
             <div className="h-8 w-8 rounded-full bg-[#8ec07c] flex items-center justify-center">
               <Star className="h-4 w-4 text-[#1d2021]" />
             </div>
-            <div>
+            <div className="flex flex-col items-start">
               <div className="text-[#ebdbb2]">Current Streak</div>
               <div className="text-xs text-[#a89984]">
-                {streakBonus} day{streakBonus !== 1 ? "s" : ""} streak maintained
+                {streakBonus} day{streakBonus !== 1 ? "s" : ""} streak
+                maintained
               </div>
             </div>
           </motion.div>

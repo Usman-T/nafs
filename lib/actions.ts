@@ -446,25 +446,23 @@ export const updateUserStreak = async () => {
       },
     });
 
+    console.log(todayTasks)
     const allTasksCompleted = todayTasks.length > 0 && 
       todayTasks.every(task => task.completions.length > 0);
 
     if (!allTasksCompleted) {
-      // Don't update streak if not all tasks are completed
       return user.currentStreak;
     }
 
     let newStreak = 1;
 
-    // Check if user was active yesterday to continue streak
+    // check if user was active yesterday to continue streak
     if (user.lastActiveDate) {
       if (isSameDay(user.lastActiveDate, yesterday)) {
         newStreak = user.currentStreak + 1;
       } else if (!isSameDay(user.lastActiveDate, today)) {
-        // Gap in activity, reset streak
         newStreak = 1;
       } else {
-        // Already updated today
         return user.currentStreak;
       }
     }
