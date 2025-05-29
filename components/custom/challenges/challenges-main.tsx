@@ -92,7 +92,7 @@ const Challenges = ({
 
     try {
       const result = await completeDayAndUpdateStreak();
-      console.log(result)
+      console.log(result);
 
       if (result.success) {
         setShowCompletionFlow(false);
@@ -135,7 +135,6 @@ const Challenges = ({
     return () => clearTimeout(timer);
   }, []);
 
-  // Check if all tasks are completed
   const allTasksCompleted =
     completedTasks.length === tasks.length && tasks.length > 0;
 
@@ -149,19 +148,6 @@ const Challenges = ({
     challenge.challenge.duration
   );
 
-  if (hasCompletedChallenge || true) {
-    return (
-      <CompletedChallenge
-        predefinedChallenges={predefinedChallenges}
-        dimensions={dimensions}
-        challenge={challenge}
-        tasks={tasks}
-        dailyTasks={dailyTasks}
-        dimensionValues={dimensionValues}
-      />
-    );
-  }
-
   return (
     <>
       <motion.div
@@ -169,6 +155,16 @@ const Challenges = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
+        {hasCompletedChallenge && (
+          <CompletedChallenge
+            predefinedChallenges={predefinedChallenges}
+            dimensions={dimensions}
+            challenge={challenge}
+            tasks={tasks}
+            dailyTasks={dailyTasks}
+            dimensionValues={dimensionValues}
+          />
+        )}
         <Card className="bg-[#282828] border-[#3c3836] overflow-hidden">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center">
@@ -186,7 +182,14 @@ const Challenges = ({
                   {Math.round(progress)}% complete
                 </span>
               </div>
-              <Progress value={progress} className="h-2 bg-[#1d2021]" />
+<div className="h-2 w-full bg-[#1d2021] rounded-full overflow-hidden">
+  <motion.div
+    initial={{ width: 0 }}
+    animate={{ width: `${progress}%` }}
+    transition={{ duration: 0.6, ease: "easeInOut" }}
+    className="h-full bg-[#fe8019] rounded-full"
+  />
+</div>
               <p className="text-sm text-[#a89984] mt-2">
                 {challenge.challenge.description}
               </p>
@@ -197,7 +200,7 @@ const Challenges = ({
                 <h3 className="text-[#ebdbb2] font-medium">
                   Today&apos;s Tasks
                 </h3>
-                {isTodayCompleted() && (
+                {isTodayCompleted() || hasCompletedChallenge && (
                   <Badge className="bg-[#fe8019]/90 flex items-center py-1 hover:bg-[#fe8019]/80 font-semibold text-[#ebdbb2]">
                     <Check className="h-4 w-4 mr-1" />
                     <p className="font-bold">Completed</p>
@@ -209,7 +212,7 @@ const Challenges = ({
                   <ChallengeTask
                     key={dailyTask.id}
                     dailyTask={dailyTask}
-                    dayCompleted={dayCompleted}
+                    dayCompleted={dayCompleted || hasCompletedChallenge}
                   />
                 ))}
               </AnimatePresence>
@@ -259,7 +262,7 @@ const Challenges = ({
         </motion.div>
       )}
 
-      {isTodayCompleted() && (
+      {isTodayCompleted() || hasCompletedChallenge && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

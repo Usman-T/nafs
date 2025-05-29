@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight, ChevronLeft, Plus, Award, Trash } from "lucide-react";
+import { ChevronRight, ChevronLeft, Plus, Award, Loader2, Trash } from "lucide-react";
 import {
   Challenge,
   Dimension,
@@ -24,6 +24,11 @@ import ChallengeWelcome from "./completion/challenge/challenge-welcome";
 import ChallengeSummary from "../onboarding/onboarding-challenge-summary";
 import { iconMap } from "@/lib/iconMap";
 import Task from "../onboarding/onboarding-task";
+import { useRouter } from "next/navigation";
+import {
+  createCustomChallenge,
+  enrollInExistingChallenge,
+} from "@/lib/actions";
 
 interface DimensionValueWithDimension extends DimensionValue {
   dimension: Dimension;
@@ -61,40 +66,25 @@ export default function ChallengeCompletionFlow({
   dimensions,
   dimensionValues,
 }: ChallengeCompletionFlowProps) {
+  const router = useRouter();
   const [step, setStep] = useState(0);
-  const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(
-    null
-  );
+  const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(null);
   const [customChallenge, setCustomChallenge] = useState({
     title: "Custom Challenge",
-    description: "Your personalized challenge",
+    description: "Your personalized 3 day challenge",
     duration: 3,
     tasks: [] as {
       name: string;
       dimension: Dimension;
     }[],
   });
-  const [updatedDimensions, setUpdatedDimensions] = useState(
-    dimensions.map((dimension) => {
-      const valueEntry = dimensionValues.find(
-        (dv) => dv.dimension.id === dimension.id
-      );
-      return {
-        ...dimension,
-        value: valueEntry ? valueEntry.value : 0,
-      };
-    })
-  );
-
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const confettiRef = useRef<HTMLDivElement>(null);
   const [challengeLoading, setChallengeLoading] = useState(false);
-  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(
-    null
-  );
+  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
 
+  // Calculate dimension progress logic (unchanged)
   const calculateDimensionProgress = () => {
     // Get current dimension values from the dimensionValues prop
     const currentValues: Record<string, number> = {};
@@ -192,36 +182,9 @@ export default function ChallengeCompletionFlow({
     }
   }, [step]);
 
-  const { previousValues, currentValues, dimensionImpacts } =
-    calculateDimensionProgress();
+  const { previousValues, currentValues, dimensionImpacts } = calculateDimensionProgress();
 
-  const getMostImprovedDimensions = () => {
-    const { previousValues, currentValues, dimensionImpacts } =
-      calculateDimensionProgress();
-
-    return dimensions
-      .map((dimension) => ({
-        dimension,
-        growth:
-          (currentValues[dimension.id] || 0) -
-          (previousValues[dimension.id] || 0),
-        tasks: dimensionImpacts[dimension.id]?.tasks || [],
-      }))
-      .filter((item) => item.growth > 0) // Only show dimensions that actually improved
-      .sort((a, b) => b.growth - a.growth)
-      .slice(0, 3);
-  };
-
-  const mostImprovedDimensions = getMostImprovedDimensions();
-
-  const toggleTaskSelection = (taskIndex: number) => {
-    setSelectedTasks((prev) =>
-      prev.includes(taskIndex)
-        ? prev.filter((index) => index !== taskIndex)
-        : [...prev, taskIndex]
-    );
-  };
-
+  // Load selected challenge data
   useEffect(() => {
     const loadChallenge = async () => {
       if (!selectedChallengeId) return;
@@ -241,17 +204,14 @@ export default function ChallengeCompletionFlow({
     loadChallenge();
   }, [selectedChallengeId]);
 
+  // Confetti effect for celebration step
   useEffect(() => {
-    if (confettiRef.current && step === 0) {
-      const rect = confettiRef.current.getBoundingClientRect();
-      const x = rect.left + rect.width / 2;
-      const y = rect.top + rect.height / 2;
-
+    if (step === 0) {
       // First burst
       confetti({
         particleCount: 150,
         spread: 80,
-        origin: { x: x / window.innerWidth, y: y / window.innerHeight },
+        origin: { x: 0.5, y: 0.5 },
         colors: [
           "#fe8019",
           "#fabd2f",
@@ -272,7 +232,7 @@ export default function ChallengeCompletionFlow({
         confetti({
           particleCount: 100,
           spread: 100,
-          origin: { x: x / window.innerWidth, y: y / window.innerHeight },
+          origin: { x: 0.5, y: 0.5 },
           colors: ["#fe8019", "#fabd2f"],
           gravity: 0.6,
           scalar: 1.5,
@@ -282,6 +242,45 @@ export default function ChallengeCompletionFlow({
     }
   }, [step]);
 
+  const handleChallengeCompletion = async () => {
+    try {
+      setIsLoading(true);
+
+      console.log("king")
+      if (selectedChallengeId) {
+        const result = await enrollInExistingChallenge(
+          selectedChallengeId,
+          selectedTasks
+        );
+        console.log(result)
+        if (!result.success) throw new Error(result.message);
+      } else if (customChallenge.tasks.length > 0) {
+        const creationResult = await createCustomChallenge({
+          title: customChallenge.title,
+          description: customChallenge.description,
+          duration: customChallenge.duration,
+          tasks: customChallenge.tasks.map((t) => ({
+            name: t.name,
+            dimensionId: t.dimension.id,
+          })),
+        });
+        console.log(creationResult)
+
+        if (!creationResult.success) {
+          throw new Error(creationResult.message);
+        }
+      }
+
+      // Redirect to dashboard after successful enrollment
+      router.push("/dashboard");
+      onComplete();
+    } catch (error) {
+      console.error("Challenge completion error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleAddTask = (task: { name: string; dimension: Dimension }) => {
     setCustomChallenge({
       ...customChallenge,
@@ -290,35 +289,12 @@ export default function ChallengeCompletionFlow({
     setShowTaskForm(false);
   };
 
-  const handleStartChallenge = () => {
-    setIsLoading(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
-      onComplete();
-    }, 1500);
-  };
-
-  const handleNext = () => {
-    if (step === 0) {
-      setStep(1);
-    } else if (step === 1) {
-      setStep(2);
-    } else if (step === 2 && !selectedChallenge) {
-      setStep(5);
-    } else if (step === 4 || step === 6) {
-      handleStartChallenge();
-    } else {
-      setStep(step + 1);
-    }
-  };
-
-  const handleBack = () => {
-    if (step === 5) {
-      setStep(2);
-    } else {
-      setStep(Math.max(0, step - 1));
-    }
+  const toggleTaskSelection = (taskIndex: number) => {
+    setSelectedTasks((prev) =>
+      prev.includes(taskIndex)
+        ? prev.filter((index) => index !== taskIndex)
+        : [...prev, taskIndex]
+    );
   };
 
   const renderStepContent = () => {
@@ -328,7 +304,7 @@ export default function ChallengeCompletionFlow({
           <ChallengeWelcome
             completedChallenge={completedChallenge}
             dailyTasks={dailyTasks}
-            confettiRef={confettiRef}
+            confettiRef={containerRef}
           />
         );
 
@@ -358,26 +334,23 @@ export default function ChallengeCompletionFlow({
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-[#ebdbb2] font-medium">
-                  Dimension Progressed
+                  Dimension Progress
                 </h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {dimensions
                   .map((dim) => ({
                     dimension: dim,
-                    previousValue: previousValues[dim.id.toLowerCase()] || 0,
-                    currentValue: currentValues[dim.id.toLowerCase()] || 0,
-                    tasksContributed:
-                      dimensionImpacts[dim.id.toLowerCase()]?.tasks || [],
+                    previousValue: previousValues[dim.id] || 0,
+                    currentValue: currentValues[dim.id] || 0,
+                    tasksContributed: dimensionImpacts[dim.id]?.tasks || [],
                   }))
-                  .filter((item) => item.tasksContributed.length > 0) // Only show dimensions with updates
+                  .filter((item) => item.tasksContributed.length > 0)
                   .map((item, i) => (
                     <DimensionProgressCard
                       key={item.dimension.id}
                       dimension={item.dimension}
-                      previousValue={
-                        item.currentValue - item.tasksContributed.length * 1
-                      }
+                      previousValue={item.previousValue}
                       currentValue={item.currentValue}
                       tasksContributed={item.tasksContributed}
                       delay={i * 0.1}
@@ -393,6 +366,7 @@ export default function ChallengeCompletionFlow({
             </div>
           </motion.div>
         );
+
       case 2: // Choose next challenge
         return (
           <motion.div
@@ -430,7 +404,7 @@ export default function ChallengeCompletionFlow({
               <Button
                 variant="outline"
                 className="border-[#3c3836] text-[#ebdbb2] hover:bg-[#3c3836] hover:text-[#fe8019]"
-                onClick={() => setStep(5)}
+                onClick={() => setStep(5)} // Jump to custom challenge step
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Custom Challenge
@@ -439,7 +413,7 @@ export default function ChallengeCompletionFlow({
           </motion.div>
         );
 
-      case 3: // Challenge details
+      case 3: // Challenge details (for predefined challenges)
         return (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -490,32 +464,23 @@ export default function ChallengeCompletionFlow({
                 </div>
               </>
             ) : (
+              // Loading skeleton (unchanged)
               <div className="space-y-6 animate-pulse">
-                {/* Title Skeleton */}
                 <div className="text-center space-y-2">
                   <div className="h-7 w-3/4 bg-[#3c3836] rounded mx-auto"></div>
                   <div className="h-4 w-5/6 bg-[#3c3836] rounded mx-auto"></div>
                 </div>
-
-                {/* Badge Skeleton */}
                 <div className="flex justify-center">
                   <div className="h-8 w-24 bg-[#3c3836] rounded-full"></div>
                 </div>
-
-                {/* Tasks Skeleton */}
                 <div className="space-y-3">
                   <div className="h-5 w-1/3 bg-[#3c3836] rounded"></div>
                   <div className="space-y-2">
                     {[...Array(3)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="h-14 bg-[#3c3836] rounded-lg"
-                      ></div>
+                      <div key={i} className="h-14 bg-[#3c3836] rounded-lg"></div>
                     ))}
                   </div>
                 </div>
-
-                {/* Description Skeleton */}
                 <div className="space-y-2">
                   <div className="h-3 w-full bg-[#3c3836] rounded"></div>
                   <div className="h-3 w-5/6 bg-[#3c3836] rounded"></div>
@@ -525,7 +490,7 @@ export default function ChallengeCompletionFlow({
           </motion.div>
         );
 
-      case 4: // Challenge summary
+      case 4: // Challenge summary (for predefined challenges)
         return (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -563,8 +528,7 @@ export default function ChallengeCompletionFlow({
               {customChallenge.tasks.length > 0 ? (
                 <div className="space-y-2">
                   {customChallenge.tasks.map((task, i) => {
-                    const IconComponent =
-                      iconMap[task.dimension.icon] || "BookOpen";
+                    const IconComponent = iconMap[task.dimension.icon] || "BookOpen";
                     return (
                       <div
                         key={i}
@@ -720,9 +684,11 @@ export default function ChallengeCompletionFlow({
   const isNextDisabled = () => {
     switch (step) {
       case 2:
-        return selectedChallengeId === null;
+        return !selectedChallengeId;
+      case 3:
+        return selectedTasks.length < 3;
       case 5:
-        return customChallenge.tasks.length === 0;
+        return !(customChallenge.tasks.length >= 3 && customChallenge.tasks.length <= 5);
       default:
         return false;
     }
@@ -730,6 +696,32 @@ export default function ChallengeCompletionFlow({
 
   const showFinishButton = () => {
     return (step === 4 && selectedChallenge) || step === 6;
+  };
+
+  const handleNext = () => {
+    if (step === 2 && !selectedChallengeId) {
+      setStep(5); // Jump to custom challenge
+    } else if (step === 4 || step === 6) {
+      handleChallengeCompletion();
+    } else {
+      setStep(step + 1);
+    }
+  };
+
+  const handleBack = () => {
+    if (step === 5) {
+      setStep(2); // Go back to challenge selection
+    } else {
+      setStep(Math.max(0, step - 1));
+    }
+  };
+
+  const getTotalSteps = () => {
+    if (selectedChallengeId) {
+      return 5; // 0: celebration, 1: progress, 2: choose, 3: details, 4: summary
+    } else {
+      return 7; // 0: celebration, 1: progress, 2: choose, 5: add tasks, 6: custom summary
+    }
   };
 
   return (
@@ -747,8 +739,7 @@ export default function ChallengeCompletionFlow({
             </span>
           </div>
           <div className="text-[#a89984] text-sm">
-            Step {step + 1} of{" "}
-            {step <= 1 ? 3 : selectedChallenge || step > 4 ? 7 : 5}
+            Step {step + 1} of {getTotalSteps()}
           </div>
         </div>
 
@@ -778,29 +769,7 @@ export default function ChallengeCompletionFlow({
           >
             {isLoading ? (
               <>
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{
-                    duration: 1,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "linear",
-                  }}
-                  className="mr-2 h-4 w-4"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                  </svg>
-                </motion.div>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Loading...
               </>
             ) : showFinishButton() ? (
