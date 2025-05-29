@@ -10,6 +10,7 @@ import {
   BarChart3,
   Settings,
   User,
+  BookOpen,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -87,10 +88,31 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const MobileNav = ({ hide }: { hide: boolean }) => {
     if (hide) return null;
+
     return (
       <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#2e2e2e] bg-[#1d2021] shadow-lg md:hidden">
         <div className="flex items-center justify-between px-2">
-          {navItems.slice(0, -1).map((item) => {
+          {navItems.slice(0, 2).map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={cn(
+                  "flex flex-1 flex-col items-center gap-1 p-2 text-xs",
+                  isActive
+                    ? "text-[#fe8019]"
+                    : "text-[#909090] hover:text-[#fe8019]"
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
+
+
+          {navItems.slice(2, 4).map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link

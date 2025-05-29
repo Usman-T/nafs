@@ -14,14 +14,14 @@ import { Bell, Moon, Sun, Globe, Lock, Shield, Clock, Languages, Users } from "l
 
 export default function SettingsPage() {
   const [isDarkMode, setIsDarkMode] = useState(true)
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true)
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false)
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [pushNotifications, setPushNotifications] = useState(true)
   const [reminderNotifications, setReminderNotifications] = useState(true)
   const [achievementNotifications, setAchievementNotifications] = useState(true)
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-8">
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="bg-[#1d2021] border border-[#3c3836] mb-4">
           <TabsTrigger value="general" className="data-[state=active]:bg-[#3c3836] data-[state=active]:text-[#ebdbb2]">
@@ -175,7 +175,7 @@ export default function SettingsPage() {
                   </div>
                   <Switch
                     checked={notificationsEnabled}
-                    onCheckedChange={setNotificationsEnabled}
+                    // onCheckedChange={setNotificationsEnabled}
                     className="data-[state=checked]:bg-[#fe8019]"
                   />
                 </div>
