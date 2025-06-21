@@ -1,160 +1,161 @@
-# NAFS
+# Nafs
 
-## Getting Started
+**Nafs** is a modern Islamic self-discipline and behavior design platform built for Muslim youth. It combines Islamic principles with structured habit-building, Qur'anic reflection, and challenge-based progression — delivered through a high-performance, mobile-first Progressive Web App (PWA) architecture.
 
-Written in Next js along with shadcn/ui with tailwindcss. Using Next js form actions for the server side function callings and client and server components for partial and dynamic rendering
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/2997b457-d9cb-4265-9f24-c399b06f9840" />
+</p>
 
-## Storage
+---
 
-Using Postgres SQL for the database along with Prisma.js for the type safety. Going to be using docker to create the postgres databases while connection is going to be handled by prisma and prisma only
+## Overview
 
-## Authentication
+Nafs is not just a habit tracker. It’s a spiritual framework modeled around the Islamic understanding of *Nafs* — the inner self — and engineered as a daily driver for self-correction (`tazkiyah`), consistency (`mujahada`), and intentionality (`niyyah`). Through task completion, challenge systems, streaks, and daily Qur’anic guidance, users can actively realign behavior to higher values.
 
-We'll be using next-auth along with Auth.js to setup the authentication. The steps are simple, first we step up prisma and connet to our database. Then we setup our user table with the data for it.
+---
 
-- Setup the Postgres Database with the credentials
-- Add it to the .env
-- Form the prisma schema and migration
-- Install next-auth and setup the auth.config.ts
-- Setup the server actions
-- Connect the actions with the form actions
+## Tech Stack
 
-## Authenticaton - UXs
+| Layer           | Toolset                                                                 |
+|----------------|-------------------------------------------------------------------------|
+| Frontend        | Next.js (App Router), Tailwind CSS, shadcn/ui                          |
+| Backend Logic   | Next.js Server Actions (no `/api`), Prisma ORM                         |
+| Database        | PostgreSQL via Prisma Accelerate                                       |
+| Authentication  | Next-Auth (JWT strategy), route protection via middleware              |
+| State & Caching | LocalStorage (task/day state), Redis (auth/session token caching)      |
+| Deployment      | Vercel                                                                  |
+| PWA/TWA Support | Bubblewrap (for TWA), Servist (custom service worker)                  |
+| CDN Audio       | Quran CDN integration with native `<audio>` fallback                    |
 
-Alright, now the form actions are correctly linked up witht he registration forms and stuff, i think we should now opt to making the Register and Login Pages more user friendly in the UX point of things, doing basic error handling like "unique" constraint errors and stuff
+---
 
-## Dashboard
+## Core Features
 
-The UI for the dashboard has been made and is completely static. We need dynanmic rendering now so we need to hit up the server for that
-Before making _async calls to the prisma API_ we need to have a proper client and server based setup for our components
-The way we do this is that there will be a top level **Server Component** and then lower level **Client Components** which handle interactivity and visual feedbacks like Animations and Gestures
+### Authentication
 
-To start with, extract all client side functionality based components into seperate granular components in the dashboard folder inside _components_ folder
-Then, make async calls to the Prisma ORM and pass the data through props
-Lastly, render and commit the changes to the frontend
+- Google OAuth + Email/Password login.
+- Stateless JWT session system via Next-Auth.
+- Middleware enforcement for route-level access.
 
-## Onboarding
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/4189fa7d-0896-4786-a4bf-e2293634a27e" width="240"/>
+  <img src="https://github.com/user-attachments/assets/1ae617fe-aba9-45a2-ae48-f9ffac57435c" width="240"/>
+</p>
 
-Onboarding component is a client component with roughly 1100 lines of code, it needs to be simplifed by modulizing it into simpler more granular components and then all of them can be merged together
-We will be using server actions for the creation and enrollment of challenges as they're far performant
-This is will be done in 5 commits:
+---
 
-- Modulize the component
-- Convert it into server component
-- What if we make it into a server comp, how would the steps communicate with each other?? How would step 3 and 4 know the selected challenge ID? It must be state so "use client" must be used
-- Make basic async calls to the ORM
-- Form actions of creating a challenge
-- Form actions for enrolling a challenge
+### Onboarding Flow
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/fe959822-2c2a-467e-b6a1-b7993eacd32b" width="220"/>
+  <img src="https://github.com/user-attachments/assets/f96aed50-1b17-4ebc-b0a3-bfc7957aa3d7" width="220"/>
+  <img src="https://github.com/user-attachments/assets/82f216f8-7516-44f2-aacd-b590c96d6d4d" width="220"/>
+  <img src="https://github.com/user-attachments/assets/545fdfa2-d6f5-4443-8f78-42595f462d54" width="220"/>
+  <img src="https://github.com/user-attachments/assets/7e80534d-d9af-4914-b35e-371e1ac860a8" width="220"/>
+  <img src="https://github.com/user-attachments/assets/e0944cbb-54c2-4832-b685-5fccc405adde" width="220"/>
+</p>
 
-## Dashboard
+---
 
-User registration and onboarding is now completetly functional. Now we display the data on the user's dashboard one card at a time.
+### Challenge & Task Engine
 
-- Use of suspense and displaying of fallback UI
-  There will be 4 commits on "dashboard-finalize" branch and then it will be merged. That is the NON-NEGOTIATABLE TASK for today.
+- Auto-enrollment into spiritual or behavioral challenges.
+- Dual-task system: required (1 pt) and optional (2 pts).
+- Completion gates: daily completion, challenge duration, and streak reset.
 
-## Complete Task
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/67bb02d9-6d3e-4e91-8bae-2d65e10b5292" width="220"/>
+  <img src="https://github.com/user-attachments/assets/541f575e-51c1-4fd4-a1a8-cd8e37aeef8b" width="220"/>
+  <img src="https://github.com/user-attachments/assets/8073fdb4-2801-4555-8cd2-a756a1e3e018" width="220"/>
+  <img src="https://github.com/user-attachments/assets/937363df-adf9-406a-a3e8-35e5364c05de" width="220"/>
+</p>
 
-To compelte a task, a user must hold down the button for a set amount of time. This will hit up the API most probably. This has been completed
+---
 
-## Progress Page
+### Streaks & Progression
 
-On the progress, page we have to map the Dimension Values.
+- Streak resolution logic based on time deltas and challenge state.
+- Radar chart reflects growth across spiritual dimensions (Iman, discipline, etc.).
+- Fallback and streak-breaking logic handled in `/challenges`.
 
-## Features to be Made:
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/30f8cb40-931a-41cb-9434-1b0dcf96e434" width="280"/>
+  <img src="https://github.com/user-attachments/assets/42e1a75e-c011-435e-b803-6ce7896516da" width="220"/>
+  <img src="https://github.com/user-attachments/assets/e365b3e7-ea96-495b-bcfe-e5855134eaa0" width="220"/>
+  <img src="https://github.com/user-attachments/assets/98bab9af-27f4-4d17-8314-4b706b2b7206" width="220"/>
+  <img src="https://github.com/user-attachments/assets/027ec47a-6690-4c5f-ac6b-8ddcbed7de66" width="220"/>
+</p>
 
-- Complete a day (flow is complete, action is to be instantiated)
-- Complet a Challegne (UI is built, the re-enrolment needs to be configured)
-- User flows for streak loss
-- Guidance Page
-  - See Ayah of the Day
-  - Tafsir and Tarjuma or ayahs
-  - Ayah and Theme Explorer
-  - Listen to ayahs
-  - Surah Reading page
-  - Tafsir Reading page
-  - Search Functionality
-- Payment Integration
-- Flows for non-premium users
+---
 
-We are massively overscoping . The app has NOT EVEN STARTED YET
-AHHHHHHHHHHHHHHHHHHHHH
+## Qur’an Guidance
 
-## Today's Tasks:
+- “Ayah of the Day” with dynamic tafsir and CDN-backed audio streaming.
+- Surah and ayah explorer with individual tafsir pages.
+- Save and reflect on specific verses via personal journal system.
 
-- The Day Completion button and Flow must be fully functional
-- The streak system must be implmeneted
-- The UI for the calendar page must be updated
-- The corresponding Dashboard element for the calendar must be fixed
-- The breaking of streaks must be implemented as well
-- UI for spiritual path page must be added as well
-- UI for the guidance page must be created too
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1f2eb0cc-51db-4a73-b692-0a39de3eea4c" />
+</p>
 
-## Completed Tasks:
+---
 
-- Day completion flow is now functional
-- Streak system has been implemented
-- Calendar page has been fixed
-- Its corresponding page on dashboard is also fixed
-- Streaks are now checked once a day when the user visits /challenges
-- 
+##  Development Setup
 
-## Complete Day for Streaks:
-You can only do complete day once in a day, and it will set a localStorage item witht he current date, the button and task completions will be disabled. A new confirmation screen will be shown before the user completes the day to ensure good work of it
+```bash
+git clone https://github.com/YOUR_USERNAME/nafs.git
+cd nafs
+docker-compose up --build
 
-## Complete a Challenge
-If current streak === challenge duration, nahhh
-If completions are all in consecutive *duration* days then we say "challenge completed enroll in new one"
+Create a `.env` file:
 
-Nice the UI is made, we just gotta fix up all the steps. We do that one step at a time
-Like dont just go ahead and fix every fucking error in there, wire up each and every step one by one
+```env
+DATABASE_URL=postgresql://postgres:12345678@postgres:5432/nafs?schema=public
+AUTH_SECRET=...
+KV_URL=...
+KV_REST_API_TOKEN=...
+QURAN_API_CLIENT_ID=...
+QURAN_API_CLIENT_SECRET=...
+```
 
-## TODOs:
-  ### feat: Guidance Page:
-    - Fetch random ayah from Quran API and display on home screen (done)
-    - Make daily ayah show up properly (done)
-    - Add tafsir section to it (done)
-    - Update database to create the following options for users:
- - Reflections
-       - Recent Surahs (3) + Progression
-       - Reading streak
-    - View all Chapter (surahs) page to read (done)
-    - View all Chapter (surahs) page to listen (done)
-    - Specific Surah page (read):
-      - Make Drawer trigger in the header (done)
-      - Show info regarding the surah in (i) icon 
-      - Fetch and map Verses on the page and (x) option
-      - Create an action to create reflection of specific ayah with reference to user
-      - Create action to save ayahId with reference to the user 
-    - Fetch all reflections of user and display on /refs
-    - Fetch all saved of user and display on /saved
-    - Create specific ayah page by fetching a single ayah
-    - IF REFLECTION ALREADY EXISTS, SHOW (SHOW REFLECTION) button instead of creating one
-    - Audio page pointed to by the /audio will now fetch the surah info and show it for now
-    - Hook up the Quran API CDN with it and use an <audio> tag
-    - Then add audio suport for specific ayah page
-    - Similarly use the CDN to make them work on the specific surah page
-    - Create the command pallete search function which points to surahs and ayahs
-    - Map the results of query properly
-  
-  ### fix: Bugs to be Fixed
-    - Mobile users can "pinch zoom" (fixed)
-    - Remove Header and Footer on search and guidance pages (fixed)
-    - Onboarding shows up everytime the user opens app then redirects (fixed)
-    - Better offline page support
+Run DB setup:
 
+```bash
+bun install
+bunx prisma generate
+bunx prisma migrate dev
+```
 
-## FIXES BEFORE SHIPPING
-- Make the onboarding flow full screened and fix all steps 
-  - Use a drawer for add tasks
-  - A carousel for the challenge selection
-  - Duration selection in  a mid step (based on user level)
-- Add *optional tasks of the day* (worth 2 points instead of 1) at the end of onboaridng
-  (not a modal)
-  - Database chars for optional task
-  - Show the optional task of the day modal at the start of each day
-  - Show optional task everyday
-- Better tracking of task days (always shows 1)
-- Better streak tracking (not updated in real time)
-- Streak breaking logic somehow at the start of new day (UI to be made)
-- Enroll in new challenge after completing one 
+Seed data (in browser):
+
+```
+/api/seed/dimensions
+/api/seed/challenges
+```
+
+## Architecture Notes
+
+* **Rendering Strategy**: Server Components for all SSR routes with granular Client Components nested for interactivity (animations, gestures).
+* **Form Actions**: All side-effects (e.g. challenge completion, reflections) go through `app/actions.ts` using Next 13+ actions pipeline.
+* **Fetching**: All data fetching logic is colocated in `data.ts` and parameterized by session.
+* **Security**: Middleware-based route guards, token signature validation, and session state enforcement.
+* **Offline Support**: Custom `offline.tsx`, Bubblewrap + Servist handles TWA/PWA logic.
+
+---
+
+## Roadmap
+
+* [x] Onboarding flow
+* [x] Challenge/task completion
+* [x] Streak system & day-lock
+* [x] Qur’an explorer + reflections
+* [ ] Audio player (ayah/surah level)
+* [ ] Offline caching / manifest polish
+* [ ] Google Play Billing integration
+* [ ] Launch blog + open feedback
+* [ ] Contributor guide and schema docs
+
+---
+
+## License
+
+MIT — Free to use, fork, and contribute.
