@@ -6,12 +6,10 @@ const Onboarding = async () => {
   const dimensions = await fetchDimensions();
 
   return (
-    <div className="flex h-screen justify-center items-center">
-      <ChallengeOnboarding
-        dimensions={dimensions}
-        predefinedChallenges={predefinedChallenges}
-      />
-    </div>
+    <ChallengeOnboarding
+      dimensions={dimensions}
+      predefinedChallenges={predefinedChallenges}
+    />
   );
 };
 

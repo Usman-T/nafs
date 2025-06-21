@@ -18,6 +18,7 @@ model User {
 
   level          Int       @default(1)
   currentStreak  Int       @default(0)
+  readingStreak Int       @default(0)
   longestStreak  Int       @default(0)
   lastActiveDate DateTime?
   challengeId    String?
@@ -30,6 +31,8 @@ model User {
   settings         UserSettings?
   reflections      Reflection[]
   currentChallenge Challenge?        @relation(fields: [challengeId], references: [id])
+  savedAyahs       SavedAyah[]
+  readings        Reading[]
 }
 
 model Dimension {
@@ -185,14 +188,42 @@ model UserSettings {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model Reflection {
-  id      String   @id @default(cuid())
-  userId  String
-  content String   @db.Text
-  mood    String?
-  date    DateTime @default(now())
+model SavedAyah {
+  id        String   @id @default(cuid())
+  userId    String
+  verseKey String
+  arabic    String 
+  createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId, date])
+  @@unique([userId, verseKey])
+  @@index([userId])
+}
+
+model Reflection {
+  id        String   @id @default(cuid())
+  userId    String
+  arabic   String   
+  reflectionText String 
+  favourite   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model Reading {
+  id String @id @default(cuid())
+  userId String
+  lastRead DateTime @default(now())
+  currentVerse Int
+  surahId Int
+
+  createdAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@unique([userId])
 }

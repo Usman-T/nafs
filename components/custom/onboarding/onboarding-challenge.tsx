@@ -34,7 +34,7 @@ const ChallengeCard = ({
     >
       <Card
         className={cn(
-          "bg-[#282828] border-2 transition-all duration-300 h-full cursor-pointer overflow-hidden",
+          "bg-[#282828] max-w-xs mx-auto border-2 transition-all duration-300 h-full cursor-pointer overflow-hidden",
           isSelected
             ? "border-[#fe8019]"
             : "border-[#3c3836] hover:border-[#504945]"
@@ -44,14 +44,15 @@ const ChallengeCard = ({
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center text-[#ebdbb2]">
             <Award className="h-5 w-5 text-[#fe8019] mr-2 flex-shrink-0" />
-            <p className="text-xl">{challenge.name}</p>
+            <div className="flex flex-col space-y-1">
+              <p className="text-xl">{challenge.name}</p>
+              <p className="text-xs sm:text-sm text-[#a89984]">
+                {challenge.description}
+              </p>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-xs sm:text-sm text-[#a89984]">
-            {challenge.description}
-          </p>
-
           <div className="flex gap-2 flex-wrap">
             <Badge className="bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945] text-xs">
               {challenge.duration} days

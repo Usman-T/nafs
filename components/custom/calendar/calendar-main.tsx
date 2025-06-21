@@ -205,7 +205,7 @@ const CalendarMain = ({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="mb-6">
+            <div className="">
               <h2 className="text-xl font-bold text-[#ebdbb2]">
                 {currentMonth.toLocaleDateString("en-US", {
                   month: "long",
@@ -214,7 +214,7 @@ const CalendarMain = ({
               </h2>
             </div>
 
-            <div className="grid grid-cols-7 gap-1 mb-2">
+            <div className="grid grid-cols-7 gap-1 ">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
                 <div
                   key={day}
@@ -313,7 +313,7 @@ const CalendarMain = ({
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.3, delay: i * 0.1 }}
-                        className="flex mb-2 items-center justify-between p-3 rounded-md bg-[#1d2021] border border-[#3c3836]"
+                        className="flex items-center justify-between p-3 rounded-md bg-[#1d2021] border border-[#3c3836]"
                       >
                         <div className="flex items-center">
                           <div

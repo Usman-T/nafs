@@ -23,7 +23,7 @@ export const authConfig = {
       options: {
         sameSite: "none",
         secure: true,
-        path: "/",
+        path: "/dashboard",
       },
     },
     csrfToken: {
@@ -43,7 +43,7 @@ export const authConfig = {
 
       if (protectedRoutes.some((path) => nextUrl.pathname.startsWith(path))) {
         if (isLoggedIn) return true;
-        return Response.redirect(new URL("/login", nextUrl));
+        return Response.redirect(new URL("/", nextUrl));
       }
 
       if (

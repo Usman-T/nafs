@@ -1,29 +1,65 @@
-import { Suspense } from "react";
-import DimensionsWrapper from "@/components/custom/dashboard/wrappers/dimensions-wrapper";
-import DimensionsSkeleton from "@/components/custom/dashboard/skeletons/dimensions-skeleton";
-import TasksWrapper from "@/components/custom/dashboard/wrappers/tasks-wrapper";
-import TasksSkeleton from "@/components/custom/dashboard/skeletons/tasks-skeleton";
-import CalendarWrapper from "@/components/custom/dashboard/wrappers/calendar-wrapper";
-import CalendarSkeleton from "@/components/custom/dashboard/skeletons/calendar-skeleton";
-import SpiritualPath from "@/components/custom/dashboard/path-dashboard";
+import Challenges from "@/components/custom/challenges/challenges-main";
+import { checkUserStreak, initializeDayTasks } from "@/lib/actions";
+import {
+  fetchDailyTasks,
+  fetchUserChallenge,
+  fetchUserDimensions,
+  fetchDimensions,
+  fetchChallengeCompletionStatus,
+  fetchChallenges,
+} from "@/lib/data";
+import { redirect } from "next/navigation";
 
-const DashboardPage = async () => {
+const ChallengesPage = async () => {
+  await checkUserStreak();
+
+  const [
+    currentChallenge,
+    dailyTasks,
+    dimensionValues,
+    dimensions,
+    hasCompletedChallenge,
+    challenges,
+  ] = await Promise.all([
+    fetchUserChallenge(),
+    fetchDailyTasks(),
+    fetchUserDimensions(),
+    fetchDimensions(),
+    fetchChallengeCompletionStatus(),
+    fetchChallenges(),
+  ]);
+
+  if (!currentChallenge) {
+    redirect("/onboarding");
+  }
+
+  const today = new Date();
+  let selectedDayTasks = dailyTasks?.filter(
+    (t) => t.date.toDateString() === today.toDateString()
+  );
+
+  if (!selectedDayTasks || selectedDayTasks.length === 0) {
+    await initializeDayTasks(currentChallenge.id);
+
+    const updatedDailyTasks = await fetchDailyTasks();
+    selectedDayTasks = updatedDailyTasks?.filter(
+      (t) => t.date.toDateString() === today.toDateString()
+    );
+  }
+
   return (
-    <div className="space-y-8 p-8">
-      <SpiritualPath currentLevel={1} currentStreak={3} />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Suspense fallback={<TasksSkeleton />}>
-          <TasksWrapper />
-        </Suspense>
-        <Suspense fallback={<DimensionsSkeleton />}>
-          <DimensionsWrapper />
-        </Suspense>
-      </div>
-      <Suspense fallback={<CalendarSkeleton />}>
-        <CalendarWrapper />
-      </Suspense>
+    <div className="space-y-8 p-6">
+      <Challenges
+        challenge={currentChallenge}
+        tasks={selectedDayTasks || []}
+        dimensions={dimensions}
+        dimensionValues={dimensionValues}
+        hasCompletedChallenge={hasCompletedChallenge}
+        predefinedChallenges={challenges}
+        dailyTasks={dailyTasks}
+      />
     </div>
   );
 };
 
-export default DashboardPage;
+export default ChallengesPage;

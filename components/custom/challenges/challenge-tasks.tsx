@@ -69,7 +69,7 @@ const ChallengeTask = ({ dailyTask, dayCompleted }: ChallengeTaskProps) => {
           isTodayCompleted()
             ? "#"
             : !isCompleted
-            ? `/dashboard/challenges/complete/${dailyTask.id}`
+            ? `/dashboard/complete/${dailyTask.id}`
             : "#"
         }
       >

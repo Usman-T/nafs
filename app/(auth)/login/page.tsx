@@ -5,13 +5,14 @@ import type React from "react";
 import Link from "next/link";
 import { useActionState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Moon, ArrowRight, Loader2 } from "lucide-react";
+import {  ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { login, loginState } from "@/lib/actions";
+import Logo from "@/components/custom/logo";
 
 const Login = () => {
   const initialState: loginState = { message: null, errors: {} };
@@ -28,7 +29,7 @@ const Login = () => {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2 mb-8">
-              <Moon className="h-6 w-6 text-[#fe8019]" />
+              <Logo className="h-6 w-6 text-[#fe8019]" />
               <span className="text-xl font-bold">Nafs</span>
             </Link>
             <motion.div

@@ -3,14 +3,12 @@
 import type React from "react";
 import Link from "next/link";
 import {
-  Moon,
-  LayoutDashboard,
-  Award,
   Calendar,
   BarChart3,
   Settings,
   User,
   BookOpen,
+  Home,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -25,10 +23,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import SignOutButton from "../(auth)/register/SignOutButton";
-import { useSession } from "next-auth/react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import Logo from "@/components/custom/logo";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -38,13 +35,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [hidden, setHidden] = useState(false);
   const pathname = usePathname();
 
-  const { data: session, status } = useSession();
-
   const navItems = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Challenges", href: "/dashboard/challenges", icon: Award },
+    { name: "Home", href: "/dashboard", icon: Home },
     { name: "Calendar", href: "/dashboard/calendar", icon: Calendar },
     { name: "Progress", href: "/dashboard/progress", icon: BarChart3 },
+    { name: "Guidance", href: "/dashboard/guidance", icon: BookOpen },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
   ];
 
@@ -111,7 +106,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             );
           })}
 
-
           {navItems.slice(2, 4).map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -171,7 +165,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="sticky top-0 z-10 hidden h-screen w-64 flex-col border-r border-[#2e2e2e] bg-[#1d2021] md:flex">
         <div className="flex h-16 items-center border-b border-[#2e2e2e] px-6">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <Moon className="h-6 w-6 text-[#fe8019]" />
+            <Logo className="h-6 w-6 text-[#fe8019]" />
             <span className="text-xl font-bold text-[#e0e0e0]">Nafs</span>
           </Link>
         </div>
@@ -186,34 +180,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         <div className="border-t border-[#2e2e2e] p-4">
           <div className="flex items-center justify-between">
-            {status === "loading" ? (
-              <div className="flex w-full items-center gap-3">
-                <Skeleton className="h-8 w-8 rounded-full bg-[#2e2e2e]" />
-                <div className="flex-1 space-y-1">
-                  <Skeleton className="h-4 w-3/4 bg-[#2e2e2e]" />
-                  <Skeleton className="h-3 w-full bg-[#2e2e2e]" />
-                </div>
+            <div className="flex items-center gap-3">
+              <Avatar className="h-8 w-8 border border-[#2e2e2e]">
+                <AvatarFallback className="bg-[#2e2e2e] text-[#e0e0e0]">
+                  U
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-sm font-medium text-[#e0e0e0] truncate max-w-[120px]">
+                  User
+                </p>
+                <p className="text-xs text-[#909090] truncate max-w-[120px]">
+                  No email
+                </p>
               </div>
-            ) : (
-              <div className="flex items-center gap-3">
-                <Avatar className="h-8 w-8 border border-[#2e2e2e]">
-                  {session?.user?.image ? (
-                    <AvatarImage src={session.user.image} alt="User avatar" />
-                  ) : null}
-                  <AvatarFallback className="bg-[#2e2e2e] text-[#e0e0e0]">
-                    {session?.user?.name?.charAt(0).toUpperCase() || "U"}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-sm font-medium text-[#e0e0e0] truncate max-w-[120px]">
-                    {session?.user?.name || "User"}
-                  </p>
-                  <p className="text-xs text-[#909090] truncate max-w-[120px]">
-                    {session?.user?.email || "No email"}
-                  </p>
-                </div>
-              </div>
-            )}
+            </div>
 
             <UserDropdown />
           </div>
@@ -222,25 +203,34 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     );
   };
 
+  const isSurahPage =
+    pathname.startsWith("/dashboard/guidance/surah") ||
+    pathname.startsWith("/dashboard/guidance/ayah/") ||
+    pathname.startsWith("/dashboard/guidance/audio/") ||
+    pathname.startsWith("/dashboard/guidance/reflections") 
+
   return (
-    <div className="md:flex bg-[#1d2021] min-h-screen">
-      <DesktopSidebar />
+    <div className="md:flex bg-[#1d2021] min-h-screen ">
+      {" "}
+      <DesktopSidebar />{" "}
       <div className="flex flex-col flex-1">
-        <header className="sticky top-0 z-10 flex h-16 items-center border-b border-[#2e2e2e] bg-[#1d2021]/80 px-6 backdrop-blur-md md:px-8 shadow-lg">
-          <div className="flex-1">
-            <h1 className="text-lg font-semibold text-[#e0e0e0]">
-              {navItems.find((item) => item.href === pathname)?.name ||
-                "Dashboard"}
-            </h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <UserDropdown />
-          </div>
-        </header>
+        {!isSurahPage && (
+          <header className="sticky top-0 z-10 flex h-16 items-center border-b border-[#2e2e2e] bg-[#1d2021]/80 px-6 backdrop-blur-md md:px-8 shadow-lg">
+            <div className="flex-1">
+              <h1 className="text-lg font-semibold text-[#e0e0e0]">
+                {navItems.find((item) => item.href === pathname)?.name ||
+                  "Dashboard"}
+              </h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <UserDropdown />
+            </div>
+          </header>
+        )}
         <main className="flex-1 bg-[#1d2021] pb-16 md:pb-0 overflow-auto">
           <div>{children}</div>
         </main>
-        <MobileNav hide={hidden} />
+        {!isSurahPage && <MobileNav hide={hidden} />}
       </div>
     </div>
   );

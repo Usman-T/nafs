@@ -78,7 +78,7 @@ const ChallengesComplete = ({
     try {
       const result = await completeTaskAction(task.id);
       if (!result.success) {
-        throw new Error(result.message);
+        router.push("/dashboard");
       }
 
       setCompleted(true);
@@ -90,7 +90,7 @@ const ChallengesComplete = ({
 
       setTimeout(() => {
         router.refresh();
-        router.push("/dashboard/challenges");
+        router.push("/dashboard");
       }, 1500);
     } catch (error) {
       console.log(error);
@@ -100,7 +100,7 @@ const ChallengesComplete = ({
 
   if (!isMounted || isLoading) {
     return (
-      <div className="flex p-8 items-center justify-center min-h-[80vh]">
+      <div className="flex p-8 items-center justify-center h-screen">
         <div className="w-full max-w-md">
           <Card className="bg-[#282828] border-[#3c3836] overflow-hidden">
             <CardHeader className="pb-3">
@@ -134,7 +134,7 @@ const ChallengesComplete = ({
   }
 
   return (
-    <div className="flex items-center justify-center min-h-[80vh] p-8">
+    <div className="flex items-center justify-center p-8">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -152,9 +152,7 @@ const ChallengesComplete = ({
             <div className="text-center">
               <div className="inline-block h-12 w-12 rounded-full mb-4">
                 {
-                  <div
-                    className="h-12 w-12 border-2 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
-                  >
+                  <div className="h-12 w-12 border-2 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                     <IconComponent
                       className="h-12 w-12 rounded-full"
                       style={{
