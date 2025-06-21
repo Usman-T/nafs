@@ -108,3 +108,53 @@ If completions are all in consecutive *duration* days then we say "challenge com
 
 Nice the UI is made, we just gotta fix up all the steps. We do that one step at a time
 Like dont just go ahead and fix every fucking error in there, wire up each and every step one by one
+
+## TODOs:
+  ### feat: Guidance Page:
+    - Fetch random ayah from Quran API and display on home screen (done)
+    - Make daily ayah show up properly (done)
+    - Add tafsir section to it (done)
+    - Update database to create the following options for users:
+ - Reflections
+       - Recent Surahs (3) + Progression
+       - Reading streak
+    - View all Chapter (surahs) page to read (done)
+    - View all Chapter (surahs) page to listen (done)
+    - Specific Surah page (read):
+      - Make Drawer trigger in the header (done)
+      - Show info regarding the surah in (i) icon 
+      - Fetch and map Verses on the page and (x) option
+      - Create an action to create reflection of specific ayah with reference to user
+      - Create action to save ayahId with reference to the user 
+    - Fetch all reflections of user and display on /refs
+    - Fetch all saved of user and display on /saved
+    - Create specific ayah page by fetching a single ayah
+    - IF REFLECTION ALREADY EXISTS, SHOW (SHOW REFLECTION) button instead of creating one
+    - Audio page pointed to by the /audio will now fetch the surah info and show it for now
+    - Hook up the Quran API CDN with it and use an <audio> tag
+    - Then add audio suport for specific ayah page
+    - Similarly use the CDN to make them work on the specific surah page
+    - Create the command pallete search function which points to surahs and ayahs
+    - Map the results of query properly
+  
+  ### fix: Bugs to be Fixed
+    - Mobile users can "pinch zoom" (fixed)
+    - Remove Header and Footer on search and guidance pages (fixed)
+    - Onboarding shows up everytime the user opens app then redirects (fixed)
+    - Better offline page support
+
+
+## FIXES BEFORE SHIPPING
+- Make the onboarding flow full screened and fix all steps 
+  - Use a drawer for add tasks
+  - A carousel for the challenge selection
+  - Duration selection in  a mid step (based on user level)
+- Add *optional tasks of the day* (worth 2 points instead of 1) at the end of onboaridng
+  (not a modal)
+  - Database chars for optional task
+  - Show the optional task of the day modal at the start of each day
+  - Show optional task everyday
+- Better tracking of task days (always shows 1)
+- Better streak tracking (not updated in real time)
+- Streak breaking logic somehow at the start of new day (UI to be made)
+- Enroll in new challenge after completing one 

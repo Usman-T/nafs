@@ -1,6 +1,34 @@
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
+html, body {
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  height: 100%;
+  overflow: hidden;
+}
+
+#__next {
+  height: 100vh;
+  overflow-y: auto;
+  overscroll-behavior: none;
+}
+
+/* Mobile Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  body {
+    position: fixed;
+    width: 100%;
+  }
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
+}
 @layer base {
   :root {
     /* Dark mode colors */
@@ -47,11 +75,19 @@
 
 @layer components {
   .card-gradient {
-    background: linear-gradient(145deg, rgba(36, 36, 36, 0.7), rgba(24, 24, 24, 0.7));
+    background: linear-gradient(
+      145deg,
+      rgba(36, 36, 36, 0.7),
+      rgba(24, 24, 24, 0.7)
+    );
   }
 
   .active-gradient {
-    background: linear-gradient(145deg, rgba(179, 83, 9, 0.9), rgba(179, 83, 9, 0.7));
+    background: linear-gradient(
+      145deg,
+      rgba(179, 83, 9, 0.9),
+      rgba(179, 83, 9, 0.7)
+    );
   }
 
   .glass-card {

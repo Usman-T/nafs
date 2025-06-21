@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">nafs</string>
+    <string name="title_activity_main">nafs</string>
+    <string name="package_name">com.mobile.nafs</string>
+    <string name="custom_url_scheme">com.mobile.nafs</string>
+</resources>
