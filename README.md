@@ -78,7 +78,6 @@ Nafs is not just a habit tracker. It’s a spiritual framework modeled around th
 - Fallback and streak-breaking logic handled in `/challenges`.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/30f8cb40-931a-41cb-9434-1b0dcf96e434" width="280"/>
   <img src="https://github.com/user-attachments/assets/42e1a75e-c011-435e-b803-6ce7896516da" width="220"/>
   <img src="https://github.com/user-attachments/assets/e365b3e7-ea96-495b-bcfe-e5855134eaa0" width="220"/>
   <img src="https://github.com/user-attachments/assets/98bab9af-27f4-4d17-8314-4b706b2b7206" width="220"/>
@@ -105,6 +104,7 @@ Nafs is not just a habit tracker. It’s a spiritual framework modeled around th
 git clone https://github.com/YOUR_USERNAME/nafs.git
 cd nafs
 docker-compose up --build
+```
 
 Create a `.env` file:
 
