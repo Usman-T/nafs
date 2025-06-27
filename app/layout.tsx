@@ -2,7 +2,6 @@ import type React from "react";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "react-hot-toast";
 import { SessionProvider } from "next-auth/react";
 import "../lib/setup-logger";
 import DisablePinchZoom from "@/components/ui/pinch-zoom";
@@ -76,7 +75,6 @@ export default function RootLayout({
         <div className="h-screen overflow-y-auto overscroll-none">
           <DisablePinchZoom />
           <SessionProvider>
-            <Toaster />
             {children}
           </SessionProvider>
         </div>

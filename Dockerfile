@@ -15,4 +15,6 @@ RUN echo "Waiting for database..." && \
         (echo "Attempt $i failed, retrying..." && sleep 5); \
     done
 
+RUN bunx prisma db seed
+
 CMD ["bun", "run", "dev"]

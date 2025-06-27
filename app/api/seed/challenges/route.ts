@@ -3,7 +3,6 @@ import prisma from "@/prisma";
 
 export const GET = async () => {
   try {
-    // Clear existing data
     await prisma.challengeTask.deleteMany();
     await prisma.task.deleteMany();
     await prisma.challenge.deleteMany();

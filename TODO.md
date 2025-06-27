@@ -158,3 +158,8 @@ Like dont just go ahead and fix every fucking error in there, wire up each and e
 - Better streak tracking (not updated in real time)
 - Streak breaking logic somehow at the start of new day (UI to be made)
 - Enroll in new challenge after completing one
+
+## Today
+- Remove Skeleton for challengfes and onl keep completed one (done)
+### Optional Tasks feature
+   - Have optional task field in user object

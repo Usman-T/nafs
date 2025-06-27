@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
@@ -18,10 +18,11 @@ model User {
 
   level          Int       @default(1)
   currentStreak  Int       @default(0)
-  readingStreak Int       @default(0)
+  readingStreak  Int       @default(0)
   longestStreak  Int       @default(0)
   lastActiveDate DateTime?
   challengeId    String?
+  extraTaskId    String?
 
   dimensionValues  DimensionValue[]
   dailyTasks       DailyTask[]
@@ -32,7 +33,8 @@ model User {
   reflections      Reflection[]
   currentChallenge Challenge?        @relation(fields: [challengeId], references: [id])
   savedAyahs       SavedAyah[]
-  readings        Reading[]
+  readings         Reading[]
+  extraTask        ExtraTask?
 }
 
 model Dimension {
@@ -44,12 +46,13 @@ model Dimension {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  values DimensionValue[]
-  tasks  Task[]
+  values     DimensionValue[]
+  tasks      Task[]
+  extraTasks ExtraTask[]
 }
 
 model DimensionValue {
-  id          String   @id @default(cuid())
+  id          String @id @default(cuid())
   userId      String
   dimensionId String
   value       Float
@@ -191,8 +194,8 @@ model UserSettings {
 model SavedAyah {
   id        String   @id @default(cuid())
   userId    String
-  verseKey String
-  arabic    String 
+  verseKey  String
+  arabic    String
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -202,13 +205,13 @@ model SavedAyah {
 }
 
 model Reflection {
-  id        String   @id @default(cuid())
-  userId    String
-  arabic   String   
-  reflectionText String 
-  favourite   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String   @id @default(cuid())
+  userId         String
+  arabic         String
+  reflectionText String
+  favourite      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -216,14 +219,32 @@ model Reflection {
 }
 
 model Reading {
-  id String @id @default(cuid())
-  userId String
-  lastRead DateTime @default(now())
+  id           String   @id @default(cuid())
+  userId       String
+  lastRead     DateTime @default(now())
   currentVerse Int
-  surahId Int
+  surahId      Int
 
   createdAt DateTime @default(now())
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
   @@index([userId])
+}
+
+model ExtraTask {
+  id        String   @id @default(cuid())
+  name      String
+  date      DateTime @default(now())
+  points    Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  dimensionId String
+  userId      String
+
+  dimension Dimension @relation(fields: [dimensionId], references: [id])
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId])
 }

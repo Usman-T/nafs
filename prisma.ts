@@ -1,16 +1,43 @@
-import { PrismaClient } from '@prisma/client';
-import { withAccelerate } from '@prisma/extension-accelerate';
+const isUsingAccelerate = process.env.DATABASE_URL?.startsWith('prisma://');
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: ReturnType<PrismaClient['$extends']> | undefined;
-};
+let prisma: any;
 
-function createClient() {
-  return new PrismaClient().$extends(withAccelerate());
+if (isUsingAccelerate) {
+  const { PrismaClient } = require("@prisma/client/edge");
+  const { withAccelerate } = require("@prisma/extension-accelerate");
+  
+  const prismaClientSingleton = () => {
+    return new PrismaClient().$extends(withAccelerate());
+  };
+  
+  declare const globalThis: {
+    prismaGlobal: ReturnType<typeof prismaClientSingleton>;
+  } & typeof global;
+  
+  prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
+  
+  if (process.env.NODE_ENV !== "production") {
+    globalThis.prismaGlobal = prisma;
+  }
+} else {
+  // Development: Use regular Prisma Client
+  const { PrismaClient } = require("@prisma/client");
+  
+  const prismaClientSingleton = () => {
+    return new PrismaClient({
+      log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+    });
+  };
+  
+  declare const globalThis: {
+    prismaGlobal: ReturnType<typeof prismaClientSingleton>;
+  } & typeof global;
+  
+  prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
+  
+  if (process.env.NODE_ENV !== "production") {
+    globalThis.prismaGlobal = prisma;
+  }
 }
 
-export const prisma = globalForPrisma.prisma ?? createClient();
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
-}
+export default prisma;

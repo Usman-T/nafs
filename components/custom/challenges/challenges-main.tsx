@@ -477,7 +477,7 @@ const Challenges = ({
                     >
                       <Link
                         href={
-                          canInteract
+                          canInteract && !isCompleted
                             ? `/dashboard/challenges/complete/${dailyTask.id}`
                             : "#"
                         }
