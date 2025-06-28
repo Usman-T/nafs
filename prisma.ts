@@ -1,4 +1,4 @@
-const isUsingAccelerate = process.env.DATABASE_URL?.startsWith('prisma://');
+const isUsingAccelerate = process.env.PRISMA_DATABASE_URL?.startsWith('prisma://');
 
 let prisma: any;
 
