@@ -8,9 +8,11 @@ CREATE TABLE "User" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "level" INTEGER NOT NULL DEFAULT 1,
     "currentStreak" INTEGER NOT NULL DEFAULT 0,
+    "readingStreak" INTEGER NOT NULL DEFAULT 0,
     "longestStreak" INTEGER NOT NULL DEFAULT 0,
     "lastActiveDate" TIMESTAMP(3),
     "challengeId" TEXT,
+    "extraTaskId" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -154,14 +156,53 @@ CREATE TABLE "UserSettings" (
 );
 
 -- CreateTable
+CREATE TABLE "SavedAyah" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "verseKey" TEXT NOT NULL,
+    "arabic" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "SavedAyah_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Reflection" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
-    "mood" TEXT,
-    "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "arabic" TEXT NOT NULL,
+    "reflectionText" TEXT NOT NULL,
+    "favourite" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Reflection_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Reading" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "lastRead" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "currentVerse" INTEGER NOT NULL,
+    "surahId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Reading_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ExtraTask" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "points" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "dimensionId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+
+    CONSTRAINT "ExtraTask_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -198,7 +239,22 @@ CREATE INDEX "UserChallenge_userId_startDate_idx" ON "UserChallenge"("userId", "
 CREATE UNIQUE INDEX "UserSettings_userId_key" ON "UserSettings"("userId");
 
 -- CreateIndex
-CREATE INDEX "Reflection_userId_date_idx" ON "Reflection"("userId", "date");
+CREATE INDEX "SavedAyah_userId_idx" ON "SavedAyah"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SavedAyah_userId_verseKey_key" ON "SavedAyah"("userId", "verseKey");
+
+-- CreateIndex
+CREATE INDEX "Reflection_userId_createdAt_idx" ON "Reflection"("userId", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "Reading_userId_idx" ON "Reading"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Reading_userId_key" ON "Reading"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ExtraTask_userId_key" ON "ExtraTask"("userId");
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_challengeId_fkey" FOREIGN KEY ("challengeId") REFERENCES "Challenge"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -246,4 +302,16 @@ ALTER TABLE "UserChallenge" ADD CONSTRAINT "UserChallenge_challengeId_fkey" FORE
 ALTER TABLE "UserSettings" ADD CONSTRAINT "UserSettings_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "SavedAyah" ADD CONSTRAINT "SavedAyah_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Reflection" ADD CONSTRAINT "Reflection_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Reading" ADD CONSTRAINT "Reading_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ExtraTask" ADD CONSTRAINT "ExtraTask_dimensionId_fkey" FOREIGN KEY ("dimensionId") REFERENCES "Dimension"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ExtraTask" ADD CONSTRAINT "ExtraTask_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
