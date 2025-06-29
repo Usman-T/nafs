@@ -23,6 +23,7 @@ const SelectedChallenge = ({
   selectedTasks: number[];
   setSelectedTasks: Dispatch<SetStateAction<number[]>>;
 }) => {
+  console.log({ challenge });
   const toggleTaskSelection = (taskIndex: number) => {
     setSelectedTasks((prev) =>
       prev.includes(taskIndex)
@@ -108,7 +109,8 @@ const SelectedChallenge = ({
 
       <div className="text-sm text-[#a89984] text-center">
         <p>
-          Select at least 3 tasks and complete them daily to progress in your spiritual journey. 
+          Select at least 3 tasks and complete them daily to progress in your
+          spiritual journey.
         </p>
       </div>
     </>

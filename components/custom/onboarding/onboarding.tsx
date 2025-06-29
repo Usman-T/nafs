@@ -61,6 +61,8 @@ export default function ChallengeOnboarding({
   const [carouselApi, setCarouselApi] = useState();
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  console.log({ predefinedChallenges });
+
   const onComplete = async () => {
     try {
       setIsLoading(true);
@@ -117,6 +119,7 @@ export default function ChallengeOnboarding({
   useEffect(() => {
     const loadChallenge = async () => {
       try {
+        console.log("Fetching challenge with ID:", selectedChallengeId);
         const response = await fetch(`/api/challenges/${selectedChallengeId}`);
         const data = await response.json();
         setSelectedChallenge(data.challenge);
@@ -198,7 +201,10 @@ export default function ChallengeOnboarding({
                         className={""}
                         challenge={challenge}
                         isSelected={selectedChallengeId === challenge.id}
-                        onSelect={() => setSelectedChallengeId(challenge.id)}
+                        onSelect={() => {
+                          console.log(challenge.id);
+                          setSelectedChallengeId(challenge.id);
+                        }}
                       />
                     </CarouselItem>
                   ))}

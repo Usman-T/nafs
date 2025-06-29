@@ -4,7 +4,7 @@ const LoadingSkeleton = () => {
   return (
     <div className="bg-[#1d2021] animate-pulse">
       {/* Hero Section */}
-      <div className="">
+      <div className="p-6">
         {/* Greeting Skeleton */}
         <div className="mb-6">
           <div className="h-6 w-40 bg-[#3c3836] rounded mb-2"></div>
@@ -42,9 +42,12 @@ const LoadingSkeleton = () => {
               <div className="h-8 w-8 bg-[#3c3836] rounded-full"></div>
             </div>
           </div>
-          <div className="grid grid-cols-7 gap-2">
-            {Array.from({ length: 7 }).map((_, i) => (
-              <div key={i} className="aspect-square bg-[#3c3836] rounded-2xl"></div>
+          <div className="grid grid-cols-3 gap-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="aspect-square bg-[#3c3836] rounded-2xl"
+              ></div>
             ))}
           </div>
         </div>
@@ -57,7 +60,10 @@ const LoadingSkeleton = () => {
           </div>
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="bg-[#282828] rounded-2xl p-4 border border-[#3c3836]">
+              <div
+                key={i}
+                className="bg-[#282828] rounded-2xl p-4 border border-[#3c3836]"
+              >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-[#3c3836] rounded-xl"></div>
                   <div className="flex-1">
@@ -83,7 +89,10 @@ const LoadingSkeleton = () => {
             <div className="h-4 w-32 bg-[#3c3836] rounded mb-2"></div>
             <div className="flex space-x-1">
               {Array.from({ length: 10 }).map((_, i) => (
-                <div key={i} className="h-2 flex-1 bg-[#3c3836] rounded-full"></div>
+                <div
+                  key={i}
+                  className="h-2 flex-1 bg-[#3c3836] rounded-full"
+                ></div>
               ))}
             </div>
           </div>
