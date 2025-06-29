@@ -4,7 +4,7 @@ const LoadingSkeleton = () => {
   return (
     <div className="bg-[#1d2021] animate-pulse">
       {/* Hero Section */}
-      <div className="p-6">
+      <div className="">
         {/* Greeting Skeleton */}
         <div className="mb-6">
           <div className="h-6 w-40 bg-[#3c3836] rounded mb-2"></div>

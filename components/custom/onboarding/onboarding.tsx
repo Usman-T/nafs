@@ -22,6 +22,7 @@ import ChallengeSummary from "@/components/custom/onboarding/onboarding-challeng
 import {
   createCustomChallenge,
   enrollInExistingChallenge,
+  logout,
 } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import {
@@ -29,6 +30,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
+import { toast } from "sonner";
 
 export default function ChallengeOnboarding({
   predefinedChallenges,
@@ -70,7 +72,8 @@ export default function ChallengeOnboarding({
       if (selectedChallengeId) {
         const result = await enrollInExistingChallenge(
           selectedChallengeId,
-          selectedTasks
+          selectedTasks,
+          false
         );
         if (!result.success) throw new Error(result.message);
       } else if (customChallenge.tasks.length > 0) {
@@ -82,26 +85,55 @@ export default function ChallengeOnboarding({
             name: t.name,
             dimensionId: t.dimension.id,
           })),
+          nextDay: false,
         });
 
         if (!creationResult.success) {
           throw new Error(creationResult.message);
         }
-
-        console.log(
-          "Custom challenge created with ID:",
-          creationResult.challengeId
-        );
       }
 
-      console.log("Onboarding completed successfully");
-      router.push("/dashboard");
+      toast.success("Challenge started successfully! 🚀", {
+        description: "Redirecting to your dashboard...",
+      });
+
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1000);
     } catch (error) {
+      if (
+        error.message?.includes("auth") ||
+        error.message?.includes("login") ||
+        error.message?.includes("session") ||
+        error.message?.includes("unauthorized")
+      ) {
+        toast.error("Session expired", {
+          description: "Please log in again to continue",
+          action: {
+            label: "Login",
+            onClick: async () => {
+              localStorage.clear();
+              await logout();
+            },
+          },
+        });
+      } else {
+        toast.error("Something went wrong", {
+          description: "Most issues are fixed by logging in again",
+          action: {
+            label: "Login",
+            onClick: async () => {
+              localStorage.clear();
+              await logout();
+            },
+          },
+        });
+      }
+
       console.error("Onboarding error:", error);
     } finally {
       setIsLoading(false);
     }
-    console.log("completed onboarding");
   };
 
   const containerRef = useRef<HTMLDivElement>(null);

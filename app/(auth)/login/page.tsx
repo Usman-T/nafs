@@ -5,7 +5,7 @@ import type React from "react";
 import Link from "next/link";
 import { useActionState, useRef } from "react";
 import { motion } from "framer-motion";
-import {  ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { login, loginState } from "@/lib/actions";
 import Logo from "@/components/custom/logo";
+import { signIn } from "next-auth/react";
 
 const Login = () => {
   const initialState: loginState = { message: null, errors: {} };
@@ -52,6 +53,9 @@ const Login = () => {
             <Button
               className="w-full bg-[#3c3836] hover:bg-[#504945] text-[#ebdbb2] flex items-center justify-center gap-2 h-11 mb-6"
               disabled={isPending}
+              onClick={() => {
+                signIn("google", { callbackUrl: "/dashboard" });
+              }}
             >
               {isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -107,7 +111,7 @@ const Login = () => {
                     {getFirstError("email")}
                   </p>
                 )}
-                {state?.message === 'invalid' && (
+                {state?.message === "invalid" && (
                   <p className="mt-1 text-sm text-red-500">
                     Invalid email address or password
                   </p>
@@ -136,7 +140,7 @@ const Login = () => {
                     {getFirstError("password")}
                   </p>
                 )}
-                {state?.message === 'invalid' && (
+                {state?.message === "invalid" && (
                   <p className="mt-1 text-sm text-red-500">
                     Invalid email address or password
                   </p>

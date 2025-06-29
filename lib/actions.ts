@@ -166,6 +166,13 @@ export const enrollInExistingChallenge = async (
 ) => {
   try {
     const userId = await requireAuth();
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw Error("User not found!");
+    }
 
     const challenge = await prisma.challenge.findUnique({
       where: { id: challengeId },
@@ -243,6 +250,14 @@ export const createCustomChallenge = async (challengeData: {
 }) => {
   try {
     const userId = await requireAuth();
+    
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw Error("User not found!");
+    }
 
     return await prisma.$transaction(async (tx) => {
       const challenge = await tx.challenge.create({
@@ -273,10 +288,10 @@ export const createCustomChallenge = async (challengeData: {
         })),
       });
 
-    const startDate = new Date();
-    if (challengeData.nextDay) {
-      startDate.setDate(startDate.getDate() + 1);
-    }
+      const startDate = new Date();
+      if (challengeData.nextDay) {
+        startDate.setDate(startDate.getDate() + 1);
+      }
       const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + challengeData.duration);
 
@@ -734,5 +749,4 @@ export const initializeDayTasks = async (challengeId: string) => {
 
 export const logout = async () => {
   await signOut({ redirectTo: "/" });
-  localStorage.clear();
 };

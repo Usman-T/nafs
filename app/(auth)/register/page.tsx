@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { createUser, State } from "@/lib/actions";
 import { Separator } from "@/components/ui/separator";
 import Logo from "@/components/custom/logo";
+import { signIn } from "next-auth/react";
 
 const Register = () => {
   const initialState: State = { message: null, errors: {} };
@@ -65,6 +66,9 @@ const Register = () => {
             <Button
               className="w-full bg-[#3c3836] hover:bg-[#504945] text-[#ebdbb2] flex items-center justify-center gap-2 h-11 mb-6"
               disabled={isPending}
+              onClick={() => {
+                signIn("google", { callbackUrl: "/dashboard" });
+              }}
             >
               {isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
