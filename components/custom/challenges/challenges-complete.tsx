@@ -9,35 +9,28 @@ import {
   useTransform,
 } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Award } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Check, Award, BookOpen } from "lucide-react";
 import { DailyTask, Dimension, Task } from "@prisma/client";
 import { completeTask as completeTaskAction } from "@/lib/actions";
 import { iconMap } from "@/lib/iconMap";
 import { toast } from "sonner";
 
-const ChallengesComplete = ({
-  task,
-}: {
+interface ChallengesCompleteProps {
   task: DailyTask & { task: Task & { dimension: Dimension } };
-}) => {
+}
+
+const ChallengesComplete = ({ task }: ChallengesCompleteProps) => {
   const router = useRouter();
   const [isHolding, setIsHolding] = useState(false);
   const [progress, setProgress] = useState(0);
   const [completed, setCompleted] = useState(false);
   const progressTimer = useRef<NodeJS.Timeout | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   const controls = useAnimation();
   const pathLength = useMotionValue(0);
   const opacity = useTransform(pathLength, [0, 0.5, 1], [0, 1, 1]);
 
-  useEffect(() => {
-    setIsMounted(true);
-    const timer = setTimeout(() => setIsLoading(false));
-    return () => clearTimeout(timer);
-  }, []);
+  const IconComponent = iconMap[task.task.dimension.icon] || BookOpen;
 
   useEffect(() => {
     return () => {
@@ -67,73 +60,31 @@ const ChallengesComplete = ({
 
   const stopHolding = () => {
     setIsHolding(false);
-    if (progressTimer.current) {
-      clearInterval(progressTimer.current);
-    }
-    if (progress < 100) {
-      setProgress(0);
-    }
+    if (progressTimer.current) clearInterval(progressTimer.current);
+    if (progress < 100) setProgress(0);
   };
 
   const completeTask = async () => {
     try {
       setCompleted(true);
-
       pathLength.set(1);
-      controls.start({
-        scale: [1, 1.2, 1],
-        transition: { duration: 0.5 },
-      });
+      controls.start({ scale: [1, 1.2, 1], transition: { duration: 0.5 } });
 
       const result = await completeTaskAction(task.id);
-      toast.success("Task completed successfully!");
 
       if (!result.success) {
-        router.push("/dashboard");
+        toast.error("Task failed. Redirecting...");
+        return router.push("/dashboard");
       }
 
-      router.refresh();
+      toast.success("Task completed successfully!");
       router.push("/dashboard");
     } catch (error) {
-      console.log(error);
+      console.error("Error completing task:", error);
+      toast.error("An unexpected error occurred.");
+      router.push("/dashboard");
     }
   };
-  const IconComponent = iconMap[task.task.dimension.icon] || "BookOpen";
-
-  if (!isMounted || isLoading) {
-    return (
-      <div className="flex p-8 items-center justify-center h-screen">
-        <div className="w-full max-w-md">
-          <Card className="bg-[#282828] border-[#3c3836] overflow-hidden">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-center">
-                <Skeleton className="h-6 w-6 rounded-full bg-[#3c3836] mr-2" />
-                <Skeleton className="h-6 w-32 bg-[#3c3836]" />
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-8 flex flex-col items-center">
-              <div className="text-center space-y-4 w-full">
-                <div className="flex justify-center">
-                  <Skeleton className="h-12 w-12 rounded-full bg-[#3c3836]" />
-                </div>
-                <Skeleton className="h-6 w-48 mx-auto bg-[#3c3836]" />
-                <Skeleton className="h-4 w-64 mx-auto bg-[#3c3836]" />
-              </div>
-
-              <div className="relative w-48 h-48">
-                <Skeleton className="absolute inset-0 rounded-full bg-[#3c3836]" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Skeleton className="h-32 w-32 rounded-full bg-[#504945]" />
-                </div>
-              </div>
-
-              <Skeleton className="h-4 w-48 bg-[#3c3836]" />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex items-center justify-center p-8">
@@ -150,20 +101,14 @@ const ChallengesComplete = ({
               <span className="text-[#ebdbb2]">Complete Task</span>
             </CardTitle>
           </CardHeader>
+
           <CardContent className="space-y-8 flex flex-col items-center">
             <div className="text-center">
-              <div className="inline-block h-12 w-12 rounded-full mb-4">
-                {
-                  <div className="h-12 w-12 border-2 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                    <IconComponent
-                      className="h-12 w-12 rounded-full"
-                      style={{
-                        color: task.task.dimension.color,
-                        borderColor: task.task.dimension.color,
-                      }}
-                    />
-                  </div>
-                }
+              <div className="h-12 w-12 border-2 rounded-full flex items-center justify-center mx-auto mb-4">
+                <IconComponent
+                  className="h-12 w-12"
+                  style={{ color: task.task.dimension.color }}
+                />
               </div>
               <h2 className="text-xl font-medium text-[#ebdbb2] mb-2">
                 {task.task.name}
@@ -194,10 +139,7 @@ const ChallengesComplete = ({
                   stroke="#fe8019"
                   strokeWidth="8"
                   strokeLinecap="round"
-                  style={{
-                    pathLength,
-                    opacity,
-                  }}
+                  style={{ pathLength, opacity }}
                 />
               </svg>
 
@@ -222,7 +164,7 @@ const ChallengesComplete = ({
                   {completed ? (
                     <Check className="h-16 w-16" />
                   ) : (
-                    <span className="text-lg font-medium">Hold</span>
+                    <span className="text-lg font-medium">Press & Hold</span>
                   )}
                 </motion.button>
               </motion.div>

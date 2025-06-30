@@ -11,6 +11,7 @@ import {
   DimensionValue,
   DailyTask,
 } from "@prisma/client";
+import Link from "next/link";
 
 interface DimensionValueWithDimension extends DimensionValue {
   dimension: Dimension;
@@ -84,12 +85,14 @@ const CompletedChallenge = ({
             </div>
           </div>
           <div className="sm:ml-auto">
-            <Button
-              onClick={handleShowChallengeCompletionFlow}
-              className="bg-[#fe8019]/90 hover:bg-[#fe8019] text-[#1d2021] font-semibold px-5 py-2 rounded-md transition"
-            >
-              View Summary
-            </Button>
+            <Link href="/complete-challenge" >
+              <Button
+                onClick={handleShowChallengeCompletionFlow}
+                className="bg-[#fe8019]/90 hover:bg-[#fe8019] text-[#1d2021] font-semibold px-5 py-2 rounded-md transition"
+              >
+                View Summary
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
