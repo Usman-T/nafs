@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DailyTask, Dimension, Task } from "@prisma/client";
 import { completeTask as completeTaskAction } from "@/lib/actions";
 import { iconMap } from "@/lib/iconMap";
+import { toast } from "sonner";
 
 const ChallengesComplete = ({
   task,
@@ -76,22 +77,23 @@ const ChallengesComplete = ({
 
   const completeTask = async () => {
     try {
-      const result = await completeTaskAction(task.id);
-      if (!result.success) {
-        router.push("/dashboard");
-      }
-
       setCompleted(true);
+
       pathLength.set(1);
       controls.start({
         scale: [1, 1.2, 1],
         transition: { duration: 0.5 },
       });
 
-      setTimeout(() => {
-        router.refresh();
+      const result = await completeTaskAction(task.id);
+      toast.success("Task completed successfully!");
+
+      if (!result.success) {
         router.push("/dashboard");
-      }, 1500);
+      }
+
+      router.refresh();
+      router.push("/dashboard");
     } catch (error) {
       console.log(error);
     }

@@ -250,7 +250,7 @@ export const createCustomChallenge = async (challengeData: {
 }) => {
   try {
     const userId = await requireAuth();
-    
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
@@ -533,12 +533,10 @@ export const checkUserStreak = async () => {
     const today = startOfDay(new Date());
     const yesterday = startOfDay(subDays(today, 1));
 
-    // If already checked today, skip
     if (user.lastActiveDate && isSameDay(user.lastActiveDate, today)) {
       return;
     }
 
-    // Check if user missed yesterday (streak should be broken)
     if (
       user.lastActiveDate &&
       !isSameDay(user.lastActiveDate, yesterday) &&
@@ -744,6 +742,22 @@ export const initializeDayTasks = async (challengeId: string) => {
         skipDuplicates: true,
       });
     }
+  }
+};
+
+export const createExtraTask = async (taskData: {
+  taskName: string;
+  dimensionId: string;
+}) => {
+  try {
+    const userId = await requireAuth();
+
+  } catch (error) {
+    console.error("Error creating extra task:", error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to create task",
+    };
   }
 };
 

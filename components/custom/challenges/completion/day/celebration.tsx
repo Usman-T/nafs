@@ -140,11 +140,6 @@ const Celebration = ({
           </div>
 
           <div className="flex justify-between text-sm">
-            <span className="text-[#a89984]">XP Earned</span>
-            <span className="text-[#fe8019]">+{xpEarned} XP</span>
-          </div>
-
-          <div className="flex justify-between text-sm">
             <span className="text-[#a89984]">Streak</span>
             <div className="flex items-center gap-1">
               <Flame className="h-4 w-4 text-[#fe8019]" />

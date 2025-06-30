@@ -87,13 +87,7 @@ const Challenges = ({
   const today = new Date();
   const currentStreak = tasks[0]?.user.currentStreak || 0;
 
-  // Generate week dates for calendar
   const weekdays = ["S", "M", "T", "W", "T", "F", "S"];
-  const currentWeekDates = Array.from({ length: 7 }).map((_, i) => {
-    const date = new Date(today);
-    date.setDate(today.getDate() - today.getDay() + i);
-    return date;
-  });
 
   const generateDateRange = (start: Date, days: number) =>
     Array.from({ length: days }).map((_, i) => {
@@ -644,7 +638,6 @@ const Challenges = ({
               </div>
             </div>
 
-            {/* Challenge Progress */}
             <div className="mt-4">
               <div className="flex justify-between text-sm mb-2">
                 <span className="text-[#a89984]">Challenge Progress</span>
@@ -672,7 +665,6 @@ const Challenges = ({
         </div>
       </div>
 
-      {/* Task Completion Flow */}
       <AnimatePresence>
         {showCompletionFlow && (
           <TaskCompletionFlow

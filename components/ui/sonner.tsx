@@ -12,8 +12,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
       className="toaster group"
       position="top-right"
       expand={false}
-      richColors={false}
-      closeButton
+      richColors={true}
+      closeButton={false}
       duration={4000}
       gap={8}
       visibleToasts={5}
@@ -34,7 +34,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           actionButton: 'group-[.toast]:bg-[hsl(0_0%_95%)] group-[.toast]:text-[hsl(0_0%_9%)] hover:group-[.toast]:bg-[hsl(0_0%_85%)] group-[.toast]:border-[hsl(0_0%_15%)]',
           cancelButton: 'group-[.toast]:bg-[hsl(0_0%_15%)] group-[.toast]:text-[hsl(0_0%_95%)] hover:group-[.toast]:bg-[hsl(0_0%_20%)] group-[.toast]:border-[hsl(0_0%_25%)]',
           closeButton: 'group-[.toast]:border-[hsl(0_0%_15%)] group-[.toast]:hover:border-[hsl(0_0%_25%)] group-[.toast]:bg-transparent group-[.toast]:hover:bg-[hsl(0_0%_15%)] group-[.toast]:text-[hsl(0_0%_70%)] group-[.toast]:hover:text-[hsl(0_0%_95%)]',
-          success: 'group-[.toaster]:border-l-4 group-[.toaster]:border-l-green-500 group-[.toaster]:border-[hsl(0_0%_15%)]',
+          success: 'text-semibold group-[.toaster]:border-l-4 group-[.toaster]:border-l-green-500 group-[.toaster]:border-[hsl(0_0%_15%)]',
           error: 'group-[.toaster]:border-l-4 group-[.toaster]:border-l-red-500 group-[.toaster]:border-[hsl(0_0%_15%)]',
           warning: 'group-[.toaster]:border-l-4 group-[.toaster]:border-l-yellow-500 group-[.toaster]:border-[hsl(0_0%_15%)]',
           info: 'group-[.toaster]:border-l-4 group-[.toaster]:border-l-blue-500 group-[.toaster]:border-[hsl(0_0%_15%)]',
