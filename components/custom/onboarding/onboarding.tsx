@@ -22,7 +22,6 @@ import ChallengeSummary from "@/components/custom/onboarding/onboarding-challeng
 import {
   createCustomChallenge,
   enrollInExistingChallenge,
-  logout,
 } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import {
@@ -31,6 +30,7 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { toast } from "sonner";
+import { signOut } from "next-auth/react";
 
 export default function ChallengeOnboarding({
   predefinedChallenges,
@@ -89,18 +89,18 @@ export default function ChallengeOnboarding({
         });
 
         if (!creationResult.success) {
-          throw new Error(creationResult.message);
+          throw new Error(creationResult?.message);
         }
       }
 
-      toast.success("Challenge started successfully! 🚀", {
+      toast.success("Challenge started successfully!", {
         description: "Redirecting to your dashboard...",
       });
 
       setTimeout(() => {
         router.push("/dashboard");
       }, 1000);
-    } catch (error) {
+    } catch (error: any) {
       if (
         error.message?.includes("auth") ||
         error.message?.includes("login") ||
@@ -113,7 +113,7 @@ export default function ChallengeOnboarding({
             label: "Login",
             onClick: async () => {
               localStorage.clear();
-              await logout();
+              signOut({ redirectTo: "/login" });
             },
           },
         });
@@ -124,7 +124,7 @@ export default function ChallengeOnboarding({
             label: "Login",
             onClick: async () => {
               localStorage.clear();
-              await logout();
+              signOut({ redirectTo: "/login" });
             },
           },
         });
