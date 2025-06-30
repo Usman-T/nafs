@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { arabicFontClass } from "@/lib/font";
+import { arabicFontClass } from "@/lib/utils/font";
 
 const DailyAyahSection = ({ apiVerse }) => {
   const [showTafsir, setShowTafsir] = useState(false);

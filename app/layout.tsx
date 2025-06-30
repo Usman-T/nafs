@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
-import "../lib/setup-logger";
+import "../lib/utils/setup-logger";
 import DisablePinchZoom from "@/components/ui/pinch-zoom";
 import { Toaster } from "@/components/ui/sonner";
 

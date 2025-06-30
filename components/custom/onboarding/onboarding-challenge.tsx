@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Award } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 import { Challenge, ChallengeTask, Dimension, Task } from "@prisma/client";
 
 const ChallengeCard = ({

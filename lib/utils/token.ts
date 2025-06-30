@@ -1,6 +1,6 @@
 "use server";
 import axios from "axios";
-import redis from "./redis";
+import redis from "../redis";
 
 const TOKEN_REDIS_KEY = "quran_api_access_token";
 

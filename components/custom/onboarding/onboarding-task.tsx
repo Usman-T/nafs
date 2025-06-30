@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 import { iconMap } from "@/lib/iconMap";
 import { Dimension, Task as TaskType } from "@prisma/client";
 

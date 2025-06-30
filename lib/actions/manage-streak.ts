@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/prisma";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth } from "@/lib/utils/auth";
 import { startOfDay, subDays, isSameDay } from "date-fns";
 
 export const updateUserStreak = async () => {

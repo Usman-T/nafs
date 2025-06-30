@@ -20,7 +20,7 @@ import {
   Lightbulb,
 } from "lucide-react";
 import { useState } from "react";
-import { arabicFontClass } from "@/lib/font";
+import { arabicFontClass } from "@/lib/utils/font";
 
 type WordByWord = {
   arabic: string;

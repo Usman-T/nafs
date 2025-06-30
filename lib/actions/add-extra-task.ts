@@ -1,6 +1,6 @@
 "use server";
 
-import { requireAuth } from "@/lib/auth";
+import { requireAuth } from "@/lib/utils/auth";
 
 export const createExtraTask = async (taskData: {
   taskName: string;

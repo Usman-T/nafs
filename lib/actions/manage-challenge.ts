@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/prisma";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth } from "@/lib/utils/auth";
 
 export const enrollInExistingChallenge = async (
   challengeId: string,
