@@ -19,7 +19,6 @@ const ChallengesPage = async () => {
     dimensionValues,
     dimensions,
     hasCompletedChallenge,
-    challenges,
   ] = await Promise.all([
     fetchUserChallenge(),
     fetchDailyTasks(),
@@ -55,8 +54,6 @@ const ChallengesPage = async () => {
         dimensions={dimensions}
         dimensionValues={dimensionValues}
         hasCompletedChallenge={hasCompletedChallenge}
-        predefinedChallenges={challenges}
-        dailyTasks={dailyTasks}
       />
     </div>
   );

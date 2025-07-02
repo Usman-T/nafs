@@ -1,60 +1,8 @@
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { AnimatePresence } from "framer-motion";
-import ChallengeCompletionFlow from "./challenge-completion-flow";
-import {
-  Challenge,
-  Dimension,
-  Task,
-  UserChallenge,
-  DimensionValue,
-  DailyTask,
-} from "@prisma/client";
 import Link from "next/link";
 
-interface DimensionValueWithDimension extends DimensionValue {
-  dimension: Dimension;
-}
-
-interface CompletedChallengeProps {
-  challenge: UserChallenge & {
-    challenge: Challenge &
-      {
-        tasks: {
-          task: Task & {
-            dimension: Dimension;
-          };
-        };
-      }[];
-  };
-  dimensions: Dimension[];
-  predefinedChallenges: Challenge[];
-  dailyTasks: DailyTask[];
-  dimensionValues: DimensionValueWithDimension[];
-}
-
-const CompletedChallenge = ({
-  challenge,
-  dimensions,
-  predefinedChallenges,
-  dimensionValues,
-  dailyTasks,
-}: CompletedChallengeProps) => {
-  const [showChallengeCompletionFlow, setShowChallengeCompletionFlow] =
-    useState(false);
-
-  const handleShowChallengeCompletionFlow = () => {
-    setShowChallengeCompletionFlow(true);
-    localStorage.setItem("nafs-hide-mobile-nav", "true");
-    window.dispatchEvent(new Event("storage"));
-  };
-
-  const handleChallengeCompletionFlowFinished = () => {
-    setShowChallengeCompletionFlow(false);
-    localStorage.removeItem("nafs-hide-mobile-nav");
-  };
-
+const CompletedChallenge = () => {
   return (
     <>
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#282828] to-[#1d2021] border border-[#3c3836] shadow-md mb-8">
@@ -85,29 +33,14 @@ const CompletedChallenge = ({
             </div>
           </div>
           <div className="sm:ml-auto">
-            <Link href="/complete-challenge" >
-              <Button
-                onClick={handleShowChallengeCompletionFlow}
-                className="bg-[#fe8019]/90 hover:bg-[#fe8019] text-[#1d2021] font-semibold px-5 py-2 rounded-md transition"
-              >
+            <Link href="/complete-challenge">
+              <Button className="bg-[#fe8019]/90 hover:bg-[#fe8019] text-[#1d2021] font-semibold px-5 py-2 rounded-md transition">
                 View Summary
               </Button>
             </Link>
           </div>
         </div>
       </div>
-      <AnimatePresence>
-        {showChallengeCompletionFlow && (
-          <ChallengeCompletionFlow
-            completedChallenge={challenge}
-            dailyTasks={dailyTasks}
-            onComplete={handleChallengeCompletionFlowFinished}
-            dimensions={dimensions}
-            dimensionValues={dimensionValues}
-            predefinedChallenges={predefinedChallenges}
-          />
-        )}
-      </AnimatePresence>{" "}
     </>
   );
 };

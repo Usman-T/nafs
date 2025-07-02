@@ -52,7 +52,6 @@ interface DailyTaskWithDetails extends DailyTask {
 interface ChallengeCompletionFlowProps {
   completedChallenge: UserChallenge & { challenge: Challenge };
   dailyTasks: DailyTaskWithDetails[];
-  onComplete: () => void;
   predefinedChallenges: Challenge[];
   dimensions: Dimension[];
   dimensionValues: DimensionValueWithDimension[];
@@ -61,12 +60,15 @@ interface ChallengeCompletionFlowProps {
 export default function ChallengeCompletionFlow({
   completedChallenge,
   dailyTasks,
-  onComplete,
   predefinedChallenges,
   dimensions,
   dimensionValues,
 }: ChallengeCompletionFlowProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const onComplete = () => {
+    console.log("completed");
+  };
 
   const {
     step,
@@ -363,7 +365,7 @@ export default function ChallengeCompletionFlow({
   const getNextButtonText = () => {
     switch (step) {
       case 0:
-        return "View Progress";
+        return "Next";
       case 1:
         return "Choose Next Challenge";
       case 2:
@@ -382,81 +384,65 @@ export default function ChallengeCompletionFlow({
   };
 
   return (
-    <div className="min-h-screen bg-[#282828] flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-[#3c3836] rounded-lg shadow-2xl overflow-hidden">
-        {/* Header */}
-        <div className="bg-[#1d2021] p-6 border-b border-[#504945]">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-[#ebdbb2]">
-                {getStepTitle()}
-              </h1>
-              <div className="flex items-center gap-2 mt-2">
-                {Array.from({ length: 7 }, (_, i) => (
-                  <div
-                    key={i}
-                    className={`h-2 w-8 rounded-full transition-colors duration-300 ${
-                      i <= step ? "bg-[#fe8019]" : "bg-[#504945]"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
+    <div className="h-screen bg-[#3c3836] rounded-lg flex flex-col shadow-2xl overflow-hidden">
+      <div className="p-4 bg-[#1d2021] border-b border-[#3c3836] flex items-center justify-between">
+        <div className="flex items-center">
+          <Award className="h-5 w-5 text-[#fe8019] mr-2" />
+          <span className="text-[#ebdbb2] font-medium">
+            Challenge Onboarding
+          </span>
         </div>
+        <div className="text-[#a89984] text-sm">
+          Step {step + 1} of {selectedChallengeId ? 4 : 7}
+        </div>
+      </div>
 
-        {/* Content */}
-        <div
-          ref={containerRef}
-          className="p-6 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-track-[#3c3836] scrollbar-thumb-[#504945]"
+      {/* Content */}
+      <div
+        ref={containerRef}
+        className="flex overflow-y-auto justify-center items-center p-6 bg-[#1d2021]"
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            {renderStepContent()}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <div className="p-4  border-[#3c3836] bg-[#1d2021] border-y flex justify-between">
+        <Button
+          variant="outline"
+          className="border-[#3c3836] text-[#ebdbb2] hover:bg-[#3c3836]"
+          onClick={handleBack}
+          disabled={!canGoBack() || isLoading}
         >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={step}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              {renderStepContent()}
-            </motion.div>
-          </AnimatePresence>
-        </div>
+          <ChevronLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
 
-        {/* Footer */}
-        <div className="bg-[#1d2021] p-6 border-t border-[#504945]">
-          <div className="flex justify-between items-center">
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              disabled={!canGoBack() || isLoading}
-              className="text-[#a89984] hover:text-[#ebdbb2] hover:bg-[#3c3836]"
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-
-            <div className="text-sm text-[#a89984]">Step {step + 1} of 7</div>
-
-            <Button
-              onClick={handleNext}
-              disabled={!canGoNext() || isLoading}
-              className="bg-[#fe8019] hover:bg-[#d65d0e] text-[#1d2021] font-medium"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  {getNextButtonText()}
-                </>
-              ) : (
-                <>
-                  {getNextButtonText()}
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
+        <Button
+          className="bg-[#fe8019] text-[#1d2021] hover:bg-[#d65d0e]"
+          onClick={handleNext}
+          disabled={!canGoNext() || isLoading}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              {getNextButtonText()}
+            </>
+          ) : (
+            <>
+              {getNextButtonText()}
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );

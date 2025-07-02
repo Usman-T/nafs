@@ -141,17 +141,6 @@ const ChallengeWelcome = ({
               </motion.span>
             </div>
 
-            <div className="flex justify-between text-sm">
-              <span className="text-[#a89984]">Experience Gained</span>
-              <motion.span
-                className="text-[#ebdbb2]"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.9 }}
-              >
-                +<AnimatedCounter value={xpGained} /> XP
-              </motion.span>
-            </div>
           </div>
         </div>
       </div>

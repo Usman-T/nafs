@@ -22,8 +22,6 @@ const Challenges = ({
   dimensionValues,
   dimensions,
   hasCompletedChallenge,
-  predefinedChallenges,
-  dailyTasks,
 }: ChallengesProps) => {
   const {
     isMounted,
@@ -53,16 +51,7 @@ const Challenges = ({
   return (
     <>
       <div className="bg-[#1d2021]">
-        {hasCompletedChallenge && (
-          <CompletedChallenge
-            predefinedChallenges={predefinedChallenges}
-            dimensions={dimensions}
-            challenge={challenge}
-            tasks={tasks}
-            dailyTasks={dailyTasks}
-            dimensionValues={dimensionValues}
-          />
-        )}
+        {true && <CompletedChallenge />}
 
         <div className="">
           <GreetingSection />
@@ -82,7 +71,7 @@ const Challenges = ({
           />
         </div>
 
-        <div className="">
+        <div className="space-y-4">
           <TasksSection
             selectedDate={selectedDate}
             tasks={tasks}
@@ -94,11 +83,7 @@ const Challenges = ({
             onShowCompletionFlow={handleShowCompletionFlow}
           />
 
-          <ChallengeInfoCard
-            challenge={challenge}
-            currentDay={currentDay}
-            currentStreak={currentStreak}
-          />
+          <ChallengeInfoCard challenge={challenge} currentDay={currentDay} />
         </div>
       </div>
 

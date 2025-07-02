@@ -30,6 +30,4 @@ export interface ChallengesProps {
   dimensionValues: DimensionValue[];
   dimensions: Dimension[];
   hasCompletedChallenge: boolean;
-  predefinedChallenges: Challenge[];
-  dailyTasks: DailyTask[];
 }

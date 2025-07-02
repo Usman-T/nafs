@@ -1,9 +1,16 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Challenge } from "@prisma/client";
 import ChallengeCard from "@/components/custom/challenges/completion/challenge/challenge-card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
 
 interface ChallengeSelectionStepProps {
   predefinedChallenges: Challenge[];
@@ -18,6 +25,19 @@ export const ChallengeSelectionStep: React.FC<ChallengeSelectionStepProps> = ({
   onSelectChallenge,
   onCreateCustom,
 }) => {
+  const [carouselApi, setCarouselApi] = useState();
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    if (!carouselApi) {
+      return;
+    }
+
+    carouselApi.on("select", () => {
+      setCurrentSlide(carouselApi.selectedScrollSnap());
+    });
+  }, [carouselApi]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -32,15 +52,44 @@ export const ChallengeSelectionStep: React.FC<ChallengeSelectionStepProps> = ({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {predefinedChallenges.map((challenge) => (
-          <ChallengeCard
-            key={challenge.id}
-            challenge={challenge}
-            isSelected={selectedChallengeId === challenge.id}
-            onSelect={() => onSelectChallenge(challenge.id)}
-          />
-        ))}
+      <div className="grid-cols-1 scrollbar-hide gap-4 grid">
+        <Carousel
+          className="w-full"
+          opts={{
+            align: "start",
+            dragFree: false,
+            loop: false,
+            slidesToScroll: 1,
+          }}
+          setApi={setCarouselApi}
+        >
+          <CarouselContent>
+            {predefinedChallenges.map((challenge, i) => (
+              <CarouselItem key={i} className="px-2 pl-8">
+                <ChallengeCard
+                  key={challenge.id}
+                  challenge={challenge}
+                  isSelected={selectedChallengeId === challenge.id}
+                  onSelect={() => onSelectChallenge(challenge.id)}
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+
+          <div className="flex justify-center space-x-2 mt-3">
+            {predefinedChallenges.map((_, index) => (
+              <button
+                key={index}
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  index === currentSlide
+                    ? "bg-[#fe8019]"
+                    : "bg-[#504945] hover:bg-[#665c54]"
+                }`}
+                onClick={() => carouselApi?.scrollTo(index)}
+              />
+            ))}
+          </div>
+        </Carousel>
       </div>
 
       <motion.div

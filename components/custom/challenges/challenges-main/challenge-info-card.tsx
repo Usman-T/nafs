@@ -16,20 +16,18 @@ interface ChallengeInfoCardProps {
       }[];
   };
   currentDay: number;
-  currentStreak: number;
 }
 
 const ChallengeInfoCard = ({
   challenge,
   currentDay,
-  currentStreak,
 }: ChallengeInfoCardProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
-      className="bg-[#282828] rounded-3xl p-6 border border-[#3c3836] mb-6"
+      className="bg-[#282828] rounded-3xl p-6 border border-[#3c3836]"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -49,29 +47,6 @@ const ChallengeInfoCard = ({
               {currentDay}/{challenge.challenge.duration}
             </div>
             <div className="text-xs text-[#a89984]">Days</div>
-          </div>
-        </div>
-
-        {/* Challenge Progress */}
-        <div className="mt-4">
-          <div className="flex justify-between text-sm mb-2">
-            <span className="text-[#a89984]">Challenge Progress</span>
-            <span className="text-[#ebdbb2]">
-              {Math.round((currentStreak / challenge.challenge.duration) * 100)}
-              %
-            </span>
-          </div>
-          <div className="flex space-x-1">
-            {Array.from({ length: challenge.challenge.duration }).map(
-              (_, i) => (
-                <div
-                  key={i}
-                  className={`h-2 flex-1 rounded-full ${
-                    i < currentStreak ? "bg-[#fe8019]" : "bg-[#3c3836]"
-                  }`}
-                />
-              )
-            )}
           </div>
         </div>
       </div>
