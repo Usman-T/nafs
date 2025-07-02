@@ -5,7 +5,6 @@ import { Plus, Trash } from "lucide-react";
 import { Dimension } from "@prisma/client";
 import CustomTaskForm from "@/components/custom/onboarding/onboarding-task-form";
 import { iconMap } from "@/lib/iconMap";
-import { removeAllListeners } from "node:process";
 
 interface CustomChallengeStepProps {
   customChallenge: {
@@ -30,7 +29,7 @@ export const CustomChallengeStep: React.FC<CustomChallengeStepProps> = ({
   };
 
   return (
-    <div className="flex w-full flex-col items-center justify-center p-6 bg-[#282828] rounded-lg border border-[#3c3836] shadow-md">
+    <div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

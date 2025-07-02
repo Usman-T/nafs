@@ -97,7 +97,6 @@ AHHHHHHHHHHHHHHHHHHHHH
 - Calendar page has been fixed
 - Its corresponding page on dashboard is also fixed
 - Streaks are now checked once a day when the user visits /challenges
-- 
 
 ## Complete Day for Streaks:
 You can only do complete day once in a day, and it will set a localStorage item witht he current date, the button and task completions will be disabled. A new confirmation screen will be shown before the user completes the day to ensure good work of it
@@ -159,7 +158,56 @@ Like dont just go ahead and fix every fucking error in there, wire up each and e
 - Streak breaking logic somehow at the start of new day (UI to be made)
 - Enroll in new challenge after completing one
 
-## EXTRA TASKS FEATURE:
-- Fetch extra tasks of userkb
-- Show extra tasks modal based on localStorage contents
-- 
+## TODAY WE SHIP
+- Challenge completetin flow
+  - whats missing
+    - Duration setting
+    - You do NOT choose durations, you are assigned based on level
+    - Rechecking the completion status
+    - proper step mapping
+    - Easily the work of like 30 minutes
+  - Break a streak
+    - Do when init day tasks run, if last day, even a single task was not done, then allow the user to re enroll in the same challenge with a max 2 clisk
+    - orrrr create a new challenge or enroll in another one
+    - UI is already made, just gotta hook up the logic and WRITE THE FUCNTION YOURSELF
+    - Reset the current position in the progression system
+    - Work of around 1 hour
+  - Optional tasks
+    - When running init day tasks, check for optional tasks if they exist 
+    - Optional task pop up opens up, if not no UI update to the dash otherwise show one below all
+    - Complete optional task gives 2 points
+    - Should take you 1 30 minutes, one podomoro session
+  - Create Progression System
+    - Create the progression page
+    - On dash, instead of fire, rende rthe current step icon and make the user click it (fancy clicky haha)
+    - User levels up instead of just existing, you dont choooose durations, you are assigned them
+    - If you loose a challenge, the current one is reset
+    - Must take around like 2 hours
+  - Guidance system
+    - Just render the reading streak
+    - Render the saved ayahs
+    - Create a simple db WRITE to save an ayah
+    - Create a simple db WRITE to save a reflection
+    - Map the reflections and saved ayahs on the page that is there
+    - Surah page, most imp, Currently 1900 lines of code (not funtional too)
+      - Spend 30 mintues modulizing it
+      - Create data.ts functions for the things that we fetch (ayahs, translations, tafsir, surah info, audio) - 15 minutes
+      - Map the ayahs on the ayah cards - 25 minutes
+      - Put in the tafsir modal for each of the ayah cards - dynamic tafsirs suck so gotta take like 20 minutes to polish
+      - Hook up the save ayah and reflect functions to it
+      - Create a drawer in the header that opens the settings, info and other stuff menu - 10 minutes
+      - Hook up the surah info modal - 5 minutes
+      - Add just audio at the bottom of the page - whole audio no per ayah scroll complexity - 15 minutes
+      - Button per ayah to listen to it seperately - 10 minutes
+      - Click on each word for the translation (kinda complex but we can figure it out, maybe mapping each word into an invisible div rendered same as a <p> on click shows a popover)  - 15 minutes
+      - WE CAN ADD DIFFERENT TRANSLATIONS SELECTION AND DIFFERENT TASFASIR FETCHING BUT MAYBE THATS OVERKILL
+    - Onboarding
+      - Finally fix the actual app onboarding where the <audio> doesnt work - 10 minutes
+      - The calendar is very non representative (like uses green ticks and shitty random animations nothing like the in app calendar) - 10 minutes
+      - OAUTH2 BUG STILL EXISTS SOMEHOWWWW - 30 FUCKING minutes
+    - Misc
+      - Static offline page for when cache is not available - 5 minutes (just the dashboard layout without the content)
+      - BACK TO ALL DIMENSIONS button very infuriating when seeing own progress (restyle or better to remove)
+      - Toast notifs dont match the theme and are just default shadcn ones
+    
+    I THINK THAT IS ENOUGH TO SHIP HAHAHAHAHAAHHAHAHAH

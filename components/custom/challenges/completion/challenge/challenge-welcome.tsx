@@ -60,10 +60,6 @@ const ChallengeWelcome = ({
       ? Math.round((completedTasksCount / dailyTasks.length) * 100)
       : 0;
 
-  const xpGained =
-    completedTasksCount * 100 + (completionPercentage === 100 ? 500 : 0);
-
-  // Get streak from the first daily task's user (they should all be the same user)
   const streakBonus = dailyTasks[0]?.user?.currentStreak || 0;
   const userLevel = dailyTasks[0]?.user?.level || 1;
 

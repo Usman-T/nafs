@@ -384,7 +384,9 @@ export default function ChallengeCompletionFlow({
   };
 
   return (
-    <div className="h-screen bg-[#3c3836] rounded-lg flex flex-col shadow-2xl overflow-hidden">
+    <div 
+      className="rounded-lg w-full h-screen justify-between flex flex-col"
+    >
       <div className="p-4 bg-[#1d2021] border-b border-[#3c3836] flex items-center justify-between">
         <div className="flex items-center">
           <Award className="h-5 w-5 text-[#fe8019] mr-2" />
@@ -400,7 +402,7 @@ export default function ChallengeCompletionFlow({
       {/* Content */}
       <div
         ref={containerRef}
-        className="flex overflow-y-auto justify-center items-center p-6 bg-[#1d2021]"
+        className="flex overflow-y-auto p-6 bg-[#1d2021]"
       >
         <AnimatePresence mode="wait">
           <motion.div
