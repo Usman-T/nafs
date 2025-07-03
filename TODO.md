@@ -161,11 +161,11 @@ Like dont just go ahead and fix every fucking error in there, wire up each and e
 ## TODAY WE SHIP
 - Challenge completetin flow
   - whats missing
-    - Duration setting
-    - You do NOT choose durations, you are assigned based on level
-    - Rechecking the completion status
-    - proper step mapping
-    - Easily the work of like 30 minutes
+    - Duration setting (Done)
+    - You do NOT choose durations, you are assigned based on level (Done)
+    - Rechecking the completion status (Done)
+    - proper step mapping (Done)
+    - Easily the work of like 30 minutes (Not really)
   - Break a streak
     - Do when init day tasks run, if last day, even a single task was not done, then allow the user to re enroll in the same challenge with a max 2 clisk
     - orrrr create a new challenge or enroll in another one

@@ -83,7 +83,11 @@ const Challenges = ({
             onShowCompletionFlow={handleShowCompletionFlow}
           />
 
-          <ChallengeInfoCard challenge={challenge} currentDay={currentDay} />
+          <ChallengeInfoCard
+            currentStreak={currentStreak}
+            challenge={challenge}
+            currentDay={currentDay}
+          />
         </div>
       </div>
 
