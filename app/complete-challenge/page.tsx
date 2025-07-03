@@ -5,6 +5,7 @@ import {
   fetchDimensions,
   fetchUserChallenge,
   fetchUserDimensions,
+  fetchUserLevel,
 } from "@/lib/data";
 import React from "react";
 
@@ -15,14 +16,15 @@ const ChallengeCompletionPage = async () => {
     dimensionValues,
     dimensions,
     challenges,
+    userLevel,
   ] = await Promise.all([
     fetchUserChallenge(),
     fetchDailyTasks(),
     fetchUserDimensions(),
     fetchDimensions(),
     fetchChallenges(),
+    fetchUserLevel(),
   ]);
-
 
   return (
     <ChallengeCompletionFlow
@@ -31,6 +33,7 @@ const ChallengeCompletionPage = async () => {
       dimensions={dimensions}
       dimensionValues={dimensionValues}
       predefinedChallenges={challenges}
+      userLevel={userLevel}
     />
   );
 };

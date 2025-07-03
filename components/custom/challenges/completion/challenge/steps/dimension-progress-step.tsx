@@ -22,7 +22,7 @@ export const DimensionProgressStep: React.FC<DimensionProgressStepProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="space-y-6"
+      className="space-y-6 mb-4"
     >
       <div className="text-center">
         <h2 className="text-xl font-bold text-[#ebdbb2]">Spiritual Growth</h2>

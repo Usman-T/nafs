@@ -1,7 +1,9 @@
+"use client";
+
 import { iconMap } from "@/lib/iconMap";
 import { Dimension } from "@prisma/client";
 import { motion } from "framer-motion";
-import { ArrowUp, Check } from "lucide-react";
+import { Check } from "lucide-react";
 
 const DimensionProgressCard = ({
   dimension,
@@ -17,90 +19,85 @@ const DimensionProgressCard = ({
   delay?: number;
 }) => {
   const growth = currentValue - previousValue;
+  const growthAngle = Math.min((growth / 100) * 360, 360);
   const IconComponent = iconMap[dimension.icon];
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ delay, duration: 0.4 }}
-      className="bg-[#282828] border border-[#3c3836] rounded-lg overflow-hidden"
+      className="rounded-xl bg-[#282828] p-4 flex flex-col gap-3 shadow-sm"
     >
-      <div className="p-4 border-b border-[#3c3836] flex items-center">
-        <div
-          className="h-10 w-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0 transition-all"
-          style={{
-            backgroundColor: `${dimension.color}15`,
-            border: `1.5px solid ${dimension.color}`,
-          }}
-        >
-          <IconComponent
-            className="h-5 w-5 transition-transform group-hover:scale-110"
-            style={{ color: dimension.color }}
+      {/* Icon with Circular Growth Indicator */}
+      <div className="relative w-12 h-12 mx-auto">
+        <svg width="48" height="48" viewBox="0 0 48 48">
+          <circle
+            cx="24"
+            cy="24"
+            r="22"
+            fill="none"
+            stroke="#1d2021"
+            strokeWidth="3"
           />
-        </div>
-        <div>
-          <h3 className="text-[#ebdbb2] font-medium">{dimension.name}</h3>
-          <p className="text-xs text-[#a89984]">{dimension.description}</p>
+          {growth > 0 && (
+            <motion.circle
+              cx="24"
+              cy="24"
+              r="22"
+              fill="none"
+              stroke={dimension.color}
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeDasharray={`${(growthAngle / 360) * (2 * Math.PI * 22)}, ${
+                2 * Math.PI * 22
+              }`}
+              transform="rotate(-90 24 24)"
+              initial={{ strokeDashoffset: 2 * Math.PI * 22 }}
+              animate={{ strokeDashoffset: 0 }}
+              transition={{ duration: 1, delay: delay + 0.2 }}
+            />
+          )}
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <IconComponent className="h-5 w-5 "  style={{color: dimension.color}}/>
         </div>
       </div>
-      <div className="p-4">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-[#a89984]">Progress</span>
-          <div className="flex items-center">
-            <span className="text-sm text-[#ebdbb2]">{previousValue}%</span>
-            <ArrowUp className="h-3 w-3 mx-1 text-[#fe8019]" />
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: delay + 0.5 }}
-              className="text-sm font-medium text-[#fe8019]"
-            >
-              {currentValue}%
-            </motion.span>
-          </div>
-        </div>
-        <div className="relative h-2 bg-[#1d2021] rounded-full overflow-hidden mb-4">
+
+      {/* Name and description */}
+      <div className="text-center">
+        <div className="text-[#ebdbb2] font-semibold text-sm">{dimension.name}</div>
+        <div className="text-xs text-[#a89984]">{dimension.description}</div>
+      </div>
+
+      {/* Growth Text */}
+      {growth > 0 ? (
+        <motion.div
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: delay + 0.4 }}
+          className="text-xs text-[#fe8019] text-center font-medium"
+        >
+          +{growth}% improvement
+        </motion.div>
+      ) : (
+        <div className="text-xs text-center text-[#928374]">no growth yet</div>
+      )}
+
+      {/* Contributing Tasks */}
+      <div className="flex flex-col gap-1 mt-2">
+        {[...new Set(tasksContributed)].slice(0, 3).map((task, i) => (
           <motion.div
-            className="absolute left-0 top-0 bottom-0 bg-[#3c3836] rounded-full"
-            initial={{ width: `${previousValue}%` }}
-            animate={{ width: `${previousValue}%` }}
-          />
-          <motion.div
-            className="absolute left-0 top-0 bottom-0 rounded-full"
-            style={{ backgroundColor: dimension.color }}
-            initial={{ width: `${previousValue}%` }}
-            animate={{ width: `${currentValue}%` }}
-            transition={{ delay: delay + 0.2, duration: 1 }}
-          />
-        </div>
-        {growth > 0 && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            transition={{ delay: delay + 0.4, duration: 0.3 }}
-            className="text-sm text-[#a89984] mb-2"
+            key={i}
+            initial={{ opacity: 0, x: -6 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: delay + 0.6 + i * 0.1 }}
+            className="flex items-center text-xs text-[#ebdbb2]"
           >
-            <span className="text-[#fe8019] font-medium">+{growth}%</span>{" "}
-            growth from:
+            <Check className="h-3 w-3 text-[#fe8019] mr-2" />
+            {task}
           </motion.div>
-        )}
-        <div className="space-y-2">
-          {[...new Set(tasksContributed)].map((task, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: delay + 0.5 + i * 0.1 }}
-              className="flex items-center"
-            >
-              <div className="h-4 w-4 rounded-full bg-[#fe8019] flex items-center justify-center mr-2 flex-shrink-0">
-                <Check className="h-2 w-2 text-[#1d2021]" />
-              </div>
-              <span className="text-xs text-[#ebdbb2]">{task}</span>
-            </motion.div>
-          ))}
-        </div>
+        ))}
       </div>
     </motion.div>
   );

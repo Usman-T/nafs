@@ -205,3 +205,20 @@ export const fetchChallengeCompletionStatus = async () => {
 
   return true;
 };
+
+export const fetchUserLevel = async () => {
+  const session = await auth();
+
+  if (!session?.user) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email ?? undefined },
+    select: {
+      level: true,
+    },
+  });
+
+  return user?.level ?? 1;
+}

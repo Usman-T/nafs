@@ -55,6 +55,7 @@ interface ChallengeCompletionFlowProps {
   predefinedChallenges: Challenge[];
   dimensions: Dimension[];
   dimensionValues: DimensionValueWithDimension[];
+  userLevel: number;
 }
 
 export default function ChallengeCompletionFlow({
@@ -63,6 +64,7 @@ export default function ChallengeCompletionFlow({
   predefinedChallenges,
   dimensions,
   dimensionValues,
+  userLevel,
 }: ChallengeCompletionFlowProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -89,6 +91,17 @@ export default function ChallengeCompletionFlow({
     useSelectedChallenge(selectedChallengeId);
 
   useConfettiEffect(step);
+
+  const durationMap: Record<number, number> = {
+    1: 3,
+    2: 5,
+    3: 7,
+    4: 10,
+    5: 15,
+    6: 20,
+  };
+
+  const duration = durationMap[userLevel + 1] ?? 30;
 
   useEffect(() => {
     if (containerRef.current) {
@@ -124,6 +137,7 @@ export default function ChallengeCompletionFlow({
         return (
           <ChallengeSelectionStep
             predefinedChallenges={predefinedChallenges}
+            duration={duration}
             selectedChallengeId={selectedChallengeId}
             onSelectChallenge={setSelectedChallengeId}
             onCreateCustom={() => setStep(5)}
@@ -151,7 +165,7 @@ export default function ChallengeCompletionFlow({
 
                 <div className="flex justify-center gap-3 flex-wrap">
                   <Badge className="bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945] transition-colors">
-                    {selectedChallenge.duration} days
+                    {duration} days
                   </Badge>
                 </div>
 
@@ -217,6 +231,7 @@ export default function ChallengeCompletionFlow({
               <ChallengeSummary
                 selectedTasks={selectedTasks}
                 challenge={selectedChallenge}
+                duration={duration}
               />
             )}
           </motion.div>
@@ -238,7 +253,7 @@ export default function ChallengeCompletionFlow({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
+            className="mx-auto space-y-6"
           >
             <div className="text-center space-y-2">
               <motion.div
@@ -291,27 +306,6 @@ export default function ChallengeCompletionFlow({
 
       default:
         return null;
-    }
-  };
-
-  const getStepTitle = () => {
-    switch (step) {
-      case 0:
-        return "Congratulations!";
-      case 1:
-        return "Your Progress";
-      case 2:
-        return "Choose Your Next Challenge";
-      case 3:
-        return "Challenge Preview";
-      case 4:
-        return "Challenge Summary";
-      case 5:
-        return "Create Custom Challenge";
-      case 6:
-        return "Custom Challenge Ready";
-      default:
-        return "";
     }
   };
 
@@ -384,9 +378,7 @@ export default function ChallengeCompletionFlow({
   };
 
   return (
-    <div 
-      className="rounded-lg w-full h-screen justify-between flex flex-col"
-    >
+    <div className="rounded-lg w-full h-screen justify-between flex flex-col">
       <div className="p-4 bg-[#1d2021] border-b border-[#3c3836] flex items-center justify-between">
         <div className="flex items-center">
           <Award className="h-5 w-5 text-[#fe8019] mr-2" />
@@ -400,10 +392,7 @@ export default function ChallengeCompletionFlow({
       </div>
 
       {/* Content */}
-      <div
-        ref={containerRef}
-        className="flex overflow-y-auto p-6 bg-[#1d2021]"
-      >
+      <div ref={containerRef} className="flex overflow-y-auto p-6 items-center justify-center flex-col bg-[#1d2021]">
         <AnimatePresence mode="wait">
           <motion.div
             key={step}

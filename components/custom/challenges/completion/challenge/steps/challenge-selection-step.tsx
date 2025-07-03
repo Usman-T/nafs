@@ -15,6 +15,7 @@ import {
 interface ChallengeSelectionStepProps {
   predefinedChallenges: Challenge[];
   selectedChallengeId: string | null;
+  duration: number;
   onSelectChallenge: (id: string) => void;
   onCreateCustom: () => void;
 }
@@ -22,6 +23,7 @@ interface ChallengeSelectionStepProps {
 export const ChallengeSelectionStep: React.FC<ChallengeSelectionStepProps> = ({
   predefinedChallenges,
   selectedChallengeId,
+  duration,
   onSelectChallenge,
   onCreateCustom,
 }) => {
@@ -68,7 +70,7 @@ export const ChallengeSelectionStep: React.FC<ChallengeSelectionStepProps> = ({
               <CarouselItem key={i} className="px-2 pl-8">
                 <ChallengeCard
                   key={challenge.id}
-                  challenge={challenge}
+                  challenge={{ ...challenge, duration: duration }}
                   isSelected={selectedChallengeId === challenge.id}
                   onSelect={() => onSelectChallenge(challenge.id)}
                 />

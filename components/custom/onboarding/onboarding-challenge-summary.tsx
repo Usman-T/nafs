@@ -7,11 +7,13 @@ import { Challenge, ChallengeTask, Dimension, Task } from "@prisma/client";
 const ChallengeSummary = ({
   challenge,
   selectedTasks,
+  duration
 }: {
   challenge: Challenge & {
     tasks: ChallengeTask[] & { task: Task & { dimension: Dimension } }[];
   };
   selectedTasks: number[];
+  duration: number;
 }) => {
   return (
     <>
@@ -38,7 +40,7 @@ const ChallengeSummary = ({
 
         <div className="flex gap-2 mb-4 flex-wrap">
           <Badge className="bg-[#3c3836] text-[#ebdbb2]">
-            {challenge.duration} days
+            {duration} days
           </Badge>
           <Badge className="bg-[#3c3836] text-[#ebdbb2]">
             {selectedTasks.length > 0

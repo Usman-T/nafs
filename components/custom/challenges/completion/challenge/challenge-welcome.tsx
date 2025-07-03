@@ -113,7 +113,7 @@ const ChallengeWelcome = ({
             </div>
 
             <div className="flex justify-between text-sm">
-              <span className="text-[#a89984]">Daily Tasks Completed</span>
+              <span className="text-[#a89984]">Total Tasks Completed</span>
               <motion.span
                 className="text-[#ebdbb2]"
                 initial={{ opacity: 0 }}
@@ -136,35 +136,17 @@ const ChallengeWelcome = ({
                 <AnimatedCounter value={completionPercentage} />%
               </motion.span>
             </div>
-
           </div>
         </div>
       </div>
 
-      <div className="space-y-3 pt-2">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.1 }}
-          className="flex items-center gap-3 p-3 bg-[#282828] rounded-lg border border-[#3c3836]"
-        >
-          <div className="h-8 w-8 rounded-full bg-[#fe8019] flex items-center justify-center">
-            <Trophy className="h-4 w-4 text-[#1d2021]" />
-          </div>
-          <div className="flex flex-col items-start">
-            <div className="text-[#ebdbb2]">Achievement Unlocked</div>
-            <div className="text-xs text-[#a89984]">
-              {completedChallenge.challenge.name} Master
-            </div>
-          </div>
-        </motion.div>
-
+      <div className="space-y-3">
         {userLevel && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.3 }}
-            className="flex items-center gap-3 p-3 bg-[#282828] rounded-lg border border-[#3c3836]"
+            transition={{ delay: 1.1 }}
+            className="flex items-center gap-3 p-3 rounded-lg border border-[#3c3836]"
           >
             <div className="h-8 w-8 rounded-full bg-[#00BFFF] flex items-center justify-center">
               <Sparkles className="h-4 w-4 text-[#1d2021]" />
@@ -177,25 +159,40 @@ const ChallengeWelcome = ({
             </div>
           </motion.div>
         )}
-        {streakBonus > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.3 }}
-            className="flex items-center gap-3 p-3 bg-[#282828] rounded-lg border border-[#3c3836]"
-          >
-            <div className="h-8 w-8 rounded-full bg-[#8ec07c] flex items-center justify-center">
-              <Star className="h-4 w-4 text-[#1d2021]" />
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.3 }}
+          className="flex items-center gap-3 p-3 rounded-lg border border-[#3c3836]"
+        >
+          <div className="h-8 w-8 rounded-full bg-[#fe8019] flex items-center justify-center">
+            <Trophy className="h-4 w-4 text-[#1d2021]" />
+          </div>
+          <div className="flex flex-col items-start">
+            <div className="text-[#ebdbb2]">Achievement Unlocked</div>
+            <div className="text-xs text-[#a89984]">
+              {completedChallenge.challenge.name} Master
             </div>
-            <div className="flex flex-col items-start">
-              <div className="text-[#ebdbb2]">Current Streak</div>
-              <div className="text-xs text-[#a89984]">
-                {streakBonus} day{streakBonus !== 1 ? "s" : ""} streak
-                maintained
-              </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.5 }}
+          className="flex items-center gap-3 p-3 rounded-lg border border-[#3c3836]"
+        >
+          <div className="h-8 w-8 rounded-full bg-[#8ec07c] flex items-center justify-center">
+            <Star className="h-4 w-4 text-[#1d2021]" />
+          </div>
+          <div className="flex flex-col items-start">
+            <div className="text-[#ebdbb2]">Current Streak</div>
+            <div className="text-xs text-[#a89984]">
+              {streakBonus} day{streakBonus !== 1 ? "s" : ""} streak maintained
             </div>
-          </motion.div>
-        )}
+          </div>
+        </motion.div>
       </div>
     </motion.div>
   );
