@@ -16,6 +16,7 @@ interface ChallengeInfoCardProps {
       }[];
   };
   currentDay: number;
+  currentStreak: number;
 }
 
 const ChallengeInfoCard = ({
@@ -48,6 +49,24 @@ const ChallengeInfoCard = ({
             </div>
             <div className="text-xs text-[#a89984]">Days</div>
           </div>
+        </div>
+      </div>
+      <div className="mt-4">
+        <div className="flex justify-between text-sm mb-2">
+          <span className="text-[#a89984]">Challenge Progress</span>
+          <span className="text-[#ebdbb2]">
+            {Math.round((currentDay / challenge.challenge.duration) * 100)}%
+          </span>
+        </div>
+        <div className="flex space-x-1">
+          {Array.from({ length: challenge.challenge.duration }).map((_, i) => (
+            <div
+              key={i}
+              className={`h-2 flex-1 rounded-full ${
+                i < currentDay ? "bg-[#fe8019]" : "bg-[#3c3836]"
+              }`}
+            />
+          ))}
         </div>
       </div>
     </motion.div>
