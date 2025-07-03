@@ -1,6 +1,6 @@
 import React from "react";
 import DailyAyahSection from "../daily-ayah";
-import { fetchRandomVerse } from "@/lib/guidance";
+import { fetchRandomVerse } from "@/lib/utils/guidance";
 
 const DailyAyahWrapper = async () => {
   const apiVerse = await fetchRandomVerse(); 

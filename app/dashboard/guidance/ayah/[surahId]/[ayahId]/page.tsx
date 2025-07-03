@@ -3,7 +3,7 @@ import { ArrowLeft, BookOpen } from "lucide-react";
 import AyahContent from "@/components/custom/guidance/ayah/ayah-content";
 import Particles from "@/components/custom/guidance/ayah/particles";
 import Link from "next/link";
-import { fetchVerse } from "@/lib/guidance";
+import { fetchVerse } from "@/lib/utils/guidance";
 
 const surahData = {
   id: 1,

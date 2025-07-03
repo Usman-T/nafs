@@ -1,5 +1,5 @@
 import SurahsPageContent from "@/components/custom/guidance/surah/main-content";
-import { fetchAllSurahs } from "@/lib/guidance";
+import { fetchAllSurahs } from "@/lib/utils/guidance";
 
 const SurahsPage = async () => {
   const fetchedSurahs = await fetchAllSurahs();
