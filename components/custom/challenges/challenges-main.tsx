@@ -15,7 +15,6 @@ import LoadingSkeleton from "@/components/custom/challenges/challenges-skeleton"
 import CompletedChallenge from "@/components/custom/challenges/completed-challenge";
 
 import { ChallengesProps } from "@/components/custom/challenges/challenges-main/type";
-import { toast } from "sonner";
 
 const Challenges = ({
   challenge,
@@ -52,7 +51,7 @@ const Challenges = ({
   return (
     <>
       <div className="bg-[#1d2021]">
-        {true && <CompletedChallenge />}
+        {hasCompletedChallenge && <CompletedChallenge />}
 
         <div className="">
           <GreetingSection />
