@@ -214,7 +214,14 @@ Like dont just go ahead and fix every fucking error in there, wire up each and e
     
 
 ## Streak Breaking
-- Step 1: 
+- Step 1: Streak Break + Countdown Animation + Left Tasks Summary
+- Step 2: Radar chart showing decrease in left point
+- Step 3: Enroll same challenge + Start new one -> End if same
+- Step 4: Predefind Challenges Carousel + Create custom challenge
+- Step 5: Selected Challenge Task Selection
+- Step 6: Selected Challenge Challenge start
+- Step 5: Custom Task form
+- Step 6: Custom Challenge start
 
 
 ## FULL ROUTE VIEW BECAUSE THIS WAS A LOT OF WORK
