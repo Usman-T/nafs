@@ -86,7 +86,7 @@ export const enrollInExistingChallenge = async (
 };
 
 export const createCustomChallenge = async (
-  selectedChallengeId: string | null,
+  selectedChallengeId: string | undefined,
   duration: number,
   challengeData: {
     title: string | null;
@@ -120,7 +120,7 @@ export const createCustomChallenge = async (
     }
 
     if (existingChallenge) {
-      // For existing challenges, challengeData.tasks contains selected indices
+      // we have only passed the indices for the selected tasks
       const selectedTaskIds = existingChallenge.tasks
         .filter((_, index) => (challengeData.tasks as number[]).includes(index))
         .map((challengeTask) => challengeTask.taskId);
@@ -133,11 +133,12 @@ export const createCustomChallenge = async (
       const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + duration);
 
+      // only if selectedChallengeId existed, we end up in this block
       await prisma.$transaction([
         prisma.userChallenge.create({
           data: {
             userId,
-            selectedChallengeId,
+            challengeId: selectedChallengeId,
             startDate,
             endDate,
             progress: 0,
@@ -145,10 +146,11 @@ export const createCustomChallenge = async (
         }),
         prisma.user.update({
           where: { id: userId },
-          data: { selectedChallengeId },
+          data: { challengeId: selectedChallengeId },
         }),
       ]);
 
+      // no need to recreate tasks if we are enrolling in an existing challenge
       const dailyTasks = Array.from({ length: duration }, (_, day) => ({
         date: new Date(new Date(startDate).setDate(startDate.getDate() + day)),
         taskIds: selectedTaskIds,
@@ -171,12 +173,14 @@ export const createCustomChallenge = async (
         const challenge = await tx.challenge.create({
           data: {
             name: challengeData.title,
-            description: challengeData.description,
+            description: `Your personalized ${duration} day challenge`,
             duration: duration,
             icon: "custom",
           },
         });
 
+        // we end up here if tasks are passed as objects, not indices
+        // btw we have to create tasks before the challengeTask relation bc these tasks don't exist yet
         const tasks = await Promise.all(
           challengeData.tasks.map((task) =>
             tx.task.create({

@@ -43,12 +43,12 @@ const ChallengeInfoCard = ({
               {challenge.challenge.description}
             </p>
           </div>
-          <div className="text-right">
-            <div className="text-sm font-semibold text-[#fe8019]">
-              {currentDay}/{challenge.challenge.duration}
-            </div>
-            <div className="text-xs text-[#a89984]">Days</div>
+        </div>
+        <div className="text-right">
+          <div className="text-sm font-semibold text-[#fe8019]">
+            {currentDay}/{challenge.challenge.duration}
           </div>
+          <div className="text-xs text-[#a89984]">Days</div>
         </div>
       </div>
       <div className="mt-4">

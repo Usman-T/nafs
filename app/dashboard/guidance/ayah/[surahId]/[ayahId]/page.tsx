@@ -25,11 +25,8 @@ const AyahPage = async ({ params }: AyahPageProps) => {
   const surahId = Number(params.surahId);
   const ayahId = Number(params.ayahId);
   const apiVerse = await fetchVerse(surahId, ayahId);
-  console.log({ apiVerse });
 
   const mapVerse = (apiVerse) => {
-    console.log({ apiVerse });
-
     const verseKey =
       apiVerse.verse_key || `${apiVerse.chapter_id}:${apiVerse.verse_number}`;
     const [surahId, ayahId] = verseKey.split(":");
@@ -50,7 +47,6 @@ const AyahPage = async ({ params }: AyahPageProps) => {
     };
   };
   const verse = mapVerse(apiVerse);
-  console.log(verse);
 
   return (
     <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2] relative overflow-hidden">

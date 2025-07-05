@@ -63,9 +63,9 @@ export default function ChallengeOnboarding({
   const [carouselApi, setCarouselApi] = useState();
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  console.log({ predefinedChallenges });
-
   const onComplete = async () => {
+    const INITIAL_CHALLENGE_DURATION = 3;
+
     try {
       setIsLoading(true);
 
@@ -73,20 +73,24 @@ export default function ChallengeOnboarding({
         const result = await enrollInExistingChallenge(
           selectedChallengeId,
           selectedTasks,
+          INITIAL_CHALLENGE_DURATION,
           false
         );
         if (!result.success) throw new Error(result.message);
       } else if (customChallenge.tasks.length > 0) {
-        const creationResult = await createCustomChallenge({
-          title: customChallenge.title,
-          description: customChallenge.description,
-          duration: customChallenge.duration,
-          tasks: customChallenge.tasks.map((t) => ({
-            name: t.name,
-            dimensionId: t.dimension.id,
-          })),
-          nextDay: false,
-        });
+        const creationResult = await createCustomChallenge(
+          undefined,
+          INITIAL_CHALLENGE_DURATION,
+          {
+            title: customChallenge.title,
+            description: customChallenge.description,
+            tasks: customChallenge.tasks.map((t) => ({
+              name: t.name,
+              dimensionId: t.dimension.id,
+            })),
+            nextDay: false,
+          }
+        );
 
         if (!creationResult.success) {
           throw new Error(creationResult?.message);

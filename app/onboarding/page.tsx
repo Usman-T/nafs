@@ -5,8 +5,6 @@ const Onboarding = async () => {
   const predefinedChallenges = await fetchChallenges();
   const dimensions = await fetchDimensions();
 
-  console.log({ predefinedChallenges });
-
   return (
     <ChallengeOnboarding
       dimensions={dimensions}

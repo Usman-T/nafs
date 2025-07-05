@@ -6,13 +6,6 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import type { NextAuthConfig } from "next-auth";
 
-console.log("GOOGLE ENV", {
-  id: process.env.AUTH_GOOGLE_ID,
-  secret: process.env.AUTH_GOOGLE_SECRET,
-  nextauth: process.env.NEXTAUTH_URL,
-});
-
-
 export const authConfig: NextAuthConfig = {
   adapter: PrismaAdapter(prisma),
   providers: [
