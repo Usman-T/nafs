@@ -151,7 +151,7 @@ const InteractiveRadarDemo = ({ isActive }: { isActive: boolean }) => {
 
   const points = dimensions.map((dim, i) => {
     const angle = (Math.PI * 2 * i) / dimensions.length - Math.PI / 2;
-    const animatedValue = dim.value; // Removed the random animation
+    const animatedValue = dim.value; 
 
     return {
       x: center + radius * Math.cos(angle) * animatedValue,
@@ -176,7 +176,6 @@ const InteractiveRadarDemo = ({ isActive }: { isActive: boolean }) => {
         transition={{ duration: 0.5, ease: "easeOut" }}
       >
         <svg width={size} height={size} className="mx-auto">
-          {/* Background rings */}
           {[0.2, 0.4, 0.6, 0.8, 1].map((level, i) => (
             <polygon
               key={i}
@@ -328,7 +327,6 @@ const InteractiveRadarDemo = ({ isActive }: { isActive: boolean }) => {
   );
 };
 
-// Enhanced Calendar Demo with more interactions
 const InteractiveCalendarDemo = ({ isActive }: { isActive: boolean }) => {
   const [completedDays, setCompletedDays] = useState<number[]>([
     5, 6, 7, 8, 12, 13,
@@ -351,7 +349,6 @@ const InteractiveCalendarDemo = ({ isActive }: { isActive: boolean }) => {
         setShowCelebration(true);
         setTimeout(() => setShowCelebration(false), 1000);
 
-        // Calculate new streak
         const newCompleted = [...completedDays, day].sort((a, b) => a - b);
         let currentStreak = 0;
         for (let i = today; i >= 1; i--) {
