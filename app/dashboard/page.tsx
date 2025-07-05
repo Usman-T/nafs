@@ -6,7 +6,6 @@ import {
   fetchUserDimensions,
   fetchDimensions,
   fetchChallengeCompletionStatus,
-  fetchChallenges,
 } from "@/lib/data";
 import { redirect } from "next/navigation";
 
@@ -25,7 +24,6 @@ const ChallengesPage = async () => {
     fetchUserDimensions(),
     fetchDimensions(),
     fetchChallengeCompletionStatus(),
-    fetchChallenges(),
   ]);
 
   if (!currentChallenge) {

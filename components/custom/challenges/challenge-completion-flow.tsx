@@ -80,7 +80,7 @@ export default function ChallengeCompletionFlow({
     addCustomTask,
     removeCustomTask,
     toggleTaskSelection,
-  } = useChallengeCompletion(completedChallenge.id);
+  } = useChallengeCompletion(completedChallenge.id, userLevel);
 
   const { selectedChallenge, challengeLoading } =
     useSelectedChallenge(selectedChallengeId);

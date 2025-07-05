@@ -2,10 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import confetti from "canvas-confetti";
 import { completeChallenge, createCustomChallenge } from "@/lib/actions";
 import { Dimension } from "@prisma/client";
-import { fetchUserLevel } from "../data";
 
 interface CustomChallenge {
   title: string;
@@ -14,7 +12,10 @@ interface CustomChallenge {
   tasks: { name: string; dimension: Dimension }[];
 }
 
-export const useChallengeCompletion = (completedChallengeId: string) => {
+export const useChallengeCompletion = (
+  completedChallengeId: string,
+  userLevel: number
+) => {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(
@@ -32,7 +33,6 @@ export const useChallengeCompletion = (completedChallengeId: string) => {
   const handleChallengeCompletion = async () => {
     try {
       setIsLoading(true);
-      const userLevel = await fetchUserLevel();
       const durationMap: Record<number, number> = {
         1: 3,
         2: 5,

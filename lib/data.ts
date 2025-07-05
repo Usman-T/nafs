@@ -159,7 +159,6 @@ export const fetchUserDimensions = async () => {
 
 export const fetchChallengeCompletionStatus = async () => {
   const session = await auth();
-
   if (!session?.user) throw new Error("Not authenticated");
 
   const user = await prisma.user.findUnique({
@@ -180,26 +179,28 @@ export const fetchChallengeCompletionStatus = async () => {
 
   const completedMap: Record<string, Set<string>> = {};
   for (const ct of user.completedTasks) {
-    const dateStr = new Date(ct.completedAt).toDateString();
+    const dateStr = ct.completedAt.toISOString().slice(0, 10);
     if (!completedMap[dateStr]) completedMap[dateStr] = new Set();
     completedMap[dateStr].add(ct.dailyTaskId);
   }
 
+  const dailyTasksMap: Record<string, typeof user.dailyTasks> = {};
+  for (const dt of user.dailyTasks) {
+    const dateStr = new Date(dt.date).toISOString().slice(0, 10);
+    if (!dailyTasksMap[dateStr]) dailyTasksMap[dateStr] = [];
+    dailyTasksMap[dateStr].push(dt);
+  }
+
   for (let i = 0; i < duration; i++) {
     const day = subDays(today, i);
-    const dayStr = day.toDateString();
+    const dayStr = day.toISOString().slice(0, 10);
 
-    const tasksForDay = user.dailyTasks.filter((dt) =>
-      isSameDay(new Date(dt.date), day)
-    );
+    const tasksForDay = dailyTasksMap[dayStr];
+    if (!tasksForDay || tasksForDay.length === 0) return false;
 
-    if (tasksForDay.length === 0) return false;
-
+    const completedSet = completedMap[dayStr];
     for (const task of tasksForDay) {
-      const completedSet = completedMap[dayStr];
-      if (!completedSet || !completedSet.has(task.id)) {
-        return false;
-      }
+      if (!completedSet?.has(task.id)) return false;
     }
   }
 
@@ -221,4 +222,4 @@ export const fetchUserLevel = async () => {
   });
 
   return user?.level ?? 1;
-}
+};
