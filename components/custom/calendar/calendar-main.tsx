@@ -230,7 +230,6 @@ const CalendarMain = ({
                 {calendarDays.map((date, index) => {
                   const status = getCompletionStatus(date);
                   const dayKey = date ? date.toISOString() : `empty-${index}`;
-                  console.log({ status, index });
 
                   return (
                     <motion.div

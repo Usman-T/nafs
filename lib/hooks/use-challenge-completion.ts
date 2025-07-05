@@ -1,14 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import confetti from "canvas-confetti";
-import {
-  completeChallenge,
-  createCustomChallenge,
-  enrollInExistingChallenge,
-} from "@/lib/actions";
-import { Challenge, Dimension } from "@prisma/client";
+import { completeChallenge, createCustomChallenge } from "@/lib/actions";
+import { Dimension } from "@prisma/client";
 import { fetchUserLevel } from "../data";
 
 interface CustomChallenge {
@@ -26,14 +22,14 @@ export const useChallengeCompletion = (completedChallengeId: string) => {
   );
   const [customChallenge, setCustomChallenge] = useState<CustomChallenge>({
     title: "Custom Challenge",
-    description: "Your personalized 3 day challenge",
+    description: "Your personalized day challenge",
     duration: 3,
     tasks: [],
   });
   const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChallengeCompletion = async (onComplete: () => void) => {
+  const handleChallengeCompletion = async () => {
     try {
       setIsLoading(true);
       const userLevel = await fetchUserLevel();
@@ -51,14 +47,12 @@ export const useChallengeCompletion = (completedChallengeId: string) => {
 
       let tasksToPass;
       if (selectedChallengeId) {
-        // For existing challenges, we need to pass the selected task indices
-        tasksToPass = selectedTasks; // These are indices
+        tasksToPass = selectedTasks; // passing selected task indices only
       } else {
-        // For custom challenges, we pass the task objects
         tasksToPass = customChallenge?.tasks.map((t) => ({
           name: t?.name,
           dimensionId: t?.dimension.id,
-        }));
+        })); // passing full task objects
       }
 
       const creationResult = await createCustomChallenge(

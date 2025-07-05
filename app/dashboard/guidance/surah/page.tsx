@@ -3,7 +3,6 @@ import { fetchAllSurahs } from "@/lib/utils/guidance";
 
 const SurahsPage = async () => {
   const fetchedSurahs = await fetchAllSurahs();
-  console.log({ fetchedSurahs });
 
   const surahs = fetchedSurahs.map((surah) => ({
     id: surah.id,

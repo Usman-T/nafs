@@ -67,11 +67,6 @@ export default function ChallengeCompletionFlow({
   userLevel,
 }: ChallengeCompletionFlowProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const onComplete = () => {
-    console.log("completed");
-  };
-
   const {
     step,
     setStep,
@@ -338,9 +333,9 @@ export default function ChallengeCompletionFlow({
 
   const handleNext = async () => {
     if (step === 4) {
-      await handleChallengeCompletion(onComplete);
+      await handleChallengeCompletion();
     } else if (step === 6) {
-      await handleChallengeCompletion(onComplete);
+      await handleChallengeCompletion();
     } else {
       setStep(step + 1);
     }
@@ -392,7 +387,10 @@ export default function ChallengeCompletionFlow({
       </div>
 
       {/* Content */}
-      <div ref={containerRef} className="flex overflow-y-auto p-6 items-center justify-center flex-col bg-[#1d2021]">
+      <div
+        ref={containerRef}
+        className="flex overflow-y-auto p-6 items-center justify-center flex-col bg-[#1d2021]"
+      >
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
