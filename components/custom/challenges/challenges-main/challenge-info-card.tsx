@@ -22,6 +22,7 @@ interface ChallengeInfoCardProps {
 const ChallengeInfoCard = ({
   challenge,
   currentDay,
+  currentStreak,
 }: ChallengeInfoCardProps) => {
   return (
     <motion.div
@@ -55,7 +56,7 @@ const ChallengeInfoCard = ({
         <div className="flex justify-between text-sm mb-2">
           <span className="text-[#a89984]">Challenge Progress</span>
           <span className="text-[#ebdbb2]">
-            {Math.round((currentDay / challenge.challenge.duration) * 100)}%
+            {Math.round((currentStreak / challenge.challenge.duration) * 100)}%
           </span>
         </div>
         <div className="flex space-x-1">
@@ -63,7 +64,7 @@ const ChallengeInfoCard = ({
             <div
               key={i}
               className={`h-2 flex-1 rounded-full ${
-                i < currentDay ? "bg-[#fe8019]" : "bg-[#3c3836]"
+                i < currentStreak ? "bg-[#fe8019]" : "bg-[#3c3836]"
               }`}
             />
           ))}

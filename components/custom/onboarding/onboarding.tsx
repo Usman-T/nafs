@@ -31,6 +31,30 @@ import {
 } from "@/components/ui/carousel";
 import { toast } from "sonner";
 import { signOut } from "next-auth/react";
+import { CustomTasksStep } from "./steps/custom-task-step";
+import { CustomChallengeSummaryStep } from "./steps/custom-challenge-summary";
+import { OnboardingHeader } from "./onboarding-header";
+import { OnboardingNavigation } from "./onboarding-navigation";
+import { ChallengeSelectionStep } from "./steps/challenge-selection";
+import { useChallengeOnboarding } from "@/lib/hooks/use-challenge-onboarding";
+
+// Types
+interface CustomTask {
+  name: string;
+  dimension: Dimension;
+}
+
+interface CustomChallengeState {
+  title: string;
+  description: string;
+  duration: number;
+  tasks: CustomTask[];
+}
+
+interface UseChallengeOnboardingProps {
+  predefinedChallenges: Challenge[];
+  dimensions: Dimension[];
+}
 
 export default function ChallengeOnboarding({
   predefinedChallenges,
@@ -39,498 +63,80 @@ export default function ChallengeOnboarding({
   predefinedChallenges: Challenge[];
   dimensions: Dimension[];
 }) {
-  const router = useRouter();
-  const [step, setStep] = useState(0);
-  const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(
-    null
-  );
-  const [customChallenge, setCustomChallenge] = useState({
-    title: "Custom Challenge",
-    description: "Your personalized 3 day challenge",
-    duration: 3,
-    tasks: [] as {
-      name: string;
-      dimension: Dimension;
-    }[],
-  });
-  const [showTaskForm, setShowTaskForm] = useState(false);
-  const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [challengeLoading, setChallengeLoading] = useState(false);
-  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(
-    null
-  );
-  const [carouselApi, setCarouselApi] = useState();
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  const onComplete = async () => {
-    const INITIAL_CHALLENGE_DURATION = 3;
-
-    try {
-      setIsLoading(true);
-
-      if (selectedChallengeId) {
-        const result = await enrollInExistingChallenge(
-          selectedChallengeId,
-          selectedTasks,
-          INITIAL_CHALLENGE_DURATION,
-          false
-        );
-        if (!result.success) throw new Error(result.message);
-      } else if (customChallenge.tasks.length > 0) {
-        const creationResult = await createCustomChallenge(
-          undefined,
-          INITIAL_CHALLENGE_DURATION,
-          {
-            title: customChallenge.title,
-            description: customChallenge.description,
-            tasks: customChallenge.tasks.map((t) => ({
-              name: t.name,
-              dimensionId: t.dimension.id,
-            })),
-            nextDay: false,
-          }
-        );
-
-        if (!creationResult.success) {
-          throw new Error(creationResult?.message);
-        }
-      }
-
-      toast.success("Challenge started successfully!", {
-        description: "Redirecting to your dashboard...",
-      });
-
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000);
-    } catch (error: any) {
-      if (
-        error.message?.includes("auth") ||
-        error.message?.includes("login") ||
-        error.message?.includes("session") ||
-        error.message?.includes("unauthorized")
-      ) {
-        toast.error("Session expired", {
-          description: "Please log in again to continue",
-          action: {
-            label: "Login",
-            onClick: async () => {
-              localStorage.clear();
-              signOut({ redirectTo: "/login" });
-            },
-          },
-        });
-      } else {
-        toast.error("Something went wrong", {
-          description: "Most issues are fixed by logging in again",
-          action: {
-            label: "Login",
-            onClick: async () => {
-              localStorage.clear();
-              signOut({ redirectTo: "/login" });
-            },
-          },
-        });
-      }
-
-      console.error("Onboarding error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = 0;
-    }
-    if (step === 5) {
-      setSelectedChallengeId(null);
-      setSelectedChallenge(null);
-    }
-  }, [step]);
-
-  useEffect(() => {
-    const loadChallenge = async () => {
-      try {
-        console.log("Fetching challenge with ID:", selectedChallengeId);
-        const response = await fetch(`/api/challenges/${selectedChallengeId}`);
-        const data = await response.json();
-        setSelectedChallenge(data.challenge);
-      } catch (error) {
-        console.error("Error fetching challenge:", error);
-      } finally {
-        setChallengeLoading(false);
-      }
-    };
-    loadChallenge();
-  }, [selectedChallengeId]);
-
-  useEffect(() => {
-    if (!carouselApi) {
-      return;
-    }
-
-    carouselApi.on("select", () => {
-      setCurrentSlide(carouselApi.selectedScrollSnap());
-    });
-  }, [carouselApi]);
-
-  const handleAddTask = (task: { name: string; dimension: Dimension }) => {
-    setCustomChallenge({
-      ...customChallenge,
-      tasks: [...customChallenge.tasks, { ...task, dimension: task.dimension }],
-    });
-    setShowTaskForm(false);
-    setSelectedChallengeId(null);
-    setSelectedChallenge(null);
-  };
-
-  const handleStartChallenge = () => {
-    setIsLoading(true);
-
-    onComplete();
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-  };
+  const {
+    step,
+    selectedChallengeId,
+    customChallenge,
+    showTaskForm,
+    selectedTasks,
+    isLoading,
+    challengeLoading,
+    selectedChallenge,
+    carouselApi,
+    currentSlide,
+    containerRef,
+    handleAddTask,
+    handleRemoveTask,
+    handleChallengeSelect,
+    handleNext,
+    handleBack,
+    setShowTaskForm,
+    setSelectedTasks,
+    setCarouselApi,
+    setStep,
+    isNextDisabled,
+    showFinishButton,
+    totalSteps,
+  } = useChallengeOnboarding({ predefinedChallenges, dimensions });
 
   const renderStepContent = () => {
     switch (step) {
-      case 0: // Welcome
+      case 0:
         return <OnboardingWelcome />;
-      case 1: // Choose challenge
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
-          >
-            <div className="text-center">
-              <h2 className="text-xl font-bold text-[#ebdbb2]">
-                Choose a Challenge
-              </h2>
-              <p className="text-[#a89984]">
-                Select a pre-designed challenge or create your own
-              </p>
-            </div>
-
-            <div className="grid-cols-1 scrollbar-hide gap-4 grid">
-              <Carousel
-                className="w-full"
-                opts={{
-                  align: "start",
-                  dragFree: false,
-                  loop: false,
-                  slidesToScroll: 1,
-                }}
-                setApi={setCarouselApi}
-              >
-                <CarouselContent>
-                  {predefinedChallenges.map((challenge, i) => (
-                    <CarouselItem key={i} className="px-2 pl-8">
-                      <ChallengeCard
-                        key={challenge.id}
-                        className={""}
-                        challenge={challenge}
-                        isSelected={selectedChallengeId === challenge.id}
-                        onSelect={() => {
-                          console.log(challenge.id);
-                          setSelectedChallengeId(challenge.id);
-                        }}
-                      />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-
-                <div className="flex justify-center space-x-2 mt-3">
-                  {predefinedChallenges.map((_, index) => (
-                    <button
-                      key={index}
-                      className={`w-2 h-2 rounded-full transition-colors ${
-                        index === currentSlide
-                          ? "bg-[#fe8019]"
-                          : "bg-[#504945] hover:bg-[#665c54]"
-                      }`}
-                      onClick={() => carouselApi?.scrollTo(index)}
-                    />
-                  ))}
-                </div>
-              </Carousel>
-            </div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="flex justify-center"
-            >
-              <Button
-                variant="outline"
-                className="border-[#3c3836] text-[#ebdbb2] hover:bg-[#3c3836] hover:text-[#fe8019]"
-                onClick={() => setStep(4)}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Create Custom Challenge
-              </Button>
-            </motion.div>
-          </motion.div>
-        );
-      case 2:
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
-          >
-            {selectedChallengeId && (
-              <>
-                <SelectedChallenge
-                  selectedTasks={selectedTasks}
-                  setSelectedTasks={setSelectedTasks}
-                  challenge={selectedChallenge}
-                  loading={challengeLoading}
-                />
-              </>
-            )}
-          </motion.div>
-        );
-
-      case 3: // Challenge summary
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
-          >
-            {selectedChallengeId && (
-              <>
-                <ChallengeSummary
-                  selectedTasks={selectedTasks}
-                  challenge={selectedChallenge}
-                />
-              </>
-            )}
-          </motion.div>
-        );
-
-      case 4: // Custom challenge - add tasks
-        return (
-          <>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="space-y-6"
-            >
-              <div className="text-center">
-                <h2 className="text-xl font-bold text-[#ebdbb2]">
-                  Add Challenge Tasks
-                </h2>
-                <p className="text-[#a89984]">
-                  Create tasks to complete daily during your challenge
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                {customChallenge.tasks.length > 0 ? (
-                  <div className="space-y-2">
-                    {customChallenge.tasks.map((task, i) => {
-                      const IconComponent =
-                        iconMap[task.dimension.icon] || "BookOpen";
-                      return (
-                        <div
-                          key={i}
-                          className="flex items-center justify-between p-3 rounded-md bg-[#1d2021] border border-[#3c3836]"
-                        >
-                          <div className="flex items-center">
-                            <div className="h-8 w-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                              <IconComponent
-                                className="h-4 w-4"
-                                style={{
-                                  color: task.dimension.color,
-                                  borderColor: task.dimension.color,
-                                }}
-                              />
-                            </div>
-                            <div>
-                              <span className="text-[#ebdbb2] text-sm sm:text-base">
-                                {task.name}
-                              </span>
-                              <div className="text-xs text-[#a89984] mt-1">
-                                {task.dimension.name}
-                              </div>
-                            </div>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 text-[#a89984] hover:text-[#fb4934] hover:bg-transparent flex-shrink-0"
-                            onClick={() => {
-                              setCustomChallenge({
-                                ...customChallenge,
-                                tasks: customChallenge.tasks.filter(
-                                  (_, index) => index !== i
-                                ),
-                              });
-                            }}
-                          >
-                            <Trash className="w-6 h-6" />
-                          </Button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 border border-dashed border-[#3c3836] rounded-md">
-                    <p className="text-[#a89984]">No tasks added yet</p>
-                    <p className="text-xs text-[#a89984] mt-1">
-                      Add tasks to complete during your challenge
-                    </p>
-                  </div>
-                )}
-
-                <AnimatePresence>
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    <Button
-                      variant="outline"
-                      className="w-full border-dashed border-[#3c3836] text-[#a89984] hover:text-[#fe8019] hover:border-[#fe8019] hover:bg-transparent"
-                      onClick={() => setShowTaskForm(true)}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add New Task
-                    </Button>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-
-              <div className="text-sm text-[#a89984] text-center">
-                <p>
-                  Add at least 3 and at max 5 do-able tasks to your challenge.
-                </p>
-              </div>
-            </motion.div>
-            <CustomTaskForm
-              onAdd={handleAddTask}
-              dimensions={dimensions}
-              onCancel={() => setShowTaskForm(false)}
-              isOpen={showTaskForm}
-              setIsOpen={setShowTaskForm}
-            />
-          </>
-        );
-
-      case 5: // Custom challenge summary
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
-          >
-            <div className="text-center space-y-2">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                className="mx-auto h-16 w-16 rounded-full bg-[#fe8019] flex items-center justify-center mb-4"
-              >
-                <Award className="h-8 w-8 text-[#1d2021]" />
-              </motion.div>
-              <h2 className="text-xl font-bold text-[#ebdbb2]">
-                Challenge Created
-              </h2>
-              <p className="text-[#a89984]">
-                You&apos;re ready to begin your custom challenge
-              </p>
-            </div>
-
-            <div className="bg-[#1d2021] rounded-md p-4 border border-[#3c3836]">
-              <h3 className="text-[#ebdbb2] font-medium mb-2">
-                {customChallenge.title || "Untitled Challenge"}
-              </h3>
-              <div className="text-sm text-[#a89984] mb-3">
-                {customChallenge.description || "No description provided"}
-              </div>
-
-              <div className="flex gap-2 mb-4 flex-wrap">
-                <Badge className="bg-[#3c3836] text-[#ebdbb2]">
-                  {customChallenge.duration} days
-                </Badge>
-                <Badge className="bg-[#3c3836] text-[#ebdbb2]">
-                  {customChallenge.tasks.length} tasks
-                </Badge>
-              </div>
-
-              <div className="space-y-2">
-                {customChallenge.tasks.map((task, i) => (
-                  <div key={i} className="flex items-center">
-                    <div
-                      className="h-4 w-4 rounded-full mr-2 flex-shrink-0"
-                      style={{ backgroundColor: task.dimension.color }}
-                    ></div>
-                    <span className="text-sm text-[#ebdbb2]">{task.name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="text-sm text-[#a89984] text-center">
-              <p>Your challenge will begin today.</p>
-            </div>
-          </motion.div>
-        );
-
-      default:
-        return null;
-    }
-  };
-
-  const isNextDisabled = () => {
-    switch (step) {
       case 1:
-        return !selectedChallengeId && step !== 3;
+        return (
+          <ChallengeSelectionStep
+            predefinedChallenges={predefinedChallenges}
+            selectedChallengeId={selectedChallengeId}
+            onChallengeSelect={handleChallengeSelect}
+            carouselApi={carouselApi}
+            setCarouselApi={setCarouselApi}
+            currentSlide={currentSlide}
+            onCreateCustom={() => setStep(4)}
+          />
+        );
       case 2:
-        return selectedTasks.length < 3;
+        return (
+          <SelectedChallenge
+            selectedTasks={selectedTasks}
+            setSelectedTasks={setSelectedTasks}
+            challenge={selectedChallenge}
+            loading={challengeLoading}
+          />
+        );
+      case 3:
+        return (
+          <ChallengeSummary
+            duration={3}
+            selectedTasks={selectedTasks}
+            challenge={selectedChallenge}
+          />
+        );
       case 4:
-        return !(
-          customChallenge.tasks.length >= 3 && customChallenge.tasks.length <= 5
+        return (
+          <CustomTasksStep
+            customChallenge={customChallenge}
+            onAddTask={handleAddTask}
+            onRemoveTask={handleRemoveTask}
+            showTaskForm={showTaskForm}
+            setShowTaskForm={setShowTaskForm}
+            dimensions={dimensions}
+          />
         );
       case 5:
-        return customChallenge.tasks.length === 0;
+        return <CustomChallengeSummaryStep customChallenge={customChallenge} />;
       default:
-        return false;
-    }
-  };
-
-  const showFinishButton = () => {
-    return (step === 3 && selectedChallengeId) || step === 5;
-  };
-
-  const handleNext = () => {
-    if (step === 1 && !selectedChallengeId) {
-      setStep(4);
-    } else if (step === 3 || step === 5) {
-      handleStartChallenge();
-    } else {
-      setStep(step + 1);
-    }
-  };
-
-  const handleBack = () => {
-    if (step === 4) {
-      setStep(1);
-    } else {
-      setStep(Math.max(0, step - 1));
+        return null;
     }
   };
 
@@ -540,17 +146,7 @@ export default function ChallengeOnboarding({
       animate={{ opacity: 1, scale: 1 }}
       className="rounded-lg w-full h-screen justify-between flex flex-col"
     >
-      <div className="p-4 border-b border-[#3c3836] flex items-center justify-between">
-        <div className="flex items-center">
-          <Award className="h-5 w-5 text-[#fe8019] mr-2" />
-          <span className="text-[#ebdbb2] font-medium">
-            Challenge Onboarding
-          </span>
-        </div>
-        <div className="text-[#a89984] text-sm">
-          Step {step + 1} of {selectedChallengeId ? 4 : 7}
-        </div>
-      </div>
+      <OnboardingHeader step={step} totalSteps={totalSteps} />
 
       <div
         ref={containerRef}
@@ -561,37 +157,15 @@ export default function ChallengeOnboarding({
         </AnimatePresence>
       </div>
 
-      <div className="p-4  border-[#3c3836] flex justify-between">
-        <Button
-          variant="outline"
-          className="border-[#3c3836] text-[#ebdbb2] hover:bg-[#3c3836]"
-          onClick={handleBack}
-          disabled={step === 0 || isLoading}
-        >
-          <ChevronLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
-
-        <Button
-          className="bg-[#fe8019] text-[#1d2021] hover:bg-[#d65d0e]"
-          onClick={handleNext}
-          disabled={isNextDisabled() || isLoading}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Loading...
-            </>
-          ) : showFinishButton() ? (
-            "Start Challenge"
-          ) : (
-            <>
-              Next
-              <ChevronRight className="h-4 w-4 ml-2" />
-            </>
-          )}
-        </Button>
-      </div>
+      <OnboardingNavigation
+        step={step}
+        totalSteps={totalSteps}
+        onBack={handleBack}
+        onNext={handleNext}
+        isLoading={isLoading}
+        isNextDisabled={isNextDisabled()}
+        showFinishButton={showFinishButton()}
+      />
     </motion.div>
   );
 }
