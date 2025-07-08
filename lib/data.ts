@@ -1,6 +1,8 @@
 import prisma from "@/prisma";
 import { auth } from "@/auth";
 import { isSameDay, subDays } from "date-fns";
+import { revalidatePath } from "next/cache";
+import { initializeDayTasks } from "./actions";
 
 export const getUsers = async () => {
   try {
@@ -222,4 +224,32 @@ export const fetchUserLevel = async () => {
   });
 
   return user?.level ?? 1;
+};
+
+export const loadChallengesPageData = async () => {
+  const currentChallenge = await fetchUserChallenge();
+  const dailyTasks = await fetchDailyTasks();
+  const dimensions = await fetchDimensions();
+  const dimensionValues = await fetchUserDimensions();
+  const hasCompletedChallenge = await fetchChallengeCompletionStatus();
+
+  if (!currentChallenge) {
+    return { redirectToOnboarding: true };
+  }
+
+  const today = new Date();
+  let todayTasks = dailyTasks?.filter((t) => isSameDay(t.date, today));
+
+  if (!todayTasks?.length) {
+    await initializeDayTasks(currentChallenge.id);
+    const updatedTasks = await fetchDailyTasks();
+    todayTasks = updatedTasks?.filter((t) => isSameDay(t.date, today));
+  }
+  return {
+    currentChallenge,
+    dailyTasks,
+    dimensions,
+    dimensionValues,
+    hasCompletedChallenge,
+  };
 };

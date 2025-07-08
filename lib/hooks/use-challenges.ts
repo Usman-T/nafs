@@ -58,7 +58,6 @@ export const useChallenges = () => {
     window.dispatchEvent(new Event("storage"));
   };
 
-  // only to show the skeleton for an extra 100ms >_<  
   useEffect(() => {
     setIsMounted(true);
     const timer = setTimeout(() => setIsLoading(false), 100);

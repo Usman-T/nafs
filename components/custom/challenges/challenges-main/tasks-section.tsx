@@ -3,10 +3,17 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Award, Sparkles, Check, Star } from "lucide-react";
+import { Calendar, Award, Sparkles, Check } from "lucide-react";
 import { isSameDay } from "date-fns";
 import TaskCard from "./task-card";
-import { DailyTask, Task, Dimension, CompletedTask, User, UserChallenge } from "@prisma/client";
+import {
+  DailyTask,
+  Task,
+  Dimension,
+  CompletedTask,
+  User,
+  UserChallenge,
+} from "@prisma/client";
 
 interface TasksSectionProps {
   selectedDate: Date;
@@ -44,6 +51,7 @@ const TasksSection = ({
       isSameDay(new Date(c.completedAt), selectedDate)
     )
   );
+  console.log({ tasks, selectedDateTasks });
 
   const isToday = selectedDate.toDateString() === today.toDateString();
   const allTasksCompleted =
@@ -111,19 +119,18 @@ const TasksSection = ({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
           className="mt-6"
         >
           <Button
-            className="w-full bg-gradient-to-r from-[#fe8019] to-[#fabd2f] text-[#1d2021] hover:from-[#d65d0e] hover:to-[#fe8019] py-4 rounded-2xl font-bold text-lg shadow-lg"
             onClick={onShowCompletionFlow}
-            size="lg"
             disabled={isCompletingDay}
+            className="w-full py-4 px-4 rounded-2xl bg-[#fe8019] text-[#1d2021] font-bold text-base shadow-md hover:bg-[#d65d0e] transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <div className="flex items-center justify-center gap-3">
-              <Award className="h-6 w-6" />
+            <div className="flex items-center justify-center gap-2">
+              <Award className="w-5 h-5 stroke-[2.2]" />
               <span>{isCompletingDay ? "Completing..." : "Complete Day"}</span>
-              <Sparkles className="h-5 w-5" />
+              <Sparkles className="w-5 h-5 stroke-[2.2]" />
             </div>
           </Button>
         </motion.div>
@@ -132,20 +139,18 @@ const TasksSection = ({
       {/* Day Complete Button */}
       {(isTodayCompleted() || (hasCompletedChallenge && isToday)) && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
           className="mt-6"
         >
           <Button
-            className="w-full bg-gradient-to-r from-[#8ec07c] to-[#b8bb26] text-[#1d2021] py-4 rounded-2xl font-bold text-lg shadow-lg"
-            size="lg"
             disabled
+            className="w-full bg-[#a8d08d] text-[#1d2021] py-3 rounded-xl font-semibold text-base opacity-90 cursor-default"
           >
-            <div className="flex items-center justify-center gap-3">
-              <Check className="h-6 w-6" />
-              <span>Day Complete!</span>
-              <Star className="h-5 w-5" />
+            <div className="flex items-center justify-center gap-2">
+              <Check className="h-5 w-5 stroke-[2.5]" />
+              <span className="tracking-tight">Day Complete</span>
             </div>
           </Button>
         </motion.div>

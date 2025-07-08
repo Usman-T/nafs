@@ -389,7 +389,7 @@ export default function ChallengeCompletionFlow({
       {/* Content */}
       <div
         ref={containerRef}
-        className="flex overflow-y-auto p-6 items-center justify-center flex-col bg-[#1d2021]"
+        className="flex overflow-y-auto p-6 flex-col bg-[#1d2021]"
       >
         <AnimatePresence mode="wait">
           <motion.div

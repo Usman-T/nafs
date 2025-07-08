@@ -1,16 +1,13 @@
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
-import BrokenFlame from "../extras/broken-flame";
-import RollingCounter from "../extras/rolling-counter";
+import BrokenEmber from "@/components/custom/streak-break/extras/broken-ember";
 import { iconMap } from "@/lib/iconMap";
 import { useState } from "react";
 
 const StreakBreakInfo = ({
   missedDay,
-  previousStreak,
   mockMissedTasks,
   challengeName,
-  totalDaysLost,
 }: {
   missedDay: number;
   previousStreak: number;
@@ -19,7 +16,6 @@ const StreakBreakInfo = ({
   challengeName: string;
   totalDaysLost: number;
 }) => {
-  const [endAnimation, setEndAnimation] = useState(false);
   return (
     <>
       <motion.div
@@ -40,19 +36,9 @@ const StreakBreakInfo = ({
             transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
           />
           <div
-            className={`rounded-full text-[#1d2021] text-2xl p-6 bg-gradient-to-br ${
-              endAnimation ? "" : "from-[#fb4934] to-[#cc241d]"
-            }flex items-center justify-center shadow-2xl`}
+            className={`rounded-full text-[#1d2021] text-2xl p-6 bg-gradient-to-br flex items-center justify-center shadow-2xl`}
           >
-            {!endAnimation ? (
-              <RollingCounter
-                initialValue={previousStreak}
-                markEnd={() => setEndAnimation(true)}
-                duration={4000}
-              />
-            ) : (
-              <BrokenFlame animate={true} />
-            )}
+            <BrokenEmber animate={true} />
           </div>
         </div>
 
@@ -116,76 +102,6 @@ const StreakBreakInfo = ({
               );
             })}
           </div>
-        </motion.div>
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-12 px-8 py-12"
-      >
-        <div className="space-y-6">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="text-4xl font-black text-[#ebdbb2]"
-          >
-            Your Streak
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-            className="text-xl text-[#fe8019] font-medium"
-          >
-            Counting down to zero...
-          </motion.p>
-        </div>
-
-        <div className="relative">
-          {/* Background glow */}
-          <motion.div
-            className="absolute inset-0 rounded-3xl"
-            animate={{
-              boxShadow: [
-                "0 0 50px rgba(254, 128, 25, 0.2)",
-                "0 0 100px rgba(254, 128, 25, 0.4)",
-                "0 0 50px rgba(254, 128, 25, 0.2)",
-              ],
-            }}
-            transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }}
-          />
-
-          <div className="bg-gradient-to-br from-[#0d1117] via-[#1d2021] to-[#282828] rounded-3xl p-12 border-2 border-[#3c3836] relative z-10">
-            <div className="flex items-center justify-center gap-12">
-              <BrokenFlame animate={true} />
-              <div className="text-center space-y-4">
-                <RollingCounter value={0} duration={4000} />
-                <div className="text-2xl text-[#a89984] font-medium">days</div>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 4, duration: 0.8 }}
-                  className="text-[#fb4934] text-lg font-bold"
-                >
-                  RESET
-                </motion.div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Impact preview */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 4.5, duration: 0.8 }}
-          className="text-[#a89984] text-lg max-w-lg mx-auto"
-        >
-          <p>
-            {totalDaysLost} days of spiritual growth and{" "}
-            {mockMissedTasks.length} daily practices have been interrupted.
-          </p>
         </motion.div>
       </motion.div>
     </>

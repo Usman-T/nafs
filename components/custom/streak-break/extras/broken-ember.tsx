@@ -6,7 +6,7 @@ import {
   Flame,
 } from "lucide-react";
 
-const BrokenFlame = ({ animate = false }: { animate?: boolean }) => {
+const BrokenEmber = ({ animate = false }: { animate?: boolean }) => {
   const [showCracks, setShowCracks] = useState(false);
   const [showEmbers, setShowEmbers] = useState(false);
 
@@ -161,4 +161,4 @@ const BrokenFlame = ({ animate = false }: { animate?: boolean }) => {
   );
 };
 
-export default BrokenFlame;
+export default BrokenEmber;

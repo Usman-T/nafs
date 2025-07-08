@@ -12,8 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
-  Flame,
-  X,
   Calendar,
   Heart,
   ChevronLeft,
@@ -40,8 +38,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/utils";
 import StreakBreakInfo from "./steps/streak-break-info";
+import ChallengeCard from "../onboarding/onboarding-challenge";
 
-// Enhanced radar chart
 const RadarChart = ({
   dimensions,
   previousValues,
@@ -252,119 +250,6 @@ const RadarChart = ({
   );
 };
 
-// Enhanced challenge card
-const ChallengeCard = ({
-  challenge,
-  isSelected = false,
-  onSelect,
-}: {
-  challenge: any;
-  isSelected?: boolean;
-  onSelect: () => void;
-}) => {
-  return (
-    <motion.div
-      whileHover={{ y: -4, scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-    >
-      <Card
-        className={cn(
-          "relative overflow-hidden transition-all duration-500 cursor-pointer group",
-          "bg-gradient-to-br from-[#282828] to-[#1d2021] border-2",
-          isSelected
-            ? "border-[#fe8019] shadow-lg shadow-[#fe8019]/20 bg-gradient-to-br from-[#fe8019]/10 to-[#d65d0e]/5"
-            : "border-[#3c3836] hover:border-[#fe8019]/50 hover:shadow-md hover:shadow-[#fe8019]/10"
-        )}
-        onClick={onSelect}
-      >
-        {/* Animated background gradient */}
-        <motion.div
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-          style={{
-            background:
-              "linear-gradient(45deg, rgba(254, 128, 25, 0.05), rgba(213, 93, 14, 0.05))",
-          }}
-        />
-
-        {/* Selection indicator */}
-        {isSelected && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="absolute top-4 right-4 w-6 h-6 bg-[#fe8019] rounded-full flex items-center justify-center"
-          >
-            <CheckCircle className="h-4 w-4 text-[#1d2021]" />
-          </motion.div>
-        )}
-
-        <CardHeader className="pb-4 relative z-10">
-          <CardTitle className="flex items-center text-[#ebdbb2] text-xl font-bold">
-            <div className="p-2 bg-[#fe8019]/20 rounded-lg mr-3">
-              <Award className="h-6 w-6 text-[#fe8019]" />
-            </div>
-            {challenge.title}
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent className="space-y-4 relative z-10">
-          <p className="text-[#a89984] leading-relaxed text-base">
-            {challenge.description}
-          </p>
-
-          <div className="flex items-center gap-3">
-            <Badge className="bg-[#3c3836] text-[#ebdbb2] px-3 py-1 font-medium">
-              <Clock className="h-3 w-3 mr-1" />
-              {challenge.duration} days
-            </Badge>
-            <Badge
-              className={cn(
-                "px-3 py-1 font-medium",
-                challenge.difficulty === "Easy"
-                  ? "bg-[#8ec07c]/20 text-[#8ec07c] border border-[#8ec07c]/30"
-                  : challenge.difficulty === "Medium"
-                  ? "bg-[#fabd2f]/20 text-[#fabd2f] border border-[#fabd2f]/30"
-                  : "bg-[#fb4934]/20 text-[#fb4934] border border-[#fb4934]/30"
-              )}
-            >
-              <Target className="h-3 w-3 mr-1" />
-              {challenge.difficulty}
-            </Badge>
-          </div>
-
-          {/* Task preview */}
-          {challenge.tasks && (
-            <div className="space-y-2">
-              <p className="text-[#a89984] text-sm font-medium">Includes:</p>
-              <div className="flex flex-wrap gap-2">
-                {challenge.tasks.slice(0, 3).map((task: any, i: number) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-1 bg-[#3c3836]/50 px-2 py-1 rounded-md text-xs text-[#a89984]"
-                  >
-                    <task.icon
-                      className="h-3 w-3"
-                      style={{ color: task.color }}
-                    />
-                    <span>{task.name}</span>
-                  </div>
-                ))}
-                {challenge.tasks.length > 3 && (
-                  <div className="flex items-center gap-1 bg-[#3c3836]/50 px-2 py-1 rounded-md text-xs text-[#a89984]">
-                    <Plus className="h-3 w-3" />
-                    <span>+{challenge.tasks.length - 3} more</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-};
-
-// Enhanced consequence item
 const ConsequenceItem = ({
   icon,
   text,
@@ -439,7 +324,7 @@ const ConsequenceItem = ({
   );
 };
 
-export default function StreakBreakFlow() {
+export default function StreakBreakFlow({predefinedChallenges}: { predefinedChallenges: Challenge[] }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [selectedChallenge, setSelectedChallenge] = useState<any>(null);
@@ -452,7 +337,6 @@ export default function StreakBreakFlow() {
   });
   const [isExiting, setIsExiting] = useState(false);
 
-  // Enhanced mock data
   const missedDay = 4;
   const challengeName = "Ramadan Preparation Challenge";
   const previousStreak = 12;
@@ -515,123 +399,6 @@ export default function StreakBreakFlow() {
     { id: "character", name: "Character", color: "#b8bb26", icon: Sunrise },
   ];
 
-  const predefinedChallenges = [
-    {
-      id: "fresh-start",
-      title: "Fresh Start",
-      description:
-        "A gentle 7-day challenge to rebuild your spiritual momentum with foundational practices",
-      duration: 7,
-      difficulty: "Easy",
-      tasks: [
-        {
-          name: "Pray Fajr on time",
-          dimension: "Salah",
-          icon: BookOpen,
-          color: "#fb4934",
-        },
-        {
-          name: "Read 1 page of Quran",
-          dimension: "Quran",
-          icon: BookOpen,
-          color: "#8ec07c",
-        },
-        {
-          name: "Make dua for 5 minutes",
-          dimension: "Dhikr",
-          icon: Moon,
-          color: "#d3869b",
-        },
-      ],
-      benefits: ["Rebuild consistency", "Gentle reentry", "Focus on basics"],
-    },
-    {
-      id: "spiritual-reset",
-      title: "Spiritual Reset",
-      description:
-        "14 days to reconnect with your spiritual core through comprehensive daily practices",
-      duration: 14,
-      difficulty: "Medium",
-      tasks: [
-        {
-          name: "Complete all 5 daily prayers",
-          dimension: "Salah",
-          icon: BookOpen,
-          color: "#fb4934",
-        },
-        {
-          name: "Read 3 pages of Quran",
-          dimension: "Quran",
-          icon: BookOpen,
-          color: "#8ec07c",
-        },
-        {
-          name: "Give charity or help someone",
-          dimension: "Charity",
-          icon: Heart,
-          color: "#fe8019",
-        },
-        {
-          name: "Attend community prayer",
-          dimension: "Community",
-          icon: Users,
-          color: "#fabd2f",
-        },
-      ],
-      benefits: [
-        "Comprehensive growth",
-        "Community connection",
-        "Balanced approach",
-      ],
-    },
-    {
-      id: "comeback-strong",
-      title: "Comeback Strong",
-      description:
-        "21 days of intensive spiritual rebuilding for those ready to commit fully",
-      duration: 21,
-      difficulty: "Hard",
-      tasks: [
-        {
-          name: "Pray all Sunnah prayers",
-          dimension: "Salah",
-          icon: BookOpen,
-          color: "#fb4934",
-        },
-        {
-          name: "Read 5 pages with reflection",
-          dimension: "Quran",
-          icon: BookOpen,
-          color: "#8ec07c",
-        },
-        {
-          name: "Daily charity or good deed",
-          dimension: "Charity",
-          icon: Heart,
-          color: "#fe8019",
-        },
-        {
-          name: "Learn something new about Islam",
-          dimension: "Knowledge",
-          icon: Compass,
-          color: "#83a598",
-        },
-        {
-          name: "Practice patience & kindness",
-          dimension: "Character",
-          icon: Sunrise,
-          color: "#b8bb26",
-        },
-      ],
-      benefits: [
-        "Maximum growth",
-        "Complete transformation",
-        "Elite commitment",
-      ],
-    },
-  ];
-
-  // Calculate dimension impacts with more detail
   const calculateDimensionImpacts = () => {
     const previousValues: Record<string, number> = {
       salah: 85,
@@ -1348,7 +1115,7 @@ export default function StreakBreakFlow() {
         </div>
 
         {/* Navigation */}
-        {/* <div className="flex-shrink-0 p-6">
+        <div className="flex-shrink-0 p-6">
           <div className="max-w-4xl mx-auto flex justify-between items-center">
             <Button
               variant="outline"
@@ -1411,7 +1178,7 @@ export default function StreakBreakFlow() {
               )}
             </Button>
           </div>
-        </div> */}
+        </div>
       </div>
 
       {/* Exit fade overlay */}
