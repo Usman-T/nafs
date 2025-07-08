@@ -1,14 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 
 const GreetingSection = () => {
-  const getTimeGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 17) return "Good Afternoon";
-    return "Good Evening";
-  };
+  const { data: session } = useSession();
 
   return (
     <motion.div
@@ -17,7 +13,7 @@ const GreetingSection = () => {
       className="mb-6"
     >
       <h1 className="text-2xl font-bold text-[#ebdbb2] mb-1">
-        {getTimeGreeting()}
+        Salam {session?.user?.name || "Brother"}!
       </h1>
       <p className="text-[#a89984]">
         Let&apos;s continue your spiritual journey

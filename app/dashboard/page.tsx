@@ -1,54 +1,26 @@
 import Challenges from "@/components/custom/challenges/challenges-main";
-import { checkUserStreak, initializeDayTasks } from "@/lib/actions";
-import {
-  fetchDailyTasks,
-  fetchUserChallenge,
-  fetchUserDimensions,
-  fetchDimensions,
-  fetchChallengeCompletionStatus,
-} from "@/lib/data";
+import { checkUserStreak } from "@/lib/actions";
+import { loadChallengesPageData } from "@/lib/data";
 import { redirect } from "next/navigation";
 
 const ChallengesPage = async () => {
   await checkUserStreak();
-
-  const [
+  const {
     currentChallenge,
     dailyTasks,
-    dimensionValues,
     dimensions,
+    dimensionValues,
     hasCompletedChallenge,
-  ] = await Promise.all([
-    fetchUserChallenge(),
-    fetchDailyTasks(),
-    fetchUserDimensions(),
-    fetchDimensions(),
-    fetchChallengeCompletionStatus(),
-  ]);
+    redirectToOnboarding,
+  } = await loadChallengesPageData();
 
-  if (!currentChallenge) {
-    redirect("/onboarding");
-  }
-
-  const today = new Date();
-  let selectedDayTasks = dailyTasks?.filter(
-    (t) => t.date.toDateString() === today.toDateString()
-  );
-
-  if (!selectedDayTasks || selectedDayTasks.length === 0) {
-    await initializeDayTasks(currentChallenge.id);
-
-    const updatedDailyTasks = await fetchDailyTasks();
-    selectedDayTasks = updatedDailyTasks?.filter(
-      (t) => t.date.toDateString() === today.toDateString()
-    );
-  }
+  if (redirectToOnboarding) redirect("/onboarding");
 
   return (
     <div className="space-y-8 p-6">
       <Challenges
         challenge={currentChallenge}
-        tasks={selectedDayTasks || []}
+        tasks={dailyTasks}
         dimensions={dimensions}
         dimensionValues={dimensionValues}
         hasCompletedChallenge={hasCompletedChallenge}

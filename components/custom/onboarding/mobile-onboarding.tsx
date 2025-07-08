@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/utils";
 import Logo from "../logo";
 import { iconMap } from "@/lib/iconMap";
+import { arabicFont } from "@/lib/utils/font";
 const Particle = ({
   color,
   size: baseSize = 6,
@@ -151,7 +152,7 @@ const InteractiveRadarDemo = ({ isActive }: { isActive: boolean }) => {
 
   const points = dimensions.map((dim, i) => {
     const angle = (Math.PI * 2 * i) / dimensions.length - Math.PI / 2;
-    const animatedValue = dim.value; 
+    const animatedValue = dim.value;
 
     return {
       x: center + radius * Math.cos(angle) * animatedValue,
@@ -632,7 +633,9 @@ const InteractiveQuranSearchDemo = ({ isActive }: { isActive: boolean }) => {
                     {result.subtitle}
                   </div>
                   {result.arabic && (
-                    <div className="text-right text-[#fe8019] font-arabic text-lg mb-1">
+                    <div
+                      className={`text-right ${arabicFont.className} text-[#fe8019] font-arabic text-lg mb-1`}
+                    >
                       {result.arabic}
                     </div>
                   )}
@@ -664,7 +667,6 @@ const InteractiveQuranSearchDemo = ({ isActive }: { isActive: boolean }) => {
     </div>
   );
 };
-
 // Enhanced Audio Recitation Demo
 const InteractiveAudioDemo = ({ isActive }: { isActive: boolean }) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -734,7 +736,9 @@ const InteractiveAudioDemo = ({ isActive }: { isActive: boolean }) => {
             exit={{ opacity: 0, y: -20 }}
             className="space-y-3"
           >
-            <div className="text-right text-xl text-[#fe8019] font-arabic leading-relaxed">
+            <div
+              className={`text-right text-xl text-[#fe8019] ${arabicFont.className} font-arabic leading-relaxed`}
+            >
               {verses[currentVerse].arabic}
             </div>
             <div className="text-sm text-[#a89984] italic">
@@ -865,7 +869,7 @@ export default function MobileOnboardingFlow({
       title: "Track Your Spiritual Growth",
       subtitle: "7 Dimensions of Faith",
       description:
-        "Visualize and improve your progress across Salah, Quran, Charity, Community, Dhikr, Knowledge, and Character",
+        "Visualize and improve your progress across all aspects of your life",
       component: InteractiveRadarDemo,
     },
     {

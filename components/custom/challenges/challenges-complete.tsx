@@ -73,7 +73,6 @@ const ChallengesComplete = ({ task }: ChallengesCompleteProps) => {
       const result = await completeTaskAction(task.id);
 
       if (!result.success) {
-        toast.error("Task failed. Redirecting...");
         return router.push("/dashboard");
       }
 
@@ -160,11 +159,12 @@ const ChallengesComplete = ({ task }: ChallengesCompleteProps) => {
                   onTouchEnd={stopHolding}
                   whileTap={{ scale: 0.95 }}
                   disabled={completed}
+                  onContextMenu={(e) => e.preventDefault()}
                 >
                   {completed ? (
                     <Check className="h-16 w-16" />
                   ) : (
-                    <span className="text-lg font-medium">Press & Hold</span>
+                    <span className="text-lg font-medium">Hold</span>
                   )}
                 </motion.button>
               </motion.div>
