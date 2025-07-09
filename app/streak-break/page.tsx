@@ -2,7 +2,7 @@ import StreakBreakFlow from "@/components/custom/streak-break/streak-break-flow"
 import { loadStreakBreakPageData } from "@/lib/data";
 
 const StreakBreakPage = async () => {
-  const { challenges, spiritualDimensions, currentValues, previousValues, missedTasks } = await loadStreakBreakPageData();
+  const { challenges, spiritualDimensions, currentValues, previousValues, missedTasks, currentChallenge } = await loadStreakBreakPageData();
 
   return (
     <StreakBreakFlow
@@ -11,6 +11,7 @@ const StreakBreakPage = async () => {
       currentValues={currentValues}
       previousValues={previousValues}
       missedTasks={missedTasks}
+      currentChallenge={currentChallenge}
     />
   );
 };

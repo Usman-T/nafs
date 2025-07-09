@@ -300,6 +300,11 @@ export const loadStreakBreakPageData = async () => {
   }
 
   const challenges = await fetchChallenges();
+
+  const currentChallenge = user?.challenges.find(
+    (userChallenge) => userChallenge.challengeId === user.challengeId
+  );
+
   const spiritualDimensions = await fetchDimensions();
   const previousValues: Record<string, number> = user?.dimensionValues.reduce(
     (acc, dv) => ({
@@ -329,9 +334,14 @@ export const loadStreakBreakPageData = async () => {
   }));
 
   const currentValues = user.dimensionValues.reduce((acc, dv) => {
-    const missedPoints = fetchedMissedTasks
-      .filter((task) => task.task.dimension.id === dv.dimension.id)
-      .reduce((sum, task) => sum + task.task.points, 0);
+    const latestMissedTask = fetchedMissedTasks
+      .filter(
+        (task) =>
+          task.task.dimension.id === dv.dimension.id && task.date < new Date()
+      )
+      .sort((a, b) => b.date.getTime() - a.date.getTime())[0];
+
+    const missedPoints = latestMissedTask ? latestMissedTask.task.points : 0;
 
     acc[dv.dimension.id] = (dv.value - missedPoints) / 100;
     return acc;
@@ -343,5 +353,6 @@ export const loadStreakBreakPageData = async () => {
     spiritualDimensions,
     currentValues,
     previousValues,
+    currentChallenge: currentChallenge?.challenge || null,
   };
 };

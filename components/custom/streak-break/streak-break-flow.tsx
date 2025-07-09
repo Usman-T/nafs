@@ -16,9 +16,10 @@ import StreakBreakVisual from "@/components/custom/streak-break/steps/streak-bre
 import StreakBreakHeader from "@/components/custom/streak-break/extras/streak-break-header";
 import StreakBreakFooter from "@/components/custom/streak-break/extras/streak-break-footer";
 import ChallengeCard from "@/components/custom/onboarding/onboarding-challenge";
-import { Challenge, DailyTask, Dimension } from "@prisma/client";
+import { Challenge, DailyTask, Dimension, Task } from "@prisma/client";
 import StreakBreakSummary from "./steps/streak-break-summary";
 import ExitAnimation from "./extras/exit-animation";
+import StreakBreakRestart from "./steps/streak-break-restart/streak-break-restart";
 
 export default function StreakBreakFlow({
   predefinedChallenges,
@@ -26,52 +27,68 @@ export default function StreakBreakFlow({
   missedTasks,
   currentValues,
   previousValues,
+  currentChallenge,
 }: {
   predefinedChallenges: Challenge[];
   dimensions: Dimension[];
   missedTasks: DailyTask[];
   currentValues: Record<string, number>;
   previousValues: Record<string, number>;
+  currentChallenge: Challenge & {
+    tasks: {
+      task: Task & {
+        dimension: Dimension;
+      };
+    }[];
+  };
 }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [selectedChallenge, setSelectedChallenge] = useState<any>(null);
   const [showCustomForm, setShowCustomForm] = useState(false);
+  const [createNewSelected, setCreateNewSelected] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
 
   const missedDay = 4;
-  const challengeName = "Ramadan Preparation Challenge";
   const previousStreak = 12;
   const streakStartDate = "March 15, 2024";
   const totalDaysLost = 12;
 
-  const mockCurrentChallenge = {
-    id: "ramadan-prep",
-    title: "Ramadan Preparation",
-    description: "Continue your spiritual preparation for the blessed month",
-    duration: 30,
-    difficulty: "Medium",
-    currentDay: 4,
-    tasksCompleted: 45,
-    totalTasks: 120,
-  };
-
   const handleNext = () => {
-    if (step === 3 && selectedChallenge) {
-      handleComplete();
-    } else if (step === 4) {
-      handleComplete();
-    } else if (step === 3 && showCustomForm) {
+    if (step === 2 && selectedChallenge === currentChallenge.id) {
+      // Continue current challenge -> go to summary
+      setStep(5);
+    } else if (step === 2 && createNewSelected) {
+      // Create new challenge -> go to predefined selection
+      setStep(3);
+    } else if (step === 3 && selectedChallenge) {
+      // Selected a predefined challenge -> go to placeholder
       setStep(4);
+    } else if (step === 3 && showCustomForm) {
+      // Clicked custom challenge -> go to custom form
+      setStep(4);
+    } else if (step === 4) {
+      // From any placeholder -> go to summary
+      setStep(5);
+    } else if (step === 5) {
+      // From summary -> complete
+      handleComplete();
     } else {
       setStep(step + 1);
     }
   };
 
   const handleBack = () => {
-    if (step === 4) {
+    if (step === 4 && showCustomForm) {
+      // From custom form back to predefined selection
       setShowCustomForm(false);
       setStep(3);
+    } else if (step === 4) {
+      // From predefined placeholder back to selection
+      setStep(3);
+    } else if (step === 5) {
+      // From summary back to restart choice
+      setStep(2);
     } else {
       setStep(Math.max(0, step - 1));
     }
@@ -86,7 +103,8 @@ export default function StreakBreakFlow({
   };
 
   const canGoNext = () => {
-    if (step === 0 || step === 1 || step === 2) return true;
+    if (step === 0 || step === 1) return true;
+    if (step === 2) return selectedChallenge !== null || createNewSelected;
     if (step === 3) return selectedChallenge !== null || showCustomForm;
     return true;
   };
@@ -100,7 +118,7 @@ export default function StreakBreakFlow({
             missedTasks={missedTasks}
             streakStartDate={streakStartDate}
             missedDay={missedDay}
-            challengeName={challengeName}
+            challengeName={currentChallenge.name}
             totalDaysLost={totalDaysLost}
           />
         );
@@ -115,10 +133,16 @@ export default function StreakBreakFlow({
           />
         );
 
-      case 2: // Enhanced impact assessment
-        return null;
+      case 2: // Continue current challenge OR create new challenge
+        return (
+          <StreakBreakRestart
+            currentChallenge={currentChallenge}
+            setSelectedChallenge={setSelectedChallenge}
+            setCreateNewSelected={setCreateNewSelected}
+          />
+        );
 
-      case 3: // Enhanced challenge selection
+      case 3: // Predefined challenges selection (only shows if user chose "create new")
         return (
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -131,7 +155,7 @@ export default function StreakBreakFlow({
                 animate={{ opacity: 1, y: 0 }}
                 className="text-4xl font-black text-[#ebdbb2]"
               >
-                Choose Your Recovery Path
+                Choose Your New Challenge
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -139,72 +163,11 @@ export default function StreakBreakFlow({
                 transition={{ delay: 0.3 }}
                 className="text-xl text-[#a89984] max-w-2xl mx-auto"
               >
-                Every setback is a setup for a comeback. How will you rebuild
-                your spiritual momentum?
+                Select from our curated challenges or create your own
               </motion.p>
             </div>
 
             <div className="space-y-6 max-w-4xl mx-auto">
-              {/* Continue current challenge option */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="relative"
-              >
-                <Card
-                  className={cn(
-                    "relative overflow-hidden transition-all duration-500 cursor-pointer group",
-                    "bg-gradient-to-br from-[#fe8019]/10 to-[#d65d0e]/5 border-2 border-[#fe8019]/30",
-                    "hover:border-[#fe8019] hover:shadow-lg hover:shadow-[#fe8019]/20"
-                  )}
-                  onClick={() => {
-                    setSelectedChallenge(mockCurrentChallenge);
-                    setShowCustomForm(false);
-                  }}
-                >
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-[#fe8019] text-[#1d2021] font-bold">
-                      RECOMMENDED
-                    </Badge>
-                  </div>
-                  <CardHeader className="pb-4">
-                    <CardTitle className="flex items-center text-[#ebdbb2] text-2xl font-bold">
-                      <div className="p-3 bg-[#fe8019]/20 rounded-xl mr-4">
-                        <RotateCcw className="h-8 w-8 text-[#fe8019]" />
-                      </div>
-                      Continue Current Challenge
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-[#a89984] text-lg leading-relaxed">
-                      Resume "{mockCurrentChallenge.title}" from where you left
-                      off. Your progress will be preserved.
-                    </p>
-                    <div className="flex items-center gap-4">
-                      <Badge className="bg-[#3c3836] text-[#ebdbb2] px-3 py-1">
-                        Day {mockCurrentChallenge.currentDay} of{" "}
-                        {mockCurrentChallenge.duration}
-                      </Badge>
-                      <Badge className="bg-[#8ec07c]/20 text-[#8ec07c] px-3 py-1">
-                        {mockCurrentChallenge.tasksCompleted}/
-                        {mockCurrentChallenge.totalTasks} tasks completed
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <div className="text-center">
-                <div className="flex items-center gap-4">
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[#3c3836]"></div>
-                  <span className="text-[#a89984] text-sm font-medium px-4">
-                    OR START A NEW CHALLENGE
-                  </span>
-                  <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#3c3836]"></div>
-                </div>
-              </div>
-
               {/* Predefined challenges */}
               <div className="grid gap-6">
                 {predefinedChallenges.map((challenge, i) => (
@@ -212,7 +175,7 @@ export default function StreakBreakFlow({
                     key={challenge.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8 + i * 0.2 }}
+                    transition={{ delay: 0.2 + i * 0.1 }}
                   >
                     <ChallengeCard
                       challenge={challenge}
@@ -230,7 +193,7 @@ export default function StreakBreakFlow({
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.5 }}
+                transition={{ delay: 0.5 }}
               >
                 <Button
                   variant="outline"
@@ -263,7 +226,54 @@ export default function StreakBreakFlow({
           </motion.div>
         );
 
-      case 4: // Enhanced custom challenge creation
+      case 4: // Placeholder screen (gogo gaga)
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-8 px-8 py-12 text-center"
+          >
+            <div className="space-y-4">
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-4xl font-black text-[#ebdbb2]"
+              >
+                {showCustomForm ? "Custom Challenge Form" : "Challenge Details"}
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-xl text-[#a89984] max-w-2xl mx-auto"
+              >
+                gogo gaga
+              </motion.p>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="max-w-md mx-auto"
+            >
+              <Card className="bg-[#3c3836] border-[#665c54]">
+                <CardHeader>
+                  <CardTitle className="text-[#ebdbb2]">
+                    {showCustomForm ? "Custom Challenge Creator" : "Challenge Preview"}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-[#a89984] text-lg">
+                    This will be replaced with the actual form/preview content
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+        );
+
+      case 5: // Summary
         return <StreakBreakSummary />;
 
       default:

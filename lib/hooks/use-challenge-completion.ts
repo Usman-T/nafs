@@ -71,7 +71,6 @@ export const useChallengeCompletion = (
       }
 
       router.push("/dashboard");
-      onComplete();
     } catch (error) {
       console.error("Challenge completion error:", error);
     } finally {
