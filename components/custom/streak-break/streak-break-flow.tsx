@@ -39,6 +39,8 @@ import {
 import { cn } from "@/lib/utils/utils";
 import StreakBreakInfo from "./steps/streak-break-info";
 import ChallengeCard from "../onboarding/onboarding-challenge";
+import StreakBreakHeader from "./extras/streak-break-header";
+import StreakBreakFooter from "./extras/streak-break-footer";
 
 const RadarChart = ({
   dimensions,
@@ -324,7 +326,11 @@ const ConsequenceItem = ({
   );
 };
 
-export default function StreakBreakFlow({predefinedChallenges}: { predefinedChallenges: Challenge[] }) {
+export default function StreakBreakFlow({
+  predefinedChallenges,
+}: {
+  predefinedChallenges: Challenge[];
+}) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [selectedChallenge, setSelectedChallenge] = useState<any>(null);
@@ -1051,135 +1057,40 @@ export default function StreakBreakFlow({predefinedChallenges}: { predefinedChal
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1d2021] via-[#282828] to-[#1d2021] text-[#ebdbb2] relative overflow-hidden">
+    <div className="h-screen w-full bg-gradient-to-br from-[#1d2021] via-[#282828] to-[#1d2021] text-[#ebdbb2] flex flex-col justify-between">
       {/* Background effects */}
       <BackgroundParticles />
 
-      <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Progress indicator */}
-        <div className="flex-shrink-0 p-6">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#fe8019] rounded-full flex items-center justify-center">
-                  <RotateCcw className="h-5 w-5 text-[#1d2021]" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold text-[#ebdbb2]">
-                    Recovery Mode
-                  </h1>
-                  <p className="text-sm text-[#a89984]">
-                    Step {step + 1} of {showCustomForm ? 5 : 4}
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm text-[#a89984]">Progress</div>
-                <div className="text-lg font-bold text-[#fe8019]">
-                  {Math.round(((step + 1) / (showCustomForm ? 5 : 4)) * 100)}%
-                </div>
-              </div>
-            </div>
+      <StreakBreakHeader step={step} showCustomForm={showCustomForm} />
 
-            {/* Progress bar */}
-            <div className="w-full bg-[#3c3836] rounded-full h-2 overflow-hidden">
+      {/* Content area */}
+      <div className="flex items-center overflow-y-auto flex-col">
+        <div className="w-full max-w-6xl">
+          <AnimatePresence mode="wait">
+            {!isExiting && (
               <motion.div
-                className="bg-gradient-to-r from-[#fe8019] to-[#d65d0e] h-2 rounded-full"
-                initial={{ width: "0%" }}
-                animate={{
-                  width: `${((step + 1) / (showCustomForm ? 5 : 4)) * 100}%`,
-                }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Content area */}
-        <div className="flex-1 flex items-center justify-center">
-          <div className="w-full max-w-6xl">
-            <AnimatePresence mode="wait">
-              {!isExiting && (
-                <motion.div
-                  key={step}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  {renderStepContent()}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <div className="flex-shrink-0 p-6">
-          <div className="max-w-4xl mx-auto flex justify-between items-center">
-            <Button
-              variant="outline"
-              className={cn(
-                "bg-transparent border-[#3c3836] text-[#a89984] hover:text-[#ebdbb2] hover:border-[#504945]",
-                step === 0 && "invisible"
-              )}
-              onClick={handleBack}
-              disabled={step === 0 || isExiting}
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-
-            <div className="flex items-center gap-2">
-              {Array.from({ length: showCustomForm ? 5 : 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "w-2 h-2 rounded-full transition-all duration-300",
-                    i <= step ? "bg-[#fe8019]" : "bg-[#3c3836]"
-                  )}
-                />
-              ))}
-            </div>
-
-            <Button
-              className={cn(
-                "bg-gradient-to-r from-[#fe8019] to-[#d65d0e] text-[#1d2021] hover:from-[#d65d0e] hover:to-[#b85c00] font-bold",
-                "shadow-lg shadow-[#fe8019]/20 hover:shadow-[#fe8019]/30 transition-all duration-300"
-              )}
-              onClick={handleNext}
-              disabled={!canGoNext() || isExiting}
-            >
-              {isExiting ? (
-                <>
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{
-                      duration: 1,
-                      repeat: Number.POSITIVE_INFINITY,
-                      ease: "linear",
-                    }}
-                    className="mr-2 h-4 w-4"
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                  </motion.div>
-                  Starting Recovery...
-                </>
-              ) : step === 3 || step === 4 ? (
-                <>
-                  Begin Recovery
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </>
-              ) : (
-                <>
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </>
-              )}
-            </Button>
-          </div>
+                key={step}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+              >
+                {renderStepContent()}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
+
+      {/* Navigation */}
+      <StreakBreakFooter
+        step={step}
+        isExiting={isExiting}
+        canGoNext={canGoNext}
+        handleNext={handleNext}
+        handleBack={handleBack}
+        showCustomForm={showCustomForm}
+      />
 
       {/* Exit fade overlay */}
       <AnimatePresence>
