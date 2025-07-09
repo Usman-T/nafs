@@ -1,7 +1,6 @@
 import prisma from "@/prisma";
 import { auth } from "@/auth";
 import { isSameDay, subDays } from "date-fns";
-import { revalidatePath } from "next/cache";
 import { initializeDayTasks } from "./actions";
 
 export const getUsers = async () => {
@@ -251,5 +250,98 @@ export const loadChallengesPageData = async () => {
     dimensions,
     dimensionValues,
     hasCompletedChallenge,
+  };
+};
+
+export const loadStreakBreakPageData = async () => {
+  const session = await auth();
+
+  if (!session?.user) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email ?? undefined },
+    include: {
+      currentChallenge: true,
+      dailyTasks: {
+        include: {
+          task: {
+            include: {
+              dimension: true,
+            },
+          },
+          completions: true,
+        },
+      },
+      challenges: {
+        include: {
+          challenge: {
+            include: {
+              tasks: {
+                include: {
+                  task: {
+                    include: {
+                      dimension: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      dimensionValues: { include: { dimension: true } },
+    },
+  });
+
+  if (!user?.currentChallenge) {
+    return { redirectToOnboarding: true };
+  }
+
+  const challenges = await fetchChallenges();
+  const spiritualDimensions = await fetchDimensions();
+  const previousValues: Record<string, number> = user?.dimensionValues.reduce(
+    (acc, dv) => ({
+      ...acc,
+      [dv.id]: dv.value / 100,
+    }),
+    {}
+  );
+
+  const fetchedMissedTasks = user?.dailyTasks.filter((dt) => {
+    const today = new Date();
+    return (
+      (!dt.completions.length &&
+        dt.date < today &&
+        dt.date >= subDays(today, user?.currentChallenge?.duration || 3)) ||
+      (dt.completions.length &&
+        dt.completions.every((c) => c.completedAt < today))
+    );
+  });
+
+  const missedTasks = fetchedMissedTasks.map((task) => ({
+    id: task.id,
+    name: task.task.name,
+    dimension: task.task.dimension.name,
+    color: task.task.dimension.color,
+    icon: task.task.dimension.icon,
+  }));
+
+  const currentValues = user.dimensionValues.reduce((acc, dv) => {
+    const missedPoints = fetchedMissedTasks
+      .filter((task) => task.task.dimension.id === dv.dimension.id)
+      .reduce((sum, task) => sum + task.task.points, 0);
+
+    acc[dv.dimension.id] = (dv.value - missedPoints) / 100;
+    return acc;
+  }, {} as Record<string, number>);
+
+  return {
+    missedTasks,
+    challenges,
+    spiritualDimensions,
+    currentValues,
+    previousValues,
   };
 };

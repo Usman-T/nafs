@@ -6,13 +6,13 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 const StreakBreakInfo = ({
   missedDay,
-  mockMissedTasks,
+  missedTasks,
   challengeName,
 }: {
   missedDay: number;
   previousStreak: number;
   streakStartDate: string;
-  mockMissedTasks: { name: string; icon: string; color: string }[];
+  missedTasks: { name: string; icon: string; color: string }[];
   challengeName: string;
   totalDaysLost: number;
 }) => {
@@ -85,7 +85,7 @@ const StreakBreakInfo = ({
           >
             <ScrollArea className="h-32 ">
               <div className="space-y-3">
-                {mockMissedTasks.map((task, i) => {
+                {missedTasks.map((task, i) => {
                   const IconComponent = iconMap[task.icon] || X;
                   return (
                     <motion.div
