@@ -232,9 +232,12 @@ Branching is pretty good like this:
       - Then Go to summary
 
 ## Next features:
-  - Fix the progress page
-  - 
-
+  - Fix the progress page (like responsiveness ig)
+  - Create the level page, just visuals and simple data hooking
+  - For the gudance page, just make two 0's render and im happy
+    - Then for it, write 2 functions nothing more for saving refs and ayahs
+    - Then just write data.ts 2 funcs to fetch and rende rthose
+    - Hook those funcs to their corresponding buttons and we're good to go
 
 ## FULL ROUTE VIEW BECAUSE THIS WAS A LOT OF WORK
 ```bash

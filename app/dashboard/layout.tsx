@@ -13,7 +13,7 @@ import {
 
 import { cn } from "@/lib/utils/utils";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,8 +37,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const navItems = [
     { name: "Home", href: "/dashboard", icon: Home },
-    { name: "Calendar", href: "/dashboard/calendar", icon: Calendar },
     { name: "Progress", href: "/dashboard/progress", icon: BarChart3 },
+    { name: "Calendar", href: "/dashboard/calendar", icon: Calendar },
     { name: "Guidance", href: "/dashboard/guidance", icon: BookOpen },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
   ];
@@ -207,7 +207,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     pathname.startsWith("/dashboard/guidance/surah") ||
     pathname.startsWith("/dashboard/guidance/ayah/") ||
     pathname.startsWith("/dashboard/guidance/audio/") ||
-    pathname.startsWith("/dashboard/guidance/reflections") 
+    pathname.startsWith("/dashboard/guidance/reflections")  ||
+    pathname.startsWith("/dashboard/guidance/saved") 
 
   return (
     <div className="md:flex bg-[#1d2021] min-h-screen ">

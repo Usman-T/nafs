@@ -38,10 +38,20 @@ const ProgressComponent = ({
   const [selectedDimension, setSelectedDimension] = useState<string | null>(
     null
   );
-  const [animationPhase, setAnimationPhase] = useState(0);
   const [size, setSize] = useState(400);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [carouselApi, setCarouselApi] = useState();
+
+  useEffect(() => {
+    if (!carouselApi || !selectedDimension) {
+      return;
+    }
+
+    carouselApi.scrollTo(
+      dimensions.findIndex((d) => d.dimension.name === selectedDimension) - 1
+    );
+  }, [carouselApi, selectedDimension, dimensions]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -64,11 +74,6 @@ const ProgressComponent = ({
     return () => window.removeEventListener("resize", handleResize);
   }, [getSize]);
 
-  useEffect(() => {
-    setAnimationPhase(0);
-    const timer = setTimeout(() => setAnimationPhase(1), 300);
-    return () => clearTimeout(timer);
-  }, [selectedDimension]);
 
   const points = useMemo(() => {
     return dimensions.map((dim, i) => {
@@ -137,9 +142,16 @@ const ProgressComponent = ({
     [center, hexRadius]
   );
 
-  const handleDimensionSelect = useCallback((name: string | null) => {
-    setSelectedDimension(name);
-  }, []);
+  const handleDimensionSelect = useCallback(
+    (name: string | null) => {
+      if (name === selectedDimension) {
+        setSelectedDimension(null);
+      } else {
+        setSelectedDimension(name);
+      }
+    },
+    [selectedDimension]
+  );
 
   if (!isMounted || isLoading) {
     return <ProgressSkeleton />;
@@ -160,13 +172,7 @@ const ProgressComponent = ({
                   : "Spiritual Dimensions"}
               </span>
               {selectedDimension && (
-                <Button
-                  size="sm"
-                  className="bg-[#fe8019]/80 font-bold text-[#ebdbb2]"
-                  onClick={() => handleDimensionSelect(null)}
-                >
-                  <ArrowLeft className="mr-1 h-4 w-4" /> Back to all dimensions
-                </Button>
+                <div onClick={() => handleDimensionSelect(null)}></div>
               )}
             </CardTitle>
           </CardHeader>
@@ -352,7 +358,7 @@ const ProgressComponent = ({
               </div>
             </div>
 
-            <Carousel className="gap-2 w-full">
+            <Carousel setApi={setCarouselApi} className="gap-2 w-full">
               <CarouselContent className="w-full -ml-1">
                 {dimensions.map((dim) => {
                   const IconComponent =

@@ -7,7 +7,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 const ProgressSkeleton = () => {
-  const size = 400;
+  const size = 300;
   const center = size / 2;
   const radius = size * 0.4;
   const hexRadius = radius * 0.8;
