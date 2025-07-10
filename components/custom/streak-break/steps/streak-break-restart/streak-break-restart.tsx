@@ -22,9 +22,9 @@ const StreakBreakRestart = ({
   };
 }) => {
   console.log({ currFromStreakRestart: currentChallenge });
-  
+
   const completedTasks = currentChallenge.tasks.filter(
-    (taskRelation) => taskRelation.task // Just check if task exists for now
+    (taskRelation) => taskRelation.task
   );
 
   return (
@@ -33,31 +33,10 @@ const StreakBreakRestart = ({
       animate={{ opacity: 1, y: 0 }}
       className="space-y-8 px-8 py-12"
     >
-      <div className="text-center space-y-4">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-4xl font-black text-[#ebdbb2]"
-        >
-          Choose Your Recovery Path
-        </motion.h2>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="text-xl text-[#a89984] max-w-2xl mx-auto"
-        >
-          Every setback is a setup for a comeback. How will you rebuild your
-          spiritual momentum?
-        </motion.p>
-      </div>
-
       <div className="space-y-6 max-w-4xl mx-auto">
-        {/* Continue current challenge option */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
           className="relative"
         >
           <Card
@@ -72,9 +51,6 @@ const StreakBreakRestart = ({
             }}
           >
             <div className="absolute top-4 right-4">
-              <Badge className="bg-[#fe8019] text-[#1d2021] font-bold">
-                RECOMMENDED
-              </Badge>
             </div>
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center text-[#ebdbb2] text-2xl font-bold">
@@ -116,7 +92,7 @@ const StreakBreakRestart = ({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.5 }}
+          transition={{ delay: 0.5 }}
         >
           <Button
             variant="outline"

@@ -8,8 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Plus, RotateCcw } from "lucide-react";
+import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils/utils";
 import StreakBreakInfo from "@/components/custom/streak-break/steps/streak-break-info";
 import StreakBreakVisual from "@/components/custom/streak-break/steps/streak-break-visual";
@@ -260,7 +259,9 @@ export default function StreakBreakFlow({
               <Card className="bg-[#3c3836] border-[#665c54]">
                 <CardHeader>
                   <CardTitle className="text-[#ebdbb2]">
-                    {showCustomForm ? "Custom Challenge Creator" : "Challenge Preview"}
+                    {showCustomForm
+                      ? "Custom Challenge Creator"
+                      : "Challenge Preview"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>

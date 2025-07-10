@@ -26,6 +26,15 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/utils";
 import Logo from "../logo";
 import { iconMap } from "@/lib/iconMap";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command";
 import { arabicFont } from "@/lib/utils/font";
 const Particle = ({
   color,
@@ -97,7 +106,7 @@ const InteractiveRadarDemo = ({ isActive }: { isActive: boolean }) => {
   const dimensions = [
     {
       name: "Knowledge",
-      description: "Learning for the soul...",
+      description: "Learning for the soul",
       color: "#FFD300",
       icon: "BookOpen",
       value: 0.7,
@@ -118,7 +127,7 @@ const InteractiveRadarDemo = ({ isActive }: { isActive: boolean }) => {
     },
     {
       name: "Faith",
-      description: "Iman in practice - Salah",
+      description: "Iman in practice",
       color: "#00FFFF",
       icon: "Sparkles",
       value: 0.8,
@@ -330,9 +339,23 @@ const InteractiveRadarDemo = ({ isActive }: { isActive: boolean }) => {
 
 const InteractiveCalendarDemo = ({ isActive }: { isActive: boolean }) => {
   const [completedDays, setCompletedDays] = useState<number[]>([
-    5, 6, 7, 8, 12, 13,
+    5, 6, 8, 12, 13,
   ]);
-  const [streak, setStreak] = useState(4);
+  const month = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const [streak, setStreak] = useState(0);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
 
@@ -368,7 +391,9 @@ const InteractiveCalendarDemo = ({ isActive }: { isActive: boolean }) => {
     <div className="space-y-4">
       {/* Header with animated streak */}
       <div className="flex justify-between items-center">
-        <div className="text-[#ebdbb2] font-bold text-lg">November 2024</div>
+        <div className="text-[#ebdbb2] font-bold text-lg">
+          {month[new Date().getDay()]} {new Date().getFullYear()}
+        </div>
         <motion.div
           className="flex items-center gap-2 bg-[#1d2021] rounded-full px-3 py-1 border border-[#3c3836]"
           whileHover={{ scale: 1.05 }}
@@ -440,7 +465,7 @@ const InteractiveCalendarDemo = ({ isActive }: { isActive: boolean }) => {
                     initial={{ scale: 0, rotate: -180 }}
                     animate={{ scale: 1, rotate: 0 }}
                     exit={{ scale: 0, rotate: 180 }}
-                    className="absolute inset-0 flex items-center justify-center bg-[#8ec07c]"
+                    className="absolute inset-0 flex items-center justify-center bg-[#fe8019]"
                   >
                     <Check className="h-4 w-4 text-[#1d2021]" />
                   </motion.div>
@@ -469,7 +494,7 @@ const InteractiveCalendarDemo = ({ isActive }: { isActive: boolean }) => {
             exit={{ opacity: 0, scale: 0 }}
             className="absolute inset-0 flex items-center justify-center pointer-events-none"
           >
-            <div className="text-4xl">🎉</div>
+            <div className="text-4xl"></div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -532,21 +557,6 @@ const InteractiveQuranSearchDemo = ({ isActive }: { isActive: boolean }) => {
     },
   ];
 
-  const searchQueries = ["patience", "prayer", "guidance", "mercy"];
-  const [currentQueryIndex, setCurrentQueryIndex] = useState(0);
-
-  useEffect(() => {
-    if (isActive && query.length === 0) {
-      // Auto-demo different searches
-      const interval = setInterval(() => {
-        const newQuery = searchQueries[currentQueryIndex];
-        setQuery(newQuery);
-        setCurrentQueryIndex((prev) => (prev + 1) % searchQueries.length);
-      }, 3000);
-      return () => clearInterval(interval);
-    }
-  }, [isActive, currentQueryIndex, query.length]);
-
   useEffect(() => {
     if (query.length > 0) {
       setIsSearching(true);
@@ -566,17 +576,48 @@ const InteractiveQuranSearchDemo = ({ isActive }: { isActive: boolean }) => {
     }
   }, [query]);
 
+  useEffect(() => {
+    if (isActive) {
+      setQuery("");
+      setResults([]);
+      setSelectedResult(null);
+    }
+  }, [isActive]); 
+
   return (
     <div className="space-y-4">
-      {/* Enhanced search input */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#a89984]" />
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search Quran verses, surahs, topics..."
-          className="pl-10 pr-4 py-3 bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] focus:border-[#fe8019] focus:ring-2 focus:ring-[#fe8019]/20 transition-all"
-        />
+      <div className="relative space-y-3">
+        <div className="flex space-x-2">
+          <Search className="absolute left-3 transform top-2 h-4 w-4 text-[#a89984]" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search Quran verses, surahs, topics..."
+            className="pl-10 pr-4 py-3 bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] focus:border-[#fe8019] focus:ring-2 focus:ring-[#fe8019]/20 transition-all"
+          />
+        </div>
+
+        <Command className="rounded-lg border shadow-md">
+          {results.length <= 0 && (
+            <CommandList>
+              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandGroup heading="Suggestions">
+                {quranSearchData.map((item) => (
+                  <CommandItem
+                    key={item.title}
+                    onSelect={() => setQuery(item.title)}
+                  >
+                    {item.icon && (
+                      <item.icon className="h-4 w-4 text-[#fe8019] mr-2" />
+                    )}
+                    <span>{item.title}</span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+              <CommandSeparator />
+            </CommandList>
+          )}
+        </Command>
         {isSearching && (
           <motion.div
             animate={{ rotate: 360 }}
@@ -585,7 +626,7 @@ const InteractiveQuranSearchDemo = ({ isActive }: { isActive: boolean }) => {
               repeat: Number.POSITIVE_INFINITY,
               ease: "linear",
             }}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2"
+            className="absolute right-3 top-2 "
           >
             <Sparkles className="h-4 w-4 text-[#fe8019]" />
           </motion.div>
@@ -639,7 +680,7 @@ const InteractiveQuranSearchDemo = ({ isActive }: { isActive: boolean }) => {
                       {result.arabic}
                     </div>
                   )}
-                  <div className="text-xs text-[#a89984] italic">
+                  <div className="text-xs text-[#a89984] italic mt-3">
                     {result.translation}
                   </div>
                 </div>
@@ -877,7 +918,7 @@ export default function MobileOnboardingFlow({
       title: "Build Consistent Habits",
       subtitle: "Daily Spiritual Tracking",
       description:
-        "Mark your daily achievements, build powerful streaks, and stay motivated on your spiritual journey",
+        "Mark your daily spiritual practices and build a streak of consistency",
       component: InteractiveCalendarDemo,
     },
     {

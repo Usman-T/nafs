@@ -1,3 +1,4 @@
+import { Dimension } from "@prisma/client";
 import { useState } from "react";
 
 interface CustomTask {

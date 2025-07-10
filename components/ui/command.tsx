@@ -1,341 +1,184 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import * as React from "react"
+import { Command as CommandPrimitive } from "cmdk"
+import { SearchIcon } from "lucide-react"
+
+import { cn } from "@/lib/utils/utils"
 import {
-  Search,
-  BookOpen,
-  Scroll,
-  MessageSquare,
-  Clock,
-  ArrowRight,
-  Command,
-  Quote,
-  X,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
-// Sample search data
-const searchData = [
-  // Surahs
-  {
-    id: 1,
-    type: "surah",
-    title: "Al-Fatihah",
-    subtitle: "The Opening • 7 verses",
-    icon: BookOpen,
-    route: "/dashboard/guidance/surah/1",
-  },
-  {
-    id: 2,
-    type: "surah",
-    title: "Al-Baqarah",
-    subtitle: "The Cow • 286 verses",
-    icon: BookOpen,
-    route: "/dashboard/guidance/surah/2",
-  },
-  {
-    id: 3,
-    type: "surah",
-    title: "Aal-Imran",
-    subtitle: "Family of Imran • 200 verses",
-    icon: BookOpen,
-    route: "/dashboard/guidance/surah/3",
-  },
-
-  // Verses
-  {
-    id: 101,
-    type: "verse",
-    title: "Ayat al-Kursi",
-    subtitle: "Al-Baqarah 2:255 • The Throne Verse",
-    icon: Quote,
-    route: "/dashboard/guidance/surah/2#verse-255",
-  },
-  {
-    id: 102,
-    type: "verse",
-    title: "Last two verses of Al-Baqarah",
-    subtitle: "Al-Baqarah 2:285-286",
-    icon: Quote,
-    route: "/dashboard/guidance/surah/2#verse-285",
-  },
-  {
-    id: 103,
-    type: "verse",
-    title: "Bismillah",
-    subtitle: "In the name of Allah",
-    icon: Quote,
-    route: "/dashboard/guidance/surah/1#verse-1",
-  },
-
-  // Topics
-  {
-    id: 201,
-    type: "topic",
-    title: "Prayer (Salah)",
-    subtitle: "Verses about prayer and worship",
-    icon: MessageSquare,
-    route: "/dashboard/guidance/topics/prayer",
-  },
-  {
-    id: 202,
-    type: "topic",
-    title: "Patience (Sabr)",
-    subtitle: "Verses about patience and perseverance",
-    icon: MessageSquare,
-    route: "/dashboard/guidance/topics/patience",
-  },
-  {
-    id: 203,
-    type: "topic",
-    title: "Gratitude (Shukr)",
-    subtitle: "Verses about thankfulness",
-    icon: MessageSquare,
-    route: "/dashboard/guidance/topics/gratitude",
-  },
-
-  // Tafsir
-  {
-    id: 301,
-    type: "tafsir",
-    title: "Tafsir Ibn Kathir",
-    subtitle: "Classical commentary",
-    icon: Scroll,
-    route: "/dashboard/guidance/tafsir/ibn-kathir",
-  },
-  {
-    id: 302,
-    type: "tafsir",
-    title: "Tafsir Al-Jalalayn",
-    subtitle: "Concise commentary",
-    icon: Scroll,
-    route: "/dashboard/guidance/tafsir/jalalayn",
-  },
-
-  // Recent
-  {
-    id: 401,
-    type: "recent",
-    title: "Surah Al-Fatihah",
-    subtitle: "Recently read",
-    icon: Clock,
-    route: "/dashboard/guidance/surah/1",
-  },
-  {
-    id: 402,
-    type: "recent",
-    title: "Ayat al-Kursi",
-    subtitle: "Recently bookmarked",
-    icon: Clock,
-    route: "/dashboard/guidance/surah/2#verse-255",
-  },
-];
-
-const typeConfig = {
-  surah: { label: "Surahs", color: "#fe8019", icon: BookOpen },
-  verse: { label: "Verses", color: "#fabd2f", icon: Quote },
-  topic: { label: "Topics", color: "#8ec07c", icon: MessageSquare },
-  tafsir: { label: "Tafsir", color: "#83a598", icon: Scroll },
-  recent: { label: "Recent", color: "#d3869b", icon: Clock },
-};
-
-interface CommandPaletteProps {
-  isOpen: boolean;
-  onClose: () => void;
+function Command({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive>) {
+  return (
+    <CommandPrimitive
+      data-slot="command"
+      className={cn(
+        "bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md",
+        className
+      )}
+      {...props}
+    />
+  )
 }
 
-export default function CommandPalette({
-  isOpen,
-  onClose,
-}: CommandPaletteProps) {
-  const [query, setQuery] = useState("");
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [filteredResults, setFilteredResults] = useState(searchData);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
-
-  // Filter results based on query
-  useEffect(() => {
-    if (query.trim() === "") {
-      // Show recent items when no query
-      setFilteredResults(
-        searchData
-          .filter((item) => item.type === "recent")
-          .concat(
-            searchData.filter((item) => item.type !== "recent").slice(0, 8)
-          )
-      );
-    } else {
-      const filtered = searchData.filter(
-        (item) =>
-          item.title.toLowerCase().includes(query.toLowerCase()) ||
-          item.subtitle.toLowerCase().includes(query.toLowerCase())
-      );
-      setFilteredResults(filtered);
-    }
-    setSelectedIndex(0);
-  }, [query]);
-
-  // Focus input when opened
-  useEffect(() => {
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isOpen]);
-
-  const handleSelect = (item: (typeof searchData)[0]) => {
-    router.push(item.route);
-    onClose();
-    setQuery("");
-  };
-
-  const groupedResults = filteredResults.reduce((acc, item) => {
-    if (!acc[item.type]) {
-      acc[item.type] = [];
-    }
-    acc[item.type].push(item);
-    return acc;
-  }, {} as Record<string, typeof searchData>);
-
-  if (!isOpen) return null;
-
+function CommandDialog({
+  title = "Command Palette",
+  description = "Search for a command to run...",
+  children,
+  className,
+  showCloseButton = true,
+  ...props
+}: React.ComponentProps<typeof Dialog> & {
+  title?: string
+  description?: string
+  className?: string
+  showCloseButton?: boolean
+}) {
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 bg-black/70 h-screen backdrop-blur-sm"
-        onClick={onClose}
+    <Dialog {...props}>
+      <DialogHeader className="sr-only">
+        <DialogTitle>{title}</DialogTitle>
+        <DialogDescription>{description}</DialogDescription>
+      </DialogHeader>
+      <DialogContent
+        className={cn("overflow-hidden p-0", className)}
+        showCloseButton={showCloseButton}
       >
-        <div className="flex items-start justify-center pt-[10vh] px-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="w-full max-w-2xl bg-[#282828] rounded-xl border border-[#3c3836] shadow-2xl overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex items-center gap-3 p-4 border-b border-[#3c3836]">
-              <div className="flex items-center gap-2 flex-1">
-                <Search className="h-5 w-5 text-[#a89984]" />
-                <Input
-                  ref={inputRef}
-                  placeholder="Search Quran, verses, topics, tafsir..."
-                  className="border-0 bg-transparent text-[#ebdbb2] placeholder:text-[#a89984] focus-visible:ring-0 text-lg"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge className="bg-[#3c3836] text-[#a89984] text-xs">
-                  <Command className="h-3 w-3 mr-1" />K
-                </Badge>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-[#a89984] hover:text-[#ebdbb2] hover:bg-[#3c3836]"
-                  onClick={onClose}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+        <Command className="[&_[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+          {children}
+        </Command>
+      </DialogContent>
+    </Dialog>
+  )
+}
 
-            {/* Results */}
-            <div className="max-h-[60vh] overflow-y-auto">
-              {filteredResults.length === 0 ? (
-                <div className="p-8 text-center">
-                  <Search className="h-12 w-12 text-[#504945] mx-auto mb-4" />
-                  <p className="text-[#a89984] mb-2">No results found</p>
-                  <p className="text-sm text-[#504945]">
-                    Try searching for surahs, verses, or topics
-                  </p>
-                </div>
-              ) : (
-                <div className="p-2">
-                  {Object.entries(groupedResults).map(([type, items]) => {
-                    const config = typeConfig[type as keyof typeof typeConfig];
-                    return (
-                      <div key={type} className="mb-4 last:mb-0">
-                        <div className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-[#a89984] uppercase tracking-wider">
-                          <config.icon className="h-3 w-3" />
-                          {config.label}
-                        </div>
-                        <div className="space-y-1">
-                          {items.map((item, index) => {
-                            const globalIndex = filteredResults.indexOf(item);
-                            const isSelected = globalIndex === selectedIndex;
-                            const ItemIcon = item.icon;
+function CommandInput({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Input>) {
+  return (
+    <div
+      data-slot="command-input-wrapper"
+      className="flex h-9 items-center gap-2 border-b px-3"
+    >
+      <SearchIcon className="size-4 shrink-0 opacity-50" />
+      <CommandPrimitive.Input
+        data-slot="command-input"
+        className={cn(
+          "placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
+          className
+        )}
+        {...props}
+      />
+    </div>
+  )
+}
 
-                            return (
-                              <motion.div
-                                key={item.id}
-                                whileHover={{ scale: 1.01 }}
-                                whileTap={{ scale: 0.99 }}
-                                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${
-                                  isSelected
-                                    ? "bg-[#3c3836] border border-[#fe8019]"
-                                    : "hover:bg-[#3c3836] border border-transparent"
-                                }`}
-                                onClick={() => handleSelect(item)}
-                              >
-                                <div
-                                  className="h-8 w-8 rounded-full flex items-center justify-center"
-                                  style={{
-                                    backgroundColor: config.color + "20",
-                                  }}
-                                >
-                                  <ItemIcon
-                                    className="h-4 w-4"
-                                    style={{ color: config.color }}
-                                  />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-[#ebdbb2] font-medium truncate">
-                                    {item.title}
-                                  </p>
-                                  <p className="text-sm text-[#a89984] truncate">
-                                    {item.subtitle}
-                                  </p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  {item.type === "recent" && (
-                                    <Badge className="bg-[#504945] text-[#a89984] text-xs">
-                                      Recent
-                                    </Badge>
-                                  )}
-                                  <ArrowRight className="h-4 w-4 text-[#504945]" />
-                                </div>
-                              </motion.div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+function CommandList({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.List>) {
+  return (
+    <CommandPrimitive.List
+      data-slot="command-list"
+      className={cn(
+        "max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto",
+        className
+      )}
+      {...props}
+    />
+  )
+}
 
-            {/* Footer */}
-            <div className="flex items-center justify-end p-3 border-t border-[#3c3836] bg-[#1d2021]">
-              <div className="text-xs text-[#ebddb2]">
-                {filteredResults.length} result
-                {filteredResults.length !== 1 ? "s" : ""}
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </motion.div>
-    </AnimatePresence>
-  );
+function CommandEmpty({
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Empty>) {
+  return (
+    <CommandPrimitive.Empty
+      data-slot="command-empty"
+      className="py-6 text-center text-sm"
+      {...props}
+    />
+  )
+}
+
+function CommandGroup({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Group>) {
+  return (
+    <CommandPrimitive.Group
+      data-slot="command-group"
+      className={cn(
+        "text-foreground [&_[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CommandSeparator({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Separator>) {
+  return (
+    <CommandPrimitive.Separator
+      data-slot="command-separator"
+      className={cn("bg-border -mx-1 h-px", className)}
+      {...props}
+    />
+  )
+}
+
+function CommandItem({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Item>) {
+  return (
+    <CommandPrimitive.Item
+      data-slot="command-item"
+      className={cn(
+        "data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CommandShortcut({
+  className,
+  ...props
+}: React.ComponentProps<"span">) {
+  return (
+    <span
+      data-slot="command-shortcut"
+      className={cn(
+        "text-muted-foreground ml-auto text-xs tracking-widest",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+export {
+  Command,
+  CommandDialog,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandShortcut,
+  CommandSeparator,
 }
