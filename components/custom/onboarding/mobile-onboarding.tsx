@@ -436,7 +436,7 @@ const InteractiveCalendarDemo = ({ isActive }: { isActive: boolean }) => {
               className={cn(
                 "aspect-square rounded-lg text-sm font-bold transition-all relative overflow-hidden",
                 isCompleted
-                  ? "bg-[#8ec07c] text-[#1d2021] shadow-lg"
+                  ? "bg-[#fe8019] text-[#1d2021] shadow-lg"
                   : isToday
                   ? "bg-[#3c3836] text-[#ebdbb2] ring-2 ring-[#fe8019] shadow-lg"
                   : isFuture
@@ -582,7 +582,7 @@ const InteractiveQuranSearchDemo = ({ isActive }: { isActive: boolean }) => {
       setResults([]);
       setSelectedResult(null);
     }
-  }, [isActive]); 
+  }, [isActive]);
 
   return (
     <div className="space-y-4">
@@ -1139,7 +1139,7 @@ export default function MobileOnboardingFlow({
                 >
                   <Button
                     onClick={() => onComplete()}
-                    className="bg-[#fe8019]/80 text-lg py-6 text-[#fff] "
+                    className="inline-flex h-9 items-center justify-center rounded-md bg-[#fe8019] px-4 py-2 text-sm font-medium text-[#1d2021] shadow-sm transition-colors hover:bg-[#d65d0e]"
                   >
                     Register now
                   </Button>

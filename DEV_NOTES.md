@@ -223,6 +223,18 @@ Like dont just go ahead and fix every fucking error in there, wire up each and e
 - Step 5: Custom Task form
 - Step 6: Custom Challenge start
 
+Change of plans, only 4 steps, there is branching on the 3rd step otherwise you go straight to the summary page
+Branching is pretty good like this:
+ - Select the current -> Go to summary
+ - Selct new -> See pre defs and custom
+    - Select a pre def -> select tasks
+    - Select a custom -> create tasks
+      - Then Go to summary
+
+## Next features:
+  - Fix the progress page
+  - 
+
 
 ## FULL ROUTE VIEW BECAUSE THIS WAS A LOT OF WORK
 ```bash
