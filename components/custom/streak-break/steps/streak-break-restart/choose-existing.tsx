@@ -1,6 +1,5 @@
 "use client";
-
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -12,40 +11,33 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 
-interface ChoosePredefinedBranch {
+interface ChoosePredefinedBranchProps {
   predefinedChallenges: Challenge[];
   selectedChallengeId: string | null;
   duration: number;
+  currentSlide: number;
+  carouselApi: any;
   onSelectChallenge: (id: string) => void;
   onCreateCustom: () => void;
+  setCarouselApi: (api: any) => void;
 }
 
-const ChooseExistingBranch: React.FC<ChoosePredefinedBranch> = ({
+const ChoosePredefinedBranch: React.FC<ChoosePredefinedBranchProps> = ({
   predefinedChallenges,
   selectedChallengeId,
   duration,
+  currentSlide,
+  carouselApi,
   onSelectChallenge,
   onCreateCustom,
+  setCarouselApi,
 }) => {
-  const [carouselApi, setCarouselApi] = useState();
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  useEffect(() => {
-    if (!carouselApi) {
-      return;
-    }
-
-    carouselApi.on("select", () => {
-      setCurrentSlide(carouselApi.selectedScrollSnap());
-    });
-  }, [carouselApi]);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="space-y-6 px-6" 
+      className="space-y-6"
     >
       <div className="text-center">
         <h2 className="text-xl font-bold text-[#ebdbb2]">Choose a Challenge</h2>
@@ -69,7 +61,6 @@ const ChooseExistingBranch: React.FC<ChoosePredefinedBranch> = ({
             {predefinedChallenges.map((challenge, i) => (
               <CarouselItem key={i} className="px-2 pl-8">
                 <ChallengeCard
-                  key={challenge.id}
                   challenge={{ ...challenge, duration: duration }}
                   isSelected={selectedChallengeId === challenge.id}
                   onSelect={() => onSelectChallenge(challenge.id)}
@@ -77,7 +68,6 @@ const ChooseExistingBranch: React.FC<ChoosePredefinedBranch> = ({
               </CarouselItem>
             ))}
           </CarouselContent>
-
           <div className="flex justify-center space-x-2 mt-3">
             {predefinedChallenges.map((_, index) => (
               <button
@@ -112,4 +102,5 @@ const ChooseExistingBranch: React.FC<ChoosePredefinedBranch> = ({
     </motion.div>
   );
 };
-export default ChooseExistingBranch;
+
+export default ChoosePredefinedBranch;

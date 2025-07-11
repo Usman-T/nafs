@@ -1,10 +1,14 @@
-import { Challenge as ChallengeSchema, Dimension, Task } from "@prisma/client";
-import StartNewChallenge from "./start-new";
-import ChoosePredefinedBranch from "./choose-existing";
-import SelectedChallenge from "@/components/custom/onboarding/onboarding-selected-challenge";
-import CustomTaskForm from "@/components/custom/onboarding/onboarding-task-form";
+"use client";
 
-type Challenge = ChallengeSchema & {
+import React from "react";
+import { Challenge, Dimension, Task } from "@prisma/client";
+import { useStreakBreakRestart } from "@/lib/hooks/use-streak-break";
+import ChoosePredefinedBranch from "./choose-existing";
+import StartNewChallenge from "./start-new";
+import SelectedChallenge from "./selected-challenge";
+import { CustomChallengeStep } from "@/components/custom/challenges/completion/challenge/steps/custom-challenge-step";
+
+type ExtendedChallenge = Challenge & {
   tasks: {
     task: Task & {
       dimension: Dimension;
@@ -12,92 +16,104 @@ type Challenge = ChallengeSchema & {
   }[];
 };
 
-interface Props {
-  currentChallenge: Challenge;
-  selectedChallenge: ChallengeSchema | null;
-  setSelectedChallenge: (challengeId: string | null) => void;
-  predefinedChallenges: Challenge[];
-  duration: number;
-  handleNext: () => void;
-  flowBranchType: "CHOOSE_BRANCH" | "PREDEFINED" | "CUSTOM" | "SELECT_TASKS";
-  setFlowBranchType: (
-    type: "CHOOSE_BRANCH" | "PREDEFINED" | "CUSTOM" | "SELECT_TASKS"
-  ) => void;
+interface StreakBreakRestartProps {
+  currentChallenge: ExtendedChallenge;
+  predefinedChallenges: ExtendedChallenge[];
   dimensions: Dimension[];
-  onAdd: () => void;
-  onCancel: (
-    name: string,
-    dimension: Dimension
-  ) => { name: string; dimension: Dimension };
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-  selectedTasks: Task[];
-  setSelectedTasks: (tasks: Task[]) => void;
-  challengeLoading: boolean;
+  duration: number;
 }
 
-const StreakBreakRestart = ({
+const StreakBreakRestart: React.FC<StreakBreakRestartProps> = ({
   currentChallenge,
-  selectedChallenge,
-  setSelectedChallenge,
   predefinedChallenges,
-  duration,
-  handleNext,
-  flowBranchType,
-  setFlowBranchType,
   dimensions,
-  onAdd,
-  onCancel,
-  isOpen,
-  setIsOpen,
-  selectedTasks,
-  setSelectedTasks,
-  challengeLoading,
-}: Props) => {
-  const completedTasks = currentChallenge.tasks.filter((t) => t.task);
+  duration,
+}) => {
+  const {
+    flowBranchType,
+    selectedChallenge,
+    selectedChallengeId,
+    selectedTasks,
+    challengeLoading,
+    carouselApi,
+    currentSlide,
+    customChallenge,
+    completedTasks,
+    setFlowBranchType,
+    setSelectedTasks,
+    handleAddCustomTask,
+    setCarouselApi,
+    handleContinueCurrentChallenge,
+    handleSelectPredefinedChallenge,
+    handleRemoveCustomTask,
+    canProceed,
+  } = useStreakBreakRestart({
+    currentChallenge,
+    predefinedChallenges,
+    dimensions,
+    duration,
+  });
 
-  switch (flowBranchType) {
-    case "PREDEFINED":
-      return (
-        <ChoosePredefinedBranch
-          predefinedChallenges={predefinedChallenges}
-          onCreateCustom={() => setFlowBranchType("CUSTOM")}
-          duration={duration}
-          selectedChallengeId={selectedChallenge?.id}
-          onSelectChallenge={setSelectedChallenge}
-        />
-      );
-    case "CUSTOM":
-      return (
-        <CustomTaskForm
-          dimensions={dimensions}
-          onAdd={onAdd}
-          onCancel={onCancel}
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-        />
-      );
-    case "SELECT_TASKS":
-      return (
-        <SelectedChallenge
-          selectedTasks={selectedTasks}
-          setSelectedTasks={setSelectedTasks}
-          challenge={selectedChallenge}
-          loading={challengeLoading}
-        />
-      );
-    case "CHOOSE_BRANCH":
-    default:
-      return (
-        <StartNewChallenge
-          currentChallenge={currentChallenge}
-          setFlowBranchType={setFlowBranchType}
-          handleNext={handleNext}
-          setSelectedChallenge={setSelectedChallenge}
-          completedTasks={completedTasks}
-        />
-      );
-  }
+  const handleToggleTask = (taskIndex: number) => {
+    setSelectedTasks((prev) =>
+      prev.includes(taskIndex)
+        ? prev.filter((index) => index !== taskIndex)
+        : [...prev, taskIndex]
+    );
+  };
+
+  const renderContent = () => {
+    switch (flowBranchType) {
+      case "CHOOSE_BRANCH":
+        return (
+          <StartNewChallenge
+            currentChallenge={currentChallenge}
+            completedTasks={completedTasks}
+            onContinueChallenge={handleContinueCurrentChallenge}
+            onStartNew={() => setFlowBranchType("PREDEFINED")}
+          />
+        );
+
+      case "PREDEFINED":
+        return (
+          <ChoosePredefinedBranch
+            predefinedChallenges={predefinedChallenges}
+            selectedChallengeId={selectedChallengeId}
+            duration={duration}
+            currentSlide={currentSlide}
+            carouselApi={carouselApi}
+            onSelectChallenge={handleSelectPredefinedChallenge}
+            onCreateCustom={() => setFlowBranchType("CUSTOM")}
+            setCarouselApi={setCarouselApi}
+          />
+        );
+
+      case "SELECT_TASKS":
+        return (
+          <SelectedChallenge
+            challenge={selectedChallenge}
+            loading={challengeLoading}
+            selectedTasks={selectedTasks}
+            onToggleTask={handleToggleTask}
+          />
+        );
+
+      case "CUSTOM":
+        return (
+          <CustomChallengeStep
+            customChallenge={customChallenge}
+            dimensions={dimensions}
+            onAddTask={handleAddCustomTask}
+            onRemoveTask={handleRemoveCustomTask}
+          />
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return <div className="p-6">{renderContent()}</div>;
 };
 
 export default StreakBreakRestart;

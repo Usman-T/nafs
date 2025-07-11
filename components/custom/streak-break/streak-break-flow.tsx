@@ -12,6 +12,9 @@ import StreakBreakSummary from "./steps/streak-break-summary";
 import ExitAnimation from "./extras/exit-animation";
 import StreakBreakRestart from "./steps/streak-break-restart/streak-break-restart";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { createCustomChallenge, enrollInExistingChallenge } from "@/lib/actions";
+import { useStreakBreakRestart } from "@/lib/hooks/use-streak-break";
 
 export default function StreakBreakFlow({
   predefinedChallenges,
@@ -38,14 +41,8 @@ export default function StreakBreakFlow({
 }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [selectedChallenge, setSelectedChallenge] = useState<any>(null);
   const [isExiting, setIsExiting] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
-  const [challengeLoading, setChallengeLoading] = useState(false);
-  const [flowBranchType, setFlowBranchType] = useState<
-    "CHOOSE_BRANCH" | "PREDEFINED" | "CUSTOM"
-  >("CHOOSE_BRANCH");
 
   const durationMap: Record<number, number> = {
     1: 3,
@@ -78,7 +75,80 @@ export default function StreakBreakFlow({
     }, 2000);
   };
 
-  const handleNext = () => {
+  const {
+    flowBranchType,
+    selectedChallenge,
+    selectedChallengeId,
+    selectedTasks,
+    challengeLoading,
+    isLoading,
+    showTaskForm,
+    carouselApi,
+    currentSlide,
+    customChallenge,
+    completedTasks,
+    setFlowBranchType,
+    setSelectedTasks,
+    setShowTaskForm,
+    setCarouselApi,
+    handleContinueCurrentChallenge,
+    handleSelectPredefinedChallenge,
+    handleAddCustomTask,
+    handleRemoveCustomTask,
+    canProceed,
+  } = useStreakBreakRestart({
+    currentChallenge,
+    predefinedChallenges,
+    dimensions,
+    duration,
+  });
+
+  const handleStartChallenge = async () => {
+    try {
+      if (flowBranchType === "SELECT_TASKS" && selectedChallengeId && selectedTasks.length >= 3) {
+        const result = await enrollInExistingChallenge(
+          selectedChallengeId,
+          selectedTasks,
+          duration,
+          false
+        );
+        if (!result.success) throw new Error(result.message);
+      } else if (flowBranchType === "CUSTOM" && customChallenge.tasks.length >= 3) {
+        const creationResult = await createCustomChallenge(
+          undefined,
+          duration,
+          {
+            title: customChallenge.title,
+            description: customChallenge.description,
+            tasks: customChallenge.tasks.map((t) => ({
+              name: t.name,
+              dimensionId: t.dimension.id,
+            })),
+            nextDay: false,
+          }
+        );
+        if (!creationResult.success) throw new Error(creationResult.message);
+      }
+
+      toast.success("Challenge started!");
+    } catch (error: any) {
+      console.error("Challenge start error:", error);
+      toast.error("Failed to start challenge");
+    }
+  };
+
+  const handleNext = async () => {
+    if (step === 2) {
+      if (
+        (flowBranchType === "SELECT_TASKS" && canProceed()) ||
+        (flowBranchType === "CUSTOM" && canProceed())
+      ) {
+        await handleStartChallenge();
+        animateStepChange(step + 1);
+      }
+      return;
+    }
+
     if (step === 3) {
       handleComplete();
     } else {
@@ -92,11 +162,14 @@ export default function StreakBreakFlow({
 
   const canGoNext = () => {
     if (isAnimating) return false;
-
     if (step === 0 || step === 1) return true;
-    if (step === 2) return false;
-    if (step === 3) return selectedChallenge !== null;
-    return true;
+    if (step === 2)
+      return (
+        (flowBranchType === "SELECT_TASKS" && canProceed()) ||
+        (flowBranchType === "CUSTOM" && canProceed())
+      );
+    if (step === 3) return true;
+    return false;
   };
 
   const renderStepContent = () => {
@@ -123,29 +196,18 @@ export default function StreakBreakFlow({
           />
         );
 
-      case 2: // Continue current challenge OR create new challenge
+      case 2:
         return (
           <StreakBreakRestart
             currentChallenge={currentChallenge}
-            setSelectedChallenge={setSelectedChallenge}
-            handleNext={handleNext}
             predefinedChallenges={predefinedChallenges}
-            duration={duration}
-            selectedChallenge={selectedChallenge}
-            flowBranchType={flowBranchType}
-            setFlowBranchType={setFlowBranchType}
-            challengeLoading={challengeLoading}
-            setChallengeLoading={setChallengeLoading}
-            selectedTasks={selectedTasks}
-            setSelectedTasks={setSelectedTasks}
             dimensions={dimensions}
-            onAdd={onAdd}
-            onCancel={onCancel}
+            duration={duration}
           />
         );
 
-      case 3: // Summary
-        return <StreakBreakSummary customChallenge={currentChallenge} />;
+      case 3:
+        return <StreakBreakSummary customChallenge={customChallenge} />;
 
       default:
         return null;
@@ -154,14 +216,11 @@ export default function StreakBreakFlow({
 
   return (
     <div className="h-screen w-full bg-gradient-to-br from-[#1d2021] via-[#282828] to-[#1d2021] text-[#ebdbb2] flex flex-col justify-between">
-      {/* Background effects */}
       <BackgroundParticles />
-
       <StreakBreakHeader step={step} />
 
-      {/* Content area */}
       <div className="flex items-center overflow-y-auto flex-col">
-        <div className="w-full max-w-6xl">
+        <div className="w-full">
           <AnimatePresence mode="wait">
             {!isExiting && (
               <motion.div
@@ -178,7 +237,6 @@ export default function StreakBreakFlow({
         </div>
       </div>
 
-      {/* Navigation */}
       <StreakBreakFooter
         step={step}
         isExiting={isExiting}
