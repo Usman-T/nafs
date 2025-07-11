@@ -2,21 +2,19 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/utils";
-import { ChevronRight, ChevronLeft, ArrowRight, RotateCcw } from "lucide-react";
+import { ChevronRight, ChevronLeft, RotateCcw } from "lucide-react";
 import { motion } from "framer-motion";
 
 const StreakBreakFooter = ({
   step,
   handleBack,
   isExiting,
-  showCustomForm,
   handleNext,
   canGoNext,
 }: {
   step: number;
   handleBack: () => void;
   isExiting: boolean;
-  showCustomForm: boolean;
   handleNext: () => void;
   canGoNext: () => string | boolean;
 }) => {
@@ -37,7 +35,7 @@ const StreakBreakFooter = ({
         </Button>
 
         <div className="flex items-center gap-2">
-          {Array.from({ length: showCustomForm ? 5 : 4 }).map((_, i) => (
+          {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
               className={cn(

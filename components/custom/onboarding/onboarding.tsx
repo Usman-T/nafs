@@ -1,60 +1,16 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import {
-  ChevronRight,
-  ChevronLeft,
-  Plus,
-  Award,
-  Loader2,
-  Trash,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { iconMap } from "@/lib/iconMap";
 import { Challenge, Dimension } from "@prisma/client";
-import CustomTaskForm from "@/components/custom/onboarding/onboarding-task-form";
-import ChallengeCard from "@/components/custom/onboarding/onboarding-challenge";
 import SelectedChallenge from "@/components/custom/onboarding/onboarding-selected-challenge";
 import OnboardingWelcome from "@/components/custom/onboarding/onboarding-welcome";
 import ChallengeSummary from "@/components/custom/onboarding/onboarding-challenge-summary";
-import {
-  createCustomChallenge,
-  enrollInExistingChallenge,
-} from "@/lib/actions";
-import { useRouter } from "next/navigation";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
-import { toast } from "sonner";
-import { signOut } from "next-auth/react";
 import { CustomTasksStep } from "./steps/custom-task-step";
 import { CustomChallengeSummaryStep } from "./steps/custom-challenge-summary";
 import { OnboardingHeader } from "./onboarding-header";
 import { OnboardingNavigation } from "./onboarding-navigation";
 import { ChallengeSelectionStep } from "./steps/challenge-selection";
 import { useChallengeOnboarding } from "@/lib/hooks/use-challenge-onboarding";
-
-// Types
-interface CustomTask {
-  name: string;
-  dimension: Dimension;
-}
-
-interface CustomChallengeState {
-  title: string;
-  description: string;
-  duration: number;
-  tasks: CustomTask[];
-}
-
-interface UseChallengeOnboardingProps {
-  predefinedChallenges: Challenge[];
-  dimensions: Dimension[];
-}
 
 export default function ChallengeOnboarding({
   predefinedChallenges,
@@ -107,9 +63,7 @@ export default function ChallengeOnboarding({
         );
       case 2:
         return (
-          <SelectedChallenge
-            selectedTasks={selectedTasks}
-            setSelectedTasks={setSelectedTasks}
+          <SelectedChallenge selectedTasks={selectedTasks} setSelectedTasks={setSelectedTasks}
             challenge={selectedChallenge}
             loading={challengeLoading}
           />

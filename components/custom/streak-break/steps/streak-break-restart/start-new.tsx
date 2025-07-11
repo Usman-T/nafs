@@ -1,115 +1,116 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import React from "react";
+import { cn } from "@/lib/utils/utils";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { Challenge } from "@prisma/client";
-import ChallengeCard from "@/components/custom/challenges/completion/challenge/challenge-card";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { motion } from "framer-motion";
+import { Challenge, Task } from "@prisma/client";
+import { Plus, RotateCcw } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-interface StartNewChallenge {
-  predefinedChallenges: Challenge[];
-  selectedChallengeId: string | null;
-  duration: number;
-  onSelectChallenge: (id: string) => void;
-  onCreateCustom: () => void;
-}
-
-const StartNewChallenge: React.FC<StartNewChallenge> = ({
-  predefinedChallenges,
-  selectedChallengeId,
-  duration,
-  onSelectChallenge,
-  onCreateCustom,
+const StartNewChallenge = ({
+  setSelectedChallenge,
+  currentChallenge,
+  setFlowBranchType,
+  handleNext,
+  completedTasks,
+}: {
+  setSelectedChallenge: (challengeId: string | null) => void;
+  currentChallenge: Challenge & { tasks: Task[] }[];
+  setFlowBranchType: (type: "PREDEFINED" | "CUSTOM") => void;
+  handleNext: () => void;
+  completedTasks: { task: { dimension: { name: string } } }[];
 }) => {
-  const [carouselApi, setCarouselApi] = useState();
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  useEffect(() => {
-    if (!carouselApi) {
-      return;
-    }
-
-    carouselApi.on("select", () => {
-      setCurrentSlide(carouselApi.selectedScrollSnap());
-    });
-  }, [carouselApi]);
-
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="space-y-6"
+      className="space-y-8 px-8 py-12"
     >
-      <div className="text-center">
-        <h2 className="text-xl font-bold text-[#ebdbb2]">Choose a Challenge</h2>
-        <p className="text-[#a89984]">
-          Select a pre-designed challenge or create your own
-        </p>
-      </div>
-
-      <div className="grid-cols-1 scrollbar-hide gap-4 grid">
-        <Carousel
-          className="w-full"
-          opts={{
-            align: "start",
-            dragFree: false,
-            loop: false,
-            slidesToScroll: 1,
-          }}
-          setApi={setCarouselApi}
+      <div className="space-y-6 max-w-4xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative"
         >
-          <CarouselContent>
-            {predefinedChallenges.map((challenge, i) => (
-              <CarouselItem key={i} className="px-2 pl-8">
-                <ChallengeCard
-                  key={challenge.id}
-                  challenge={{ ...challenge, duration: duration }}
-                  isSelected={selectedChallengeId === challenge.id}
-                  onSelect={() => onSelectChallenge(challenge.id)}
-                />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
+          <Card
+            className={cn(
+              "relative overflow-hidden transition-all duration-500 cursor-pointer group",
+              "bg-gradient-to-br from-[#fe8019]/10 to-[#d65d0e]/5 border-2 border-[#fe8019]/30",
+              "hover:border-[#fe8019] hover:shadow-lg hover:shadow-[#fe8019]/20"
+            )}
+            onClick={() => {
+              setSelectedChallenge(currentChallenge.id);
+              handleNext();
+            }}
+          >
+            <div className="absolute top-4 right-4"></div>
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center text-[#ebdbb2] text-2xl font-bold">
+                <div className="p-3 bg-[#fe8019]/20 rounded-xl mr-4">
+                  <RotateCcw className="h-8 w-8 text-[#fe8019]" />
+                </div>
+                Continue Current Challenge
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-[#a89984] text-lg leading-relaxed">
+                Restart {currentChallenge.name}
+              </p>
+              <div className="flex items-center gap-4">
+                <Badge className="bg-[#3c3836] text-[#ebdbb2] px-3 py-1">
+                  Day {currentChallenge?.currentDay || 1} of{" "}
+                  {currentChallenge.duration}
+                </Badge>
+                <Badge className="bg-[#8ec07c]/20 text-[#8ec07c] px-3 py-1">
+                  {completedTasks.length}/{currentChallenge?.tasks.length} tasks
+                  completed
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-          <div className="flex justify-center space-x-2 mt-3">
-            {predefinedChallenges.map((_, index) => (
-              <button
-                key={index}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  index === currentSlide
-                    ? "bg-[#fe8019]"
-                    : "bg-[#504945] hover:bg-[#665c54]"
-                }`}
-                onClick={() => carouselApi?.scrollTo(index)}
-              />
-            ))}
+        <div className="text-center">
+          <div className="flex items-center gap-4">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[#3c3836]"></div>
+            <span className="text-[#a89984] text-sm font-medium px-4">
+              OR START A NEW CHALLENGE
+            </span>
+            <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#3c3836]"></div>
           </div>
-        </Carousel>
-      </div>
+        </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="flex justify-center"
-      >
-        <Button
-          variant="outline"
-          className="border-[#3c3836] text-[#ebdbb2] hover:bg-[#3c3836] hover:text-[#fe8019]"
-          onClick={onCreateCustom}
+        {/* Custom challenge option */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
         >
-          <Plus className="h-4 w-4 mr-2" />
-          Create Custom Challenge
-        </Button>
-      </motion.div>
+          <Button
+            variant="outline"
+            className={cn(
+              "w-full h-20 text-lg font-medium transition-all duration-500 bg-transparent",
+              "border-2 border-dashed",
+              "border-[#fe8019] text-[#fe8019] bg-[#fe8019]/5 shadow-lg shadow-[#fe8019]/10"
+            )}
+            onClick={() => {
+              setSelectedChallenge(null);
+              setFlowBranchType("PREDEFINED");
+            }}
+          >
+            <div className="flex items-center gap-4">
+              <div className="p-2 bg-[#fe8019]/20 rounded-lg">
+                <Plus className="h-6 w-6 text-[#fe8019]" />
+              </div>
+              <div className="text-left">
+                <div className="font-bold">Start New Challenge</div>
+              </div>
+            </div>
+          </Button>
+        </motion.div>
+      </div>
     </motion.div>
   );
 };
+
 export default StartNewChallenge;

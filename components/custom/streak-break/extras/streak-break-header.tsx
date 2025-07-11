@@ -1,12 +1,6 @@
 import { RotateCcw } from "lucide-react";
 
-const StreakBreakHeader = ({
-  step,
-  showCustomForm,
-}: {
-  step: number;
-  showCustomForm: boolean;
-}) => {
+const StreakBreakHeader = ({ step }: { step: number }) => {
   return (
     <div className="flex items-center justify-between w-full p-6">
       <div className="w-full">
@@ -19,9 +13,7 @@ const StreakBreakHeader = ({
               <h1 className="text-lg font-bold text-[#ebdbb2]">
                 Streak Broken
               </h1>
-              <p className="text-sm text-[#a89984]">
-                Step {step + 1} of {showCustomForm ? 5 : 4}
-              </p>
+              <p className="text-sm text-[#a89984]">Step {step + 1} of 4</p>
             </div>
           </div>
         </div>

@@ -3,8 +3,6 @@
 import { useState } from "react";
 import BackgroundParticles from "@/components/custom/streak-break/extras/background-particles";
 import { motion, AnimatePresence } from "framer-motion";
-import { redirect, useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Challenge, DailyTask, Dimension, Task } from "@prisma/client";
 import StreakBreakInfo from "@/components/custom/streak-break/steps/streak-break-info";
 import StreakBreakVisual from "@/components/custom/streak-break/steps/streak-break-visual";
@@ -13,7 +11,7 @@ import StreakBreakFooter from "@/components/custom/streak-break/extras/streak-br
 import StreakBreakSummary from "./steps/streak-break-summary";
 import ExitAnimation from "./extras/exit-animation";
 import StreakBreakRestart from "./steps/streak-break-restart/streak-break-restart";
-import StartNewChallenge from "./steps/streak-break-restart/start-new";
+import { useRouter } from "next/navigation";
 
 export default function StreakBreakFlow({
   predefinedChallenges,
@@ -41,9 +39,13 @@ export default function StreakBreakFlow({
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [selectedChallenge, setSelectedChallenge] = useState<any>(null);
-  const [showCustomForm, setShowCustomForm] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
+  const [challengeLoading, setChallengeLoading] = useState(false);
+  const [flowBranchType, setFlowBranchType] = useState<
+    "CHOOSE_BRANCH" | "PREDEFINED" | "CUSTOM"
+  >("CHOOSE_BRANCH");
 
   const durationMap: Record<number, number> = {
     1: 3,
@@ -93,7 +95,7 @@ export default function StreakBreakFlow({
 
     if (step === 0 || step === 1) return true;
     if (step === 2) return false;
-    if (step === 3) return selectedChallenge !== null || showCustomForm;
+    if (step === 3) return selectedChallenge !== null;
     return true;
   };
 
@@ -130,11 +132,20 @@ export default function StreakBreakFlow({
             predefinedChallenges={predefinedChallenges}
             duration={duration}
             selectedChallenge={selectedChallenge}
+            flowBranchType={flowBranchType}
+            setFlowBranchType={setFlowBranchType}
+            challengeLoading={challengeLoading}
+            setChallengeLoading={setChallengeLoading}
+            selectedTasks={selectedTasks}
+            setSelectedTasks={setSelectedTasks}
+            dimensions={dimensions}
+            onAdd={onAdd}
+            onCancel={onCancel}
           />
         );
 
       case 3: // Summary
-        return <StreakBreakSummary />;
+        return <StreakBreakSummary customChallenge={currentChallenge} />;
 
       default:
         return null;
@@ -146,7 +157,7 @@ export default function StreakBreakFlow({
       {/* Background effects */}
       <BackgroundParticles />
 
-      <StreakBreakHeader step={step} showCustomForm={showCustomForm} />
+      <StreakBreakHeader step={step} />
 
       {/* Content area */}
       <div className="flex items-center overflow-y-auto flex-col">
@@ -174,7 +185,6 @@ export default function StreakBreakFlow({
         canGoNext={canGoNext}
         handleNext={handleNext}
         handleBack={handleBack}
-        showCustomForm={showCustomForm}
       />
 
       <ExitAnimation isExiting={isExiting} />
