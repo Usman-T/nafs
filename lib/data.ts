@@ -1,6 +1,6 @@
 import prisma from "@/prisma";
 import { auth } from "@/auth";
-import { isSameDay, subDays } from "date-fns";
+import { isAfter, isBefore, isSameDay, startOfDay, subDays } from "date-fns";
 import { initializeDayTasks } from "./actions";
 
 export const getUsers = async () => {
@@ -300,52 +300,77 @@ export const loadStreakBreakPageData = async () => {
   }
 
   const challenges = await fetchChallenges();
+  const userLevel = await fetchUserLevel();
+  const spiritualDimensions = await fetchDimensions();
 
-  const currentChallenge = user?.challenges.find(
+  const currentChallenge = user.challenges.find(
     (userChallenge) => userChallenge.challengeId === user.challengeId
   );
 
-  const spiritualDimensions = await fetchDimensions();
-  const previousValues: Record<string, number> = user?.dimensionValues.reduce(
-    (acc, dv) => ({
-      ...acc,
-      [dv.id]: dv.value / 100,
-    }),
-    {}
+  const dailyTasks = user.dailyTasks;
+
+  if (dailyTasks.length === 0) {
+    return {
+      missedTasks: [],
+      challenges,
+      spiritualDimensions,
+      currentValues: {},
+      previousValues: {},
+      currentChallenge: currentChallenge?.challenge || null,
+      userLevel,
+    };
+  }
+
+  // --- Find the most recent day with tasks ---
+  const groupedByDate = dailyTasks.reduce((acc, task) => {
+    const day = startOfDay(task.date).toISOString();
+    acc[day] = acc[day] || [];
+    acc[day].push(task);
+    return acc;
+  }, {} as Record<string, typeof dailyTasks>);
+
+  const recentDateStr = Object.keys(groupedByDate).sort((a, b) =>
+    new Date(b).getTime() - new Date(a).getTime()
+  )[0];
+
+  const recentTasks = groupedByDate[recentDateStr];
+
+  // --- Identify missed tasks ONLY for the most recent day ---
+  const missedTasksArray = recentTasks.filter(
+    (task) =>
+      task.completions.length === 0 ||
+      task.completions.every(
+        (c) => !isSameDay(new Date(c.completedAt), task.date)
+      )
   );
 
-  const fetchedMissedTasks = user?.dailyTasks.filter((dt) => {
-    const today = new Date();
-    return (
-      (!dt.completions.length &&
-        dt.date < today &&
-        dt.date >= subDays(today, user?.currentChallenge?.duration || 3)) ||
-      (dt.completions.length &&
-        dt.completions.every((c) => c.completedAt < today))
-    );
-  });
-
-  const missedTasks = fetchedMissedTasks.map((task) => ({
+  const missedTasks = missedTasksArray.map((task) => ({
     id: task.id,
     name: task.task.name,
     dimension: task.task.dimension.name,
     color: task.task.dimension.color,
     icon: task.task.dimension.icon,
+    dimensionId: task.task.dimension.id,
+    points: task.task.points,
   }));
 
-  const currentValues = user.dimensionValues.reduce((acc, dv) => {
-    const latestMissedTask = fetchedMissedTasks
-      .filter(
-        (task) =>
-          task.task.dimension.id === dv.dimension.id && task.date < new Date()
-      )
-      .sort((a, b) => b.date.getTime() - a.date.getTime())[0];
+  // --- Previous Dimension Values ---
+  const previousValues: Record<string, number> = user.dimensionValues.reduce(
+    (acc, dv) => {
+      acc[dv.dimension.id] = dv.value / 100;
+      return acc;
+    },
+    {}
+  );
 
-    const missedPoints = latestMissedTask ? latestMissedTask.task.points : 0;
+  // --- Apply Missed Task Penalties for CURRENT values ---
+  const currentValues = { ...previousValues };
 
-    acc[dv.dimension.id] = (dv.value - missedPoints) / 100;
-    return acc;
-  }, {} as Record<string, number>);
+  for (const missed of missedTasks) {
+    if (currentValues[missed.dimensionId] !== undefined) {
+      currentValues[missed.dimensionId] -= missed.points / 100;
+    }
+  }
 
   return {
     missedTasks,
@@ -354,5 +379,7 @@ export const loadStreakBreakPageData = async () => {
     currentValues,
     previousValues,
     currentChallenge: currentChallenge?.challenge || null,
+    userLevel,
   };
 };
+

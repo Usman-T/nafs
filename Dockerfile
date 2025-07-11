@@ -9,4 +9,4 @@ COPY . .
 
 RUN bunx prisma generate
 
-CMD ["bun", "run", "start"] # Keep clean and move logic outside
+CMD ["bun", "run", "start"] 

@@ -75,7 +75,7 @@ const StreakBreakInfo = ({
           className="bg-gradient-to-br from-[#1d2021] to-[#282828] rounded-2xl p-6 border border-[#3c3836] max-w-md mx-auto"
         >
           <h3 className="text-[#ebdbb2] font-bold text-lg mb-4">
-            Tasks Missed Yesterday
+            Tasks Missed
           </h3>
 
           <motion.div

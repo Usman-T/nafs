@@ -73,7 +73,7 @@ export default function RootLayout({
       <body
         className={`${geist.className} bg-[#1d2021] text-[#ebdbb2] antialiased`}
       >
-        <div className="h-screen overflow-y-auto overscroll-none">
+        <div className="h-screen select-none overflow-y-auto overscroll-none">
           <DisablePinchZoom />
           <SessionProvider>
             {children}

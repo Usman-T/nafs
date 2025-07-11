@@ -24,12 +24,6 @@ const StreakBreakHeader = ({
               </p>
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-sm text-[#a89984]">Progress</div>
-            <div className="text-lg font-bold text-[#fe8019]">
-              {Math.round(((step + 1) / (showCustomForm ? 5 : 4)) * 100)}%
-            </div>
-          </div>
         </div>
       </div>
     </div>

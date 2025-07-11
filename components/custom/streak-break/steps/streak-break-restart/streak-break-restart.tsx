@@ -5,14 +5,22 @@ import { cn } from "@/lib/utils/utils";
 import { Challenge, DailyTask, Dimension, Task } from "@prisma/client";
 import { motion } from "framer-motion";
 import { Plus, RotateCcw } from "lucide-react";
+import { useState } from "react";
+import StartNewChallenge from "./start-new";
+import CreateCustomBranch from "./create-custom";
 
 const StreakBreakRestart = ({
-  setSelectedChallenge,
   currentChallenge,
-  setCreateNewSelected,
+  selectedChallenge,
+  setSelectedChallenge,
+  duration,
+  handleNext,
+  predefinedChallenges,
 }: {
+  selectedChallenge: Challenge | null;
+  duration: number;
   setSelectedChallenge: (challengeId: string | null) => void;
-  setCreateNewSelected: (value: boolean) => void;
+  predefinedChallenges: Challenge[];
   currentChallenge: Challenge & {
     tasks: {
       task: Task & {
@@ -20,108 +28,129 @@ const StreakBreakRestart = ({
       };
     }[];
   };
+  handleNext: () => void;
 }) => {
-  console.log({ currFromStreakRestart: currentChallenge });
+  const [flowBranchType, setFlowBranchType] = useState<"PREDEFINED" | "CUSTOM">(
+    "PREDEFINED"
+  );
 
   const completedTasks = currentChallenge.tasks.filter(
     (taskRelation) => taskRelation.task
   );
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-8 px-8 py-12"
-    >
-      <div className="space-y-6 max-w-4xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative"
-        >
-          <Card
-            className={cn(
-              "relative overflow-hidden transition-all duration-500 cursor-pointer group",
-              "bg-gradient-to-br from-[#fe8019]/10 to-[#d65d0e]/5 border-2 border-[#fe8019]/30",
-              "hover:border-[#fe8019] hover:shadow-lg hover:shadow-[#fe8019]/20"
-            )}
-            onClick={() => {
-              setSelectedChallenge(currentChallenge.id);
-              setCreateNewSelected(false);
-            }}
+  const renderContent = async () => {
+    switch (flowBranchType) {
+      case "PREDEFINED":
+        return (
+          <StartNewChallenge
+            predefinedChallenges={predefinedChallenges}
+            onCreateCustom={() => setFlowBranchType("CUSTOM")}
+            duration={duration}
+            selectedChallengeId={selectedChallenge?.id}
+            onSelectChallenge={setSelectedChallenge}
+          />
+        );
+      case "CUSTOM":
+        return <CreateCustomBranch />;
+      default:
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-8 px-8 py-12"
           >
-            <div className="absolute top-4 right-4">
-            </div>
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center text-[#ebdbb2] text-2xl font-bold">
-                <div className="p-3 bg-[#fe8019]/20 rounded-xl mr-4">
-                  <RotateCcw className="h-8 w-8 text-[#fe8019]" />
-                </div>
-                Continue Current Challenge
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-[#a89984] text-lg leading-relaxed">
-                Restart {currentChallenge.name}
-              </p>
-              <div className="flex items-center gap-4">
-                <Badge className="bg-[#3c3836] text-[#ebdbb2] px-3 py-1">
-                  Day {currentChallenge?.currentDay || 1} of{" "}
-                  {currentChallenge.duration}
-                </Badge>
-                <Badge className="bg-[#8ec07c]/20 text-[#8ec07c] px-3 py-1">
-                  {completedTasks.length}/{currentChallenge?.tasks.length} tasks
-                  completed
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+            <div className="space-y-6 max-w-4xl mx-auto">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="relative"
+              >
+                <Card
+                  className={cn(
+                    "relative overflow-hidden transition-all duration-500 cursor-pointer group",
+                    "bg-gradient-to-br from-[#fe8019]/10 to-[#d65d0e]/5 border-2 border-[#fe8019]/30",
+                    "hover:border-[#fe8019] hover:shadow-lg hover:shadow-[#fe8019]/20"
+                  )}
+                  onClick={() => {
+                    setSelectedChallenge(currentChallenge.id);
+                    setFlowBranchType("PREDEFINED");
+                    handleNext();
+                  }}
+                >
+                  <div className="absolute top-4 right-4"></div>
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center text-[#ebdbb2] text-2xl font-bold">
+                      <div className="p-3 bg-[#fe8019]/20 rounded-xl mr-4">
+                        <RotateCcw className="h-8 w-8 text-[#fe8019]" />
+                      </div>
+                      Continue Current Challenge
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-[#a89984] text-lg leading-relaxed">
+                      Restart {currentChallenge.name}
+                    </p>
+                    <div className="flex items-center gap-4">
+                      <Badge className="bg-[#3c3836] text-[#ebdbb2] px-3 py-1">
+                        Day {currentChallenge?.currentDay || 1} of{" "}
+                        {currentChallenge.duration}
+                      </Badge>
+                      <Badge className="bg-[#8ec07c]/20 text-[#8ec07c] px-3 py-1">
+                        {completedTasks.length}/{currentChallenge?.tasks.length}{" "}
+                        tasks completed
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
 
-        <div className="text-center">
-          <div className="flex items-center gap-4">
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[#3c3836]"></div>
-            <span className="text-[#a89984] text-sm font-medium px-4">
-              OR START A NEW CHALLENGE
-            </span>
-            <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#3c3836]"></div>
-          </div>
-        </div>
-
-        {/* Custom challenge option */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Button
-            variant="outline"
-            className={cn(
-              "w-full h-20 text-lg font-medium transition-all duration-500 bg-transparent",
-              "border-2 border-dashed",
-              "border-[#fe8019] text-[#fe8019] bg-[#fe8019]/5 shadow-lg shadow-[#fe8019]/10"
-            )}
-            onClick={() => {
-              setSelectedChallenge(null);
-              setCreateNewSelected(true);
-            }}
-          >
-            <div className="flex items-center gap-4">
-              <div className="p-2 bg-[#fe8019]/20 rounded-lg">
-                <Plus className="h-6 w-6 text-[#fe8019]" />
-              </div>
-              <div className="text-left">
-                <div className="font-bold">Create New Challenge</div>
-                <div className="text-sm opacity-70">
-                  Design your own recovery path
+              <div className="text-center">
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[#3c3836]"></div>
+                  <span className="text-[#a89984] text-sm font-medium px-4">
+                    OR START A NEW CHALLENGE
+                  </span>
+                  <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#3c3836]"></div>
                 </div>
               </div>
+
+              {/* Custom challenge option */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full h-20 text-lg font-medium transition-all duration-500 bg-transparent",
+                    "border-2 border-dashed",
+                    "border-[#fe8019] text-[#fe8019] bg-[#fe8019]/5 shadow-lg shadow-[#fe8019]/10"
+                  )}
+                  onClick={() => {
+                    setSelectedChallenge(null);
+                    setFlowBranchType("CUSTOM");
+
+                    handleNext();
+                  }}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="p-2 bg-[#fe8019]/20 rounded-lg">
+                      <Plus className="h-6 w-6 text-[#fe8019]" />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-bold">Start New Challenge</div>
+                    </div>
+                  </div>
+                </Button>
+              </motion.div>
             </div>
-          </Button>
-        </motion.div>
-      </div>
-    </motion.div>
-  );
+          </motion.div>
+        );
+    }
+
+    return renderContent();
+  };
 };
 
 export default StreakBreakRestart;
