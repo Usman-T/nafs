@@ -1,5 +1,5 @@
 import React from "react";
-import StatsOverview from "../stats-overview";
+import StatsOverview from "../main/stats-overview";
 import { BarChart3 } from "lucide-react";
 import { fetchGuidancePageStats } from "@/lib/data";
 

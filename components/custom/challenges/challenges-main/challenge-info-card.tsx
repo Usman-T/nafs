@@ -59,7 +59,7 @@ const ChallengeInfoCard = ({
         </div>
         <div className="text-right">
           <div className="text-sm font-semibold text-[#fe8019]">
-            {currentDay}/{challenge.challenge.duration}
+            {currentStreak}/{challenge.challenge.duration}
           </div>
           <div className="text-xs text-[#a89984]">Days</div>
         </div>

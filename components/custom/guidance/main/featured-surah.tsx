@@ -2,7 +2,11 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookAudioIcon, BookDashed, BookOpen, ChevronRight } from "lucide-react";
+import {
+  BookDashed,
+  BookOpen,
+  ChevronRight,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useInView } from "react-intersection-observer";
 
@@ -69,16 +73,16 @@ const FeaturedSurahsSection = ({ surahs }) => {
               </div>
             ))
           ) : (
-            <div className="flex flex-col items-center justify-center text-center border  rounded-2xl mb-4 shadow-inner">
+            <div className="flex flex-col items-center justify-center text-center rounded-2xl mb-4 shadow-inner">
               <div className="bg-[#3c3836] p-3 rounded-full mb-3">
-                <BookDashed className="h-6 w-6 text-[#fe8019]" />
+                {" "}
+                <BookDashed className="h-6 w-6 text-[#fe8019]" />{" "}
               </div>
               <h4 className="text-[#ebdbb2] text-sm font-semibold mb-1">
                 No Surahs Read Yet
               </h4>
               <p className="text-[#a89984] text-xs">
-                Start reading a surah. Your progress will appear
-                here.
+                Start reading a surah. Your progress will appear here.
               </p>
             </div>
           )}

@@ -8,13 +8,8 @@ import {
   Share2,
   PlayCircle,
   Scroll,
-  Sparkles,
   Copy,
   Check,
-  BookOpenText,
-  Book,
-  Landmark,
-  Library,
   LibrarySquare,
 } from "lucide-react";
 import { useRouter } from "next/navigation";

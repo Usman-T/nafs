@@ -7,11 +7,11 @@ const SkeletonBox = ({ className }: { className?: string }) => (
 );
 
 const FeaturedSurahsSkeleton = () => {
-  const placeholders = Array(3).fill(0);
+  const placeholders = Array(2).fill(0);
 
   return (
     <Card className="bg-[#282828] border-[#3c3836] rounded-2xl shadow-md">
-      <CardContent className="p-5 space-y-4">
+      <CardContent className="">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="h-4 w-4 rounded-full bg-[#fe8019]" />

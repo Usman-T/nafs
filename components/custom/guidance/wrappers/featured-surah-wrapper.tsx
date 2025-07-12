@@ -1,5 +1,5 @@
 import React from "react";
-import FeaturedSurahsSection from "../featured-surah";
+import FeaturedSurahsSection from "../main/featured-surah";
 import { fetchFeaturedSurahs } from "@/lib/data";
 
 const featuredSurahs = [
