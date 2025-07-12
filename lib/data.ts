@@ -1,7 +1,8 @@
 import prisma from "@/prisma";
 import { auth } from "@/auth";
-import { isAfter, isBefore, isSameDay, startOfDay, subDays } from "date-fns";
+import { isSameDay, startOfDay, subDays } from "date-fns";
 import { initializeDayTasks } from "./actions";
+import { Prisma, User } from "@prisma/client";
 
 export const getUsers = async () => {
   try {
@@ -329,8 +330,8 @@ export const loadStreakBreakPageData = async () => {
     return acc;
   }, {} as Record<string, typeof dailyTasks>);
 
-  const recentDateStr = Object.keys(groupedByDate).sort((a, b) =>
-    new Date(b).getTime() - new Date(a).getTime()
+  const recentDateStr = Object.keys(groupedByDate).sort(
+    (a, b) => new Date(b).getTime() - new Date(a).getTime()
   )[0];
 
   const recentTasks = groupedByDate[recentDateStr];
@@ -363,7 +364,6 @@ export const loadStreakBreakPageData = async () => {
     {}
   );
 
-  // --- Apply Missed Task Penalties for CURRENT values ---
   const currentValues = { ...previousValues };
 
   for (const missed of missedTasks) {
@@ -383,3 +383,49 @@ export const loadStreakBreakPageData = async () => {
   };
 };
 
+export const fetchGuidancePageStats = async () => {
+  const session = await auth();
+
+  if (!session?.user) {
+    throw new Error("Not authenticated.");
+  }
+
+  const user = (await prisma.user.findUnique({
+    where: { email: session?.user?.email },
+    include: { savedAyahs: true, reflections: true },
+  })) as Prisma.UserGetPayload<{
+    include: {
+      savedAyahs: true;
+      reflections: true;
+    };
+  }>;
+
+  return {
+    readingStreak: user?.readingStreak,
+    savedAyahs: user?.savedAyahs.length,
+    reflections: user?.reflections.length,
+  };
+};
+
+export const fetchFeaturedSurahs = async () => {
+  const session = await auth();
+
+  if (!session?.user) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = (await prisma.user.findUnique({
+    where: {
+      email: session?.user?.email,
+    },
+    include: {
+      readings: true,
+    },
+  })) as Prisma.UserGetPayload<{
+    include: {
+      readings: true;
+    };
+  }>;
+
+  return { readings: user?.readings };
+};

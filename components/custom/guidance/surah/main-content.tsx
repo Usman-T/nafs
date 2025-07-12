@@ -8,7 +8,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   BookOpen,
   Search,
-  Bookmark,
   ArrowLeft,
   Headphones,
 } from "lucide-react";
@@ -20,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { arabicFont } from "@/lib/utils/font";
 
 const SurahsPageContent = ({ surahs }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,7 +36,6 @@ const SurahsPageContent = ({ surahs }) => {
 
       const matchesFilter =
         filterBy === "all" ||
-        (filterBy === "bookmarked" && surah.isBookmarked) ||
         (filterBy === "in-progress" &&
           surah.readingProgress > 0 &&
           surah.readingProgress < 100) ||
@@ -110,7 +109,6 @@ const SurahsPageContent = ({ surahs }) => {
                 </SelectTrigger>
                 <SelectContent className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2]">
                   <SelectItem value="all">All Surahs</SelectItem>
-                  <SelectItem value="bookmarked">Bookmarked</SelectItem>
                   <SelectItem value="in-progress">Reading</SelectItem>
                   <SelectItem value="not-started">Not started</SelectItem>
                 </SelectContent>
@@ -166,9 +164,10 @@ const SurahsPageContent = ({ surahs }) => {
                       </div>
                     </div>
 
-                    {/* Right side - Arabic name and difficulty */}
                     <div className="flex items-center justify-between sm:justify-end sm:text-right gap-3">
-                      <p className="text-xl sm:text-2xl text-[#fe8019] font-arabic">
+                      <p
+                        className={`text-xl sm:text-2xl text-[#fe8019] ${arabicFont.className}`}
+                      >
                         {surah.arabicName}
                       </p>
                     </div>
@@ -181,12 +180,12 @@ const SurahsPageContent = ({ surahs }) => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="flex gap-2"
+                        className="flex flex-wrap gap-2 mt-2"
                       >
                         <Button
                           size="sm"
                           variant="outline"
-                          className="flex-1 border-[#3c3836] text-[#a89984] hover:bg-[#3c3836] text-xs sm:text-sm px-2 sm:px-3"
+                          className="flex-1 min-w-[90px] border-[#3c3836] text-[#a89984] hover:bg-[#3c3836] text-xs sm:text-sm px-2 sm:px-3"
                           onClick={(e) => {
                             e.stopPropagation();
                             router.push(
@@ -194,13 +193,14 @@ const SurahsPageContent = ({ surahs }) => {
                             );
                           }}
                         >
-                          <Headphones className="h-3 w-3 sm:mr-1" />
-                          <span className="hidden xs:inline ml-1">Listen</span>
+                          <BookOpen className="h-4 w-4 sm:mr-1" />
+                          <span className="hidden xs:inline ml-1">Read</span>
                         </Button>
+
                         <Button
                           size="sm"
                           variant="outline"
-                          className="flex-1 border-[#3c3836] text-[#a89984] hover:bg-[#3c3836] text-xs sm:text-sm px-2 sm:px-3"
+                          className="flex-1 min-w-[90px] border-[#3c3836] text-[#a89984] hover:bg-[#3c3836] text-xs sm:text-sm px-2 sm:px-3"
                           onClick={(e) => {
                             e.stopPropagation();
                             router.push(
@@ -208,8 +208,8 @@ const SurahsPageContent = ({ surahs }) => {
                             );
                           }}
                         >
-                          <Bookmark className="h-3 w-3 sm:mr-1" />
-                          <span className="hidden xs:inline ml-1">Save</span>
+                          <Headphones className="h-4 w-4 sm:mr-1" />
+                          <span className="hidden xs:inline ml-1">Listen</span>
                         </Button>
                       </motion.div>
                     )}

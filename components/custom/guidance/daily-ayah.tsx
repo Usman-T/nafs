@@ -22,32 +22,7 @@ const DailyAyahSection = ({ apiVerse }) => {
   const [showTafsir, setShowTafsir] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showSharing, setShowSharing] = useState(false);
-
   const router = useRouter();
-
-  // const mapAyah = (apiVerse) => {
-  //   console.log({ apiVerse });
-
-  //   const verseKey =
-  //     apiVerse.verse_key || `${apiVerse.chapter_id}:${apiVerse.verse_number}`;
-  //   const [surahId, ayahId] = verseKey.split(":");
-
-  //   return {
-  //     arabic: apiVerse.text_uthmani || apiVerse.arabic || "",
-  //     translation:
-  //       apiVerse.translation || apiVerse.translations?.[0]?.text || "",
-  //     reference: `Surah ${apiVerse.surah_name || surahId}, Ayah ${
-  //       apiVerse.verse_number || ayahId
-  //     }`,
-  //     transliteration: "", // You can add transliteration API call if needed
-  //     theme: "",
-  //     reflection: "",
-  //     surahId: parseInt(surahId),
-  //     ayahId: parseInt(ayahId),
-  //     tafsir: apiVerse.tafsir || apiVerse.tafsirs?.[0]?.text || "", // Handle multiple tafsirs
-  //     tafsirs: apiVerse.tafsirs || [], // Array of tafsir objects
-  //   };
-  // };
 
   const ayah = apiVerse
   console.log({ ayah });

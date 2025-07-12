@@ -1,5 +1,6 @@
 import React from "react";
 import FeaturedSurahsSection from "../featured-surah";
+import { fetchFeaturedSurahs } from "@/lib/data";
 
 const featuredSurahs = [
   {
@@ -26,10 +27,12 @@ const featuredSurahs = [
   },
 ];
 
-const FeaturedSurahsSectionWrapper = () => {
+const FeaturedSurahsSectionWrapper = async () => {
+  const { readings } = await fetchFeaturedSurahs();
+
   return (
     <>
-      <FeaturedSurahsSection surahs={featuredSurahs} />
+      <FeaturedSurahsSection surahs={readings} />
     </>
   );
 };

@@ -13,6 +13,7 @@ const SurahsPage = async () => {
     revelation: surah.revelation_place === "makkah" ? "Meccan" : "Medinan",
     isBookmarked: false,
   }));
+
   return <SurahsPageContent surahs={surahs} />;
 };
 
