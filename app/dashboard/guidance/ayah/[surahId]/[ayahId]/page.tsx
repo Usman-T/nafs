@@ -5,15 +5,6 @@ import Particles from "@/components/custom/guidance/ayah/particles";
 import Link from "next/link";
 import { fetchVerse } from "@/lib/utils/guidance";
 
-const surahData = {
-  id: 1,
-  name: "Al-Fatihah",
-  arabicName: "الفاتحة",
-  verses: 7,
-  type: "Meccan",
-  meaning: "The Opening",
-};
-
 type AyahPageProps = {
   params: {
     surahId: string;
@@ -24,29 +15,9 @@ type AyahPageProps = {
 const AyahPage = async ({ params }: AyahPageProps) => {
   const surahId = Number(params.surahId);
   const ayahId = Number(params.ayahId);
-  const apiVerse = await fetchVerse(surahId, ayahId);
 
-  const mapVerse = (apiVerse) => {
-    const verseKey =
-      apiVerse.verse_key || `${apiVerse.chapter_id}:${apiVerse.verse_number}`;
-    const [surahId, ayahId] = verseKey.split(":");
-
-    return {
-      arabic: apiVerse.text_uthmani || apiVerse.arabic || "",
-      translation:
-        apiVerse.translation || apiVerse.translations?.[0]?.text || "",
-      reference: `Surah ${apiVerse.surah_name || surahId}, Ayah ${
-        apiVerse.verse_number || ayahId
-      }`,
-      transliteration: "",
-      theme: "",
-      reflection: "",
-      surahId: parseInt(surahId),
-      ayahId: parseInt(ayahId),
-      tafsir: apiVerse.tafsir || "",
-    };
-  };
-  const verse = mapVerse(apiVerse);
+  // Fetch verse using your helper — already shaped properly
+  const verse = await fetchVerse(surahId, ayahId);
 
   return (
     <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2] relative overflow-hidden">
@@ -68,9 +39,9 @@ const AyahPage = async ({ params }: AyahPageProps) => {
 
           <div className="text-center">
             <h1 className="text-lg font-semibold">
-              {surahData.name} {ayahId}
+              Surah {verse.surahId} - Ayah {verse.ayahId}
             </h1>
-            <p className="text-sm text-[#a89984]">{}</p>
+            <p className="text-sm text-[#a89984]">{verse.reference}</p>
           </div>
 
           <Link href={`/dashboard/guidance/surah/${surahId}`}>
