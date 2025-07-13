@@ -2,9 +2,7 @@ import type React from "react";
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Flame,
-} from "lucide-react";
+import { Flame } from "lucide-react";
 
 const BrokenEmber = ({ animate = false }: { animate?: boolean }) => {
   const [showCracks, setShowCracks] = useState(false);
@@ -36,25 +34,6 @@ const BrokenEmber = ({ animate = false }: { animate?: boolean }) => {
 
       {/* Main flame container */}
       <div className="relative w-32 h-32 flex items-center justify-center">
-        {/* Main flame */}
-        <motion.div
-          initial={{ scale: 1, opacity: 1, rotate: 0 }}
-          animate={
-            animate
-              ? {
-                  scale: [1, 1.1, 0.9, 1.05, 0.8, 0.9, 0.6, 0.4, 0.2, 0],
-                  opacity: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.1, 0],
-                  rotate: [0, -3, 3, -2, 2, -4, 3, -2, 0, 0],
-                }
-              : { scale: 0.3, opacity: 0.2, rotate: -5 }
-          }
-          transition={{ duration: animate ? 4 : 0.5, ease: "easeOut" }}
-          className="relative z-10"
-        >
-          <Flame className="h-32 w-32 text-[#fe8019] drop-shadow-lg" />
-        </motion.div>
-
-        {/* Crack overlay */}
         <AnimatePresence>
           {showCracks && (
             <motion.div
@@ -63,10 +42,10 @@ const BrokenEmber = ({ animate = false }: { animate?: boolean }) => {
               className="absolute inset-0 flex items-center justify-center z-20"
             >
               <svg
-                width="128"
-                height="128"
+                width="100"
+                height="100"
                 viewBox="0 0 128 128"
-                className="absolute inset-0"
+                className="absolute"
                 style={{
                   filter: "drop-shadow(0 0 8px rgba(251, 73, 52, 0.8))",
                 }}

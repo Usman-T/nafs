@@ -72,8 +72,6 @@ export default function SharingModal({
   const [customMessage, setCustomMessage] = useState("");
   const [copied, setCopied] = useState(false);
   const [shareFormat, setShareFormat] = useState<"text" | "image">("text");
-
-  localStorage.setItem("nafs-hide-mobile-nav", "true");
   const handleCopy = () => {
     const shareText = `${content.arabic}\n\n"${content.translation}"\n\n- ${content.reference}\n\n${customMessage}`;
     navigator.clipboard.writeText(shareText);

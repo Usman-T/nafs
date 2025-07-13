@@ -114,7 +114,6 @@ const TasksSection = ({
         </motion.div>
       </AnimatePresence>
 
-      {/* Complete Day Button */}
       {isToday && allTasksCompleted && !isTodayCompleted() && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -136,8 +135,7 @@ const TasksSection = ({
         </motion.div>
       )}
 
-      {/* Day Complete Button */}
-      {(isTodayCompleted() || (hasCompletedChallenge && isToday)) && (
+      {isTodayCompleted() && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}

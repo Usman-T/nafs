@@ -142,15 +142,6 @@ const CalendarMain = ({
     return "none";
   };
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
   const isToday = (date: Date | null) => {
     if (!date) return false;
     const today = new Date();
@@ -248,6 +239,10 @@ const CalendarMain = ({
                           className={`h-full w-full rounded-md flex flex-col items-center justify-center relative ${
                             isSelected(date)
                               ? "border-2 border-[#fe8019] bg-[#3c3836] shadow-[0_0_10px_#fe8019] text-[#ebdbb2]"
+                              : isToday(date) && status === "complete"
+                              ? "bg-[#fe8019] text-[#1d2021] shadow-[0_0_10px_#fe8019]"
+                              : isToday(date) && status === "partial"
+                              ? "bg-[#3c3836] text-[#ebdbb2] shadow-[0_0_10px_#3c3836]"
                               : isToday(date)
                               ? "border-2 border-[#fe8019] text-[#ebdbb2]"
                               : status === "complete"
@@ -283,9 +278,7 @@ const CalendarMain = ({
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center">
                 <Calendar className="h-5 w-5 text-[#fe8019] mr-2" />
-                <span className="text-[#ebdbb2]">
-                  {formatDate(selectedDate)}
-                </span>
+                <span className="text-[#ebdbb2]">Tasks</span>
               </div>
               <div className="text-sm text-[#a89984]">
                 {completedTasks.length}/{selectedDateTasks.length} completed

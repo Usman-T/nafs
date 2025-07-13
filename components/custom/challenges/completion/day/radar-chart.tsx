@@ -1,5 +1,6 @@
 import { Dimension } from "@prisma/client";
 import { motion } from "framer-motion";
+import { MousePointer } from "lucide-react";
 
 const RadarChart = ({
   dimensions,
@@ -150,8 +151,7 @@ const RadarChart = ({
         )}
 
         {points.map((point, i) => {
-          const isHighlighted =
-            highlightDimension === point.name 
+          const isHighlighted = highlightDimension === point.name;
 
           return (
             <g

@@ -4,10 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Bookmark, Flame } from "lucide-react";
 
 const StatsOverview = ({ stats }) => {
-  const statItems = [
-    {
-      label: "Day Streak",
-      value: stats.currentStreak,
+  const statItems = [ { label: "Day Streak", value: stats.currentStreak,
       icon: Flame,
       color: "#fe8019",
     },

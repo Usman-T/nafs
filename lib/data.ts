@@ -1,8 +1,8 @@
 import prisma from "@/prisma";
 import { auth } from "@/auth";
-import { isSameDay, subDays } from "date-fns";
-import { revalidatePath } from "next/cache";
+import { isSameDay, startOfDay, subDays } from "date-fns";
 import { initializeDayTasks } from "./actions";
+import { Prisma, User } from "@prisma/client";
 
 export const getUsers = async () => {
   try {
@@ -252,4 +252,180 @@ export const loadChallengesPageData = async () => {
     dimensionValues,
     hasCompletedChallenge,
   };
+};
+
+export const loadStreakBreakPageData = async () => {
+  const session = await auth();
+
+  if (!session?.user) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email ?? undefined },
+    include: {
+      currentChallenge: true,
+      dailyTasks: {
+        include: {
+          task: {
+            include: {
+              dimension: true,
+            },
+          },
+          completions: true,
+        },
+      },
+      challenges: {
+        include: {
+          challenge: {
+            include: {
+              tasks: {
+                include: {
+                  task: {
+                    include: {
+                      dimension: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      dimensionValues: { include: { dimension: true } },
+    },
+  });
+
+  if (!user?.currentChallenge) {
+    return { redirectToOnboarding: true };
+  }
+
+  const challenges = await fetchChallenges();
+  const userLevel = await fetchUserLevel();
+  const spiritualDimensions = await fetchDimensions();
+
+  const currentChallenge = user.challenges.find(
+    (userChallenge) => userChallenge.challengeId === user.challengeId
+  );
+
+  const dailyTasks = user.dailyTasks;
+
+  if (dailyTasks.length === 0) {
+    return {
+      missedTasks: [],
+      challenges,
+      spiritualDimensions,
+      currentValues: {},
+      previousValues: {},
+      currentChallenge: currentChallenge?.challenge || null,
+      userLevel,
+    };
+  }
+
+  // --- Find the most recent day with tasks ---
+  const groupedByDate = dailyTasks.reduce((acc, task) => {
+    const day = startOfDay(task.date).toISOString();
+    acc[day] = acc[day] || [];
+    acc[day].push(task);
+    return acc;
+  }, {} as Record<string, typeof dailyTasks>);
+
+  const recentDateStr = Object.keys(groupedByDate).sort(
+    (a, b) => new Date(b).getTime() - new Date(a).getTime()
+  )[0];
+
+  const recentTasks = groupedByDate[recentDateStr];
+
+  // --- Identify missed tasks ONLY for the most recent day ---
+  const missedTasksArray = recentTasks.filter(
+    (task) =>
+      task.completions.length === 0 ||
+      task.completions.every(
+        (c) => !isSameDay(new Date(c.completedAt), task.date)
+      )
+  );
+
+  const missedTasks = missedTasksArray.map((task) => ({
+    id: task.id,
+    name: task.task.name,
+    dimension: task.task.dimension.name,
+    color: task.task.dimension.color,
+    icon: task.task.dimension.icon,
+    dimensionId: task.task.dimension.id,
+    points: task.task.points,
+  }));
+
+  // --- Previous Dimension Values ---
+  const previousValues: Record<string, number> = user.dimensionValues.reduce(
+    (acc, dv) => {
+      acc[dv.dimension.id] = dv.value / 100;
+      return acc;
+    },
+    {}
+  );
+
+  const currentValues = { ...previousValues };
+
+  for (const missed of missedTasks) {
+    if (currentValues[missed.dimensionId] !== undefined) {
+      currentValues[missed.dimensionId] -= missed.points / 100;
+    }
+  }
+
+  return {
+    missedTasks,
+    challenges,
+    spiritualDimensions,
+    currentValues,
+    previousValues,
+    currentChallenge: currentChallenge?.challenge || null,
+    userLevel,
+  };
+};
+
+export const fetchGuidancePageStats = async () => {
+  const session = await auth();
+
+  if (!session?.user) {
+    throw new Error("Not authenticated.");
+  }
+
+  const user = (await prisma.user.findUnique({
+    where: { email: session?.user?.email },
+    include: { savedAyahs: true, reflections: true },
+  })) as Prisma.UserGetPayload<{
+    include: {
+      savedAyahs: true;
+      reflections: true;
+    };
+  }>;
+
+  return {
+    readingStreak: user?.readingStreak,
+    savedAyahs: user?.savedAyahs.length,
+    reflections: user?.reflections.length,
+  };
+};
+
+export const fetchFeaturedSurahs = async () => {
+  const session = await auth();
+
+  if (!session?.user) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = (await prisma.user.findUnique({
+    where: {
+      email: session?.user?.email,
+    },
+    include: {
+      readings: true,
+    },
+  })) as Prisma.UserGetPayload<{
+    include: {
+      readings: true;
+    };
+  }>;
+
+  return { readings: user?.readings };
 };

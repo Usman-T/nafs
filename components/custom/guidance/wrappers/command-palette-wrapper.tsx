@@ -1,6 +1,6 @@
 "use client";
 import { useCommandPalette } from "@/components/custom/guidance/context/command-palette-context";
-import CommandPalette from "@/components/ui/command";
+import CommandPalette from "@/components/ui/guidance-command";
 
 const CommandPaletteWrapper = () => {
   const { open, setOpen } = useCommandPalette();

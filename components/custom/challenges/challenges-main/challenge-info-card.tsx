@@ -1,19 +1,20 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
+import { useEffect } from "react";
+import { useInView } from "react-intersection-observer";
 import { Award } from "lucide-react";
 import { Challenge, Dimension, Task, UserChallenge } from "@prisma/client";
 
 interface ChallengeInfoCardProps {
   challenge: UserChallenge & {
-    challenge: Challenge &
-      {
-        tasks: {
-          task: Task & {
-            dimension: Dimension;
-          };
+    challenge: Challenge & {
+      tasks: {
+        task: Task & {
+          dimension: Dimension;
         };
       }[];
+    };
   };
   currentDay: number;
   currentStreak: number;
@@ -24,12 +25,23 @@ const ChallengeInfoCard = ({
   currentDay,
   currentStreak,
 }: ChallengeInfoCardProps) => {
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.4 });
+  const controls = useAnimation();
+
+  useEffect(() => {
+    if (inView) {
+      controls.start({ width: `${(currentStreak / challenge.challenge.duration) * 100}%` });
+    }
+  }, [inView, currentStreak, challenge.challenge.duration, controls]);
+
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
       className="bg-[#282828] rounded-3xl p-6 border border-[#3c3836]"
+      id="challenge-info"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -47,11 +59,12 @@ const ChallengeInfoCard = ({
         </div>
         <div className="text-right">
           <div className="text-sm font-semibold text-[#fe8019]">
-            {currentDay}/{challenge.challenge.duration}
+            {currentStreak}/{challenge.challenge.duration}
           </div>
           <div className="text-xs text-[#a89984]">Days</div>
         </div>
       </div>
+
       <div className="mt-4">
         <div className="flex justify-between text-sm mb-2">
           <span className="text-[#a89984]">Challenge Progress</span>
@@ -59,15 +72,15 @@ const ChallengeInfoCard = ({
             {Math.round((currentStreak / challenge.challenge.duration) * 100)}%
           </span>
         </div>
-        <div className="flex space-x-1">
-          {Array.from({ length: challenge.challenge.duration }).map((_, i) => (
-            <div
-              key={i}
-              className={`h-2 flex-1 rounded-full ${
-                i < currentStreak ? "bg-[#fe8019]" : "bg-[#3c3836]"
-              }`}
-            />
-          ))}
+
+        {/* Animated Progress Bar */}
+        <div className="w-full h-2 bg-[#3c3836] rounded-full overflow-hidden">
+          <motion.div
+            className="h-full bg-[#fe8019] rounded-full"
+            initial={{ width: 0 }}
+            animate={controls}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          />
         </div>
       </div>
     </motion.div>

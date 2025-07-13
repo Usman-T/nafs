@@ -1,17 +1,20 @@
 import React from "react";
-import StatsOverview from "../stats-overview";
+import StatsOverview from "../main/stats-overview";
 import { BarChart3 } from "lucide-react";
+import { fetchGuidancePageStats } from "@/lib/data";
 
-const userStats = {
-  totalReflections: 24,
-  savedVerses: 18,
-  completedSurahs: 3,
-  listeningHours: 12.5,
-  currentStreak: 7,
-  totalReadingDays: 45,
-};
+const StatsOverviewWrapper = async () => {
+  const { readingStreak, savedAyahs, reflections } =
+    await fetchGuidancePageStats();
 
-const StatsOverviewWrapper = () => {
+  const userStats = {
+    totalReflections: reflections,
+    savedVerses: savedAyahs,
+    completedSurahs: 3,
+    listeningHours: 12.5,
+    currentStreak: readingStreak,
+    totalReadingDays: 45,
+  };
   return (
     <div>
       <h2 className="text-lg font-semibold text-[#ebdbb2] mb-3 flex items-center">

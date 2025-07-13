@@ -2,17 +2,17 @@ import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import BrokenEmber from "@/components/custom/streak-break/extras/broken-ember";
 import { iconMap } from "@/lib/iconMap";
-import { useState } from "react";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 const StreakBreakInfo = ({
   missedDay,
-  mockMissedTasks,
+  missedTasks,
   challengeName,
 }: {
   missedDay: number;
   previousStreak: number;
   streakStartDate: string;
-  mockMissedTasks: { name: string; icon: string; color: string }[];
+  missedTasks: { name: string; icon: string; color: string }[];
   challengeName: string;
   totalDaysLost: number;
 }) => {
@@ -21,7 +21,7 @@ const StreakBreakInfo = ({
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-10 px-8 py-12"
+        className="text-center space-y-10 px-4 py-"
       >
         <div className="relative flex items-center justify-center ">
           <motion.div
@@ -47,7 +47,7 @@ const StreakBreakInfo = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1, duration: 0.8 }}
-            className="text-5xl md:text-6xl font-black text-[#ebdbb2] tracking-tight"
+            className="text-4xl font-black text-[#ebdbb2] tracking-tight"
             style={{
               textShadow: "0 0 30px rgba(254, 128, 25, 0.3)",
             }}
@@ -61,7 +61,7 @@ const StreakBreakInfo = ({
             transition={{ delay: 1.3, duration: 0.8 }}
             className="space-y-3"
           >
-            <p className="text-2xl text-[#fe8019] font-bold">
+            <p className="text-xl text-[#fe8019] font-bold">
               Day {missedDay} of {challengeName}
             </p>
           </motion.div>
@@ -75,32 +75,45 @@ const StreakBreakInfo = ({
           className="bg-gradient-to-br from-[#1d2021] to-[#282828] rounded-2xl p-6 border border-[#3c3836] max-w-md mx-auto"
         >
           <h3 className="text-[#ebdbb2] font-bold text-lg mb-4">
-            Tasks Missed Yesterday
+            Tasks Missed
           </h3>
-          <div className="space-y-3">
-            {mockMissedTasks.map((task, i) => {
-              const IconComponent = iconMap[task.icon] || X;
-              return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 2 + i * 0.1, duration: 0.5 }}
-                  className="flex items-center gap-3 text-[#a89984]"
-                >
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: `${task.color}20` }}
-                  >
-                    <IconComponent
-                      className="h-4 w-4"
-                      style={{ color: task.color }}
-                    />
-                  </div>
-                  <span className="text-sm">{task.name}</span>
-                </motion.div>
-              );
-            })}
+
+          <motion.div
+            initial={{ y: 0 }}
+            animate={{ y: [0, 10, 0] }}
+            transition={{ delay: 2, duration: 0.6 }}
+          >
+            <ScrollArea className="h-32 ">
+              <div className="space-y-3">
+                {missedTasks.map((task, i) => {
+                  const IconComponent = iconMap[task.icon] || X;
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 2 + i * 0.1, duration: 0.5 }}
+                      className="flex items-center gap-3 text-[#a89984]"
+                    >
+                      <div
+                        className="w-8 h-8 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: `${task.color}20` }}
+                      >
+                        <IconComponent
+                          className="h-4 w-4"
+                          style={{ color: task.color }}
+                        />
+                      </div>
+                      <span className="text-sm">{task.name}</span>
+                    </motion.div>
+                  );
+                })}
+              </div>
+              <ScrollBar orientation="vertical" />
+            </ScrollArea>{" "}
+          </motion.div>
+          <div className="flex justify-center pt-2 text-[#928374] text-xs animate-pulse">
+            ↓
           </div>
         </motion.div>
       </motion.div>

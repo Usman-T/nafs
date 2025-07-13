@@ -15,6 +15,7 @@ import LoadingSkeleton from "@/components/custom/challenges/challenges-skeleton"
 import CompletedChallenge from "@/components/custom/challenges/completed-challenge";
 
 import { ChallengesProps } from "@/components/custom/challenges/challenges-main/type";
+import { useSession } from "next-auth/react";
 
 const Challenges = ({
   challenge,
@@ -37,12 +38,13 @@ const Challenges = ({
 
   const today = new Date();
   const currentStreak = tasks[0]?.user.currentStreak || 0;
+  const { data: session } = useSession();
 
-  if (!isMounted || isLoading) {
+  if (!isMounted || isLoading || !session) {
     return <LoadingSkeleton />;
   }
 
-  console.log({challenge})
+  console.log({ challenge });
   const currentDay = Math.min(
     differenceInDays(new Date(), tasks[0]?.user.lastActiveDate || new Date()) +
       1,
@@ -52,10 +54,13 @@ const Challenges = ({
   return (
     <>
       <div className="bg-[#1d2021]">
-        {hasCompletedChallenge && <CompletedChallenge />}
+        {hasCompletedChallenge &&
+          JSON.parse(localStorage.getItem("dayCompleted") || "").date === new Date().toDateString() && (
+            <CompletedChallenge />
+          )}
 
         <div className="">
-          <GreetingSection />
+          <GreetingSection username={session?.user?.name?.split(" ")[0]} />
 
           <StreakProgressCard
             currentStreak={currentStreak}

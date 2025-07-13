@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { SearchIcon } from "lucide-react";
 import { useCommandPalette } from "@/components/custom/guidance/context/command-palette-context";

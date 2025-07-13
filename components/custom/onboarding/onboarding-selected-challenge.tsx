@@ -79,8 +79,8 @@ const SelectedChallenge = ({
   }
 
   return (
-    <>
-      <div className="text-center">
+    <div className="space-y-6">
+      <div className="text-center" >
         <h2 className="text-xl font-bold text-[#ebdbb2]">{challenge.name}</h2>
         <p className="text-[#a89984]">{challenge.description}</p>
       </div>
@@ -91,7 +91,7 @@ const SelectedChallenge = ({
         </Badge>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         <h3 className="text-[#ebdbb2] font-medium">Challenge Tasks</h3>
         <div className="space-y-2">
           {challenge.tasks.map(({ task }, i) => (
@@ -113,7 +113,7 @@ const SelectedChallenge = ({
           spiritual journey.
         </p>
       </div>
-    </>
+    </div>
   );
 };
 

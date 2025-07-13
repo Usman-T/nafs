@@ -8,49 +8,20 @@ import {
   Share2,
   PlayCircle,
   Scroll,
-  Sparkles,
   Copy,
   Check,
-  ChevronDown,
-  ChevronUp,
+  LibrarySquare,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { arabicFontClass } from "@/lib/utils/font";
 
 const DailyAyahSection = ({ apiVerse }) => {
-  const [showTafsir, setShowTafsir] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showSharing, setShowSharing] = useState(false);
-
   const router = useRouter();
 
-  // const mapAyah = (apiVerse) => {
-  //   console.log({ apiVerse });
-
-  //   const verseKey =
-  //     apiVerse.verse_key || `${apiVerse.chapter_id}:${apiVerse.verse_number}`;
-  //   const [surahId, ayahId] = verseKey.split(":");
-
-  //   return {
-  //     arabic: apiVerse.text_uthmani || apiVerse.arabic || "",
-  //     translation:
-  //       apiVerse.translation || apiVerse.translations?.[0]?.text || "",
-  //     reference: `Surah ${apiVerse.surah_name || surahId}, Ayah ${
-  //       apiVerse.verse_number || ayahId
-  //     }`,
-  //     transliteration: "", // You can add transliteration API call if needed
-  //     theme: "",
-  //     reflection: "",
-  //     surahId: parseInt(surahId),
-  //     ayahId: parseInt(ayahId),
-  //     tafsir: apiVerse.tafsir || apiVerse.tafsirs?.[0]?.text || "", // Handle multiple tafsirs
-  //     tafsirs: apiVerse.tafsirs || [], // Array of tafsir objects
-  //   };
-  // };
-
-  const ayah = apiVerse
-  console.log({ ayah });
+  const ayah = apiVerse;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(`${ayah.arabic}\n\n${ayah.translation}`);
@@ -75,7 +46,7 @@ const DailyAyahSection = ({ apiVerse }) => {
                 transition={{ type: "spring", stiffness: 200 }}
                 className="h-12 w-12 rounded-full bg-[#fe8019] flex items-center justify-center shadow-lg"
               >
-                <Sparkles className="h-6 w-6 text-[#1d2021]" />
+                <LibrarySquare className="h-6 w-6 text-[#1d2021]" />
               </motion.div>
               <div>
                 <h2 className="text-lg font-bold text-[#ebdbb2]">Daily Ayah</h2>
@@ -122,19 +93,6 @@ const DailyAyahSection = ({ apiVerse }) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className={`h-9 w-9 rounded-full text-[#a89984] hover:text-[#fe8019] hover:bg-[#3c3836] transition`}
-                onClick={() => setShowTafsir((v) => !v)}
-                aria-label="Show Tafsir"
-              >
-                {showTafsir ? (
-                  <ChevronUp className="h-5 w-5" />
-                ) : (
-                  <ChevronDown className="h-5 w-5" />
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
                 className={`h-9 w-9 rounded-full ${
                   copied ? "text-[#8ec07c]" : "text-[#a89984]"
                 } hover:text-[#fe8019] hover:bg-[#3c3836] transition`}
@@ -167,30 +125,6 @@ const DailyAyahSection = ({ apiVerse }) => {
               <Scroll className="h-5 w-5" />
             </Button>
           </div>
-
-          {/* Tafsir Section */}
-          <AnimatePresence initial={false}>
-            {showTafsir && (
-              <motion.div
-                key="tafsir"
-                initial={{ opacity: 0, height: 0, y: 10 }}
-                animate={{ opacity: 1, height: "auto", y: 0 }}
-                exit={{ opacity: 0, height: 0, y: 10 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="overflow-hidden"
-              >
-                <div className="bg-[#232323] rounded-xl p-4 border border-[#3c3836] shadow">
-                  <h4 className="text-[#fe8019] font-semibold mb-2 flex items-center text-sm">
-                    <Scroll className="h-4 w-4 mr-2" />
-                    Tafsir
-                  </h4>
-                  <p className="text-[#a89984] text-sm leading-relaxed whitespace-pre-line">
-                    {ayah.tafsir}
-                  </p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </CardContent>
       </Card>
 

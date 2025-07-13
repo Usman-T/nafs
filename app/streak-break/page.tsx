@@ -1,10 +1,20 @@
 import StreakBreakFlow from "@/components/custom/streak-break/streak-break-flow";
-import { fetchChallenges } from "@/lib/data";
+import { loadStreakBreakPageData } from "@/lib/data";
 
 const StreakBreakPage = async () => {
-  const [challenges] = await Promise.all([fetchChallenges()]);
+  const { challenges, spiritualDimensions, currentValues, previousValues, missedTasks, currentChallenge, userLevel } = await loadStreakBreakPageData();
 
-  return <StreakBreakFlow predefinedChallenges={challenges} />;
+  return (
+    <StreakBreakFlow
+      predefinedChallenges={challenges}
+      dimensions={spiritualDimensions}
+      currentValues={currentValues}
+      previousValues={previousValues}
+      missedTasks={missedTasks}
+      currentChallenge={currentChallenge}
+      userLevel={userLevel}
+    />
+  );
 };
 
 export default StreakBreakPage;

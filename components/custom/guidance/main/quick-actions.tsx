@@ -1,15 +1,9 @@
-"use client"
+"use client";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { useInView } from "react-intersection-observer";
-import {
-  Bookmark,
-  MessageSquare,
-  Headphones,
-  TrendingUp,
-  BookOpen,
-} from "lucide-react";
+import { Bookmark, MessageSquare, Headphones, BookOpen } from "lucide-react";
 
 const userStats = {
   totalReflections: 24,
@@ -21,16 +15,6 @@ const userStats = {
 };
 
 const features = [
-  {
-    id: "audio",
-    title: "Audio Player",
-    description: "Listen to beautiful Quran recitations",
-    icon: Headphones,
-    color: "#8ec07c",
-    route: "/dashboard/guidance/audio/1",
-    stats: "12.5 hours listened",
-    badge: "New",
-  },
   {
     id: "saved",
     title: "Saved Verses",
@@ -60,6 +44,16 @@ const features = [
     route: "/dashboard/guidance/surah",
     stats: `${userStats.completedSurahs} surahs completed`,
     badge: null,
+  },
+  {
+    id: "audio",
+    title: "Audio Player",
+    description: "Listen to beautiful Quran recitations",
+    icon: Headphones,
+    color: "#8ec07c",
+    route: "/dashboard/guidance/audio/1",
+    stats: "12.5 hours listened",
+    badge: "New",
   },
 ];
 const QuickActions = () => {

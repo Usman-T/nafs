@@ -9,12 +9,4 @@ COPY . .
 
 RUN bunx prisma generate
 
-RUN echo "Waiting for database..." && \
-    for i in {1..10}; do \
-        bunx prisma migrate dev --name init && break || \
-        (echo "Attempt $i failed, retrying..." && sleep 5); \
-    done
-
-RUN bunx prisma db seed
-
-CMD ["bun", "run", "dev"]
+CMD ["bun", "run", "start"] 

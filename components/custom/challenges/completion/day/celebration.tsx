@@ -135,7 +135,7 @@ const Celebration = ({
           <div className="flex justify-between text-sm">
             <span className="text-[#a89984]">Tasks Completed</span>
             <span className="text-[#ebdbb2]">
-              {completedTasks}/{totalTasks}
+              {completedTasks}/{completedTasks}
             </span>
           </div>
 

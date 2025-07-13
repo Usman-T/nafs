@@ -95,7 +95,7 @@ const TaskImpactVisualization = ({
                 <div className="flex justify-between text-sm">
                   <span className="text-[#a89984]">Impact</span>
                   <span className="text-[#fe8019]">
-                    +{Math.round(impact * 100)}%
+                    +{task.points}%
                   </span>
                 </div>
                 <div className="relative h-2 w-full bg-[#3c3836] rounded-full overflow-hidden">

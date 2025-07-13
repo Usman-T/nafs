@@ -1,4 +1,4 @@
-import SurahsPageContent from "@/components/custom/guidance/surah/main-content";
+import SurahsPageContent from "@/components/custom/guidance/search-surahs/main-content";
 import { fetchAllSurahs } from "@/lib/utils/guidance";
 
 const SurahsPage = async () => {
@@ -13,6 +13,7 @@ const SurahsPage = async () => {
     revelation: surah.revelation_place === "makkah" ? "Meccan" : "Medinan",
     isBookmarked: false,
   }));
+
   return <SurahsPageContent surahs={surahs} />;
 };
 
