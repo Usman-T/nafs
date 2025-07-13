@@ -1,5 +1,6 @@
 "use client";
 
+import { useSurah } from "@/lib/context/surah-page-context";
 import { motion } from "framer-motion";
 import {
   Sheet,
@@ -10,17 +11,15 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-const VerseListPanel = ({
-  verses,
-  currentVerse,
-  onSelectVerse,
-  verseButtonRef,
-}: {
-  verses: any[];
-  currentVerse: number;
-  onSelectVerse: (id: number) => void;
-  verseButtonRef: any;
-}) => {
+const VerseListPanel = () => {
+  const {
+    state: { currentVerse },
+    refs: { verseButtonRef },
+    actions: { scrollToVerse },
+  } = useSurah();
+
+  const { verses } = useSurah(); 
+
   return (
     <Sheet>
       <SheetTrigger ref={verseButtonRef} asChild>
@@ -49,27 +48,25 @@ const VerseListPanel = ({
                     ? "bg-[#3c3836] border-[#fe8019]"
                     : "bg-[#1d2021] border-[#3c3836] hover:border-[#504945]"
                 }`}
-                onClick={() => onSelectVerse(verse.id)}
+                onClick={() => scrollToVerse(verse.id)}
               >
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`flex-shrink-0 h-9 w-9 min-w-[2.25rem] min-h-[2.25rem] rounded-full flex items-center justify-center text-sm font-medium ${
-                        verse.id === currentVerse
-                          ? "bg-[#fe8019] text-[#1d2021]"
-                          : "bg-[#3c3836] text-[#a89984]"
-                      }`}
-                    >
-                      {verse.id}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-arabic text-[#fe8019] truncate">
-                        {verse.arabic}
-                      </p>
-                      <p className="text-xs text-[#a89984] truncate">
-                        {verse.translation}
-                      </p>
-                    </div>
+                  <div
+                    className={`flex-shrink-0 h-9 w-9 rounded-full flex items-center justify-center text-sm font-medium ${
+                      verse.id === currentVerse
+                        ? "bg-[#fe8019] text-[#1d2021]"
+                        : "bg-[#3c3836] text-[#a89984]"
+                    }`}
+                  >
+                    {verse.id}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-arabic text-[#fe8019] truncate">
+                      {verse.arabic}
+                    </p>
+                    <p className="text-xs text-[#a89984] truncate">
+                      {verse.translation}
+                    </p>
                   </div>
                 </div>
               </motion.div>

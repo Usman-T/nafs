@@ -1,15 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import {
   Drawer,
   DrawerContent,
@@ -18,217 +8,110 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import { useSurah } from "@/lib/context/surah-page-context";
+import type { Surah } from "@/lib/context/surah-page-context";
 
-const SurahInfoPanel = ({
-  surah,
-  isDarkMode,
-  infoButtonRef,
-}: {
-  surah: any;
-  isDarkMode: boolean;
-  infoButtonRef: any;
-}) => {
+const getSurahInfo = (surahId: number) => {
+  switch (surahId) {
+    case 1:
+      return {
+        about:
+          "Surah Al-Fatihah, also known as 'The Opening,' is the first chapter of the Quran. It consists of seven verses and is recited in every unit of prayer (rakat) in the Islamic prayer (salah). It is a prayer for guidance and mercy from Allah, and it encapsulates the essence of the Quran's message.",
+        virtue:
+          "The Prophet Muhammad (peace be upon him) said: 'The Opening of the Book (Al-Fatihah) is the best surah in the Quran.' It is also known as 'The Mother of the Quran' (Umm al-Quran) and 'The Seven Oft-Repeated Verses' (As-Sab' Al-Mathani).",
+        order: "5th",
+      };
+    case 2:
+      return {
+        about:
+          "Surah Al-Baqarah, 'The Cow,' is the longest chapter of the Quran with 286 verses. It was revealed in Medina and covers various aspects of Islamic law, faith, and history.",
+        virtue:
+          "The Prophet Muhammad (peace be upon him) said: 'Satan does not enter the house where Surah Al-Baqarah is recited.' The last two verses provide protection when recited at night.",
+        order: "87th",
+      };
+    default:
+      return {
+        about: "Information about this surah is not available.",
+        virtue: "Virtues of this surah are not available.",
+        order: "Unknown",
+      };
+  }
+};
+
+export default function SurahInfoPanel() {
+  const { state, refs } = useSurah();
+  const surah = state.verses?.[0]
+    ? ({
+        id: state.verses[0].id,
+        name: "Surah Placeholder",
+        arabicName: "سورة",
+        verses: state.verses.length,
+        type: "Meccan",
+      } satisfies Surah)
+    : null;
+
+  const info = getSurahInfo(surah?.id ?? 0);
+
+  if (!surah) return null;
+
   return (
     <Drawer>
-      <DrawerTrigger ref={infoButtonRef} asChild>
+      <DrawerTrigger ref={refs.infoButtonRef} asChild>
         <div></div>
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent className="bg-[#1d2021] border-t border-[#3c3836]">
         <DrawerHeader>
-          <DrawerTitle>Surah Information</DrawerTitle>
-          <DrawerDescription>
-            Customize the quran reader to your liking
+          <DrawerTitle className="text-[#ebdbb2]">Surah Information</DrawerTitle>
+          <DrawerDescription className="text-[#a89984]">
+            Overview and virtues of this surah
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="p-4 max-w-3xl mx-auto">
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div
-                className={`h-16 w-16 rounded-full ${
-                  isDarkMode ? "bg-[#3c3836]" : "bg-gray-100"
-                } flex items-center justify-center text-xl font-bold ${
-                  isDarkMode ? "text-[#fe8019]" : "text-amber-500"
-                }`}
-              >
-                {surah.id}
-              </div>
-              <div>
-                <h3
-                  className={`text-xl font-semibold ${
-                    isDarkMode ? "text-[#ebdbb2]" : "text-gray-800"
-                  }`}
-                >
-                  {surah.name}
-                </h3>
-                <p
-                  className={`text-sm ${
-                    isDarkMode ? "text-[#a89984]" : "text-gray-500"
-                  }`}
-                >
-                  {surah.verses} verses • {surah.type}
-                </p>
-              </div>
-              <div className="ml-auto">
-                <p
-                  className={`text-3xl font-arabic ${
-                    isDarkMode ? "text-[#fe8019]" : "text-amber-500"
-                  }`}
-                >
-                  {surah.arabicName}
-                </p>
-              </div>
+        <div className="p-4 max-w-3xl mx-auto space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-[#3c3836] flex items-center justify-center text-xl font-bold text-[#fe8019]">
+              {surah.id}
             </div>
-
-            <div
-              className={`p-4 rounded-lg ${
-                isDarkMode
-                  ? "bg-[#1d2021] border border-[#3c3836]"
-                  : "bg-gray-50 border border-gray-200"
-              }`}
-            >
-              <h4
-                className={`font-medium mb-2 ${
-                  isDarkMode ? "text-[#ebdbb2]" : "text-gray-800"
-                }`}
-              >
-                About this Surah
-              </h4>
-              <p
-                className={`text-sm ${
-                  isDarkMode ? "text-[#a89984]" : "text-gray-600"
-                }`}
-              >
-                {surah.id === 1
-                  ? "Surah Al-Fatihah, also known as 'The Opening,' is the first chapter of the Quran. It consists of seven verses and is recited in every unit of prayer (rakat) in the Islamic prayer (salah). It is a prayer for guidance and mercy from Allah, and it encapsulates the essence of the Quran's message."
-                  : surah.id === 2
-                  ? "Surah Al-Baqarah, 'The Cow,' is the longest chapter of the Quran with 286 verses. It was revealed in Medina and covers various aspects of Islamic law, faith, and history. The surah derives its name from the story of the cow that the Children of Israel were commanded to sacrifice."
-                  : "Information about this surah is not available."}
+            <div>
+              <h3 className="text-xl font-semibold text-[#ebdbb2]">
+                {surah.name}
+              </h3>
+              <p className="text-sm text-[#a89984]">
+                {surah.verses} verses • {surah.type}
               </p>
             </div>
-
-            <div
-              className={`p-4 rounded-lg ${
-                isDarkMode
-                  ? "bg-[#1d2021] border border-[#3c3836]"
-                  : "bg-gray-50 border border-gray-200"
-              }`}
-            >
-              <h4
-                className={`font-medium mb-2 ${
-                  isDarkMode ? "text-[#ebdbb2]" : "text-gray-800"
-                }`}
-              >
-                Virtues
-              </h4>
-              <p
-                className={`text-sm ${
-                  isDarkMode ? "text-[#a89984]" : "text-gray-600"
-                }`}
-              >
-                {surah.id === 1
-                  ? "The Prophet Muhammad (peace be upon him) said: 'The Opening of the Book (Al-Fatihah) is the best surah in the Quran.' It is also known as 'The Mother of the Quran' (Umm al-Quran) and 'The Seven Oft-Repeated Verses' (As-Sab' Al-Mathani)."
-                  : surah.id === 2
-                  ? "The Prophet Muhammad (peace be upon him) said: 'Do not turn your houses into graves. Verily, Satan does not enter the house where Surah Al-Baqarah is recited.' The last two verses of this surah are also known to provide protection when recited at night."
-                  : "Information about the virtues of this surah is not available."}
-              </p>
+            <div className="ml-auto text-3xl font-arabic text-[#fe8019]">
+              {surah.arabicName}
             </div>
+          </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <div
-                className={`p-3 rounded-lg ${
-                  isDarkMode
-                    ? "bg-[#1d2021] border border-[#3c3836]"
-                    : "bg-gray-50 border border-gray-200"
-                }`}
-              >
-                <p
-                  className={`text-xs ${
-                    isDarkMode ? "text-[#a89984]" : "text-gray-500"
-                  }`}
-                >
-                  Number
-                </p>
-                <p
-                  className={`text-lg font-medium ${
-                    isDarkMode ? "text-[#ebdbb2]" : "text-gray-800"
-                  }`}
-                >
-                  {surah.id}
-                </p>
-              </div>
-              <div
-                className={`p-3 rounded-lg ${
-                  isDarkMode
-                    ? "bg-[#1d2021] border border-[#3c3836]"
-                    : "bg-gray-50 border border-gray-200"
-                }`}
-              >
-                <p
-                  className={`text-xs ${
-                    isDarkMode ? "text-[#a89984]" : "text-gray-500"
-                  }`}
-                >
-                  Verses
-                </p>
-                <p
-                  className={`text-lg font-medium ${
-                    isDarkMode ? "text-[#ebdbb2]" : "text-gray-800"
-                  }`}
-                >
-                  {surah.verses}
-                </p>
-              </div>
-              <div
-                className={`p-3 rounded-lg ${
-                  isDarkMode
-                    ? "bg-[#1d2021] border border-[#3c3836]"
-                    : "bg-gray-50 border border-gray-200"
-                }`}
-              >
-                <p
-                  className={`text-xs ${
-                    isDarkMode ? "text-[#a89984]" : "text-gray-500"
-                  }`}
-                >
-                  Type
-                </p>
-                <p
-                  className={`text-lg font-medium ${
-                    isDarkMode ? "text-[#ebdbb2]" : "text-gray-800"
-                  }`}
-                >
-                  {surah.type}
-                </p>
-              </div>
-              <div
-                className={`p-3 rounded-lg ${
-                  isDarkMode
-                    ? "bg-[#1d2021] border border-[#3c3836]"
-                    : "bg-gray-50 border border-gray-200"
-                }`}
-              >
-                <p
-                  className={`text-xs ${
-                    isDarkMode ? "text-[#a89984]" : "text-gray-500"
-                  }`}
-                >
-                  Order
-                </p>
-                <p
-                  className={`text-lg font-medium ${
-                    isDarkMode ? "text-[#ebdbb2]" : "text-gray-800"
-                  }`}
-                >
-                  {surah.id === 1 ? "5th" : surah.id === 2 ? "87th" : "Unknown"}
-                </p>
-              </div>
-            </div>
+          <div className="p-4 rounded-lg border border-[#3c3836]">
+            <h4 className="font-medium mb-2 text-[#ebdbb2]">About this Surah</h4>
+            <p className="text-sm text-[#a89984]">{info.about}</p>
+          </div>
+
+          <div className="p-4 rounded-lg border border-[#3c3836]">
+            <h4 className="font-medium mb-2 text-[#ebdbb2]">Virtues</h4>
+            <p className="text-sm text-[#a89984]">{info.virtue}</p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <Stat label="Number" value={surah.id} />
+            <Stat label="Verses" value={surah.verses} />
+            <Stat label="Type" value={surah.type} />
+            <Stat label="Order" value={info.order} />
           </div>
         </div>
       </DrawerContent>
     </Drawer>
   );
-};
+}
 
-export default SurahInfoPanel;
+function Stat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="p-3 rounded-lg border border-[#3c3836] bg-[#1d2021]">
+      <p className="text-xs text-[#a89984]">{label}</p>
+      <p className="text-lg font-medium text-[#ebdbb2]">{value}</p>
+    </div>
+  );
+}

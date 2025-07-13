@@ -10,21 +10,32 @@ import {
 } from "@/components/ui/drawer";
 import { ArrowLeft, Info, Menu, Sliders, List, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
-import React from "react";
+import { useRouter } from "next/navigation";
+import { useSurah } from "@/lib/context/surah-page-context";
 
-const SurahHeader = ({
-  isDarkMode,
-  handleGoBack,
-  surah,
-  settingsButtonRef,
-  infoButtonRef,
-  verseButtonRef,
-  actionsButtonRef,
-}) => {
+export default function SurahHeader() {
+  const router = useRouter();
+  const {
+    state,
+    refs: {
+      settingsButtonRef,
+      infoButtonRef,
+      verseButtonRef,
+      actionsButtonRef,
+    },
+  } = useSurah();
+
+  const isDarkMode = true;
   const drawerBg = isDarkMode ? "bg-[#1d2021]" : "bg-white";
   const drawerBorder = isDarkMode ? "border-[#3c3836]" : "border-gray-200";
   const iconColor = isDarkMode ? "text-[#a89984]" : "text-gray-500";
   const iconHover = isDarkMode ? "hover:text-[#ebdbb2]" : "hover:text-gray-700";
+
+  const dummySurah = {
+    name: `Surah #${state.currentVerse}`,
+    verses: 7,
+    type: "Meccan",
+  };
 
   return (
     <div
@@ -39,7 +50,7 @@ const SurahHeader = ({
           variant="ghost"
           size="icon"
           className={`rounded-full ${iconColor} ${iconHover}`}
-          onClick={handleGoBack}
+          onClick={() => router.back()}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -50,14 +61,14 @@ const SurahHeader = ({
               isDarkMode ? "text-[#ebdbb2]" : "text-gray-800"
             }`}
           >
-            {surah.name}
+            {dummySurah.name}
           </h1>
           <p
             className={`text-xs ${
               isDarkMode ? "text-[#a89984]" : "text-gray-500"
             }`}
           >
-            {surah.verses} verses • {surah.type}
+            {dummySurah.verses} verses • {dummySurah.type}
           </p>
         </div>
 
@@ -136,6 +147,4 @@ const SurahHeader = ({
       </div>
     </div>
   );
-};
-
-export default SurahHeader;
+}
