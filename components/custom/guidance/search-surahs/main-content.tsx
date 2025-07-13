@@ -5,12 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  BookOpen,
-  Search,
-  ArrowLeft,
-  Headphones,
-} from "lucide-react";
+import { BookOpen, Search, ArrowLeft, Headphones } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   Select,
@@ -175,44 +170,38 @@ const SurahsPageContent = ({ surahs }) => {
 
                   {/* Quick actions */}
                   <AnimatePresence>
-                    {window.innerWidth < 640 && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="flex flex-wrap gap-2 mt-2"
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="flex flex-wrap gap-2 mt-2"
+                    >
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 min-w-[90px] border-[#3c3836] text-[#a89984] hover:bg-[#3c3836] text-xs sm:text-sm px-2 sm:px-3"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/dashboard/guidance/surah/${surah.id}`);
+                        }}
                       >
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="flex-1 min-w-[90px] border-[#3c3836] text-[#a89984] hover:bg-[#3c3836] text-xs sm:text-sm px-2 sm:px-3"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(
-                              `/dashboard/guidance/surah/${surah.id}`
-                            );
-                          }}
-                        >
-                          <BookOpen className="h-4 w-4 sm:mr-1" />
-                          <span className="hidden xs:inline ml-1">Read</span>
-                        </Button>
+                        <BookOpen className="h-4 w-4 sm:mr-1" />
+                        <span className="hidden xs:inline ml-1">Read</span>
+                      </Button>
 
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="flex-1 min-w-[90px] border-[#3c3836] text-[#a89984] hover:bg-[#3c3836] text-xs sm:text-sm px-2 sm:px-3"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(
-                              `/dashboard/guidance/audio/${surah.id}`
-                            );
-                          }}
-                        >
-                          <Headphones className="h-4 w-4 sm:mr-1" />
-                          <span className="hidden xs:inline ml-1">Listen</span>
-                        </Button>
-                      </motion.div>
-                    )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 min-w-[90px] border-[#3c3836] text-[#a89984] hover:bg-[#3c3836] text-xs sm:text-sm px-2 sm:px-3"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/dashboard/guidance/audio/${surah.id}`);
+                        }}
+                      >
+                        <Headphones className="h-4 w-4 sm:mr-1" />
+                        <span className="hidden xs:inline ml-1">Listen</span>
+                      </Button>
+                    </motion.div>
                   </AnimatePresence>
                 </CardContent>
               </Card>

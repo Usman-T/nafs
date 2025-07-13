@@ -1,27 +1,23 @@
 "use client";
 
 import { useSurah } from "@/lib/context/surah-page-context";
+import { arabicFontClass } from "@/lib/utils/font";
 
 export default function SurahIntro() {
-  const { state } = useSurah();
+  const { surah } = useSurah();
 
-  const dummySurah = {
-    id: 1,
-    name: `Surah #${state.currentVerse}`,
-    arabicName: "الفاتحة",
-  };
 
   return (
     <div className="mb-8 text-center">
       <h2 className="text-2xl font-bold mb-2 text-[#ebdbb2]">
-        {dummySurah.name}
+        {surah.name}
       </h2>
-      <p className="text-3xl font-arabic text-[#fe8019]">
-        {dummySurah.arabicName}
+      <p className={`text-3xl ${arabicFontClass} text-[#fe8019]`}>
+        {surah.arabicName}
       </p>
-      {dummySurah.id !== 9 && (
+      {surah.id !== 9 && (
         <div className="mt-6 p-4 rounded-lg bg-[#282828] border border-[#3c3836]">
-          <p className="text-xl font-arabic text-center leading-loose">
+          <p className={`${arabicFontClass} text-xl text-center leading-loose`}>
             بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
           </p>
           <p className="text-sm mt-2 text-[#a89984]">

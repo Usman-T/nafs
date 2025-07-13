@@ -16,13 +16,13 @@ import { useSurah } from "@/lib/context/surah-page-context";
 export default function SurahHeader() {
   const router = useRouter();
   const {
-    state,
     refs: {
       settingsButtonRef,
       infoButtonRef,
       verseButtonRef,
       actionsButtonRef,
     },
+    surah,
   } = useSurah();
 
   const isDarkMode = true;
@@ -30,12 +30,6 @@ export default function SurahHeader() {
   const drawerBorder = isDarkMode ? "border-[#3c3836]" : "border-gray-200";
   const iconColor = isDarkMode ? "text-[#a89984]" : "text-gray-500";
   const iconHover = isDarkMode ? "hover:text-[#ebdbb2]" : "hover:text-gray-700";
-
-  const dummySurah = {
-    name: `Surah #${state.currentVerse}`,
-    verses: 7,
-    type: "Meccan",
-  };
 
   return (
     <div
@@ -61,14 +55,14 @@ export default function SurahHeader() {
               isDarkMode ? "text-[#ebdbb2]" : "text-gray-800"
             }`}
           >
-            {dummySurah.name}
+            {surah.name}
           </h1>
           <p
             className={`text-xs ${
               isDarkMode ? "text-[#a89984]" : "text-gray-500"
             }`}
           >
-            {dummySurah.verses} verses • {dummySurah.type}
+            {surah.verses} verses • {surah.type}
           </p>
         </div>
 

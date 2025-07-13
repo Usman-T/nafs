@@ -31,7 +31,6 @@ const DailyAyahSectionSkeleton = () => {
           <div className="flex gap-2">
             <SkeletonBox className="h-9 w-9 rounded-full" />
             <SkeletonBox className="h-9 w-9 rounded-full" />
-            <SkeletonBox className="h-9 w-9 rounded-full" />
           </div>
           <SkeletonBox className="h-9 w-9 rounded-full" />
         </div>

@@ -17,6 +17,7 @@ import {
   Highlighter,
 } from "lucide-react";
 import { useSurah } from "@/lib/context/surah-page-context";
+import { arabicFontClass } from "@/lib/utils/font";
 
 const Verse = ({ verse }: { verse: any }) => {
   const { state, actions } = useSurah();
@@ -119,7 +120,7 @@ const Verse = ({ verse }: { verse: any }) => {
 
       <div className="space-y-4">
         <p
-          className="text-right font-arabic leading-loose text-[#fe8019]"
+          className={`text-right ${arabicFontClass} leading-loose text-[#fe8019]`}
           style={{ fontSize: `${fontSize}px` }}
         >
           {verse.arabic}

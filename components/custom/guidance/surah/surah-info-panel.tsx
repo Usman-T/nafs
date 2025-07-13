@@ -9,48 +9,10 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useSurah } from "@/lib/context/surah-page-context";
-import type { Surah } from "@/lib/context/surah-page-context";
-
-const getSurahInfo = (surahId: number) => {
-  switch (surahId) {
-    case 1:
-      return {
-        about:
-          "Surah Al-Fatihah, also known as 'The Opening,' is the first chapter of the Quran. It consists of seven verses and is recited in every unit of prayer (rakat) in the Islamic prayer (salah). It is a prayer for guidance and mercy from Allah, and it encapsulates the essence of the Quran's message.",
-        virtue:
-          "The Prophet Muhammad (peace be upon him) said: 'The Opening of the Book (Al-Fatihah) is the best surah in the Quran.' It is also known as 'The Mother of the Quran' (Umm al-Quran) and 'The Seven Oft-Repeated Verses' (As-Sab' Al-Mathani).",
-        order: "5th",
-      };
-    case 2:
-      return {
-        about:
-          "Surah Al-Baqarah, 'The Cow,' is the longest chapter of the Quran with 286 verses. It was revealed in Medina and covers various aspects of Islamic law, faith, and history.",
-        virtue:
-          "The Prophet Muhammad (peace be upon him) said: 'Satan does not enter the house where Surah Al-Baqarah is recited.' The last two verses provide protection when recited at night.",
-        order: "87th",
-      };
-    default:
-      return {
-        about: "Information about this surah is not available.",
-        virtue: "Virtues of this surah are not available.",
-        order: "Unknown",
-      };
-  }
-};
+import { renderTafsir } from "@/lib/utils/renderTafsir";
 
 export default function SurahInfoPanel() {
-  const { state, refs } = useSurah();
-  const surah = state.verses?.[0]
-    ? ({
-        id: state.verses[0].id,
-        name: "Surah Placeholder",
-        arabicName: "سورة",
-        verses: state.verses.length,
-        type: "Meccan",
-      } satisfies Surah)
-    : null;
-
-  const info = getSurahInfo(surah?.id ?? 0);
+  const { surah, refs } = useSurah();
 
   if (!surah) return null;
 
@@ -59,9 +21,11 @@ export default function SurahInfoPanel() {
       <DrawerTrigger ref={refs.infoButtonRef} asChild>
         <div></div>
       </DrawerTrigger>
-      <DrawerContent className="bg-[#1d2021] border-t border-[#3c3836]">
+      <DrawerContent className="bg-[#1d2021] border-t border-[#3c3836] overflow-y-auto">
         <DrawerHeader>
-          <DrawerTitle className="text-[#ebdbb2]">Surah Information</DrawerTitle>
+          <DrawerTitle className="text-[#ebdbb2]">
+            Surah Information
+          </DrawerTitle>
           <DrawerDescription className="text-[#a89984]">
             Overview and virtues of this surah
           </DrawerDescription>
@@ -85,22 +49,31 @@ export default function SurahInfoPanel() {
             </div>
           </div>
 
-          <div className="p-4 rounded-lg border border-[#3c3836]">
-            <h4 className="font-medium mb-2 text-[#ebdbb2]">About this Surah</h4>
-            <p className="text-sm text-[#a89984]">{info.about}</p>
-          </div>
-
-          <div className="p-4 rounded-lg border border-[#3c3836]">
-            <h4 className="font-medium mb-2 text-[#ebdbb2]">Virtues</h4>
-            <p className="text-sm text-[#a89984]">{info.virtue}</p>
-          </div>
-
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <Stat label="Number" value={surah.id} />
             <Stat label="Verses" value={surah.verses} />
             <Stat label="Type" value={surah.type} />
-            <Stat label="Order" value={info.order} />
+            <Stat label="Order" value={surah.order ?? "Unknown"} />
           </div>
+          {surah.about && (
+            <div className="p-4 rounded-lg border border-[#3c3836]">
+              <h4 className="font-medium mb-2 text-[#ebdbb2]">
+                About this Surah
+              </h4>
+              <p className="text-sm text-[#a89984] whitespace-pre-line">
+                {surah.about}
+              </p>
+            </div>
+          )}
+
+          {surah.virtue && (
+            <div className="p-4 rounded-lg border border-[#3c3836] overflow-y-auto">
+              <h4 className="font-medium mb-2 text-[#ebdbb2]">Virtues</h4>
+              <p className="text-sm text-[#a89984] ">
+                {renderTafsir(surah.virtue)}
+              </p>
+            </div>
+          )}
         </div>
       </DrawerContent>
     </Drawer>

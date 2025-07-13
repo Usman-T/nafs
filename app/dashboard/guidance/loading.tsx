@@ -1,62 +1,43 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent } from "@/components/ui/card";
+"use client";
 
-const SurahsPageSkeleton = () => {
+import { Sparkles, BarChart3 } from "lucide-react";
+import StatsOverviewSkeleton from "@/components/custom/guidance/skeletons/stats-overview";
+import DailyAyahSectionSkeleton from "@/components/custom/guidance/skeletons/daily-ayah";
+import FeaturedSurahsSkeleton from "@/components/custom/guidance/skeletons/feature-surahs-skeleton";
+
+const GuidanceLoading = () => {
   return (
-    <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2]">
-      {/* Header Skeleton */}
-      <div className="sticky top-0 z-10 bg-[#1d2021] border-b border-[#3c3836]">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center">
-          <Skeleton className="h-8 w-8 rounded-full bg-[#3c3836]" />
-          <div className="flex flex-col items-center mx-auto">
-            <Skeleton className="h-5 w-40 bg-[#3c3836] mb-1" />
-            <Skeleton className="h-4 w-28 bg-[#3c3836]" />
-          </div>
-        </div>
+    <div className="space-y-6 pb-16 px-6 py-8">
+      <div className="text-center space-y-1">
+        <div className="h-7 w-40 mx-auto bg-[#3c3836] rounded-md animate-pulse" />
+        <div className="h-4 w-48 mx-auto bg-[#3c3836] rounded-md animate-pulse" />
       </div>
-
-      {/* Search and Filter Skeletons */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="bg-[#282828] rounded-lg p-6 border border-[#3c3836] mb-6">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <Skeleton className="h-10 w-full lg:w-1/2 bg-[#3c3836]" />
-            <div className="flex gap-2 w-full lg:w-1/2">
-              <Skeleton className="h-10 w-full bg-[#3c3836]" />
-              <Skeleton className="h-10 w-full bg-[#3c3836]" />
-            </div>
-          </div>
-        </div>
-
-        {/* Surahs Grid Skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Card
+      <div className="h-12 w-full bg-[#3c3836] rounded-md animate-pulse" />{" "}
+      <div>
+        <h2 className="text-lg font-semibold text-[#ebdbb2] mb-3 flex items-center">
+          <BarChart3 className="h-4 w-4 mr-2 text-[#fe8019]" />
+          Your Progress
+        </h2>
+        <StatsOverviewSkeleton />
+      </div>
+      <DailyAyahSectionSkeleton />
+      <div>
+        <h2 className="text-lg font-semibold text-[#ebdbb2] mb-3 flex items-center">
+          <Sparkles className="h-4 w-4 mr-2 text-[#fe8019]" />
+          Quick Actions
+        </h2>
+        <div className="grid grid-cols-2 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div
               key={i}
-              className="bg-[#282828] border-[#3c3836] overflow-hidden relative group"
-            >
-              <CardContent className="p-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                  <div className="flex items-center gap-3 sm:gap-4 flex-1">
-                    <Skeleton className="h-12 w-12 rounded-full bg-[#3c3836]" />
-                    <div className="min-w-0 flex-1">
-                      <Skeleton className="h-5 w-32 bg-[#3c3836] mb-2" />
-                      <Skeleton className="h-4 w-24 bg-[#3c3836]" />
-                    </div>
-                  </div>
-                  <Skeleton className="h-6 w-16 bg-[#3c3836]" />
-                </div>
-
-                <div className="gap-2 mt-4">
-                  <Skeleton className="h-8 w-20 rounded bg-[#3c3836]" />
-                  <Skeleton className="h-8 w-20 rounded bg-[#3c3836]" />
-                </div>
-              </CardContent>
-            </Card>
+              className="bg-[#282828] border-[#3c3836] rounded-2xl h-32 animate-pulse"
+            />
           ))}
         </div>
       </div>
+      <FeaturedSurahsSkeleton />
     </div>
   );
 };
 
-export default SurahsPageSkeleton;
+export default GuidanceLoading;
