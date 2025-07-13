@@ -54,7 +54,10 @@ const Challenges = ({
   return (
     <>
       <div className="bg-[#1d2021]">
-        {hasCompletedChallenge && <CompletedChallenge />}
+        {hasCompletedChallenge &&
+          JSON.parse(localStorage.getItem("dayCompleted") || "").date === new Date().toDateString() && (
+            <CompletedChallenge />
+          )}
 
         <div className="">
           <GreetingSection username={session?.user?.name?.split(" ")[0]} />

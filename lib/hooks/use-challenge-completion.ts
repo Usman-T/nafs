@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { completeChallenge, createCustomChallenge } from "@/lib/actions";
 import { Dimension } from "@prisma/client";
+import { toast } from "sonner";
+import { useLocalStorage } from "./use-local-storage";
 
 interface CustomChallenge {
   title: string;
@@ -29,6 +31,9 @@ export const useChallengeCompletion = (
   });
   const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [nextChallengeDate, setNextChallengeDate] = useLocalStorage<{
+    date: string;
+  }>("nextChallengeDate", { date: "" });
 
   const handleChallengeCompletion = async () => {
     try {
@@ -70,6 +75,10 @@ export const useChallengeCompletion = (
         throw new Error(creationResult.message);
       }
 
+      toast.success("Starting new challenge");
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      setNextChallengeDate({ date: tomorrow.toString() });
       router.push("/dashboard");
     } catch (error) {
       console.error("Challenge completion error:", error);

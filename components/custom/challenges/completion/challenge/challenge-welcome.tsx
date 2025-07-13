@@ -133,7 +133,7 @@ const ChallengeWelcome = ({
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.7 }}
               >
-                <AnimatedCounter value={completionPercentage} />%
+                <AnimatedCounter value={100} />%
               </motion.span>
             </div>
           </div>
