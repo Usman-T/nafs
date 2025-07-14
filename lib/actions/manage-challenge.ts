@@ -120,41 +120,63 @@ export const createCustomChallenge = async (
     }
 
     if (existingChallenge) {
-      // we have only passed the indices for the selected tasks
-      const selectedTaskIds = existingChallenge.tasks
-        .filter((_, index) => (challengeData.tasks as number[]).includes(index))
-        .map((challengeTask) => challengeTask.taskId);
+      const customChallenge = await prisma.$transaction(async (tx) => {
+        const newChallenge = await tx.challenge.create({
+          data: {
+            name: existingChallenge.name,
+            description: existingChallenge.description,
+            duration: duration, 
+            icon: existingChallenge.icon,
+          },
+        });
 
-      const startDate = new Date();
-      if (challengeData.nextDay) {
-        startDate.setDate(startDate.getDate() + 1);
-      }
+        const selectedTaskIds = existingChallenge.tasks
+          .filter((_, index) => (challengeData.tasks as number[]).includes(index))
+          .map((challengeTask) => challengeTask.taskId);
 
-      const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + duration);
+        await tx.challengeTask.createMany({
+          data: selectedTaskIds.map((taskId) => ({
+            challengeId: newChallenge.id,
+            taskId: taskId,
+          })),
+        });
 
-      // only if selectedChallengeId existed, we end up in this block
-      await prisma.$transaction([
-        prisma.userChallenge.create({
+        const startDate = new Date();
+        if (challengeData.nextDay) {
+          startDate.setDate(startDate.getDate() + 1);
+        }
+
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + duration);
+
+        await tx.userChallenge.create({
           data: {
             userId,
-            challengeId: selectedChallengeId,
+            challengeId: newChallenge.id,
             startDate,
             endDate,
             progress: 0,
           },
-        }),
-        prisma.user.update({
-          where: { id: userId },
-          data: { challengeId: selectedChallengeId },
-        }),
-      ]);
+        });
 
-      // no need to recreate tasks if we are enrolling in an existing challenge
-      const dailyTasks = Array.from({ length: duration }, (_, day) => ({
-        date: new Date(new Date(startDate).setDate(startDate.getDate() + day)),
-        taskIds: selectedTaskIds,
-      })).flatMap(({ date, taskIds }) =>
+        await tx.user.update({
+          where: { id: userId },
+          data: { challengeId: newChallenge.id },
+        });
+
+        return { challengeId: newChallenge.id, taskIds: selectedTaskIds };
+      });
+
+      const { challengeId, taskIds } = customChallenge;
+
+      const dailyTasks = Array.from({ length: duration }, (_, day) => {
+        const taskDate = new Date(startDate);
+        taskDate.setDate(startDate.getDate() + day);
+        return {
+          date: taskDate,
+          taskIds: selectedTaskIds,
+        };
+      }).flatMap(({ date, taskIds }) =>
         taskIds.map((taskId) => ({
           userId,
           taskId,
@@ -222,15 +244,14 @@ export const createCustomChallenge = async (
           data: { challengeId: challenge.id },
         });
 
-        const dailyTasks = Array.from(
-          { length: duration },
-          (_, day) => ({
-            date: new Date(
-              new Date(startDate).setDate(startDate.getDate() + day)
-            ),
+        const dailyTasks = Array.from({ length: duration }, (_, day) => {
+          const taskDate = new Date(startDate);
+          taskDate.setDate(startDate.getDate() + day);
+          return {
+            date: taskDate,
             taskIds: tasks.map((t) => t.id),
-          })
-        ).flatMap(({ date, taskIds }) =>
+          };
+        }).flatMap(({ date, taskIds }) =>
           taskIds.map((taskId) => ({
             userId,
             taskId,

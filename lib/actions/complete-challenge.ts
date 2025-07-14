@@ -14,7 +14,7 @@ export const completeChallenge = async (challengeId: string) => {
       }),
       prisma.user.update({
         where: { id: userId },
-        data: { challengeId: null, level: { increment: 1 } },
+        data: { challengeId: null, level: { increment: 1 }, currentStreak: 0 },
       }),
     ]);
 
