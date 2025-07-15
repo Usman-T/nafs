@@ -82,8 +82,7 @@ export default function SettingsPage() {
                         <div className="text-sm text-[#a89984]">Select your preferred language</div>
                       </div>
                     </div>
-                    <Select defaultValue="en">
-                      <SelectTrigger className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] w-full md:w-[250px]">
+                    <Select defaultValue="en"> <SelectTrigger className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] w-full md:w-[250px]">
                         <SelectValue placeholder="Select language" />
                       </SelectTrigger>
                       <SelectContent className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2]">

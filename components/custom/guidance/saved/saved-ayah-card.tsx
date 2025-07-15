@@ -32,7 +32,7 @@ const SavedVerseCard = ({
       onClick={onView}
     >
       <Card className="bg-[#282828] border-[#3c3836] overflow-hidden relative group">
-        <CardContent className="p-6">
+        <CardContent className="">
           <div className="flex items-start justify-between mb-4">
             <div>
               <Badge className="bg-[#3c3836] text-[#a89984]">
@@ -46,7 +46,7 @@ const SavedVerseCard = ({
                 })}
               </p>
             </div>
-            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex gap-1">
               <Button
                 variant="ghost"
                 size="icon"
@@ -75,7 +75,9 @@ const SavedVerseCard = ({
             <p className="text-xl font-arabic text-[#fe8019] text-right leading-loose mb-2">
               {verse.arabic}
             </p>
-            <p className="text-[#ebdbb2] text-sm italic">"{verse.translation}"</p>
+            <p className="text-[#ebdbb2] text-sm italic">
+              "{verse.translation}"
+            </p>
           </div>
         </CardContent>
       </Card>

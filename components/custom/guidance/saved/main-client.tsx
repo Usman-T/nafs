@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Search, SortDesc, Plus } from "lucide-react";
 import SavedVerseCard from "./saved-ayah-card";
 import { SavedAyah } from "@prisma/client";
+import { deleteAyah } from "@/lib/actions/manage-guidance";
+import { toast } from "sonner";
 
 export default function SavedAyahClientPage({
   savedVerses,
@@ -18,7 +20,7 @@ export default function SavedAyahClientPage({
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("date");
   const [filteredVerses, setFilteredVerses] = useState(savedVerses);
-  
+
   useEffect(() => {
     const filtered = savedVerses.filter((verse) => {
       const query = searchQuery.toLowerCase();
@@ -50,8 +52,14 @@ export default function SavedAyahClientPage({
     router.push(`/dashboard/guidance/ayah/${surahId}/${ayahId}`);
   };
 
-  const handleDelete = (id: number) => {
-    console.log("delete", id);
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteAyah(id);
+      toast.success("Removed from saved verses");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete ayah");
+    }
   };
 
   const handleShare = (id: number) => {

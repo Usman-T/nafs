@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -78,6 +78,11 @@ export default function SharingModal({
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  useEffect(() => {
+    localStorage.setItem("nafs-hide-mobile-nav", "true");
+    window.dispatchEvent(new Event("storage"));
+  }, []);
 
   const handleShare = (platform: string) => {
     const shareText = `${content.arabic}\n\n"${content.translation}"\n\n- ${content.reference}\n\n${customMessage}`;

@@ -1,5 +1,8 @@
+"use server";
+
 import prisma from "@/prisma";
 import { Reflection, SavedAyah } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 export const saveAyah = async (
   verseKey: string,
@@ -26,6 +29,22 @@ export const saveAyah = async (
       userId: user.id,
     },
   });
+};
+
+export const deleteAyah = async (
+  savedAyahId: string
+): Promise<SavedAyah | undefined> => {
+  try {
+    const deletedAyah = await prisma.savedAyah.delete({
+      where: { id: savedAyahId },
+    });
+
+    revalidatePath("/dashboard/guidance/saved");
+    return deletedAyah;
+  } catch (error) {
+    console.log(error);
+    throw new Error("Couldn't delete ayah");
+  }
 };
 
 export const reflectAyah = async (
