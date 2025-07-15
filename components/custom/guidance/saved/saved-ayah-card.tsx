@@ -9,7 +9,6 @@ const SavedVerseCard = ({
   verse,
   onView,
   onDelete,
-  onShare,
 }: {
   verse: {
     id: string;
@@ -21,7 +20,6 @@ const SavedVerseCard = ({
   };
   onView: () => void;
   onDelete: (id: string) => void;
-  onShare: (id: string) => void;
 }) => {
   return (
     <motion.div
@@ -53,7 +51,7 @@ const SavedVerseCard = ({
                 className="h-8 w-8 text-[#a89984] hover:text-[#ebdbb2]"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onShare(verse.id);
+                  onView();
                 }}
               >
                 <Share2 className="h-4 w-4" />

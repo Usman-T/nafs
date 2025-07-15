@@ -62,10 +62,6 @@ export default function SavedAyahClientPage({
     }
   };
 
-  const handleShare = (id: number) => {
-    console.log("share", id);
-  };
-
   return (
     <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2] relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -151,7 +147,16 @@ export default function SavedAyahClientPage({
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredVerses.map((verse, index) => {
-              const [surahId, ayahId] = verse.verseKey.split(":").map(Number);
+              const surahId = verse.verseKey.substring(
+                6,
+                verse.verseKey.indexOf(",")
+              ); // "Surah X, Ayah X"
+              const ayahId = verse.verseKey.substring(
+                verse.verseKey.lastIndexOf(" "),
+                verse.verseKey.length
+              ); // ""
+
+              console.log({ versekey: verse.verseKey });
               return (
                 <motion.div
                   key={verse.id}
@@ -161,9 +166,10 @@ export default function SavedAyahClientPage({
                 >
                   <SavedVerseCard
                     verse={verse}
-                    onView={() => handleView(surahId, ayahId)}
+                    onView={() =>
+                      handleView(parseInt(surahId), parseInt(ayahId))
+                    }
                     onDelete={handleDelete}
-                    onShare={handleShare}
                   />
                 </motion.div>
               );

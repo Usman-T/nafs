@@ -1,3 +1,5 @@
+"use server";
+
 import axios from "axios";
 import { getQuranApiToken } from "./token";
 
@@ -5,10 +7,6 @@ export async function fetchRandomVerse() {
   const token = await getQuranApiToken();
   // const verseKey = Math.floor(Math.random() * 114) + 1 + ':' + Math.floor(Math.random() * 4) + 1;
   const verseKey = "1:1";
-  console.log({
-    tokenRecieved: token,
-    clientId: process.env.QURAN_API_CLIENT_ID,
-  });
 
   const config = {
     method: "get",
@@ -108,7 +106,6 @@ export async function fetchVerse(surahId: number, ayahId: number) {
     throw new Error("Failed to fetch verse");
   }
 }
-
 
 export async function fetchAllSurahs() {
   const token = await getQuranApiToken();

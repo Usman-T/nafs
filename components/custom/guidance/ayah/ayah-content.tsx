@@ -116,10 +116,9 @@ const AyahContent = ({ verse, ayahId }: AyahContentProps) => {
     );
   }
 
-  if (status == "unauthenticated") {
-    throw new Error("Not authenticated")
+  if (!verse) {
+    return <div>No Such Ayah found</div>;
   }
-
   const handleCopy = () => {
     navigator.clipboard.writeText(
       `${verse.arabic}\n\n${verse.translation}\n\n- Ayah ${ayahId}`

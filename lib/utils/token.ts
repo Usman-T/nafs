@@ -6,7 +6,6 @@ const TOKEN_REDIS_KEY = "quran_api_access_token";
 
 export async function getQuranApiToken(): Promise<string> {
   const cachedToken = await redis.get(TOKEN_REDIS_KEY);
-  console.log("Cached token:", cachedToken);
   if (cachedToken) {
     return cachedToken;
   }

@@ -17,7 +17,6 @@ import {
   Share2,
   Plus,
 } from "lucide-react";
-import SharingModal from "@/components/ui/sharing-modal";
 import {
   Select,
   SelectContent,
@@ -45,7 +44,6 @@ export default function ReflectionsPageClient({
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("date");
   const [filteredReflections, setFilteredReflections] = useState(reflections);
-  const [showSharing, setShowSharing] = useState(false);
 
   useEffect(() => {
     const filtered = reflections.filter((reflection) => {
