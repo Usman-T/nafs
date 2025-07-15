@@ -27,7 +27,7 @@ const AudioPlayer = () => {
   } = useSurah();
 
   const totalVerses = verses.length;
-  const isDarkMode = true; // TODO: Replace this with dynamic theme control if needed
+  const isDarkMode = true;
 
   return (
     <div

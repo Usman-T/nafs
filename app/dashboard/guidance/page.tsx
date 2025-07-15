@@ -5,7 +5,7 @@ import StatsOverviewWrapper from "@/components/custom/guidance/wrappers/stats-ov
 import DailyAyahSectionWrapper from "@/components/custom/guidance/wrappers/daily-ayah-wrapper";
 import QuickActions from "@/components/custom/guidance/main/quick-actions";
 import FeaturedSurahsSectionWrapper from "@/components/custom/guidance/wrappers/featured-surah-wrapper";
-import { CommandPaletteProvider } from "@/components/custom/guidance/context/command-palette-context";
+import { CommandPaletteProvider } from "@/lib/context/command-palette-context";
 import CommandPaletteWrapper from "@/components/custom/guidance/wrappers/command-palette-wrapper";
 import StatsOverviewSkeleton from "@/components/custom/guidance/skeletons/stats-overview";
 import DailyAyahSectionSkeleton from "@/components/custom/guidance/skeletons/daily-ayah";

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { SearchIcon } from "lucide-react";
-import { useCommandPalette } from "@/components/custom/guidance/context/command-palette-context";
+import { useCommandPalette } from "@/lib/context/command-palette-context";
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");

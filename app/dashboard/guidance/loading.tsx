@@ -14,10 +14,6 @@ const GuidanceLoading = () => {
       </div>
       <div className="h-12 w-full bg-[#3c3836] rounded-md animate-pulse" />{" "}
       <div>
-        <h2 className="text-lg font-semibold text-[#ebdbb2] mb-3 flex items-center">
-          <BarChart3 className="h-4 w-4 mr-2 text-[#fe8019]" />
-          Your Progress
-        </h2>
         <StatsOverviewSkeleton />
       </div>
       <DailyAyahSectionSkeleton />

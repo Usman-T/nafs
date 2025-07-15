@@ -2,7 +2,7 @@ import prisma from "@/prisma";
 import { auth } from "@/auth";
 import { isSameDay, startOfDay, subDays } from "date-fns";
 import { initializeDayTasks } from "./actions";
-import { Prisma, User } from "@prisma/client";
+import { Prisma, Reflection, SavedAyah, User } from "@prisma/client";
 
 export const getUsers = async () => {
   try {
@@ -428,4 +428,56 @@ export const fetchFeaturedSurahs = async () => {
   }>;
 
   return { readings: user?.readings };
+};
+
+export const getSavedAyahs = async (): Promise<SavedAyah[]> => {
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: session.user.email,
+    },
+    include: {
+      savedAyahs: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user.savedAyahs;
+};
+
+export const getReflections = async (): Promise<Reflection[]> => {
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: session.user.email,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const reflections = await prisma.reflection.findMany({
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return reflections;
 };

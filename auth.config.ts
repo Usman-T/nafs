@@ -29,8 +29,8 @@ export const authConfig: NextAuthConfig = {
       },
     }),
     GoogleProvider({
-      clientId: process.env.AUTH_GOOGLE_ID!.replace(/"/g, "").trim(),
-      clientSecret: process.env.AUTH_GOOGLE_SECRET!.replace(/"/g, "").trim(),
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
     }),
   ],
   callbacks: {

@@ -20,14 +20,14 @@ model User {
   currentStreak  Int       @default(0)
   readingStreak  Int       @default(0)
   longestStreak  Int       @default(0)
-  lastActiveDate DateTime?  @default(now())
+  lastActiveDate DateTime? @default(now())
   challengeId    String?
   extraTaskId    String?
   emailVerified  DateTime?
   image          String?
 
-  accounts       Account[]
-  sessions       Session[]
+  accounts         Account[]
+  sessions         Session[]
   dimensionValues  DimensionValue[]
   dailyTasks       DailyTask[]
   completedTasks   CompletedTask[]
@@ -42,18 +42,18 @@ model User {
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -76,6 +76,7 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
 model Dimension {
   id          String   @id @default(cuid())
   name        String   @unique
@@ -231,11 +232,13 @@ model UserSettings {
 }
 
 model SavedAyah {
-  id        String   @id @default(cuid())
-  userId    String
-  verseKey  String
-  arabic    String
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  userId      String
+  verseKey    String
+  surahName   String
+  arabic      String
+  translation String
+  createdAt   DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -248,6 +251,7 @@ model Reflection {
   userId         String
   arabic         String
   reflectionText String
+  verseKey       String
   favourite      Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt

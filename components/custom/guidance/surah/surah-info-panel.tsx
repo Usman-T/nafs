@@ -31,7 +31,7 @@ export default function SurahInfoPanel() {
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="p-4 max-w-3xl mx-auto space-y-6">
+        <div className="p-4 max-w-3xl mx-auto space-y-6 overflow-y-auto">
           <div className="flex items-center gap-4">
             <div className="h-16 w-16 rounded-full bg-[#3c3836] flex items-center justify-center text-xl font-bold text-[#fe8019]">
               {surah.id}

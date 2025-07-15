@@ -8,8 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "add": "bunx --bun shadcn@latest add",
-    "migrate": "docker exec nafs-app-1 bunx prisma migrate dev"
+    "add": "bunx --bun shadcn@latest add"
   },
   "prisma": {
     "seed": "bun ./prisma/seed.ts"
