@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import BackgroundParticles from "@/components/custom/streak-break/extras/background-particles";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Challenge, DailyTask, Dimension, Task } from "@prisma/client";
+
+import BackgroundParticles from "@/components/custom/streak-break/extras/background-particles";
 import StreakBreakInfo from "@/components/custom/streak-break/steps/streak-break-info";
 import StreakBreakVisual from "@/components/custom/streak-break/steps/streak-break-visual";
 import StreakBreakHeader from "@/components/custom/streak-break/extras/streak-break-header";
@@ -11,10 +14,48 @@ import StreakBreakFooter from "@/components/custom/streak-break/extras/streak-br
 import StreakBreakSummary from "./steps/streak-break-summary";
 import ExitAnimation from "./extras/exit-animation";
 import StreakBreakRestart from "./steps/streak-break-restart/streak-break-restart";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { createCustomChallenge, enrollInExistingChallenge } from "@/lib/actions";
-import { useStreakBreakRestart } from "@/lib/hooks/use-streak-break";
+import {
+  createCustomChallenge,
+  enrollInExistingChallenge,
+} from "@/lib/actions";
+
+type ExtendedChallenge = Challenge & {
+  tasks: {
+    task: Task & {
+      dimension: Dimension;
+    };
+  }[];
+};
+
+type FlowStep = "info" | "visual" | "restart" | "summary";
+
+interface StreakBreakFlowProps {
+  predefinedChallenges: Challenge[];
+  dimensions: Dimension[];
+  missedTasks: DailyTask[];
+  currentValues: Record<string, number>;
+  previousValues: Record<string, number>;
+  currentChallenge: ExtendedChallenge;
+  userLevel: number;
+}
+
+interface FlowState {
+  currentStep: FlowStep;
+  isAnimating: boolean;
+  isExiting: boolean;
+  isLoading: boolean;
+}
+
+interface ChallengeSelection {
+  type: "existing" | "custom" | null;
+  challengeId?: string;
+  selectedTasks?: number[];
+  customChallenge?: {
+    title: string;
+    description: string;
+    tasks: Array<{ name: string; dimension: Dimension }>;
+  };
+}
 
 export default function StreakBreakFlow({
   predefinedChallenges,
@@ -24,169 +65,245 @@ export default function StreakBreakFlow({
   previousValues,
   currentChallenge,
   userLevel,
-}: {
-  predefinedChallenges: Challenge[];
-  dimensions: Dimension[];
-  missedTasks: DailyTask[];
-  currentValues: Record<string, number>;
-  previousValues: Record<string, number>;
-  currentChallenge: Challenge & {
-    tasks: {
-      task: Task & {
-        dimension: Dimension;
-      };
-    }[];
-  };
-  userLevel: number;
-}) {
+}: StreakBreakFlowProps) {
   const router = useRouter();
-  const [step, setStep] = useState(0);
-  const [isExiting, setIsExiting] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
 
-  const durationMap: Record<number, number> = {
-    1: 3,
-    2: 5,
-    3: 7,
-    4: 10,
-    5: 15,
-    6: 20,
-  };
-
-  const duration = durationMap[userLevel + 1] ?? 30;
-
-  const missedDay = 4;
-  const previousStreak = 12;
-  const streakStartDate = "March 15, 2024";
-  const totalDaysLost = 12;
-
-  const animateStepChange = (nextStep: number) => {
-    setIsAnimating(true);
-    setStep(nextStep);
-    setTimeout(() => {
-      setIsAnimating(false);
-    }, 500);
-  };
-
-  const handleComplete = () => {
-    setIsExiting(true);
-    setTimeout(() => {
-      router.push("/dashboard/challenges");
-    }, 2000);
-  };
-
-  const {
-    flowBranchType,
-    selectedChallenge,
-    selectedChallengeId,
-    selectedTasks,
-    challengeLoading,
-    isLoading,
-    showTaskForm,
-    carouselApi,
-    currentSlide,
-    customChallenge,
-    completedTasks,
-    setFlowBranchType,
-    setSelectedTasks,
-    setShowTaskForm,
-    setCarouselApi,
-    handleContinueCurrentChallenge,
-    handleSelectPredefinedChallenge,
-    handleAddCustomTask,
-    handleRemoveCustomTask,
-    canProceed,
-  } = useStreakBreakRestart({
-    currentChallenge,
-    predefinedChallenges,
-    dimensions,
-    duration,
+  // Flow state
+  const [flowState, setFlowState] = useState<FlowState>({
+    currentStep: "info",
+    isAnimating: false,
+    isExiting: false,
+    isLoading: false,
   });
 
-  const handleStartChallenge = async () => {
+  // Challenge selection state
+  const [challengeSelection, setChallengeSelection] =
+    useState<ChallengeSelection>({
+      type: null,
+    });
+
+  // Calculate challenge duration based on user level
+  const getDuration = useCallback(() => {
+    const durationMap: Record<number, number> = {
+      1: 3,
+      2: 5,
+      3: 7,
+      4: 10,
+      5: 15,
+      6: 20,
+    };
+    return durationMap[userLevel + 1] ?? 30;
+  }, [userLevel]);
+
+  // Static data (could be moved to props or fetched)
+  const streakData = {
+    missedDay: 4,
+    previousStreak: 12,
+    streakStartDate: "March 15, 2024",
+    totalDaysLost: 12,
+  };
+
+  // Step navigation
+  const steps: FlowStep[] = ["info", "visual", "restart", "summary"];
+  const currentStepIndex = steps.indexOf(flowState.currentStep);
+
+  const updateFlowState = useCallback((updates: Partial<FlowState>) => {
+    setFlowState((prev) => ({ ...prev, ...updates }));
+  }, []);
+
+  const updateChallengeSelection = useCallback(
+    (updates: Partial<ChallengeSelection>) => {
+      setChallengeSelection((prev) => ({ ...prev, ...updates }));
+    },
+    []
+  );
+
+  // Validation logic
+  const canProceedFromRestart = useCallback((): boolean => {
+    if (!challengeSelection.type) return false;
+
+    if (challengeSelection.type === "existing") {
+      return !!(
+        challengeSelection.challengeId &&
+        challengeSelection.selectedTasks &&
+        challengeSelection.selectedTasks.length >= 3 &&
+        challengeSelection.selectedTasks.length <= 5
+      );
+    }
+
+    if (challengeSelection.type === "custom") {
+      return !!(
+        challengeSelection.customChallenge?.tasks &&
+        challengeSelection.customChallenge.tasks.length >= 3 &&
+        challengeSelection.customChallenge.tasks.length <= 5
+      );
+    }
+
+    return false;
+  }, [challengeSelection]);
+
+  // Challenge handling
+  const handleStartChallenge = useCallback(async (): Promise<boolean> => {
+    updateFlowState({ isLoading: true });
+
     try {
-      if (flowBranchType === "SELECT_TASKS" && selectedChallengeId && selectedTasks.length >= 3) {
+      const duration = getDuration();
+
+      if (
+        challengeSelection.type === "existing" &&
+        challengeSelection.challengeId &&
+        challengeSelection.selectedTasks
+      ) {
         const result = await enrollInExistingChallenge(
-          selectedChallengeId,
-          selectedTasks,
+          challengeSelection.challengeId,
+          challengeSelection.selectedTasks,
           duration,
           false
         );
-        if (!result.success) throw new Error(result.message);
-      } else if (flowBranchType === "CUSTOM" && customChallenge.tasks.length >= 3) {
-        const creationResult = await createCustomChallenge(
-          undefined,
-          duration,
-          {
-            title: customChallenge.title,
-            description: customChallenge.description,
-            tasks: customChallenge.tasks.map((t) => ({
-              name: t.name,
-              dimensionId: t.dimension.id,
-            })),
-            nextDay: false,
-          }
-        );
-        if (!creationResult.success) throw new Error(creationResult.message);
-      }
 
-      toast.success("Challenge started!");
-    } catch (error: any) {
-      console.error("Challenge start error:", error);
-      toast.error("Failed to start challenge");
-    }
-  };
-
-  const handleNext = async () => {
-    if (step === 2) {
-      if (
-        (flowBranchType === "SELECT_TASKS" && canProceed()) ||
-        (flowBranchType === "CUSTOM" && canProceed())
+        if (!result.success) {
+          throw new Error(result.message || "Failed to enroll in challenge");
+        }
+      } else if (
+        challengeSelection.type === "custom" &&
+        challengeSelection.customChallenge
       ) {
-        await handleStartChallenge();
-        animateStepChange(step + 1);
+        const { title, description, tasks } =
+          challengeSelection.customChallenge;
+
+        const result = await createCustomChallenge(undefined, duration, {
+          title,
+          description,
+          tasks: tasks.map((t) => ({
+            name: t.name,
+            dimensionId: t.dimension.id,
+          })),
+          nextDay: false,
+        });
+
+        if (!result.success) {
+          throw new Error(
+            result.message || "Failed to create custom challenge"
+          );
+        }
+      } else {
+        throw new Error("Invalid challenge selection");
       }
-      return;
-    }
 
-    if (step === 3) {
-      handleComplete();
-    } else {
-      animateStepChange(step + 1);
-    }
-  };
-
-  const handleBack = () => {
-    animateStepChange(Math.max(0, step - 1));
-  };
-
-  const canGoNext = () => {
-    if (isAnimating) return false;
-    if (step === 0 || step === 1) return true;
-    if (step === 2)
-      return (
-        (flowBranchType === "SELECT_TASKS" && canProceed()) ||
-        (flowBranchType === "CUSTOM" && canProceed())
+      toast.success("Challenge started successfully!");
+      return true;
+    } catch (error) {
+      console.error("Challenge start error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to start challenge"
       );
-    if (step === 3) return true;
-    return false;
-  };
+      return false;
+    } finally {
+      updateFlowState({ isLoading: false });
+    }
+  }, [challengeSelection, getDuration, updateFlowState]);
 
+  const handleComplete = useCallback(() => {
+    updateFlowState({ isExiting: true });
+    setTimeout(() => {
+      router.push("/dashboard/challenges");
+    }, 2000);
+  }, [router, updateFlowState]);
+
+  // Navigation handlers
+  const goToStep = useCallback(
+    (step: FlowStep) => {
+      if (flowState.isAnimating || flowState.isLoading) return;
+
+      updateFlowState({ isAnimating: true });
+
+      setTimeout(() => {
+        updateFlowState({ currentStep: step, isAnimating: false });
+      }, 300);
+    },
+    [flowState.isAnimating, flowState.isLoading, updateFlowState]
+  );
+
+  const goNext = useCallback(async () => {
+    const nextIndex = currentStepIndex + 1;
+
+    if (flowState.currentStep === "restart") {
+      // Validate challenge selection before proceeding
+      if (!canProceedFromRestart()) {
+        toast.error("Please complete your challenge selection");
+        return;
+      }
+
+      // Start the selected challenge
+      const success = await handleStartChallenge();
+      if (!success) return;
+    }
+
+    if (nextIndex < steps.length) {
+      goToStep(steps[nextIndex]);
+    } else {
+      handleComplete();
+    }
+  }, [
+    currentStepIndex,
+    flowState.currentStep,
+    canProceedFromRestart,
+    handleStartChallenge,
+    goToStep,
+    handleComplete,
+    steps,
+  ]);
+
+  const goBack = useCallback(() => {
+    const prevIndex = currentStepIndex - 1;
+    if (prevIndex >= 0) {
+      goToStep(steps[prevIndex]);
+    }
+  }, [currentStepIndex, goToStep, steps]);
+
+  const canGoNext = useCallback((): boolean => {
+    if (flowState.isAnimating || flowState.isLoading) return false;
+
+    switch (flowState.currentStep) {
+      case "info":
+      case "visual":
+        return true;
+      case "restart":
+        return canProceedFromRestart();
+      case "summary":
+        return true;
+      default:
+        return false;
+    }
+  }, [
+    flowState.isAnimating,
+    flowState.isLoading,
+    flowState.currentStep,
+    canProceedFromRestart,
+  ]);
+
+  const canGoBack = useCallback((): boolean => {
+    return (
+      currentStepIndex > 0 && !flowState.isAnimating && !flowState.isLoading
+    );
+  }, [currentStepIndex, flowState.isAnimating, flowState.isLoading]);
+
+  // Render step content
   const renderStepContent = () => {
-    switch (step) {
-      case 0:
+    switch (flowState.currentStep) {
+      case "info":
         return (
           <StreakBreakInfo
-            previousStreak={previousStreak}
+            previousStreak={streakData.previousStreak}
             missedTasks={missedTasks}
-            streakStartDate={streakStartDate}
-            missedDay={missedDay}
+            streakStartDate={streakData.streakStartDate}
+            missedDay={streakData.missedDay}
             challengeName={currentChallenge.name}
-            totalDaysLost={totalDaysLost}
+            totalDaysLost={streakData.totalDaysLost}
           />
         );
 
-      case 1:
+      case "visual":
         return (
           <StreakBreakVisual
             currentValues={currentValues}
@@ -196,18 +313,25 @@ export default function StreakBreakFlow({
           />
         );
 
-      case 2:
+      case "restart":
         return (
           <StreakBreakRestart
             currentChallenge={currentChallenge}
             predefinedChallenges={predefinedChallenges}
             dimensions={dimensions}
-            duration={duration}
+            duration={getDuration()}
+            challengeSelection={challengeSelection}
+            onUpdateSelection={updateChallengeSelection}
+            isLoading={flowState.isLoading}
           />
         );
 
-      case 3:
-        return <StreakBreakSummary customChallenge={customChallenge} />;
+      case "summary":
+        return (
+          <StreakBreakSummary
+            customChallenge={challengeSelection.customChallenge || null}
+          />
+        );
 
       default:
         return null;
@@ -215,20 +339,22 @@ export default function StreakBreakFlow({
   };
 
   return (
-    <div className="h-screen w-full bg-gradient-to-br from-[#1d2021] via-[#282828] to-[#1d2021] text-[#ebdbb2] flex flex-col justify-between">
+    <div className="h-screen w-full bg-gradient-to-br from-[#1d2021] via-[#282828] to-[#1d2021] text-[#ebdbb2] flex flex-col">
       <BackgroundParticles />
-      <StreakBreakHeader step={step} />
 
-      <div className="flex items-center overflow-y-auto flex-col">
-        <div className="w-full">
+      <StreakBreakHeader step={currentStepIndex} />
+
+      <div className="flex items-center overflow-y-auto flex-col flex-1">
+        <div className="w-full h-full flex items-center justify-center">
           <AnimatePresence mode="wait">
-            {!isExiting && (
+            {!flowState.isExiting && (
               <motion.div
-                key={step}
+                key={flowState.currentStep}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5 }}
+                className="w-full"
               >
                 {renderStepContent()}
               </motion.div>
@@ -238,14 +364,14 @@ export default function StreakBreakFlow({
       </div>
 
       <StreakBreakFooter
-        step={step}
-        isExiting={isExiting}
+        step={currentStepIndex}
+        isExiting={flowState.isExiting}
+        handleNext={goNext}
+        handleBack={goBack}
         canGoNext={canGoNext}
-        handleNext={handleNext}
-        handleBack={handleBack}
       />
 
-      <ExitAnimation isExiting={isExiting} />
+      <ExitAnimation isExiting={flowState.isExiting} />
     </div>
   );
 }

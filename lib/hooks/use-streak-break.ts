@@ -1,11 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Challenge, Dimension, Task } from "@prisma/client";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { 
-  createCustomChallenge, 
-  enrollInExistingChallenge 
-} from "@/lib/actions";
 
 type ExtendedChallenge = Challenge & {
   tasks: {
@@ -15,26 +10,33 @@ type ExtendedChallenge = Challenge & {
   }[];
 };
 
+type FlowBranchType = "choose" | "predefined" | "custom" | "select-tasks";
+
 interface CustomTask {
   name: string;
   dimension: Dimension;
 }
 
-interface CustomChallengeState {
+interface CustomChallengeData {
   title: string;
   description: string;
-  duration: number;
   tasks: CustomTask[];
 }
 
-type FlowBranchType = "CHOOSE_BRANCH" | "PREDEFINED" | "CUSTOM" | "SELECT_TASKS";
+interface ChallengeSelection {
+  type: "existing" | "custom" | null;
+  challengeId?: string;
+  selectedTasks?: number[];
+  customChallenge?: CustomChallengeData;
+}
 
 interface UseStreakBreakRestartProps {
   currentChallenge: ExtendedChallenge;
-  predefinedChallenges: ExtendedChallenge[];
+  predefinedChallenges: Challenge[];
   dimensions: Dimension[];
   duration: number;
-  handleNext: () => void;
+  challengeSelection: ChallengeSelection;
+  onUpdateSelection: (updates: Partial<ChallengeSelection>) => void;
 }
 
 export const useStreakBreakRestart = ({
@@ -42,180 +44,191 @@ export const useStreakBreakRestart = ({
   predefinedChallenges,
   dimensions,
   duration,
-  handleNext,
+  challengeSelection,
+  onUpdateSelection,
 }: UseStreakBreakRestartProps) => {
   
-  const [flowBranchType, setFlowBranchType] = useState<FlowBranchType>("CHOOSE_BRANCH");
-  const [selectedChallenge, setSelectedChallenge] = useState<ExtendedChallenge | null>(null);
-  const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(null);
-  const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
-  const [challengeLoading, setChallengeLoading] = useState(false);
+  // UI State
+  const [flowBranch, setFlowBranch] = useState<FlowBranchType>("choose");
   const [isLoading, setIsLoading] = useState(false);
-  const [showTaskForm, setShowTaskForm] = useState(false);
-  const [carouselApi, setCarouselApi] = useState<any>();
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [selectedChallenge, setSelectedChallenge] = useState<ExtendedChallenge | null>(null);
   
-  const [customChallenge, setCustomChallenge] = useState<CustomChallengeState>({
+  // Carousel state
+  const [carouselApi, setCarouselApi] = useState<any>(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Initialize custom challenge data
+  const [customChallenge, setCustomChallenge] = useState<CustomChallengeData>({
     title: "Custom Challenge",
     description: `Your personalized ${duration} day challenge`,
-    duration: duration,
     tasks: [],
   });
 
+  // Update parent when custom challenge changes
   useEffect(() => {
-    const loadChallenge = async () => {
-      if (!selectedChallengeId) return;
-      
-      try {
-        setChallengeLoading(true);
-        const response = await fetch(`/api/challenges/${selectedChallengeId}`);
-        const data = await response.json();
-        setSelectedChallenge(data.challenge);
-        setFlowBranchType("SELECT_TASKS");
-      } catch (error) {
-        console.error("Error fetching challenge:", error);
-        toast.error("Failed to load challenge");
-      } finally {
-        setChallengeLoading(false);
-      }
-    };
-    
-    if (selectedChallengeId) {
-      loadChallenge();
-    }
-  }, [selectedChallengeId]);
+    onUpdateSelection({
+      type: "custom",
+      customChallenge: customChallenge,
+    });
+  }, [customChallenge, onUpdateSelection]);
 
+  // Handle carousel API
   useEffect(() => {
     if (!carouselApi) return;
     
-    carouselApi.on("select", () => {
+    const handleSelect = () => {
       setCurrentSlide(carouselApi.selectedScrollSnap());
-    });
+    };
+    
+    carouselApi.on("select", handleSelect);
+    return () => carouselApi.off("select", handleSelect);
   }, [carouselApi]);
 
-  const handleContinueCurrentChallenge = () => {
-    setSelectedChallenge(currentChallenge);
-    handleNext();
-  };
+  // Load challenge details when ID is selected
+  const loadChallengeDetails = useCallback(async (challengeId: string) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/challenges/${challengeId}`);
+      if (!response.ok) throw new Error("Failed to fetch challenge");
+      
+      const data = await response.json();
+      setSelectedChallenge(data.challenge);
+      setFlowBranch("select-tasks");
+      
+      onUpdateSelection({
+        type: "existing",
+        challengeId: challengeId,
+        selectedTasks: [],
+      });
+    } catch (error) {
+      console.error("Error loading challenge:", error);
+      toast.error("Failed to load challenge details");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [onUpdateSelection]);
 
-  const handleSelectPredefinedChallenge = (challengeId: string) => {
-    setSelectedChallengeId(challengeId);
-  };
+  // Navigation handlers
+  const goToChoose = useCallback(() => {
+    setFlowBranch("choose");
+    setSelectedChallenge(null);
+    onUpdateSelection({ type: null });
+  }, [onUpdateSelection]);
 
-  const handleAddCustomTask = (task: { name: string; dimension: Dimension }) => {
+  const goToPredefined = useCallback(() => {
+    setFlowBranch("predefined");
+  }, []);
+
+  const goToCustom = useCallback(() => {
+    setFlowBranch("custom");
+    onUpdateSelection({
+      type: "custom",
+      customChallenge: customChallenge,
+    });
+  }, [customChallenge, onUpdateSelection]);
+
+  // Challenge action handlers
+  const handleContinueCurrentChallenge = useCallback(() => {
+    const currentTasks = currentChallenge.tasks.map((_, index) => index);
+    onUpdateSelection({
+      type: "existing",
+      challengeId: currentChallenge.id,
+      selectedTasks: currentTasks,
+    });
+  }, [currentChallenge, onUpdateSelection]);
+
+  const handleSelectPredefinedChallenge = useCallback((challengeId: string) => {
+    loadChallengeDetails(challengeId);
+  }, [loadChallengeDetails]);
+
+  // Task selection handlers
+  const handleToggleTask = useCallback((taskIndex: number) => {
+    const currentTasks = challengeSelection.selectedTasks || [];
+    const newTasks = currentTasks.includes(taskIndex)
+      ? currentTasks.filter(index => index !== taskIndex)
+      : [...currentTasks, taskIndex];
+    
+    // Enforce 3-5 task limit
+    if (newTasks.length <= 5) {
+      onUpdateSelection({
+        selectedTasks: newTasks,
+      });
+    } else {
+      toast.error("You can select a maximum of 5 tasks");
+    }
+  }, [challengeSelection.selectedTasks, onUpdateSelection]);
+
+  // Custom challenge handlers
+  const handleAddCustomTask = useCallback((task: CustomTask) => {
+    if (customChallenge.tasks.length >= 5) {
+      toast.error("Maximum 5 tasks allowed");
+      return;
+    }
+    
     setCustomChallenge(prev => ({
       ...prev,
       tasks: [...prev.tasks, task],
     }));
-    setShowTaskForm(false);
-  };
+  }, [customChallenge.tasks.length]);
 
-  const handleRemoveCustomTask = (index: number) => {
+  const handleRemoveCustomTask = useCallback((index: number) => {
     setCustomChallenge(prev => ({
       ...prev,
       tasks: prev.tasks.filter((_, i) => i !== index),
     }));
-  };
+  }, []);
 
-  const handleStartChallenge = async () => {
-    try {
-      setIsLoading(true);
+  const handleUpdateCustomChallenge = useCallback((updates: Partial<CustomChallengeData>) => {
+    setCustomChallenge(prev => ({ ...prev, ...updates }));
+  }, []);
 
-      if (selectedChallengeId && selectedTasks.length >= 3) {
-        const result = await enrollInExistingChallenge(
-          selectedChallengeId,
-          selectedTasks,
-          duration,
-          false
-        );
-        if (!result.success) throw new Error(result.message);
-      } else if (customChallenge.tasks.length >= 3) {
-        const creationResult = await createCustomChallenge(
-          undefined,
-          duration,
-          {
-            title: customChallenge.title,
-            description: customChallenge.description,
-            tasks: customChallenge.tasks.map((t) => ({
-              name: t.name,
-              dimensionId: t.dimension.id,
-            })),
-            nextDay: false,
-          }
-        );
-
-        if (!creationResult.success) {
-          throw new Error(creationResult?.message);
-        }
-      }
-
-      toast.success("Challenge started successfully!");
-      handleNext();
-    } catch (error: any) {
-      console.error("Challenge start error:", error);
-      toast.error("Failed to start challenge");
-    } finally {
-      setIsLoading(false);
+  // Validation
+  const canProceed = useCallback((): boolean => {
+    if (challengeSelection.type === "existing") {
+      const tasks = challengeSelection.selectedTasks || [];
+      return tasks.length >= 3 && tasks.length <= 5;
     }
-  };
-
-  const handleBack = () => {
-    switch (flowBranchType) {
-      case "PREDEFINED":
-        setFlowBranchType("CHOOSE_BRANCH");
-        break;
-      case "CUSTOM":
-        setFlowBranchType("CHOOSE_BRANCH");
-        setShowTaskForm(false);
-        break;
-      case "SELECT_TASKS":
-        setFlowBranchType("PREDEFINED");
-        setSelectedChallenge(null);
-        setSelectedChallengeId(null);
-        setSelectedTasks([]);
-        break;
-      default:
-        break;
+    
+    if (challengeSelection.type === "custom") {
+      const tasks = challengeSelection.customChallenge?.tasks || [];
+      return tasks.length >= 3 && tasks.length <= 5;
     }
-  };
+    
+    return false;
+  }, [challengeSelection]);
 
-  const canProceed = () => {
-    switch (flowBranchType) {
-      case "SELECT_TASKS":
-        return selectedTasks.length >= 3 && selectedTasks.length <= 5 && !challengeLoading;
-      case "CUSTOM":
-        return customChallenge.tasks.length >= 3 && customChallenge.tasks.length <= 5;
-      default:
-        return false;
-    }
-  };
-
+  // Computed values
   const completedTasks = currentChallenge.tasks.filter((t) => t.task);
+  const selectedTasks = challengeSelection.selectedTasks || [];
 
   return {
-    flowBranchType,
-    selectedChallenge,
-    selectedChallengeId,
-    selectedTasks,
-    challengeLoading,
+    // State
+    flowBranch,
     isLoading,
-    showTaskForm,
-    carouselApi,
-    currentSlide,
+    selectedChallenge,
     customChallenge,
     completedTasks,
+    selectedTasks,
     
-    setFlowBranchType,
-    setSelectedTasks,
-    setShowTaskForm,
+    // Carousel
+    carouselApi,
+    currentSlide,
     setCarouselApi,
+    
+    // Navigation
+    goToChoose,
+    goToPredefined, 
+    goToCustom,
+    
+    // Actions
     handleContinueCurrentChallenge,
     handleSelectPredefinedChallenge,
+    handleToggleTask,
     handleAddCustomTask,
     handleRemoveCustomTask,
-    handleStartChallenge,
-    handleBack,
+    handleUpdateCustomChallenge,
     
+    // Validation
     canProceed,
   };
 };

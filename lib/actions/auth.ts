@@ -4,6 +4,7 @@ import prisma from "@/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 export type State = {
@@ -91,6 +92,7 @@ export const createUser = async (prevState: State, formData: FormData) => {
     await prisma.dimensionValue.createMany({
       data: dimVals,
     });
+    revalidatePath('/dashboard')
 
     await signIn("credentials", {
       email,

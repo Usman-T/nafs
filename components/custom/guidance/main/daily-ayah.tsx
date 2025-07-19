@@ -132,6 +132,7 @@ const DailyAyahSection = ({ apiVerse }) => {
         isOpen={showSharing}
         onClose={() => {
           localStorage.removeItem("nafs-hide-mobile-nav");
+          window.dispatchEvent(new Event("storage"))
           setShowSharing(false);
         }}
         content={{

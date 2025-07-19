@@ -10,6 +10,13 @@ import SavedVerseCard from "./saved-ayah-card";
 import { SavedAyah } from "@prisma/client";
 import { deleteAyah } from "@/lib/actions/manage-guidance";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function SavedAyahClientPage({
   savedVerses,
@@ -128,14 +135,20 @@ export default function SavedAyahClientPage({
 
         <div className="flex items-center justify-end">
           <SortDesc className="h-4 w-4 text-[#a89984]" />
-          <select
+          <Select
+            onValueChange={(e) => setSortBy(e)}
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="bg-[#282828] border border-[#3c3836] text-[#ebdbb2] rounded px-3 py-1 text-sm ml-2"
+            defaultValue="en"
           >
-            <option value="date">Sort by Date</option>
-            <option value="surah">Sort by Surah</option>
-          </select>
+            {" "}
+            <SelectTrigger className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] w-full md:w-[250px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2]">
+              <SelectItem value="surah">Sort By Date</SelectItem>
+              <SelectItem value="date">Sort By Surah</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
