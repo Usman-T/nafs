@@ -30,7 +30,7 @@ export default function OnboardingPage() {
     localStorage.setItem("onboardingCompleted", "true");
   };
 
-  if (isMobile === null) return null; // or a loading spinner
+  if (isMobile === null) return null;
 
   return isMobile ? (
     <MobileOnboardingFlow onComplete={handleComplete} />

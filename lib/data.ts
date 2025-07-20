@@ -233,10 +233,6 @@ export const loadChallengesPageData = async () => {
   const dimensionValues = await fetchUserDimensions();
   const hasCompletedChallenge = await fetchChallengeCompletionStatus();
 
-  if (!currentChallenge) {
-    return { redirectToOnboarding: true };
-  }
-
   const today = new Date();
   let todayTasks = dailyTasks?.filter((t) => isSameDay(t.date, today));
 
