@@ -11,10 +11,9 @@ const ChallengesPage = async () => {
     dimensions,
     dimensionValues,
     hasCompletedChallenge,
-    redirectToOnboarding,
   } = await loadChallengesPageData();
 
-  if (redirectToOnboarding) redirect("/onboarding");
+  if (!currentChallenge) redirect("/onboarding");
 
   return (
     <div className="space-y-8 p-6">

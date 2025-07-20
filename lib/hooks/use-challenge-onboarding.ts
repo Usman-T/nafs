@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Challenge, Dimension } from "@prisma/client";
 import {
@@ -22,20 +21,15 @@ interface CustomChallengeState {
   tasks: CustomTask[];
 }
 
-interface UseChallengeOnboardingProps {
-  predefinedChallenges: Challenge[];
-  dimensions: Dimension[];
-}
-export const useChallengeOnboarding = ({
-  predefinedChallenges,
-  dimensions,
-}: UseChallengeOnboardingProps) => {
+export const useChallengeOnboarding = () => {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // State
   const [step, setStep] = useState(0);
-  const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(null);
+  const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(
+    null
+  );
   const [customChallenge, setCustomChallenge] = useState<CustomChallengeState>({
     title: "Custom Challenge",
     description: "Your personalized 3 day challenge",
@@ -46,7 +40,9 @@ export const useChallengeOnboarding = ({
   const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [challengeLoading, setChallengeLoading] = useState(false);
-  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
+  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(
+    null
+  );
   const [carouselApi, setCarouselApi] = useState<any>();
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -64,7 +60,7 @@ export const useChallengeOnboarding = ({
   useEffect(() => {
     const loadChallenge = async () => {
       if (!selectedChallengeId) return;
-      
+
       try {
         setChallengeLoading(true);
         console.log("Fetching challenge with ID:", selectedChallengeId);
@@ -77,7 +73,7 @@ export const useChallengeOnboarding = ({
         setChallengeLoading(false);
       }
     };
-    
+
     if (selectedChallengeId) {
       loadChallenge();
     }
@@ -85,7 +81,7 @@ export const useChallengeOnboarding = ({
 
   useEffect(() => {
     if (!carouselApi) return;
-    
+
     carouselApi.on("select", () => {
       setCurrentSlide(carouselApi.selectedScrollSnap());
     });
@@ -93,7 +89,7 @@ export const useChallengeOnboarding = ({
 
   // Handlers
   const handleAddTask = (task: { name: string; dimension: Dimension }) => {
-    setCustomChallenge(prev => ({
+    setCustomChallenge((prev) => ({
       ...prev,
       tasks: [...prev.tasks, { ...task, dimension: task.dimension }],
     }));
@@ -103,7 +99,7 @@ export const useChallengeOnboarding = ({
   };
 
   const handleRemoveTask = (index: number) => {
-    setCustomChallenge(prev => ({
+    setCustomChallenge((prev) => ({
       ...prev,
       tasks: prev.tasks.filter((_, i) => i !== index),
     }));
@@ -147,13 +143,14 @@ export const useChallengeOnboarding = ({
         }
       }
 
-      toast.success("Challenge started successfully!")
+      toast.success("Challenge started successfully!");
 
       setTimeout(() => {
         router.push("/dashboard");
       }, 1000);
     } catch (error: any) {
-      const isAuthError = error.message?.includes("auth") ||
+      const isAuthError =
+        error.message?.includes("auth") ||
         error.message?.includes("login") ||
         error.message?.includes("session") ||
         error.message?.includes("unauthorized");
@@ -214,7 +211,9 @@ export const useChallengeOnboarding = ({
       case 2:
         return selectedTasks.length < 3;
       case 4:
-        return !(customChallenge.tasks.length >= 3 && customChallenge.tasks.length <= 5);
+        return !(
+          customChallenge.tasks.length >= 3 && customChallenge.tasks.length <= 5
+        );
       case 5:
         return customChallenge.tasks.length === 0;
       default:
@@ -241,7 +240,7 @@ export const useChallengeOnboarding = ({
     carouselApi,
     currentSlide,
     containerRef,
-    
+
     // Handlers
     handleAddTask,
     handleRemoveTask,
@@ -254,7 +253,7 @@ export const useChallengeOnboarding = ({
     setSelectedTasks,
     setCarouselApi,
     setCustomChallenge,
-    
+
     // Computed
     isNextDisabled,
     showFinishButton,

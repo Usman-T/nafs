@@ -43,7 +43,7 @@ export default function ChallengeOnboarding({
     isNextDisabled,
     showFinishButton,
     totalSteps,
-  } = useChallengeOnboarding({ predefinedChallenges, dimensions });
+  } = useChallengeOnboarding();
 
   const renderStepContent = () => {
     switch (step) {
@@ -63,7 +63,9 @@ export default function ChallengeOnboarding({
         );
       case 2:
         return (
-          <SelectedChallenge selectedTasks={selectedTasks} setSelectedTasks={setSelectedTasks}
+          <SelectedChallenge
+            selectedTasks={selectedTasks}
+            setSelectedTasks={setSelectedTasks}
             challenge={selectedChallenge}
             loading={challengeLoading}
           />
