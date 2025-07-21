@@ -236,7 +236,7 @@ export const loadChallengesPageData = async () => {
   const today = new Date();
   let todayTasks = dailyTasks?.filter((t) => isSameDay(t.date, today));
 
-  if (!todayTasks?.length) {
+  if (!todayTasks?.length && currentChallenge) {
     await initializeDayTasks(currentChallenge.id);
     const updatedTasks = await fetchDailyTasks();
     todayTasks = updatedTasks?.filter((t) => isSameDay(t.date, today));
