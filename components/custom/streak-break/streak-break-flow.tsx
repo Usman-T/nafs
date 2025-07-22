@@ -82,7 +82,6 @@ export default function StreakBreakFlow({
       type: null,
     });
 
-  // Calculate challenge duration based on user level
   const getDuration = useCallback(() => {
     const durationMap: Record<number, number> = {
       1: 3,
@@ -95,7 +94,6 @@ export default function StreakBreakFlow({
     return durationMap[userLevel + 1] ?? 30;
   }, [userLevel]);
 
-  // Static data (could be moved to props or fetched)
   const streakData = {
     missedDay: 4,
     previousStreak: 12,
@@ -118,7 +116,6 @@ export default function StreakBreakFlow({
     []
   );
 
-  // Validation logic
   const canProceedFromRestart = useCallback((): boolean => {
     if (!challengeSelection.type) return false;
 
@@ -154,12 +151,14 @@ export default function StreakBreakFlow({
         challengeSelection.challengeId &&
         challengeSelection.selectedTasks
       ) {
-        const result = await enrollInExistingChallenge(
-          challengeSelection.challengeId,
-          challengeSelection.selectedTasks,
-          duration,
-          false
-        );
+        // const result = await enrollInExistingChallenge(
+        //   challengeSelection.challengeId,
+        //   challengeSelection.selectedTasks,
+        //   duration,
+        //   false
+        // );
+        const result = {success: true}
+        toast.error("STARTING EXISTING CHALLENGE")
 
         if (!result.success) {
           throw new Error(result.message || "Failed to enroll in challenge");
@@ -171,15 +170,17 @@ export default function StreakBreakFlow({
         const { title, description, tasks } =
           challengeSelection.customChallenge;
 
-        const result = await createCustomChallenge(undefined, duration, {
-          title,
-          description,
-          tasks: tasks.map((t) => ({
-            name: t.name,
-            dimensionId: t.dimension.id,
-          })),
-          nextDay: false,
-        });
+        // const result = await createCustomChallenge(undefined, duration, {
+        //   title,
+        //   description,
+        //   tasks: tasks.map((t) => ({
+        //     name: t.name,
+        //     dimensionId: t.dimension.id,
+        //   })),
+        //   nextDay: false,
+        // });
+        const result = { success: "Yep" };
+        toast.error("STARTING CUSTOM CHALLENGE")
 
         if (!result.success) {
           throw new Error(
@@ -190,7 +191,6 @@ export default function StreakBreakFlow({
         throw new Error("Invalid challenge selection");
       }
 
-      toast.success("Challenge started successfully!");
       return true;
     } catch (error) {
       console.error("Challenge start error:", error);
@@ -205,12 +205,12 @@ export default function StreakBreakFlow({
 
   const handleComplete = useCallback(() => {
     updateFlowState({ isExiting: true });
+    toast.success("Challenge started successfully!");
     setTimeout(() => {
-      router.push("/dashboard/challenges");
+      router.push("/dashboard/");
     }, 2000);
   }, [router, updateFlowState]);
 
-  // Navigation handlers
   const goToStep = useCallback(
     (step: FlowStep) => {
       if (flowState.isAnimating || flowState.isLoading) return;
@@ -228,7 +228,6 @@ export default function StreakBreakFlow({
     const nextIndex = currentStepIndex + 1;
 
     if (flowState.currentStep === "restart") {
-      // Validate challenge selection before proceeding
       if (!canProceedFromRestart()) {
         toast.error("Please complete your challenge selection");
         return;
@@ -345,7 +344,7 @@ export default function StreakBreakFlow({
       <StreakBreakHeader step={currentStepIndex} />
 
       <div className="flex items-center overflow-y-auto flex-col flex-1">
-        <div className="w-full h-full flex items-center justify-center">
+        <div className="flex items-center justify-center">
           <AnimatePresence mode="wait">
             {!flowState.isExiting && (
               <motion.div

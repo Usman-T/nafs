@@ -19,15 +19,15 @@ export const metadata: Metadata = {
 
 const navItems = [
   { name: "Home", href: "/dashboard", icon: Home },
-  { name: "Calendar", href: "/dashboard/calendar", icon: Calendar },
   { name: "Progress", href: "/dashboard/progress", icon: BarChart3 },
+  { name: "Calendar", href: "/dashboard/calendar", icon: Calendar },
   { name: "Guidance", href: "/dashboard/guidance", icon: BookOpen },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
 export default function OfflinePage() {
   return (
-    <div className="md:flex bg-[#1d2021] min-h-screen">
+    <div className="flex justify-center items-center bg-[#1d2021] h-screen ">
       <div className="sticky top-0 hidden h-screen w-64 flex-col border-r border-[#2e2e2e] bg-[#1d2021] md:flex">
         <div className="flex h-16 items-center border-b border-[#2e2e2e] px-6">
           <Link href="/dashboard" className="flex items-center gap-2">

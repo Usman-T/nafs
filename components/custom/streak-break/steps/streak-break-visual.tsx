@@ -56,14 +56,12 @@ const StreakBreakVisual = ({
           </div>
         )}
 
-        <div className="relative">
-          <RadarChart
-            dimensions={dimensions}
-            previousValues={previousValues}
-            currentValues={currentValues}
-            missedTasks={missedTasks}
-          />
-        </div>
+        <RadarChart
+          dimensions={dimensions}
+          previousValues={previousValues}
+          currentValues={currentValues}
+          missedTasks={missedTasks}
+        />
 
         <div className="mt-8 flex items-center justify-center gap-6 text-sm">
           <div className="flex items-center gap-2">
@@ -99,14 +97,13 @@ const StreakBreakVisual = ({
                   >
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200`}
-                        style={{
-                          backgroundColor: task.color,
-                        }}
+                        className={`rounded-xl flex items-center justify-center transition-all duration-200`}
                       >
-                        <IconComponent className="h-6 w-6 text-[#1d2021]" />
+                        <IconComponent
+                          style={{ color: task.color }}
+                          className="h-6 w-6 text-[#1d2021]"
+                        />
                       </div>
-                      ;
                       <span className="text-[#ebdbb2] font-medium">
                         {task.name}
                       </span>

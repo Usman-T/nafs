@@ -144,76 +144,10 @@ const StreakBreakRestart: React.FC<StreakBreakRestartProps> = ({
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6">
-      {/* Progress indicator */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-sm font-medium text-[#ebdbb2]/70">
-            Step 3 of 4 - Choose Your Challenge
-          </div>
-          <div className="text-sm text-[#ebdbb2]/50">
-            Duration: {duration} days
-          </div>
-        </div>
-        
-        {/* Step indicator */}
-        <div className="flex space-x-2">
-          {["Choose", "Configure", "Review"].map((step, index) => {
-            const isActive = (
-              (index === 0 && flowBranch === "choose") ||
-              (index === 1 && (flowBranch === "predefined" || flowBranch === "custom" || flowBranch === "select-tasks")) ||
-              (index === 2 && challengeSelection.type !== null)
-            );
-            
-            return (
-              <div
-                key={step}
-                className={`h-2 flex-1 rounded-full transition-colors duration-300 ${
-                  isActive 
-                    ? "bg-[#8ec07c]" 
-                    : "bg-[#3c3836]"
-                }`}
-              />
-            );
-          })}
-        </div>
+    <div className="w-full mx-auto flex flex-col justify-center items-center">
+      <div className="flex space-x-2">
+        <div className="p-6">{renderContent()}</div>
       </div>
-
-      {/* Content */}
-      <div className="min-h-[400px]">
-        {renderContent()}
-      </div>
-
-      {/* Selection summary */}
-      {challengeSelection.type && (
-        <div className="mt-8 p-4 bg-[#3c3836] rounded-lg border border-[#504945]">
-          <h3 className="text-lg font-semibold text-[#ebdbb2] mb-2">
-            Selected Challenge
-          </h3>
-          
-          {challengeSelection.type === "existing" && (
-            <div>
-              <p className="text-[#ebdbb2]/80">
-                Challenge: {selectedChallenge?.name || "Loading..."}
-              </p>
-              <p className="text-sm text-[#ebdbb2]/60">
-                Tasks selected: {selectedTasks.length}
-              </p>
-            </div>
-          )}
-          
-          {challengeSelection.type === "custom" && challengeSelection.customChallenge && (
-            <div>
-              <p className="text-[#ebdbb2]/80">
-                {challengeSelection.customChallenge.title}
-              </p>
-              <p className="text-sm text-[#ebdbb2]/60">
-                Custom tasks: {challengeSelection.customChallenge.tasks.length}
-              </p>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 };
