@@ -3,7 +3,7 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "com.nafs.in",
+      "package_name": "in.nafs.www.twa",
       "sha256_cert_fingerprints": [
         "3A:55:9B:A6:6F:BB:A0:02:FD:40:7D:47:4E:49:AB:94:60:F2:84:29:31:17:D9:91:19:DB:B5:B7:F5:48:E1:82"
       ]
