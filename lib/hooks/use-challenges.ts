@@ -20,8 +20,6 @@ export const useChallenges = () => {
 
     try {
       const result = await completeDayAndUpdateStreak();
-      console.log(result);
-
       if (result.success) {
         setShowCompletionFlow(false);
         setDayCompleted({

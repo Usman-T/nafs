@@ -47,7 +47,6 @@ export const updateUserStreak = async () => {
       },
     });
 
-    console.log(todayTasks);
     const allTasksCompleted =
       todayTasks.length > 0 &&
       todayTasks.every((task) => task.completions.length > 0);

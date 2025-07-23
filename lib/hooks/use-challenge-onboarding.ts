@@ -63,7 +63,6 @@ export const useChallengeOnboarding = () => {
 
       try {
         setChallengeLoading(true);
-        console.log("Fetching challenge with ID:", selectedChallengeId);
         const response = await fetch(`/api/challenges/${selectedChallengeId}`);
         const data = await response.json();
         setSelectedChallenge(data.challenge);

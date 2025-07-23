@@ -169,7 +169,6 @@ export default function SavedAyahClientPage({
                 verse.verseKey.length
               ); // ""
 
-              console.log({ versekey: verse.verseKey });
               return (
                 <motion.div
                   key={verse.id}

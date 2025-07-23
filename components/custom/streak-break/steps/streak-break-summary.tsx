@@ -16,7 +16,7 @@ interface CustomChallengeData {
 }
 
 interface ChallengeSelection {
-  type: "existing" | "custom" | null;
+  type: "existing" | "custom" | "continue" | null;
   challengeId?: string;
   selectedTasks?: number[];
   customChallenge?: CustomChallengeData;
@@ -41,8 +41,6 @@ const StreakBreakSummary = ({
   currentChallenge,
   duration,
 }: StreakBreakSummaryProps) => {
-  console.log("MEOWWWWWOWOWOWOW")
-  console.log({ challengeSelection, currentChallenge });
   const isCustom = challengeSelection.type === "custom";
 
   const challengeData = isCustom

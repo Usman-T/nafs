@@ -23,7 +23,6 @@ const SelectedChallenge = ({
   selectedTasks: number[];
   setSelectedTasks: Dispatch<SetStateAction<number[]>>;
 }) => {
-  console.log({ challenge });
   const toggleTaskSelection = (taskIndex: number) => {
     setSelectedTasks((prev) =>
       prev.includes(taskIndex)
