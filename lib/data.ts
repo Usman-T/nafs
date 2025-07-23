@@ -318,7 +318,6 @@ export const loadStreakBreakPageData = async () => {
     };
   }
 
-  // --- Find the most recent day with tasks ---
   const groupedByDate = dailyTasks.reduce((acc, task) => {
     const day = startOfDay(task.date).toISOString();
     acc[day] = acc[day] || [];
@@ -332,7 +331,7 @@ export const loadStreakBreakPageData = async () => {
 
   const recentTasks = groupedByDate[recentDateStr];
 
-  // --- Identify missed tasks ONLY for the most recent day ---
+  console.log({ recentTasks });
   const missedTasksArray = recentTasks.filter(
     (task) =>
       task.completions.length === 0 ||
@@ -368,6 +367,8 @@ export const loadStreakBreakPageData = async () => {
     }
   }
 
+  const missedDay = (Math.random() * currentChallenge.challenge.duration).toFixed();
+
   return {
     missedTasks,
     challenges,
@@ -376,6 +377,7 @@ export const loadStreakBreakPageData = async () => {
     previousValues,
     currentChallenge: currentChallenge?.challenge || null,
     userLevel,
+    missedDay,
   };
 };
 

@@ -109,7 +109,7 @@ const StreakBreakVisual = ({
                       </span>
                     </div>
                     <span className="text-red-400 font-semibold">
-                      -{task.points} pts
+                      -{task.points}%
                     </span>
                   </motion.div>
                 );
@@ -119,8 +119,7 @@ const StreakBreakVisual = ({
               <div className="flex justify-between items-center">
                 <span className="text-[#a89984]">Total Impact:</span>
                 <span className="text-red-400 font-bold text-lg">
-                  -{missedTasks.reduce((sum, task) => sum + task.points, 0)}{" "}
-                  points
+                  -{missedTasks.reduce((sum, task) => sum + task.points, 0)}%
                 </span>
               </div>
             </div>

@@ -26,7 +26,7 @@ const ExitAnimation = ({ isExiting }: { isExiting: boolean }) => {
             </motion.div>
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-[#ebdbb2]">
-                Preparing Your Recovery
+                Loading
               </h2>
               <p className="text-[#a89984]">
                 Every ending is a new beginning...

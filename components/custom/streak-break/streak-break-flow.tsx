@@ -37,6 +37,7 @@ interface StreakBreakFlowProps {
   previousValues: Record<string, number>;
   currentChallenge: ExtendedChallenge;
   userLevel: number;
+  missedDay: number;
 }
 
 interface FlowState {
@@ -47,7 +48,7 @@ interface FlowState {
 }
 
 interface ChallengeSelection {
-  type: "existing" | "custom" | null;
+  type: "existing" | "custom" | "continue" | null;
   challengeId?: string;
   selectedTasks?: number[];
   customChallenge?: {
@@ -65,6 +66,7 @@ export default function StreakBreakFlow({
   previousValues,
   currentChallenge,
   userLevel,
+  missedDay,
 }: StreakBreakFlowProps) {
   const router = useRouter();
 
@@ -96,9 +98,7 @@ export default function StreakBreakFlow({
 
   const streakData = {
     missedDay: 4,
-    previousStreak: 12,
     streakStartDate: "March 15, 2024",
-    totalDaysLost: 12,
   };
 
   // Step navigation
@@ -118,6 +118,10 @@ export default function StreakBreakFlow({
 
   const canProceedFromRestart = useCallback((): boolean => {
     if (!challengeSelection.type) return false;
+
+    if (challengeSelection.type === "continue") {
+      return !!(currentChallenge.id && currentChallenge.tasks);
+    }
 
     if (challengeSelection.type === "existing") {
       return !!(
@@ -139,10 +143,8 @@ export default function StreakBreakFlow({
     return false;
   }, [challengeSelection]);
 
-  // Challenge handling
-  const handleStartChallenge = useCallback(async (): Promise<boolean> => {
+  const handleComplete = useCallback(() => {
     updateFlowState({ isLoading: true });
-
     try {
       const duration = getDuration();
 
@@ -157,8 +159,8 @@ export default function StreakBreakFlow({
         //   duration,
         //   false
         // );
-        const result = {success: true}
-        toast.error("STARTING EXISTING CHALLENGE")
+        const result = { success: true };
+        toast.error("STARTING EXISTING CHALLENGE");
 
         if (!result.success) {
           throw new Error(result.message || "Failed to enroll in challenge");
@@ -180,17 +182,28 @@ export default function StreakBreakFlow({
         //   nextDay: false,
         // });
         const result = { success: "Yep" };
-        toast.error("STARTING CUSTOM CHALLENGE")
+        toast.error("STARTING CUSTOM CHALLENGE");
 
         if (!result.success) {
           throw new Error(
             result.message || "Failed to create custom challenge"
           );
         }
+      } else if (
+        challengeSelection.type === "continue" &&
+        currentChallenge.tasks &&
+        currentChallenge.id
+      ) {
+        toast.success("This should work boisss");
       } else {
         throw new Error("Invalid challenge selection");
       }
 
+      updateFlowState({ isExiting: true });
+      toast.success("Challenge started successfully!");
+      setTimeout(() => {
+        router.push("/dashboard/");
+      }, 2000);
       return true;
     } catch (error) {
       console.error("Challenge start error:", error);
@@ -201,14 +214,6 @@ export default function StreakBreakFlow({
     } finally {
       updateFlowState({ isLoading: false });
     }
-  }, [challengeSelection, getDuration, updateFlowState]);
-
-  const handleComplete = useCallback(() => {
-    updateFlowState({ isExiting: true });
-    toast.success("Challenge started successfully!");
-    setTimeout(() => {
-      router.push("/dashboard/");
-    }, 2000);
   }, [router, updateFlowState]);
 
   const goToStep = useCallback(
@@ -219,7 +224,7 @@ export default function StreakBreakFlow({
 
       setTimeout(() => {
         updateFlowState({ currentStep: step, isAnimating: false });
-      }, 300);
+      }, 800);
     },
     [flowState.isAnimating, flowState.isLoading, updateFlowState]
   );
@@ -232,10 +237,6 @@ export default function StreakBreakFlow({
         toast.error("Please complete your challenge selection");
         return;
       }
-
-      // Start the selected challenge
-      const success = await handleStartChallenge();
-      if (!success) return;
     }
 
     if (nextIndex < steps.length) {
@@ -247,7 +248,6 @@ export default function StreakBreakFlow({
     currentStepIndex,
     flowState.currentStep,
     canProceedFromRestart,
-    handleStartChallenge,
     goToStep,
     handleComplete,
     steps,
@@ -281,24 +281,14 @@ export default function StreakBreakFlow({
     canProceedFromRestart,
   ]);
 
-  const canGoBack = useCallback((): boolean => {
-    return (
-      currentStepIndex > 0 && !flowState.isAnimating && !flowState.isLoading
-    );
-  }, [currentStepIndex, flowState.isAnimating, flowState.isLoading]);
-
-  // Render step content
   const renderStepContent = () => {
     switch (flowState.currentStep) {
       case "info":
         return (
           <StreakBreakInfo
-            previousStreak={streakData.previousStreak}
             missedTasks={missedTasks}
-            streakStartDate={streakData.streakStartDate}
-            missedDay={streakData.missedDay}
+            missedDay={missedDay}
             challengeName={currentChallenge.name}
-            totalDaysLost={streakData.totalDaysLost}
           />
         );
 
@@ -328,10 +318,11 @@ export default function StreakBreakFlow({
       case "summary":
         return (
           <StreakBreakSummary
-            customChallenge={challengeSelection.customChallenge || null}
+            challengeSelection={challengeSelection}
+            currentChallenge={currentChallenge}
+            duration={getDuration()}
           />
         );
-
       default:
         return null;
     }

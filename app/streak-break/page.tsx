@@ -10,6 +10,7 @@ const StreakBreakPage = async () => {
     missedTasks,
     currentChallenge,
     userLevel,
+    missedDay
   } = await loadStreakBreakPageData();
 
   return (
@@ -21,6 +22,7 @@ const StreakBreakPage = async () => {
       missedTasks={missedTasks}
       currentChallenge={currentChallenge}
       userLevel={userLevel}
+      missedDay={missedDay}
     />
   );
 };

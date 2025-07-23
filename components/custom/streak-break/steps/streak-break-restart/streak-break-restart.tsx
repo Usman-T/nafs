@@ -67,8 +67,6 @@ const StreakBreakRestart: React.FC<StreakBreakRestartProps> = ({
     handleUpdateCustomChallenge,
   } = useStreakBreakRestart({
     currentChallenge,
-    predefinedChallenges,
-    dimensions,
     duration,
     challengeSelection,
     onUpdateSelection,
@@ -143,13 +141,7 @@ const StreakBreakRestart: React.FC<StreakBreakRestartProps> = ({
     }
   };
 
-  return (
-    <div className="w-full mx-auto flex flex-col justify-center items-center">
-      <div className="flex space-x-2">
-        <div className="p-6">{renderContent()}</div>
-      </div>
-    </div>
-  );
+  return <div className="p-6">{renderContent()}</div>;
 };
 
 export default StreakBreakRestart;

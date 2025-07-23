@@ -10,11 +10,8 @@ const StreakBreakInfo = ({
   challengeName,
 }: {
   missedDay: number;
-  previousStreak: number;
-  streakStartDate: string;
   missedTasks: { name: string; icon: string; color: string }[];
   challengeName: string;
-  totalDaysLost: number;
 }) => {
   return (
     <>
