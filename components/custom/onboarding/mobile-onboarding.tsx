@@ -1,20 +1,18 @@
 "use client";
 
-import { useState, } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  ChevronRight,
-  ChevronLeft,
-  Sparkles,
-} from "lucide-react";
+import { ChevronRight, ChevronLeft, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/utils";
 import Logo from "../logo";
 import InteractiveCalendarDemo from "./mobile-onboarding/interactive-calendar-demo";
 import InteractiveRadarDemo from "./mobile-onboarding/interactive-radar-demo";
 import InteractiveQuranSearchDemo from "./mobile-onboarding/interactive-quran-demo";
-import InteractiveAudioDemo from "./mobile-onboarding/interactive-audio-demo";
 import EnhancedFloatingParticles from "./mobile-onboarding/extra/floating-particles";
+import QuranDemoSlide from "@/components/custom/onboarding/mobile-onboarding/interactive-quran-slide";
+import SwipeHint from "./mobile-onboarding/extra/swipe-hint";
+import Navigation from "./mobile-onboarding/extra/navigation";
 
 export default function MobileOnboardingFlow({
   onComplete,
@@ -26,6 +24,8 @@ export default function MobileOnboardingFlow({
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(
     null
   );
+  const [faithCompleted, setFaithCompleted] = useState(false);
+  const [characterCompleted, setCharacterCompleted] = useState(false);
 
   const steps = [
     {
@@ -35,6 +35,15 @@ export default function MobileOnboardingFlow({
       description:
         "Transform your daily routine into a journey of spiritual growth and connection with Allah",
       component: null,
+    },
+    {
+      id: "audio",
+      title: "Listen to Beautiful Recitations",
+      subtitle: "Audio Quran Experience",
+      description:
+        "Immerse yourself in professional recitations with translations and transliterations",
+      props: { onTaskComplete: () => setFaithCompleted(true) },
+      component: QuranDemoSlide,
     },
     {
       id: "radar",
@@ -59,14 +68,6 @@ export default function MobileOnboardingFlow({
       description:
         "Find any verse, surah, topic, or tafsir instantly. Get guidance exactly when you need it most",
       component: InteractiveQuranSearchDemo,
-    },
-    {
-      id: "audio",
-      title: "Listen to Beautiful Recitations",
-      subtitle: "Audio Quran Experience",
-      description:
-        "Immerse yourself in professional recitations with translations and transliterations",
-      component: InteractiveAudioDemo,
     },
     {
       id: "register",
@@ -111,13 +112,6 @@ export default function MobileOnboardingFlow({
     }
   };
 
-  const handleSkip = () => {
-    setIsVisible(false);
-    setTimeout(() => {
-      onComplete();
-    }, 500);
-  };
-
   if (!isVisible) {
     return (
       <motion.div
@@ -136,11 +130,13 @@ export default function MobileOnboardingFlow({
     );
   }
 
+  const stepProps = steps[currentStep]?.props || [];
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="fixed inset-0 bg-[#1d2021] z-50 flex flex-col overflow-hidden"
+      className="fixed inset-0 bg-[#1d2021] z-50 flex flex-col "
     >
       <EnhancedFloatingParticles count={20} />
 
@@ -153,17 +149,7 @@ export default function MobileOnboardingFlow({
           <Logo className="h-4 w-4 text-[#fe8019]" />
           <span className="text-[#ebdbb2] font-bold text-lg">Nafs</span>
         </motion.div>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleSkip}
-          className="text-[#a89984] hover:text-[#ebdbb2] hover:bg-[#3c3836]"
-        >
-          Skip
-        </Button>
       </div>
-
       {/* Enhanced progress bar */}
       <div className="px-4 mb-6">
         <div className="w-full bg-[#3c3836] rounded-full h-2 overflow-hidden">
@@ -177,7 +163,7 @@ export default function MobileOnboardingFlow({
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-4 pb-4 flex flex-col">
+      <div className="flex-1 px-4 pb-4 overflow-y-auto flex flex-col">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentStep}
@@ -197,7 +183,7 @@ export default function MobileOnboardingFlow({
               scale: 0.95,
             }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="flex-1 flex flex-col"
+            className="flex-1 flex flex-col "
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.2}
@@ -287,43 +273,15 @@ export default function MobileOnboardingFlow({
                 className="flex-1 flex items-center justify-center mb-8"
               >
                 <div className="w-full max-w-sm">
-                  <currentStepData.component isActive={true} />
+                  <currentStepData.component {...stepProps} isActive={true} />
                 </div>
               </motion.div>
             )}
           </motion.div>
         </AnimatePresence>
 
-        {/* Swipe hint */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-          className="text-center text-xs text-[#a89984] mb-4 flex items-center justify-center gap-2"
-        >
-          <ChevronLeft className="h-3 w-3" />
-          <span>Swipe to navigate</span>
-          <ChevronRight className="h-3 w-3" />
-        </motion.div>
-
-        {/* Navigation */}
-        <div className="flex justify-center items-center  pt-4">
-          <div className="flex space-x-2">
-            {steps.map((_, i) => (
-              <motion.div
-                key={i}
-                className={cn(
-                  "w-2 h-2 rounded-full transition-all",
-                  i === currentStep ? "bg-[#fe8019] scale-125" : "bg-[#3c3836]"
-                )}
-                whileHover={{ scale: 1.3 }}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: i * 0.05 }}
-              />
-            ))}
-          </div>
-        </div>
+        <SwipeHint />
+        <Navigation currentStep={currentStep} steps={steps} />
       </div>
     </motion.div>
   );
