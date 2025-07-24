@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { isSameDay, startOfDay, subDays } from "date-fns";
 import { initializeDayTasks } from "./actions";
 import { Prisma, Reflection, SavedAyah, User } from "@prisma/client";
+import { redirect, RedirectType } from "next/navigation";
 
 export const getUsers = async () => {
   try {
@@ -252,10 +253,7 @@ export const loadChallengesPageData = async () => {
 
 export const loadStreakBreakPageData = async () => {
   const session = await auth();
-
-  if (!session?.user) {
-    throw new Error("Not authenticated");
-  }
+  if (!session?.user) return redirect("/onboarding");
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email ?? undefined },
@@ -288,85 +286,132 @@ export const loadStreakBreakPageData = async () => {
           },
         },
       },
-      dimensionValues: { include: { dimension: true } },
+      dimensionValues: {
+        include: {
+          dimension: true,
+        },
+      },
     },
   });
 
-  if (!user?.currentChallenge) {
-    return { redirectToOnboarding: true };
-  }
+  if (!user?.currentChallenge) redirect("/onboarding");
 
   const challenges = await fetchChallenges();
-  const userLevel = await fetchUserLevel();
   const spiritualDimensions = await fetchDimensions();
+  const userLevel = await fetchUserLevel();
 
   const currentChallenge = user.challenges.find(
     (userChallenge) => userChallenge.challengeId === user.challengeId
   );
 
-  const dailyTasks = user.dailyTasks;
-
-  if (dailyTasks.length === 0) {
+  if (!currentChallenge) {
     return {
       missedTasks: [],
       challenges,
       spiritualDimensions,
       currentValues: {},
       previousValues: {},
-      currentChallenge: currentChallenge?.challenge || null,
+      currentChallenge: null,
       userLevel,
+      missedDay: null,
     };
   }
 
-  // --- Find the most recent day with tasks ---
-  const groupedByDate = dailyTasks.reduce((acc, task) => {
-    const day = startOfDay(task.date).toISOString();
+  const groupedByDate = user.dailyTasks.reduce((acc, task) => {
+    const day = startOfDay(new Date(task.date)).toISOString();
     acc[day] = acc[day] || [];
     acc[day].push(task);
     return acc;
-  }, {} as Record<string, typeof dailyTasks>);
+  }, {} as Record<string, typeof user.dailyTasks>);
 
-  const recentDateStr = Object.keys(groupedByDate).sort(
-    (a, b) => new Date(b).getTime() - new Date(a).getTime()
+  const today = new Date();
+  const missedDates = Object.entries(groupedByDate).filter(
+    ([dateStr, tasks]) => {
+      const taskDate = new Date(dateStr);
+
+      if (taskDate > today) return false;
+
+      return tasks.some((task) => {
+        return (
+          task.completions.length === 0 ||
+          task.completions.every(
+            (completion) =>
+              !isSameDay(new Date(completion.completedAt), taskDate)
+          )
+        );
+      });
+    }
+  );
+
+  if (missedDates.length === 0) {
+    return {
+      missedTasks: [],
+      challenges,
+      spiritualDimensions,
+      currentValues: user.dimensionValues.reduce((acc, dv) => {
+        acc[dv.dimension.id] = dv.value / 100;
+        return acc;
+      }, {} as Record<string, number>),
+      previousValues: user.dimensionValues.reduce((acc, dv) => {
+        acc[dv.dimension.id] = dv.value / 100;
+        return acc;
+      }, {} as Record<string, number>),
+      currentChallenge: currentChallenge.challenge,
+      userLevel,
+      missedDay: null,
+    };
+  }
+
+  const [mostRecentMissedDate, missedTasksArray] = missedDates.sort(
+    ([a], [b]) => new Date(b).getTime() - new Date(a).getTime()
   )[0];
 
-  const recentTasks = groupedByDate[recentDateStr];
+  const missedDay = new Date(mostRecentMissedDate);
 
-  // --- Identify missed tasks ONLY for the most recent day ---
-  const missedTasksArray = recentTasks.filter(
-    (task) =>
-      task.completions.length === 0 ||
-      task.completions.every(
-        (c) => !isSameDay(new Date(c.completedAt), task.date)
-      )
-  );
+  const missedTasks = missedTasksArray
+    .filter((task) => {
+      return (
+        task.completions.length === 0 ||
+        task.completions.every(
+          (completion) =>
+            !isSameDay(new Date(completion.completedAt), missedDay)
+        )
+      );
+    })
+    .map((task) => ({
+      id: task.id,
+      name: task.task.name,
+      dimension: task.task.dimension.name,
+      color: task.task.dimension.color,
+      icon: task.task.dimension.icon,
+      dimensionId: task.task.dimension.id,
+      points: task.task.points,
+    }));
 
-  const missedTasks = missedTasksArray.map((task) => ({
-    id: task.id,
-    name: task.task.name,
-    dimension: task.task.dimension.name,
-    color: task.task.dimension.color,
-    icon: task.task.dimension.icon,
-    dimensionId: task.task.dimension.id,
-    points: task.task.points,
-  }));
-
-  // --- Previous Dimension Values ---
-  const previousValues: Record<string, number> = user.dimensionValues.reduce(
-    (acc, dv) => {
-      acc[dv.dimension.id] = dv.value / 100;
-      return acc;
-    },
-    {}
-  );
+  const previousValues = user.dimensionValues.reduce((acc, dv) => {
+    acc[dv.dimension.id] = dv.value / 100;
+    return acc;
+  }, {} as Record<string, number>);
 
   const currentValues = { ...previousValues };
-
   for (const missed of missedTasks) {
     if (currentValues[missed.dimensionId] !== undefined) {
-      currentValues[missed.dimensionId] -= missed.points / 100;
+      currentValues[missed.dimensionId] = Math.max(
+        0,
+        currentValues[missed.dimensionId] - missed.points / 100
+      );
     }
   }
+
+  const challengeStartDate = new Date(currentChallenge.startDate);
+  const missedDayNumber = Math.max(
+    1,
+    Math.ceil(
+      (missedDay.getTime() - challengeStartDate.getTime()) /
+        (1000 * 60 * 60 * 24) +
+        1
+    )
+  );
 
   return {
     missedTasks,
@@ -374,8 +419,9 @@ export const loadStreakBreakPageData = async () => {
     spiritualDimensions,
     currentValues,
     previousValues,
-    currentChallenge: currentChallenge?.challenge || null,
+    currentChallenge: currentChallenge.challenge,
     userLevel,
+    missedDay: missedDayNumber,
   };
 };
 

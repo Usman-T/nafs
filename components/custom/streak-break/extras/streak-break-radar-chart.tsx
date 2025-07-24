@@ -26,65 +26,65 @@ const RadarChart: React.FC<RadarChart> = ({
   currentValues,
   missedTasks,
 }) => {
-  const size = 300;
+  const size = 320;
   const center = size / 2;
   const radius = size * 0.35;
-  
-  const [animationPhase, setAnimationPhase] = useState(0); // 0: initial, 1: showing tasks, 2: complete
-  const [currentTaskIndex, setCurrentTaskIndex] = useState(-1);
-  const [animatedValues, setAnimatedValues] = useState(previousValues);
+
+  const [animatedValues, setAnimatedValues] = useState(currentValues);
   const [showingTask, setShowingTask] = useState<MissedTask | null>(null);
+  const [affectedDimensionId, setAffectedDimensionId] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     const runAnimation = async () => {
-      // Phase 1: Show initial state for 800ms
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setAnimationPhase(1);
+      setAnimatedValues({ ...currentValues });
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      // Phase 2: Animate each missed task
+      let progressiveValues = { ...currentValues };
+
       for (let i = 0; i < missedTasks.length; i++) {
         const task = missedTasks[i];
-        setCurrentTaskIndex(i);
         setShowingTask(task);
+        setAffectedDimensionId(task.dimensionId);
 
-        // Show task name for 1000ms
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        // Animate the point reduction
-        const newValues = { ...animatedValues };
+        const newValues = { ...progressiveValues };
         if (newValues[task.dimensionId] !== undefined) {
-          newValues[task.dimensionId] -= task.points / 100;
+          newValues[task.dimensionId] = Math.max(
+            0,
+            newValues[task.dimensionId] - task.points / 100
+          );
         }
-        
-        setAnimatedValues(newValues);
-        
-        // Wait for animation to complete
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        // Clear task name
-        setShowingTask(null);
-        await new Promise(resolve => setTimeout(resolve, 300));
-      }
 
-      setAnimationPhase(2);
+        progressiveValues = { ...newValues };
+        setAnimatedValues({ ...newValues });
+
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+        setShowingTask(null);
+        setAffectedDimensionId(null);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
     };
 
     runAnimation();
-  }, [missedTasks, previousValues]);
+  }, [missedTasks, currentValues]);
 
   const angleStep = (2 * Math.PI) / dimensions.length;
 
   const getPoints = (values: Record<string, number>) => {
     return dimensions.map((dim, i) => {
-      const value = Math.max(0, values[dim.id] || 0); // Ensure non-negative
+      const value = Math.max(0, Math.min(1, values[dim.id] || 0));
       const angle = i * angleStep - Math.PI / 2;
       return {
-        x: center + (Math.cos(angle) * (radius * value)),
-        y: center + (Math.sin(angle) * (radius * value)),
+        x: center + Math.cos(angle) * (radius * value),
+        y: center + Math.sin(angle) * (radius * value),
         label: dim.name,
         color: dim.color,
         angle,
         value,
+        dimension: dim,
       };
     });
   };
@@ -101,164 +101,145 @@ const RadarChart: React.FC<RadarChart> = ({
   };
 
   return (
-    <div className="relative">
+    <div className="relative flex flex-col items-center">
       <svg
         width={size}
         height={size}
         viewBox={`0 0 ${size} ${size}`}
         className="mx-auto"
       >
-        {/* Grid Circles */}
-        {[0.2, 0.4, 0.6, 0.8, 1].map((level, i) => (
+        <defs>
+          <filter id="softGlow">
+            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        {/* Minimal grid circles */}
+        {[0.25, 0.5, 0.75, 1].map((level, i) => (
           <circle
             key={i}
             cx={center}
             cy={center}
             r={radius * level}
             fill="none"
-            stroke="#3c3836"
+            stroke="rgba(255, 255, 255, 0.08)"
             strokeWidth="1"
-            opacity={0.3}
           />
         ))}
 
-        {/* Axis lines */}
-        {dimensions.map((_, i) => {
-          const angle = i * angleStep - Math.PI / 2;
-          return (
-            <line
-              key={i}
-              x1={center}
-              y1={center}
-              x2={center + Math.cos(angle) * radius}
-              y2={center + Math.sin(angle) * radius}
-              stroke="#3c3836"
-              strokeWidth="1"
-              opacity={0.3}
-            />
-          );
-        })}
+        {/* Previous path - subtle ghost */}
+        {missedTasks.length > 0 && (
+          <motion.path
+            d={pathFromPoints(prevPoints)}
+            fill="rgba(255, 255, 255, 0.03)"
+            stroke="rgba(255, 255, 255, 0.15)"
+            strokeWidth={1}
+            strokeDasharray="3,3"
+          />
+        )}
 
-        {/* Previous Path (Ghost/Reference) */}
-        <motion.path
-          d={pathFromPoints(prevPoints)}
-          fill="rgba(235, 219, 178, 0.1)"
-          stroke="rgba(235, 219, 178, 0.3)"
-          strokeWidth={2}
-          strokeDasharray="4,4"
-        />
-
-        {/* Current Animated Path */}
+        {/* Current animated path - the star */}
         <motion.path
           d={pathFromPoints(animatedPoints)}
-          fill="rgba(254, 128, 25, 0.3)"
+          fill="rgba(254, 128, 25, 0.12)"
           stroke="#fe8019"
           strokeWidth={2}
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 0.5 }}
+          filter="url(#softGlow)"
+          animate={{
+            d: pathFromPoints(animatedPoints),
+          }}
+          transition={{
+            duration: 1.2,
+            ease: [0.4, 0, 0.2, 1],
+          }}
         />
 
-        {/* Dimension Labels */}
+        {/* Dimension points */}
+        {animatedPoints.map((point, i) => (
+          <motion.circle
+            key={i}
+            fill="#fe8019"
+            animate={{
+              cx: point.x,
+              cy: point.y,
+            }}
+            transition={{
+              duration: 1.2,
+              ease: [0.4, 0, 0.2, 1],
+            }}
+          />
+        ))}
+
+        {/* Clean dimension labels */}
         {dimensions.map((dim, i) => {
           const angle = i * angleStep - Math.PI / 2;
-          const labelRadius = radius * 1.2;
+          const labelRadius = radius * 1.15;
           const x = center + Math.cos(angle) * labelRadius;
           const y = center + Math.sin(angle) * labelRadius;
-          
+          const isAffected = affectedDimensionId === dim.id;
+
           return (
-            <text
+            <motion.text
               key={dim.id}
               x={x}
               y={y}
               textAnchor="middle"
               dominantBaseline="middle"
               fontSize="11"
-              fill={dim.color}
+              fill={isAffected ? "#ff6b6b" : dim.color}
               className="select-none font-medium"
-              opacity={0.8}
+              animate={{
+                fill: isAffected ? "#ff6b6b" : dim.color,
+                scale: isAffected ? 1.05 : 1,
+              }}
+              transition={{ duration: 0.3 }}
             >
               {dim.name}
-            </text>
+            </motion.text>
           );
         })}
-
-        {/* Animated Points */}
-        {animatedPoints.map((point, i) => (
-          <motion.circle
-            key={i}
-            cx={point.x}
-            cy={point.y}
-            r="3"
-            fill="#fe8019"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: i * 0.1, duration: 0.3 }}
-          />
-        ))}
       </svg>
-
-      {/* Task Animation Overlay */}
       <AnimatePresence>
         {showingTask && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: -20 }}
-            className="absolute inset-0 flex items-center justify-center"
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            className="absolute bottom-0 z-50 border border-white/10 rounded-2xl px-6 py-3 bg-[#1d2021] shadow-lg"
           >
-            <div className="bg-[#1d2021] border-2 border-red-500 rounded-lg px-6 py-4 shadow-2xl max-w-xs text-center">
+            <div className="flex items-center gap-3">
               <motion.div
-                initial={{ x: -10 }}
-                animate={{ x: 0 }}
-                className="flex items-center justify-center gap-3 mb-2"
-              >
-                <div 
-                  className="w-4 h-4 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: showingTask.color }}
-                />
-                <span className="text-lg font-semibold text-red-400">
-                  -{showingTask.points} pts
-                </span>
-              </motion.div>
-              
-              <div className="text-[#ebdbb2] font-medium mb-1">
-                {showingTask.name}
-              </div>
-              
-              <div className="text-[#a89984] text-sm">
-                {showingTask.dimension}
-              </div>
-              
-              <motion.div
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-                className="h-1 bg-red-500 rounded-full mt-3 origin-left"
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: showingTask.color }}
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
               />
+              <span className="text-white/90 font-medium text-sm">
+                {showingTask.name}
+              </span>
+              <span className="text-red-400/90 font-mono text-sm">
+                -{showingTask.points}
+              </span>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Progress Indicator */}
-      {missedTasks.length > 0 && animationPhase === 1 && (
-        <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
-          <div className="flex gap-2">
-            {missedTasks.map((_, index) => (
-              <motion.div
-                key={index}
-                className={`w-2 h-2 rounded-full ${
-                  index <= currentTaskIndex ? 'bg-red-500' : 'bg-[#3c3836]'
-                }`}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: index * 0.1 }}
-              />
-            ))}
-          </div>
+      <div className="mt-8 flex items-center justify-center gap-6 text-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-[#ebdbb2] opacity-40"></div>
+          <span className="text-[#a89984]">Before</span>
         </div>
-      )}
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-[#fe8019]"></div>
+          <span className="text-[#a89984]">After</span>
+        </div>
+      </div>
     </div>
   );
 };

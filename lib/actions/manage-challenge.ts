@@ -2,6 +2,7 @@
 
 import prisma from "@/prisma";
 import { requireAuth } from "@/lib/utils/auth";
+import { revalidatePath } from "next/cache";
 
 export const enrollInExistingChallenge = async (
   challengeId: string,
@@ -75,6 +76,7 @@ export const enrollInExistingChallenge = async (
       skipDuplicates: true,
     });
 
+    revalidatePath("/dashboard");
     return { success: true };
   } catch (error) {
     console.error("Enrollment failed:", error);
@@ -105,7 +107,7 @@ export const createCustomChallenge = async (
     if (!user) {
       throw Error("User not found!");
     }
-    
+
     let existingChallenge;
 
     if (selectedChallengeId) {
@@ -125,13 +127,15 @@ export const createCustomChallenge = async (
           data: {
             name: existingChallenge.name,
             description: existingChallenge.description,
-            duration: duration, 
+            duration: duration,
             icon: existingChallenge.icon,
           },
         });
 
         const selectedTaskIds = existingChallenge.tasks
-          .filter((_, index) => (challengeData.tasks as number[]).includes(index))
+          .filter((_, index) =>
+            (challengeData.tasks as number[]).includes(index)
+          )
           .map((challengeTask) => challengeTask.taskId);
 
         await tx.challengeTask.createMany({
@@ -164,6 +168,7 @@ export const createCustomChallenge = async (
           data: { challengeId: newChallenge.id },
         });
 
+        revalidatePath("/dashboard");
         return { challengeId: newChallenge.id, taskIds: selectedTaskIds };
       });
 
@@ -264,6 +269,7 @@ export const createCustomChallenge = async (
           skipDuplicates: true,
         });
 
+        revalidatePath("/dashboard");
         return { success: true, challengeId: challenge.id };
       });
     }

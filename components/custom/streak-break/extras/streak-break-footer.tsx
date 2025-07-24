@@ -67,11 +67,11 @@ const StreakBreakFooter = ({
               >
                 <RotateCcw className="h-4 w-4" />
               </motion.div>
-              Starting Recovery...
+              Starting...
             </>
           ) : (
             <>
-              Next
+              {step === 3 ? "Start" : "Next"}
               <ChevronRight className="h-4 w-4 ml-2" />
             </>
           )}

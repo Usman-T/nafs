@@ -1,31 +1,31 @@
-<h1 align="center">🕌 Nafs</h1>
+<h1 align="center"> Nafs</h1>
 
 <p align="center"><i>Spiritual Self-Discipline, Engineered for the Muslim Soul.</i></p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/2997b457-d9cb-4265-9f24-c399b06f9840" width="250" />
+  <img src="https://github.com/user-attachments/assets/2997b457-d9cb-4265-9f24-c399b06f9840" width="400" />
 </p>
 
 ---
 
-## 🌱 What is Nafs?
+## What is Nafs?
 
 **Nafs** helps Muslim youth build Islamic discipline through:
 
-- 📆 Task-based challenges with streaks  
-- 📖 Daily Qur’an reflections with audio & tafsir  
-- 📊 Spiritual growth tracking via animated radar charts  
-- 💬 Reflection journals  
-- 📱 Offline-first mobile experience (TWA/PWA)  
+- Task-based challenges with streaks
+- Daily Qur’an reflections with audio & tafsir
+- Spiritual growth tracking via animated radar charts
+- Reflection journals
+- Offline-first mobile experience (TWA/PWA)
 
-Built around the Qur'anic idea of *nafs*, and engineered for modern Muslims.
+Built around the Qur'anic idea of _nafs_, and engineered for modern Muslims.
 
 ---
 
-## 📸 Full UI Showcase
+## Full UI Showcase
 
 <details>
-<summary>🧭 Onboarding Flow</summary>
+<summary>Onboarding Flow</summary>
 <p align="center">
   <img src="https://github.com/user-attachments/assets/fe959822-2c2a-467e-b6a1-b7993eacd32b" width="180"/>
   <img src="https://github.com/user-attachments/assets/f96aed50-1b17-4ebc-b0a3-bfc7957aa3d7" width="180"/>
@@ -37,7 +37,7 @@ Built around the Qur'anic idea of *nafs*, and engineered for modern Muslims.
 </details>
 
 <details>
-<summary>💡 Challenge & Task Engine</summary>
+<summary>Challenge & Task Engine</summary>
 <p align="center">
   <img src="https://github.com/user-attachments/assets/67bb02d9-6d3e-4e91-8bae-2d65e10b5292" width="180"/>
   <img src="https://github.com/user-attachments/assets/541f575e-51c1-4fd4-a1a8-cd8e37aeef8b" width="180"/>
@@ -47,7 +47,7 @@ Built around the Qur'anic idea of *nafs*, and engineered for modern Muslims.
 </details>
 
 <details>
-<summary>📊 Streaks & Radar Progress</summary>
+<summary>Streaks & Radar Progress</summary>
 <p align="center">
   <img src="https://github.com/user-attachments/assets/42e1a75e-c011-435e-b803-6ce7896516da" width="180"/>
   <img src="https://github.com/user-attachments/assets/e365b3e7-ea96-495b-bcfe-e5855134eaa0" width="180"/>
@@ -57,14 +57,14 @@ Built around the Qur'anic idea of *nafs*, and engineered for modern Muslims.
 </details>
 
 <details>
-<summary>📖 Qur’an Viewer</summary>
+<summary>Qur’an Viewer</summary>
 <p align="center">
   <img src="https://github.com/user-attachments/assets/1f2eb0cc-51db-4a73-b692-0a39de3eea4c" width="250"/>
 </p>
 </details>
 
 <details>
-<summary>🔐 Auth Flow</summary>
+<summary>Auth Flow</summary>
 <p align="center">
   <img src="https://github.com/user-attachments/assets/4189fa7d-0896-4786-a4bf-e2293634a27e" width="200"/>
   <img src="https://github.com/user-attachments/assets/1ae617fe-aba9-45a2-ae48-f9ffac57435c" width="200"/>
@@ -73,28 +73,39 @@ Built around the Qur'anic idea of *nafs*, and engineered for modern Muslims.
 
 ---
 
-## ⚙️ Tech Stack
+## Tech Stack
 
-| Layer        | Tools                                                  |
-|--------------|--------------------------------------------------------|
-| Frontend     | Next.js App Router, Tailwind CSS, shadcn/ui            |
-| Backend      | Next.js Server Actions, all logic in `lib/actions.ts`  |
-| Database     | PostgreSQL via Prisma Accelerate                       |
-| Auth         | NextAuth (JWT), middleware-protected routes            |
-| Caching      | Redis (auth/session), LocalStorage (day/task state)    |
-| Deployment   | Vercel                                                 |
-| PWA/TWA      | Bubblewrap + Servist (custom service worker)           |
-| Audio        | Qur’an CDN + `<audio>` fallback                        |
+| Layer      | Tools                                                 |
+| ---------- | ----------------------------------------------------- |
+| Frontend   | Next.js App Router, Tailwind CSS, shadcn/ui           |
+| Backend    | Next.js Server Actions, all logic in `lib/actions.ts` |
+| Database   | PostgreSQL via Prisma Accelerate                      |
+| Auth       | NextAuth (JWT), middleware-protected routes           |
+| Caching    | Redis (auth/session), LocalStorage (day/task state)   |
+| Deployment | Vercel                                                |
+| PWA/TWA    | Bubblewrap + Servist (custom service worker)          |
+| Audio      | Qur’an CDN + `<audio>` fallback                       |
+
+|Language files blank comment code
+|--------------------------------------------------------------------------------|
+|TypeScript 212 2056 127 23447 |
+|Markdown 2 82 0 332 |
+|CSS 2 53 2 200 |
+|JSON 6 0 0 188 |
+|JavaScript 6 6 0 58 |
+|HTML 1 0 0 11 |
+|--------------------------------------------------------------------------------|
+|SUM: 229 2197 129 24236 |
 
 ---
 
-## 🚀 Get Started
+## Get Started
 
 ```bash
 git clone https://github.com/Usman-T/nafs.git
 cd nafs
 docker-compose up --build
-````
+```
 
 Then create your `.env`:
 
@@ -107,7 +118,7 @@ QURAN_API_CLIENT_ID=...
 QURAN_API_CLIENT_SECRET=...
 ```
 
-Install and seed:
+Install and generate :
 
 ```bash
 bun install
@@ -115,38 +126,19 @@ bunx prisma generate
 bunx prisma migrate dev
 ```
 
-Seed data via browser:
+---
 
-```
-/api/seed/dimensions  
-/api/seed/challenges  
-```
+## Architecture
+
+- 🧠 All business logic inside `lib/actions.ts` — composable and clean.
+- 🔐 Secure auth and route-level access via middleware.
+- ⚙️ SSR-first architecture with client islands for animations.
+- 💾 LocalStorage for streak/task memory + Redis for session caching.
+- 📦 TWA-ready with custom service worker and offline fallback.
 
 ---
 
-## 🧱 Architecture
-
-* 🧠 All business logic inside `lib/actions.ts` — composable and clean.
-* 🔐 Secure auth and route-level access via middleware.
-* ⚙️ SSR-first architecture with client islands for animations.
-* 💾 LocalStorage for streak/task memory + Redis for session caching.
-* 📦 TWA-ready with custom service worker and offline fallback.
-
----
-
-## 🛣️ Roadmap
-
-* [x] Challenge/task system with streaks
-* [x] Animated radar chart growth
-* [x] Qur’an explorer + reflections
-* [ ] Audio player polish (ayah/surah queue)
-* [ ] Manifest polish + full offline caching
-* [ ] Google Play billing integration
-* [ ] Contributor docs + public feedback blog
-
----
-
-## 🪪 License
+## License
 
 MIT — free to use, remix, and build with barakah.
 

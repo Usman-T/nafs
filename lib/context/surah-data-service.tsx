@@ -37,7 +37,6 @@ export class SurahDataService {
     if (!base) return null;
 
     const info = await this.getSurahInfo(id);
-    console.log({ info });
 
     return {
       ...base,
@@ -124,7 +123,6 @@ export class SurahDataService {
         },
       });
 
-      console.log({ response: response.data });
 
       const chapter = response.data.chapter_info;
       return {

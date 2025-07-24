@@ -44,7 +44,6 @@ const Challenges = ({
     return <LoadingSkeleton />;
   }
 
-  console.log({ challenge });
   const currentDay = Math.min(
     differenceInDays(new Date(), tasks[0]?.user.lastActiveDate || new Date()) +
       1,

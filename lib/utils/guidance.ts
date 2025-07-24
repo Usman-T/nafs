@@ -27,7 +27,6 @@ export async function fetchRandomVerse() {
 
   try {
     const response = await axios(config);
-    console.log(response.data);
 
     const tafsirResponse = await axios({
       ...config,
@@ -122,7 +121,6 @@ export async function fetchAllSurahs() {
 
   try {
     const response = await axios(config);
-    console.log({ response: response.data.chapters });
     return response.data.chapters;
   } catch (error) {
     console.error("Error fetching all surahs:", error);

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   Calendar,
@@ -5,87 +7,159 @@ import {
   Settings,
   BookOpen,
   Home,
+  User,
+  LogOutIcon,
+  WifiOff,
+  RefreshCw,
 } from "lucide-react";
 import type { Metadata } from "next";
-
 import { cn } from "@/lib/utils/utils";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import Logo from "@/components/custom/logo";
-
-export const metadata: Metadata = {
-  title: "Nafs - Offline",
-  description: "You are currently offline. Some features may not work.",
-};
+import { toast } from "sonner";
+import { useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   { name: "Home", href: "/dashboard", icon: Home },
-  { name: "Calendar", href: "/dashboard/calendar", icon: Calendar },
   { name: "Progress", href: "/dashboard/progress", icon: BarChart3 },
+  { name: "Calendar", href: "/dashboard/calendar", icon: Calendar },
   { name: "Guidance", href: "/dashboard/guidance", icon: BookOpen },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
 export default function OfflinePage() {
-  return (
-    <div className="md:flex bg-[#1d2021] min-h-screen">
-      <div className="sticky top-0 hidden h-screen w-64 flex-col border-r border-[#2e2e2e] bg-[#1d2021] md:flex">
-        <div className="flex h-16 items-center border-b border-[#2e2e2e] px-6">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <Logo className="h-6 w-6 text-[#fe8019]" />
-            <span className="text-xl font-bold text-[#e0e0e0]">Nafs</span>
-          </Link>
-        </div>
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-        <div className="flex-1 overflow-auto p-4">
-          <nav className="flex flex-col gap-2">
-            {navItems.map((item) => (
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      setIsRefreshing(false);
+      window.location.reload();
+    }, 1000);
+  };
+
+  return (
+    <>
+      <header className="justify-between sticky top-0 z-10 flex h-16 items-center border-b border-[#2e2e2e] bg-[#1d2021]/80 px-6 backdrop-blur-md md:px-8 shadow-lg">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <div className="flex-1 flex space-x-2">
+            <span className="text-xl font-bold text-[#e0e0e0]">Offline</span>
+          </div>
+        </Link>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full text-[#c0c0c0] hover:text-[#e0e0e0]"
+            >
+              <User className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            className="bg-[#282828] border-[#2e2e2e] text-[#e0e0e0]"
+          >
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-[#2e2e2e]" />
+            <Link href="/dashboard/settings">
+              <DropdownMenuItem className="hover:bg-[#2e2e2e]">
+                <Settings className="mr-2 h-4 w-4" />
+                Settings
+              </DropdownMenuItem>
+            </Link>
+            <DropdownMenuSeparator className="bg-[#2e2e2e]" />
+            <DropdownMenuItem className="text-red-500 hover:bg-[#2e2e2e] hover:text-red-400">
+              <button
+                onClick={() => toast.error("Internet connection needed")}
+                className="w-full flex items-center text-red-500 hover:bg-dark-bg2 hover:text-red-400 px-2 py-1 text-sm"
+              >
+                <LogOutIcon className="mr-2 h-4 w-4" /> Log out
+              </button>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </header>
+
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#2e2e2e] bg-[#1d2021] shadow-lg md:hidden">
+        <div className="flex items-center justify-between px-2">
+          {navItems.slice(0, 2).map((item) => {
+            const isActive = false;
+            return (
               <Link
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-300 text-[#909090] hover:bg-[#2e2e2e] hover:text-[#fe8019]"
+                  "flex flex-1 flex-col items-center gap-1 p-2 text-xs",
+                  isActive
+                    ? "text-[#fe8019]"
+                    : "text-[#909090] hover:text-[#fe8019]"
                 )}
               >
                 <item.icon className="h-5 w-5" />
                 <span>{item.name}</span>
               </Link>
-            ))}
-          </nav>
-        </div>
+            );
+          })}
 
-        <div className="border-t border-[#2e2e2e] p-4">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-8 w-8 border border-[#2e2e2e]">
-              <AvatarFallback className="bg-[#2e2e2e] text-[#e0e0e0]">U</AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="text-sm font-medium text-[#e0e0e0] truncate max-w-[120px]">
-                Offline User
-              </p>
-              <p className="text-xs text-[#909090] truncate max-w-[120px]">
-                No connection
-              </p>
+          {navItems.slice(2, 4).map((item) => {
+            const isActive = false;
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={cn(
+                  "flex flex-1 flex-col items-center gap-1 p-2 text-xs",
+                  isActive
+                    ? "text-[#fe8019]"
+                    : "text-[#909090] hover:text-[#fe8019]"
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="flex justify-center items-center bg-[#1d2021] h-full">
+        <div className="flex flex-col flex-1">
+          <main className="flex-1 bg-[#1d2021] pb-16 md:pb-0 overflow-auto flex items-center justify-center">
+            <div className="text-center space-y-6 max-w-md mx-auto px-4">
+              <WifiOff className="h-16 w-16 text-[#fe8019] mx-auto opacity-80" />
+              
+              <div className="space-y-3">
+                <h2 className="text-2xl font-semibold text-[#ebdbb2]">
+                  You're offline
+                </h2>
+                <p className="text-[#a89984] text-sm leading-relaxed">
+                  Check your connection and try again. Your progress is saved locally.
+                </p>
+              </div>
+
+              <Button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="bg-[#fe8019] hover:bg-[#d65d0e] text-white px-6 py-2 rounded-lg transition-colors"
+              >
+                <RefreshCw className={cn(
+                  "h-4 w-4 mr-2",
+                  isRefreshing && "animate-spin"
+                )} />
+                {isRefreshing ? "Refreshing..." : "Try again"}
+              </Button>
             </div>
-          </div>
+          </main>
         </div>
       </div>
-
-      <div className="flex flex-col flex-1">
-        <header className="sticky top-0 z-10 flex h-16 items-center border-b border-[#2e2e2e] bg-[#1d2021]/80 px-6 backdrop-blur-md md:px-8 shadow-lg">
-          <div className="flex-1">
-            <h1 className="text-lg font-semibold text-[#e0e0e0]">Offline</h1>
-          </div>
-        </header>
-
-        <main className="flex-1 bg-[#1d2021] pb-16 md:pb-0 overflow-auto flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold text-[#ebdbb2]">You're Offline</h2>
-            <p className="text-[#a89984] text-sm max-w-md mx-auto">
-              Some features may not work while you're disconnected. Reconnect to sync your progress and access full functionality.
-            </p>
-          </div>
-        </main>
-      </div>
-    </div>
+    </>
   );
 }

@@ -24,3 +24,9 @@ export {
   updateUserStreak,
   completeDayAndUpdateStreak,
 } from "@/lib/actions/manage-streak";
+
+
+export { 
+  resetTasks, 
+  dimensionsReset
+} from "@/lib/actions/streak-break"

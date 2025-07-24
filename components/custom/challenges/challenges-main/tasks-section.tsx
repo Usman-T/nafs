@@ -51,7 +51,6 @@ const TasksSection = ({
       isSameDay(new Date(c.completedAt), selectedDate)
     )
   );
-  console.log({ tasks, selectedDateTasks });
 
   const isToday = selectedDate.toDateString() === today.toDateString();
   const allTasksCompleted =

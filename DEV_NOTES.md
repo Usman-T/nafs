@@ -246,3 +246,12 @@ Branching is pretty good like this:
     - Change name
     - Change password
     - 
+
+
+### FINALLY THE STREAK BREAK FLOW IS DONEEEE
+Only one problem left, seriously the last one. You forgor to actually deduct the points from their dimension values birch
+A 10 minute task dont worry about it
+
+## MOBIE ONBOARDING IS NEXT OR THE FUCKING LANDING PAGE?
+I want to work on the landing page its the most fun looking for now but I need to complete the actual app before working on the marketing, reels and everything in between
+Then just basically fake the Audio Player for now where it just takes you to the Surahs Page and you click the headphones and it opens the surah viewer *hehe*

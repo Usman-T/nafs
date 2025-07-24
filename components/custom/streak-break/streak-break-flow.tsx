@@ -16,7 +16,9 @@ import ExitAnimation from "./extras/exit-animation";
 import StreakBreakRestart from "./steps/streak-break-restart/streak-break-restart";
 import {
   createCustomChallenge,
+  dimensionsReset,
   enrollInExistingChallenge,
+  resetTasks,
 } from "@/lib/actions";
 
 type ExtendedChallenge = Challenge & {
@@ -37,6 +39,7 @@ interface StreakBreakFlowProps {
   previousValues: Record<string, number>;
   currentChallenge: ExtendedChallenge;
   userLevel: number;
+  missedDay: number;
 }
 
 interface FlowState {
@@ -55,6 +58,7 @@ interface ChallengeSelection {
     description: string;
     tasks: Array<{ name: string; dimension: Dimension }>;
   };
+  selectedChallenge?: ExtendedChallenge;
 }
 
 export default function StreakBreakFlow({
@@ -65,10 +69,10 @@ export default function StreakBreakFlow({
   previousValues,
   currentChallenge,
   userLevel,
+  missedDay,
 }: StreakBreakFlowProps) {
   const router = useRouter();
 
-  // Flow state
   const [flowState, setFlowState] = useState<FlowState>({
     currentStep: "info",
     isAnimating: false,
@@ -76,13 +80,19 @@ export default function StreakBreakFlow({
     isLoading: false,
   });
 
-  // Challenge selection state
   const [challengeSelection, setChallengeSelection] =
     useState<ChallengeSelection>({
       type: null,
+      challengeId: undefined,
+      selectedTasks: [],
+      customChallenge: {
+        title: "",
+        description: "",
+        tasks: [],
+      },
+      selectedChallenge: undefined,
     });
 
-  // Calculate challenge duration based on user level
   const getDuration = useCallback(() => {
     const durationMap: Record<number, number> = {
       1: 3,
@@ -95,15 +105,6 @@ export default function StreakBreakFlow({
     return durationMap[userLevel + 1] ?? 30;
   }, [userLevel]);
 
-  // Static data (could be moved to props or fetched)
-  const streakData = {
-    missedDay: 4,
-    previousStreak: 12,
-    streakStartDate: "March 15, 2024",
-    totalDaysLost: 12,
-  };
-
-  // Step navigation
   const steps: FlowStep[] = ["info", "visual", "restart", "summary"];
   const currentStepIndex = steps.indexOf(flowState.currentStep);
 
@@ -118,7 +119,6 @@ export default function StreakBreakFlow({
     []
   );
 
-  // Validation logic
   const canProceedFromRestart = useCallback((): boolean => {
     if (!challengeSelection.type) return false;
 
@@ -127,7 +127,8 @@ export default function StreakBreakFlow({
         challengeSelection.challengeId &&
         challengeSelection.selectedTasks &&
         challengeSelection.selectedTasks.length >= 3 &&
-        challengeSelection.selectedTasks.length <= 5
+        challengeSelection.selectedTasks.length <= 5 &&
+        challengeSelection.selectedChallenge
       );
     }
 
@@ -142,10 +143,8 @@ export default function StreakBreakFlow({
     return false;
   }, [challengeSelection]);
 
-  // Challenge handling
-  const handleStartChallenge = useCallback(async (): Promise<boolean> => {
+  const handleComplete = useCallback(async () => {
     updateFlowState({ isLoading: true });
-
     try {
       const duration = getDuration();
 
@@ -161,6 +160,12 @@ export default function StreakBreakFlow({
           false
         );
 
+        const tasksReset = await resetTasks();
+        if (!tasksReset.success) throw new Error("Couldn't start challenge");
+
+        const dimensionsUpdated = await dimensionsReset(missedTasks);
+        if (!dimensionsUpdated.success) throw new Error("Couldn't start challenge");
+
         if (!result.success) {
           throw new Error(result.message || "Failed to enroll in challenge");
         }
@@ -170,6 +175,12 @@ export default function StreakBreakFlow({
       ) {
         const { title, description, tasks } =
           challengeSelection.customChallenge;
+
+        const tasksReset = await resetTasks();
+        if (!tasksReset.success) throw new Error("Couldn't start challenge");
+
+        const dimensionsUpdated = await dimensionsReset(missedTasks);
+        if (!dimensionsUpdated.success) throw new Error("Couldn't start challenge");
 
         const result = await createCustomChallenge(undefined, duration, {
           title,
@@ -190,7 +201,12 @@ export default function StreakBreakFlow({
         throw new Error("Invalid challenge selection");
       }
 
+      localStorage.removeItem("dayCompleted");
+      updateFlowState({ isExiting: true });
       toast.success("Challenge started successfully!");
+      setTimeout(() => {
+        router.push("/dashboard/");
+      }, 2000);
       return true;
     } catch (error) {
       console.error("Challenge start error:", error);
@@ -201,16 +217,8 @@ export default function StreakBreakFlow({
     } finally {
       updateFlowState({ isLoading: false });
     }
-  }, [challengeSelection, getDuration, updateFlowState]);
+  }, [router, updateFlowState, challengeSelection, getDuration]);
 
-  const handleComplete = useCallback(() => {
-    updateFlowState({ isExiting: true });
-    setTimeout(() => {
-      router.push("/dashboard/challenges");
-    }, 2000);
-  }, [router, updateFlowState]);
-
-  // Navigation handlers
   const goToStep = useCallback(
     (step: FlowStep) => {
       if (flowState.isAnimating || flowState.isLoading) return;
@@ -219,7 +227,7 @@ export default function StreakBreakFlow({
 
       setTimeout(() => {
         updateFlowState({ currentStep: step, isAnimating: false });
-      }, 300);
+      }, 800);
     },
     [flowState.isAnimating, flowState.isLoading, updateFlowState]
   );
@@ -228,15 +236,10 @@ export default function StreakBreakFlow({
     const nextIndex = currentStepIndex + 1;
 
     if (flowState.currentStep === "restart") {
-      // Validate challenge selection before proceeding
       if (!canProceedFromRestart()) {
         toast.error("Please complete your challenge selection");
         return;
       }
-
-      // Start the selected challenge
-      const success = await handleStartChallenge();
-      if (!success) return;
     }
 
     if (nextIndex < steps.length) {
@@ -248,7 +251,6 @@ export default function StreakBreakFlow({
     currentStepIndex,
     flowState.currentStep,
     canProceedFromRestart,
-    handleStartChallenge,
     goToStep,
     handleComplete,
     steps,
@@ -259,7 +261,7 @@ export default function StreakBreakFlow({
     if (prevIndex >= 0) {
       goToStep(steps[prevIndex]);
     }
-  }, [currentStepIndex, goToStep, steps]);
+  }, [currentStepIndex, goToStep]);
 
   const canGoNext = useCallback((): boolean => {
     if (flowState.isAnimating || flowState.isLoading) return false;
@@ -282,24 +284,14 @@ export default function StreakBreakFlow({
     canProceedFromRestart,
   ]);
 
-  const canGoBack = useCallback((): boolean => {
-    return (
-      currentStepIndex > 0 && !flowState.isAnimating && !flowState.isLoading
-    );
-  }, [currentStepIndex, flowState.isAnimating, flowState.isLoading]);
-
-  // Render step content
   const renderStepContent = () => {
     switch (flowState.currentStep) {
       case "info":
         return (
           <StreakBreakInfo
-            previousStreak={streakData.previousStreak}
             missedTasks={missedTasks}
-            streakStartDate={streakData.streakStartDate}
-            missedDay={streakData.missedDay}
+            missedDay={missedDay}
             challengeName={currentChallenge.name}
-            totalDaysLost={streakData.totalDaysLost}
           />
         );
 
@@ -329,10 +321,10 @@ export default function StreakBreakFlow({
       case "summary":
         return (
           <StreakBreakSummary
-            customChallenge={challengeSelection.customChallenge || null}
+            challengeSelection={challengeSelection}
+            duration={getDuration()}
           />
         );
-
       default:
         return null;
     }
@@ -341,11 +333,10 @@ export default function StreakBreakFlow({
   return (
     <div className="h-screen w-full bg-gradient-to-br from-[#1d2021] via-[#282828] to-[#1d2021] text-[#ebdbb2] flex flex-col">
       <BackgroundParticles />
-
       <StreakBreakHeader step={currentStepIndex} />
 
-      <div className="flex items-center overflow-y-auto flex-col flex-1">
-        <div className="w-full h-full flex items-center justify-center">
+      <div className="flex-1 overflow-y-auto">
+        <div className="flex max-h-screen items-center justify-center">
           <AnimatePresence mode="wait">
             {!flowState.isExiting && (
               <motion.div
@@ -354,7 +345,7 @@ export default function StreakBreakFlow({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5 }}
-                className="w-full"
+                className="w-full max-w-2xl"
               >
                 {renderStepContent()}
               </motion.div>
@@ -363,13 +354,15 @@ export default function StreakBreakFlow({
         </div>
       </div>
 
-      <StreakBreakFooter
-        step={currentStepIndex}
-        isExiting={flowState.isExiting}
-        handleNext={goNext}
-        handleBack={goBack}
-        canGoNext={canGoNext}
-      />
+      <div className="shrink-0">
+        <StreakBreakFooter
+          step={currentStepIndex}
+          isExiting={flowState.isExiting}
+          handleNext={goNext}
+          handleBack={goBack}
+          canGoNext={canGoNext}
+        />
+      </div>
 
       <ExitAnimation isExiting={flowState.isExiting} />
     </div>

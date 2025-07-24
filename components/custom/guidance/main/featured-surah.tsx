@@ -15,7 +15,7 @@ const FeaturedSurahsSection = ({ surahs }) => {
   const { ref } = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (
-    <Card className="bg-[#282828] border-[#3c3836] rounded-2xl shadow-md">
+    <Card className="bg-[#282828] border-[#3c3836] rounded-2xl">
       <CardContent className="">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold text-[#ebdbb2] flex items-center">
@@ -73,7 +73,7 @@ const FeaturedSurahsSection = ({ surahs }) => {
               </div>
             ))
           ) : (
-            <div className="flex flex-col items-center justify-center text-center rounded-2xl mb-4 shadow-inner">
+            <div className="flex flex-col items-center justify-center text-center rounded-2xl mb-4">
               <div className="bg-[#3c3836] p-3 rounded-full mb-3">
                 {" "}
                 <BookDashed className="h-6 w-6 text-[#fe8019]" />{" "}

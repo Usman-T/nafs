@@ -1,25 +1,36 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 const BackgroundParticles = () => {
+  const [particles, setParticles] = useState([]);
+
+  useEffect(() => {
+    const newParticles = Array.from({ length: 50 }).map(() => {
+      return {
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        dx: Math.random() * window.innerWidth,
+        dy: Math.random() * window.innerHeight,
+        duration: Math.random() * 20 + 10,
+      };
+    });
+
+    setParticles(newParticles);
+  }, []);
+
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {Array.from({ length: 50 }).map((_, i) => (
+      {particles.map((p, i) => (
         <motion.div
           key={i}
           className="absolute w-1 h-1 bg-[#fe8019] rounded-full opacity-20"
-          initial={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-          }}
-          animate={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-          }}
+          initial={{ x: p.x, y: p.y }}
+          animate={{ x: p.dx, y: p.dy }}
           transition={{
-            duration: Math.random() * 20 + 10,
-            repeat: Number.POSITIVE_INFINITY,
+            duration: p.duration,
+            repeat: Infinity,
             ease: "linear",
           }}
         />
