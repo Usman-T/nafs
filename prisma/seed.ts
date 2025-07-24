@@ -17,6 +17,13 @@ const main = async () => {
     prisma.task.deleteMany(),
     prisma.challenge.deleteMany(),
     prisma.dimension.deleteMany(),
+    prisma.user.deleteMany(),
+    prisma.account.deleteMany(),
+    prisma.session.deleteMany(),
+    prisma.dimensionValue.deleteMany(),
+    prisma.completedTask.deleteMany(),
+    prisma.savedAyah.deleteMany(),
+    prisma.reflection.deleteMany(),
   ]);
 
   const dimensionEntries = [

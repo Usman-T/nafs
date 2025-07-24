@@ -48,7 +48,7 @@ interface FlowState {
 }
 
 interface ChallengeSelection {
-  type: "existing" | "custom" | "continue" | null;
+  type: "existing" | "custom" | null;
   challengeId?: string;
   selectedTasks?: number[];
   customChallenge?: {
@@ -56,6 +56,7 @@ interface ChallengeSelection {
     description: string;
     tasks: Array<{ name: string; dimension: Dimension }>;
   };
+  selectedChallenge?: ExtendedChallenge;
 }
 
 export default function StreakBreakFlow({
@@ -70,7 +71,6 @@ export default function StreakBreakFlow({
 }: StreakBreakFlowProps) {
   const router = useRouter();
 
-  // Flow state
   const [flowState, setFlowState] = useState<FlowState>({
     currentStep: "info",
     isAnimating: false,
@@ -88,7 +88,9 @@ export default function StreakBreakFlow({
         description: "",
         tasks: [],
       },
+      selectedChallenge: undefined,
     });
+
   const getDuration = useCallback(() => {
     const durationMap: Record<number, number> = {
       1: 3,
@@ -101,12 +103,6 @@ export default function StreakBreakFlow({
     return durationMap[userLevel + 1] ?? 30;
   }, [userLevel]);
 
-  const streakData = {
-    missedDay: 4,
-    streakStartDate: "March 15, 2024",
-  };
-
-  // Step navigation
   const steps: FlowStep[] = ["info", "visual", "restart", "summary"];
   const currentStepIndex = steps.indexOf(flowState.currentStep);
 
@@ -124,16 +120,13 @@ export default function StreakBreakFlow({
   const canProceedFromRestart = useCallback((): boolean => {
     if (!challengeSelection.type) return false;
 
-    if (challengeSelection.type === "continue") {
-      return !!(currentChallenge.id && currentChallenge.tasks);
-    }
-
     if (challengeSelection.type === "existing") {
       return !!(
         challengeSelection.challengeId &&
         challengeSelection.selectedTasks &&
         challengeSelection.selectedTasks.length >= 3 &&
-        challengeSelection.selectedTasks.length <= 5
+        challengeSelection.selectedTasks.length <= 5 &&
+        challengeSelection.selectedChallenge
       );
     }
 
@@ -158,12 +151,6 @@ export default function StreakBreakFlow({
         challengeSelection.challengeId &&
         challengeSelection.selectedTasks
       ) {
-        // const result = await enrollInExistingChallenge(
-        //   challengeSelection.challengeId,
-        //   challengeSelection.selectedTasks,
-        //   duration,
-        //   false
-        // );
         const result = { success: true };
         toast.error("STARTING EXISTING CHALLENGE");
 
@@ -177,15 +164,6 @@ export default function StreakBreakFlow({
         const { title, description, tasks } =
           challengeSelection.customChallenge;
 
-        // const result = await createCustomChallenge(undefined, duration, {
-        //   title,
-        //   description,
-        //   tasks: tasks.map((t) => ({
-        //     name: t.name,
-        //     dimensionId: t.dimension.id,
-        //   })),
-        //   nextDay: false,
-        // });
         const result = { success: "Yep" };
         toast.error("STARTING CUSTOM CHALLENGE");
 
@@ -194,12 +172,6 @@ export default function StreakBreakFlow({
             result.message || "Failed to create custom challenge"
           );
         }
-      } else if (
-        challengeSelection.type === "continue" &&
-        currentChallenge.tasks &&
-        currentChallenge.id
-      ) {
-        toast.success("This should work boisss");
       } else {
         throw new Error("Invalid challenge selection");
       }
@@ -221,7 +193,7 @@ export default function StreakBreakFlow({
     } finally {
       updateFlowState({ isLoading: false });
     }
-  }, [router, updateFlowState]);
+  }, [router, updateFlowState, challengeSelection, getDuration]);
 
   const goToStep = useCallback(
     (step: FlowStep) => {
@@ -265,7 +237,7 @@ export default function StreakBreakFlow({
     if (prevIndex >= 0) {
       goToStep(steps[prevIndex]);
     }
-  }, [currentStepIndex, goToStep, steps]);
+  }, [currentStepIndex, goToStep]);
 
   const canGoNext = useCallback((): boolean => {
     if (flowState.isAnimating || flowState.isLoading) return false;
@@ -326,7 +298,6 @@ export default function StreakBreakFlow({
         return (
           <StreakBreakSummary
             challengeSelection={challengeSelection}
-            currentChallenge={currentChallenge}
             duration={getDuration()}
           />
         );

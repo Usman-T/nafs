@@ -15,30 +15,33 @@ interface CustomChallengeData {
   tasks: CustomTask[];
 }
 
-interface ChallengeSelection {
-  type: "existing" | "custom" | "continue" | null;
-  challengeId?: string;
-  selectedTasks?: number[];
-  customChallenge?: CustomChallengeData;
-}
-
-type ExtendedChallenge = Challenge & {
+interface ExtendedChallenge {
+  id: string;
+  name: string;
+  description: string;
+  duration: number;
   tasks: {
     task: Task & {
       dimension: Dimension;
     };
   }[];
-};
+}
+
+interface ChallengeSelection {
+  type: "existing" | "custom" | null;
+  challengeId?: string;
+  selectedTasks?: number[];
+  customChallenge?: CustomChallengeData;
+  selectedChallenge?: ExtendedChallenge;
+}
 
 interface StreakBreakSummaryProps {
   challengeSelection: ChallengeSelection;
-  curretnChallenge?: ExtendedChallenge | null;
   duration: number;
 }
 
 const StreakBreakSummary = ({
   challengeSelection,
-  currentChallenge,
   duration,
 }: StreakBreakSummaryProps) => {
   const isCustom = challengeSelection.type === "custom";
@@ -50,25 +53,21 @@ const StreakBreakSummary = ({
           challengeSelection.customChallenge?.description ||
           "Your personalized challenge",
         tasks: challengeSelection.customChallenge?.tasks || [],
-        duration: duration,
-      }
-    : challengeSelection.type === "continue"
-    ? {
-        title: currentChallenge?.name || "Challenge",
-        description: currentChallenge?.description || "Selected challenge",
-        tasks:
-          challengeSelection.selectedTasks
-            ?.map((index) => currentChallenge?.tasks[index]?.task)
-            .filter(Boolean) || [],
-        duration: duration,
+        duration,
       }
     : {
-        title: challengeSelection.customChallenge?.title || "Custom Challenge",
+        title:
+          challengeSelection.selectedChallenge?.name || "Selected Challenge",
         description:
-          challengeSelection.customChallenge?.description ||
-          "Your personalized challenge",
-        tasks: challengeSelection.customChallenge?.tasks || [],
-        duration: duration,
+          challengeSelection.selectedChallenge?.description ||
+          "Your selected challenge",
+        tasks:
+          challengeSelection.selectedChallenge?.tasks.map((t) => ({
+            name: t.task.name,
+            dimension: t.task.dimension,
+          })) || [],
+        duration:
+          challengeSelection.selectedChallenge?.duration || duration,
       };
 
   return (
@@ -113,26 +112,15 @@ const StreakBreakSummary = ({
         </div>
 
         <div className="space-y-2">
-          {isCustom
-            ? // Render custom tasks
-              challengeData.tasks.map((task, i) => (
-                <div key={i} className="flex items-center">
-                  <div
-                    className="h-4 w-4 rounded-full mr-2 flex-shrink-0"
-                    style={{ backgroundColor: task.dimension.color }}
-                  />
-                  <span className="text-sm text-[#ebdbb2]">{task.name}</span>
-                </div>
-              ))
-            : challengeData.tasks.map((task, i) => (
-                <div key={i} className="flex items-center">
-                  <div
-                    className="h-4 w-4 rounded-full mr-2 flex-shrink-0"
-                    style={{ backgroundColor: task.dimension.color }}
-                  />
-                  <span className="text-sm text-[#ebdbb2]">{task.name}</span>
-                </div>
-              ))}
+          {challengeData.tasks.map((task, i) => (
+            <div key={i} className="flex items-center">
+              <div
+                className="h-4 w-4 rounded-full mr-2 flex-shrink-0"
+                style={{ backgroundColor: task.dimension.color }}
+              />
+              <span className="text-sm text-[#ebdbb2]">{task.name}</span>
+            </div>
+          ))}
         </div>
       </div>
 

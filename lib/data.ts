@@ -49,7 +49,7 @@ export const fetchDailyTasks = async () => {
               dimension: true,
             },
           },
-          completions: true,
+          completedTasks: true,
           user: {
             include: {
               currentChallenge: true,
@@ -266,6 +266,7 @@ export const loadStreakBreakPageData = async () => {
               dimension: true,
             },
           },
+          // Use completions as shown in your user log
           completions: true,
         },
       },
@@ -295,57 +296,97 @@ export const loadStreakBreakPageData = async () => {
   });
 
   if (!user?.currentChallenge) redirect("/onboarding");
+  
+  console.log(user);
 
+  // Fetch additional data
   const challenges = await fetchChallenges();
   const spiritualDimensions = await fetchDimensions();
   const userLevel = await fetchUserLevel();
 
+  // Find the current challenge from user's challenges
   const currentChallenge = user.challenges.find(
     (userChallenge) => userChallenge.challengeId === user.challengeId
   );
 
-  const groupedByDate = user.dailyTasks.reduce((acc, task) => {
-    const day = startOfDay(task.date).toISOString();
-    acc[day] = acc[day] || [];
-    acc[day].push(task);
-    return acc;
-  }, {} as Record<string, typeof user.dailyTasks>);
-
-  const missedDates = Object.entries(groupedByDate).filter(([_date, tasks]) => {
-    return tasks.some(
-      (task) =>
-        task.completions.length === 0 ||
-        task.completions.every(
-          (c) => !isSameDay(new Date(c.completedAt), task.date)
-        )
-    );
-  });
-
-  if (missedDates.length === 0) {
+  if (!currentChallenge) {
     return {
       missedTasks: [],
       challenges,
       spiritualDimensions,
       currentValues: {},
       previousValues: {},
-      currentChallenge: currentChallenge?.challenge || null,
+      currentChallenge: null,
       userLevel,
       missedDay: null,
     };
   }
 
+  // Group daily tasks by date
+  const groupedByDate = user.dailyTasks.reduce((acc, task) => {
+    const day = startOfDay(new Date(task.date)).toISOString();
+    acc[day] = acc[day] || [];
+    acc[day].push(task);
+    return acc;
+  }, {} as Record<string, typeof user.dailyTasks>);
+
+  // Find dates with missed tasks (only check tasks that are due - today or in the past)
+  const today = new Date();
+  const missedDates = Object.entries(groupedByDate).filter(([dateStr, tasks]) => {
+    const taskDate = new Date(dateStr);
+    
+    // Only check tasks that are due (today or in the past)
+    if (taskDate > today) return false;
+    
+    return tasks.some((task) => {
+      // Check completions as in your user log
+      return (
+        task.completions.length === 0 ||
+        task.completions.every((completion) => 
+          !isSameDay(new Date(completion.completedAt), taskDate)
+        )
+      );
+    });
+  });
+
+  // If no missed dates, return empty state
+  if (missedDates.length === 0) {
+    return {
+      missedTasks: [],
+      challenges,
+      spiritualDimensions,
+      currentValues: user.dimensionValues.reduce((acc, dv) => {
+        acc[dv.dimension.id] = dv.value / 100;
+        return acc;
+      }, {} as Record<string, number>),
+      previousValues: user.dimensionValues.reduce((acc, dv) => {
+        acc[dv.dimension.id] = dv.value / 100;
+        return acc;
+      }, {} as Record<string, number>),
+      currentChallenge: currentChallenge.challenge,
+      userLevel,
+      missedDay: null,
+    };
+  }
+
+  // Find the most recent missed date
   const [mostRecentMissedDate, missedTasksArray] = missedDates.sort(
     ([a], [b]) => new Date(b).getTime() - new Date(a).getTime()
   )[0];
 
+  const missedDay = new Date(mostRecentMissedDate);
+
+  // Get the specific missed tasks from the most recent missed date
   const missedTasks = missedTasksArray
-    .filter(
-      (task) =>
+    .filter((task) => {
+      // Check completions as in your user log
+      return (
         task.completions.length === 0 ||
-        task.completions.every(
-          (c) => !isSameDay(new Date(c.completedAt), task.date)
+        task.completions.every((completion) => 
+          !isSameDay(new Date(completion.completedAt), missedDay)
         )
-    )
+      );
+    })
     .map((task) => ({
       id: task.id,
       name: task.task.name,
@@ -356,29 +397,30 @@ export const loadStreakBreakPageData = async () => {
       points: task.task.points,
     }));
 
-  const previousValues: Record<string, number> = user.dimensionValues.reduce(
-    (acc, dv) => {
-      acc[dv.dimension.id] = dv.value / 100;
-      return acc;
-    },
-    {}
-  );
+  // Calculate previous dimension values (before penalty)
+  const previousValues = user.dimensionValues.reduce((acc, dv) => {
+    acc[dv.dimension.id] = dv.value / 100;
+    return acc;
+  }, {} as Record<string, number>);
 
+  // Calculate current values (after penalty for missed tasks)
   const currentValues = { ...previousValues };
-
   for (const missed of missedTasks) {
     if (currentValues[missed.dimensionId] !== undefined) {
-      currentValues[missed.dimensionId] -= missed.points / 100;
+      // Apply penalty - subtract points and ensure it doesn't go below 0
+      currentValues[missed.dimensionId] = Math.max(
+        0, 
+        currentValues[missed.dimensionId] - (missed.points / 100)
+      );
     }
   }
 
-  const missedDay = Math.max(
+  // Calculate which day of the challenge was missed
+  const challengeStartDate = new Date(currentChallenge.startDate);
+  const missedDayNumber = Math.max(
     1,
     Math.ceil(
-      (new Date(mostRecentMissedDate).getTime() -
-        new Date(currentChallenge?.startDate ?? Date.now()).getTime()) /
-        (1000 * 60 * 60 * 24) +
-        1
+      (missedDay.getTime() - challengeStartDate.getTime()) / (1000 * 60 * 60 * 24) + 1
     )
   );
 
@@ -388,9 +430,9 @@ export const loadStreakBreakPageData = async () => {
     spiritualDimensions,
     currentValues,
     previousValues,
-    currentChallenge: currentChallenge?.challenge || null,
+    currentChallenge: currentChallenge.challenge,
     userLevel,
-    missedDay,
+    missedDay: missedDayNumber,
   };
 };
 

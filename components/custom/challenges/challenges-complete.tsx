@@ -73,7 +73,6 @@ const ChallengesComplete = ({ task }: ChallengesCompleteProps) => {
       const result = await completeTaskAction(task.id);
 
       if (!result.success) {
-        toast.info("Task already completed");
         return router.push("/dashboard");
       }
 

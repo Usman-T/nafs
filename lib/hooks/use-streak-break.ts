@@ -24,10 +24,11 @@ interface CustomChallengeData {
 }
 
 interface ChallengeSelection {
-  type: "existing" | "custom" | "continue" | null;
+  type: "existing" | "custom" | null;
   challengeId?: string;
   selectedTasks?: number[];
   customChallenge?: CustomChallengeData;
+  selectedChallenge?: ExtendedChallenge;
 }
 
 interface UseStreakBreakRestartProps {
@@ -45,12 +46,10 @@ export const useStreakBreakRestart = ({
   challengeSelection,
   onUpdateSelection,
 }: UseStreakBreakRestartProps) => {
-  // UI State
   const [flowBranch, setFlowBranch] = useState<FlowBranchType>("choose");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedChallenge, setSelectedChallenge] =
     useState<ExtendedChallenge | null>(null);
-
   const [carouselApi, setCarouselApi] = useState<any>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -69,7 +68,6 @@ export const useStreakBreakRestart = ({
     }
   }, [customChallenge, challengeSelection.type, onUpdateSelection]);
 
-  // Handle carousel API
   useEffect(() => {
     if (!carouselApi) return;
 
@@ -81,7 +79,6 @@ export const useStreakBreakRestart = ({
     return () => carouselApi.off("select", handleSelect);
   }, [carouselApi]);
 
-  // Load challenge details when ID is selected
   const loadChallengeDetails = useCallback(
     async (challengeId: string) => {
       setIsLoading(true);
@@ -97,6 +94,7 @@ export const useStreakBreakRestart = ({
           type: "existing",
           challengeId: challengeId,
           selectedTasks: [],
+          selectedChallenge: data.challenge,
         });
       } catch (error) {
         console.error("Error loading challenge:", error);
@@ -108,7 +106,6 @@ export const useStreakBreakRestart = ({
     [onUpdateSelection]
   );
 
-  // Navigation handlers
   const goToChoose = useCallback(() => {
     setFlowBranch("choose");
     setSelectedChallenge(null);
@@ -127,18 +124,13 @@ export const useStreakBreakRestart = ({
     });
   }, [customChallenge, onUpdateSelection]);
 
-  // Challenge action handlers
   const handleContinueCurrentChallenge = useCallback(() => {
     const currentTasks = currentChallenge.tasks.map((_, index) => index);
-    console.log("CONTINUE selected:", {
-      id: currentChallenge.id,
-      selectedTasks: currentChallenge.tasks.map((_, i) => i),
-    });
-
     onUpdateSelection({
-      type: "continue",
+      type: "existing",
       challengeId: currentChallenge.id,
       selectedTasks: currentTasks,
+      selectedChallenge: currentChallenge,
     });
   }, [currentChallenge, onUpdateSelection]);
 
@@ -149,7 +141,6 @@ export const useStreakBreakRestart = ({
     [loadChallengeDetails]
   );
 
-  // Task selection handlers
   const handleToggleTask = useCallback(
     (taskIndex: number) => {
       const currentTasks = challengeSelection.selectedTasks || [];
@@ -157,7 +148,6 @@ export const useStreakBreakRestart = ({
         ? currentTasks.filter((index) => index !== taskIndex)
         : [...currentTasks, taskIndex];
 
-      // Enforce 3-5 task limit
       if (newTasks.length <= 5) {
         onUpdateSelection({
           selectedTasks: newTasks,
@@ -169,7 +159,6 @@ export const useStreakBreakRestart = ({
     [challengeSelection.selectedTasks, onUpdateSelection]
   );
 
-  // Custom challenge handlers
   const handleAddCustomTask = useCallback(
     (task: CustomTask) => {
       if (customChallenge.tasks.length >= 5) {
@@ -199,7 +188,6 @@ export const useStreakBreakRestart = ({
     []
   );
 
-  // Validation
   const canProceed = useCallback((): boolean => {
     if (challengeSelection.type === "existing") {
       const tasks = challengeSelection.selectedTasks || [];
@@ -214,12 +202,10 @@ export const useStreakBreakRestart = ({
     return false;
   }, [challengeSelection]);
 
-  // Computed values
   const completedTasks = currentChallenge.tasks.filter((t) => t.task);
   const selectedTasks = challengeSelection.selectedTasks || [];
 
   return {
-    // State
     flowBranch,
     isLoading,
     selectedChallenge,
@@ -227,17 +213,14 @@ export const useStreakBreakRestart = ({
     completedTasks,
     selectedTasks,
 
-    // Carousel
     carouselApi,
     currentSlide,
     setCarouselApi,
 
-    // Navigation
     goToChoose,
     goToPredefined,
     goToCustom,
 
-    // Actions
     handleContinueCurrentChallenge,
     handleSelectPredefinedChallenge,
     handleToggleTask,
@@ -245,7 +228,6 @@ export const useStreakBreakRestart = ({
     handleRemoveCustomTask,
     handleUpdateCustomChallenge,
 
-    // Validation
     canProceed,
   };
 };
