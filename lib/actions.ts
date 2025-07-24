@@ -23,4 +23,5 @@ export {
   checkUserStreak,
   updateUserStreak,
   completeDayAndUpdateStreak,
+  resetTasks
 } from "@/lib/actions/manage-streak";

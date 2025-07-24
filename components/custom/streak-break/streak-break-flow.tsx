@@ -17,6 +17,7 @@ import StreakBreakRestart from "./steps/streak-break-restart/streak-break-restar
 import {
   createCustomChallenge,
   enrollInExistingChallenge,
+  resetTasks,
 } from "@/lib/actions";
 
 type ExtendedChallenge = Challenge & {
@@ -141,7 +142,7 @@ export default function StreakBreakFlow({
     return false;
   }, [challengeSelection]);
 
-  const handleComplete = useCallback(() => {
+  const handleComplete = useCallback(async () => {
     updateFlowState({ isLoading: true });
     try {
       const duration = getDuration();
@@ -151,8 +152,15 @@ export default function StreakBreakFlow({
         challengeSelection.challengeId &&
         challengeSelection.selectedTasks
       ) {
-        const result = { success: true };
-        toast.error("STARTING EXISTING CHALLENGE");
+        const result = await enrollInExistingChallenge(
+          challengeSelection.challengeId,
+          challengeSelection.selectedTasks,
+          duration,
+          false
+        );
+
+        const tasksReset = await resetTasks();
+        if (!tasksReset.success) throw new Error("Couldn't start challenge");
 
         if (!result.success) {
           throw new Error(result.message || "Failed to enroll in challenge");
@@ -164,8 +172,18 @@ export default function StreakBreakFlow({
         const { title, description, tasks } =
           challengeSelection.customChallenge;
 
-        const result = { success: "Yep" };
-        toast.error("STARTING CUSTOM CHALLENGE");
+        const tasksReset = await resetTasks();
+        if (!tasksReset.success) throw new Error("Couldn't start challenge");
+
+        const result = await createCustomChallenge(undefined, duration, {
+          title,
+          description,
+          tasks: tasks.map((t) => ({
+            name: t.name,
+            dimensionId: t.dimension.id,
+          })),
+          nextDay: false,
+        });
 
         if (!result.success) {
           throw new Error(
@@ -176,6 +194,7 @@ export default function StreakBreakFlow({
         throw new Error("Invalid challenge selection");
       }
 
+      localStorage.removeItem("dayCompleted");
       updateFlowState({ isExiting: true });
       toast.success("Challenge started successfully!");
       setTimeout(() => {
@@ -184,8 +203,6 @@ export default function StreakBreakFlow({
       return true;
     } catch (error) {
       console.error("Challenge start error:", error);
-      toast.error("FUCKKKK");
-      console.log({ challengeSelection });
       toast.error(
         error instanceof Error ? error.message : "Failed to start challenge"
       );

@@ -49,7 +49,7 @@ export const fetchDailyTasks = async () => {
               dimension: true,
             },
           },
-          completedTasks: true,
+          completions: true,
           user: {
             include: {
               currentChallenge: true,
@@ -296,15 +296,11 @@ export const loadStreakBreakPageData = async () => {
   });
 
   if (!user?.currentChallenge) redirect("/onboarding");
-  
-  console.log(user);
 
-  // Fetch additional data
   const challenges = await fetchChallenges();
   const spiritualDimensions = await fetchDimensions();
   const userLevel = await fetchUserLevel();
 
-  // Find the current challenge from user's challenges
   const currentChallenge = user.challenges.find(
     (userChallenge) => userChallenge.challengeId === user.challengeId
   );
@@ -332,22 +328,25 @@ export const loadStreakBreakPageData = async () => {
 
   // Find dates with missed tasks (only check tasks that are due - today or in the past)
   const today = new Date();
-  const missedDates = Object.entries(groupedByDate).filter(([dateStr, tasks]) => {
-    const taskDate = new Date(dateStr);
-    
-    // Only check tasks that are due (today or in the past)
-    if (taskDate > today) return false;
-    
-    return tasks.some((task) => {
-      // Check completions as in your user log
-      return (
-        task.completions.length === 0 ||
-        task.completions.every((completion) => 
-          !isSameDay(new Date(completion.completedAt), taskDate)
-        )
-      );
-    });
-  });
+  const missedDates = Object.entries(groupedByDate).filter(
+    ([dateStr, tasks]) => {
+      const taskDate = new Date(dateStr);
+
+      // Only check tasks that are due (today or in the past)
+      if (taskDate > today) return false;
+
+      return tasks.some((task) => {
+        // Check completions as in your user log
+        return (
+          task.completions.length === 0 ||
+          task.completions.every(
+            (completion) =>
+              !isSameDay(new Date(completion.completedAt), taskDate)
+          )
+        );
+      });
+    }
+  );
 
   // If no missed dates, return empty state
   if (missedDates.length === 0) {
@@ -382,8 +381,9 @@ export const loadStreakBreakPageData = async () => {
       // Check completions as in your user log
       return (
         task.completions.length === 0 ||
-        task.completions.every((completion) => 
-          !isSameDay(new Date(completion.completedAt), missedDay)
+        task.completions.every(
+          (completion) =>
+            !isSameDay(new Date(completion.completedAt), missedDay)
         )
       );
     })
@@ -409,8 +409,8 @@ export const loadStreakBreakPageData = async () => {
     if (currentValues[missed.dimensionId] !== undefined) {
       // Apply penalty - subtract points and ensure it doesn't go below 0
       currentValues[missed.dimensionId] = Math.max(
-        0, 
-        currentValues[missed.dimensionId] - (missed.points / 100)
+        0,
+        currentValues[missed.dimensionId] - missed.points / 100
       );
     }
   }
@@ -420,7 +420,9 @@ export const loadStreakBreakPageData = async () => {
   const missedDayNumber = Math.max(
     1,
     Math.ceil(
-      (missedDay.getTime() - challengeStartDate.getTime()) / (1000 * 60 * 60 * 24) + 1
+      (missedDay.getTime() - challengeStartDate.getTime()) /
+        (1000 * 60 * 60 * 24) +
+        1
     )
   );
 
