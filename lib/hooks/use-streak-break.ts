@@ -51,24 +51,23 @@ export const useStreakBreakRestart = ({
   const [selectedChallenge, setSelectedChallenge] =
     useState<ExtendedChallenge | null>(null);
 
-  // Carousel state
   const [carouselApi, setCarouselApi] = useState<any>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Initialize custom challenge data
   const [customChallenge, setCustomChallenge] = useState<CustomChallengeData>({
     title: "Custom Challenge",
     description: `Your personalized ${duration} day challenge`,
     tasks: [],
   });
 
-  // Update parent when custom challenge changes
   useEffect(() => {
-    onUpdateSelection({
-      type: "custom",
-      customChallenge: customChallenge,
-    });
-  }, [customChallenge, onUpdateSelection]);
+    if (challengeSelection.type === "custom") {
+      onUpdateSelection({
+        type: "custom",
+        customChallenge: customChallenge,
+      });
+    }
+  }, [customChallenge, challengeSelection.type, onUpdateSelection]);
 
   // Handle carousel API
   useEffect(() => {
@@ -131,6 +130,11 @@ export const useStreakBreakRestart = ({
   // Challenge action handlers
   const handleContinueCurrentChallenge = useCallback(() => {
     const currentTasks = currentChallenge.tasks.map((_, index) => index);
+    console.log("CONTINUE selected:", {
+      id: currentChallenge.id,
+      selectedTasks: currentChallenge.tasks.map((_, i) => i),
+    });
+
     onUpdateSelection({
       type: "continue",
       challengeId: currentChallenge.id,

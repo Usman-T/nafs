@@ -78,12 +78,17 @@ export default function StreakBreakFlow({
     isLoading: false,
   });
 
-  // Challenge selection state
   const [challengeSelection, setChallengeSelection] =
     useState<ChallengeSelection>({
       type: null,
+      challengeId: undefined,
+      selectedTasks: [],
+      customChallenge: {
+        title: "",
+        description: "",
+        tasks: [],
+      },
     });
-
   const getDuration = useCallback(() => {
     const durationMap: Record<number, number> = {
       1: 3,
@@ -207,6 +212,8 @@ export default function StreakBreakFlow({
       return true;
     } catch (error) {
       console.error("Challenge start error:", error);
+      toast.error("FUCKKKK");
+      console.log({ challengeSelection });
       toast.error(
         error instanceof Error ? error.message : "Failed to start challenge"
       );
@@ -334,11 +341,7 @@ export default function StreakBreakFlow({
       <StreakBreakHeader step={currentStepIndex} />
 
       <div className="flex-1 overflow-y-auto">
-        <div
-          className={`flex ${
-            currentStepIndex !== 1 ? "items-center justify-center h-full" : ""
-          }`}
-        >
+        <div className="flex max-h-screen items-center justify-center">
           <AnimatePresence mode="wait">
             {!flowState.isExiting && (
               <motion.div

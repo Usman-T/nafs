@@ -52,13 +52,22 @@ const StreakBreakSummary = ({
         tasks: challengeSelection.customChallenge?.tasks || [],
         duration: duration,
       }
-    : {
+    : challengeSelection.type === "continue"
+    ? {
         title: currentChallenge?.name || "Challenge",
         description: currentChallenge?.description || "Selected challenge",
         tasks:
           challengeSelection.selectedTasks
             ?.map((index) => currentChallenge?.tasks[index]?.task)
             .filter(Boolean) || [],
+        duration: duration,
+      }
+    : {
+        title: challengeSelection.customChallenge?.title || "Custom Challenge",
+        description:
+          challengeSelection.customChallenge?.description ||
+          "Your personalized challenge",
+        tasks: challengeSelection.customChallenge?.tasks || [],
         duration: duration,
       };
 

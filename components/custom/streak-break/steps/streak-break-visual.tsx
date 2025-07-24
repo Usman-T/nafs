@@ -48,7 +48,7 @@ const StreakBreakVisual = ({
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2, duration: 0.6 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
             className="mt-8 bg-[#1d2021] border border-[#3c3836] rounded-lg p-4"
           >
             <h4 className="text-lg font-semibold text-[#ebdbb2] mb-3 text-center">
@@ -62,7 +62,7 @@ const StreakBreakVisual = ({
                     key={task.id}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 2.2 + index * 0.1, duration: 0.4 }}
+                    transition={{ delay: 1.2 + index * 0.1, duration: 0.4 }}
                     className="flex items-center justify-between py-2 px-3 bg-[#282828] rounded"
                   >
                     <div className="flex items-center gap-3">
