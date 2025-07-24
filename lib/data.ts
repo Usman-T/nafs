@@ -266,7 +266,6 @@ export const loadStreakBreakPageData = async () => {
               dimension: true,
             },
           },
-          // Use completions as shown in your user log
           completions: true,
         },
       },
@@ -318,7 +317,6 @@ export const loadStreakBreakPageData = async () => {
     };
   }
 
-  // Group daily tasks by date
   const groupedByDate = user.dailyTasks.reduce((acc, task) => {
     const day = startOfDay(new Date(task.date)).toISOString();
     acc[day] = acc[day] || [];
@@ -326,17 +324,14 @@ export const loadStreakBreakPageData = async () => {
     return acc;
   }, {} as Record<string, typeof user.dailyTasks>);
 
-  // Find dates with missed tasks (only check tasks that are due - today or in the past)
   const today = new Date();
   const missedDates = Object.entries(groupedByDate).filter(
     ([dateStr, tasks]) => {
       const taskDate = new Date(dateStr);
 
-      // Only check tasks that are due (today or in the past)
       if (taskDate > today) return false;
 
       return tasks.some((task) => {
-        // Check completions as in your user log
         return (
           task.completions.length === 0 ||
           task.completions.every(
@@ -348,7 +343,6 @@ export const loadStreakBreakPageData = async () => {
     }
   );
 
-  // If no missed dates, return empty state
   if (missedDates.length === 0) {
     return {
       missedTasks: [],
@@ -368,17 +362,14 @@ export const loadStreakBreakPageData = async () => {
     };
   }
 
-  // Find the most recent missed date
   const [mostRecentMissedDate, missedTasksArray] = missedDates.sort(
     ([a], [b]) => new Date(b).getTime() - new Date(a).getTime()
   )[0];
 
   const missedDay = new Date(mostRecentMissedDate);
 
-  // Get the specific missed tasks from the most recent missed date
   const missedTasks = missedTasksArray
     .filter((task) => {
-      // Check completions as in your user log
       return (
         task.completions.length === 0 ||
         task.completions.every(
@@ -397,17 +388,14 @@ export const loadStreakBreakPageData = async () => {
       points: task.task.points,
     }));
 
-  // Calculate previous dimension values (before penalty)
   const previousValues = user.dimensionValues.reduce((acc, dv) => {
     acc[dv.dimension.id] = dv.value / 100;
     return acc;
   }, {} as Record<string, number>);
 
-  // Calculate current values (after penalty for missed tasks)
   const currentValues = { ...previousValues };
   for (const missed of missedTasks) {
     if (currentValues[missed.dimensionId] !== undefined) {
-      // Apply penalty - subtract points and ensure it doesn't go below 0
       currentValues[missed.dimensionId] = Math.max(
         0,
         currentValues[missed.dimensionId] - missed.points / 100
@@ -415,7 +403,6 @@ export const loadStreakBreakPageData = async () => {
     }
   }
 
-  // Calculate which day of the challenge was missed
   const challengeStartDate = new Date(currentChallenge.startDate);
   const missedDayNumber = Math.max(
     1,
