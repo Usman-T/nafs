@@ -1,3 +1,5 @@
+"use server"
+
 import prisma from "@/prisma";
 import { requireAuth } from "@/lib/utils/auth";
 import { startOfDay } from "date-fns";

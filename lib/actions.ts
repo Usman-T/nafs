@@ -1,5 +1,3 @@
-"use server"
-
 // auth stuff
 export {
   createUser,
