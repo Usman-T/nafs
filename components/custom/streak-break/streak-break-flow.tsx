@@ -331,11 +331,14 @@ export default function StreakBreakFlow({
   return (
     <div className="h-screen w-full bg-gradient-to-br from-[#1d2021] via-[#282828] to-[#1d2021] text-[#ebdbb2] flex flex-col">
       <BackgroundParticles />
-
       <StreakBreakHeader step={currentStepIndex} />
 
-      <div className="flex items-center overflow-y-auto flex-col flex-1">
-        <div className="flex items-center justify-center">
+      <div className="flex-1 overflow-y-auto">
+        <div
+          className={`flex ${
+            currentStepIndex !== 1 ? "items-center justify-center h-full" : ""
+          }`}
+        >
           <AnimatePresence mode="wait">
             {!flowState.isExiting && (
               <motion.div
@@ -344,7 +347,7 @@ export default function StreakBreakFlow({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5 }}
-                className="w-full"
+                className="w-full max-w-2xl"
               >
                 {renderStepContent()}
               </motion.div>
@@ -353,13 +356,15 @@ export default function StreakBreakFlow({
         </div>
       </div>
 
-      <StreakBreakFooter
-        step={currentStepIndex}
-        isExiting={flowState.isExiting}
-        handleNext={goNext}
-        handleBack={goBack}
-        canGoNext={canGoNext}
-      />
+      <div className="shrink-0">
+        <StreakBreakFooter
+          step={currentStepIndex}
+          isExiting={flowState.isExiting}
+          handleNext={goNext}
+          handleBack={goBack}
+          canGoNext={canGoNext}
+        />
+      </div>
 
       <ExitAnimation isExiting={flowState.isExiting} />
     </div>

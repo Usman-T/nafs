@@ -253,7 +253,7 @@ export const loadChallengesPageData = async () => {
 
 export const loadStreakBreakPageData = async () => {
   const session = await auth();
-  if (!session?.user) throw new Error("Not authenticated");
+  if (!session?.user) return redirect("/onboarding");
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email ?? undefined },

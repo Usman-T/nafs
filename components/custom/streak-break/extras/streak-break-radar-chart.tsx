@@ -206,20 +206,17 @@ const RadarChart: React.FC<RadarChart> = ({
       <AnimatePresence>
         {showingTask && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.9 }}
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.9 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            className="absolute -top-20 z-50 border border-white/10 rounded-2xl px-6 py-3 bg-[#1d2021] shadow-lg"
-            style={{}}
+            className="absolute bottom-0 z-50 border border-white/10 rounded-2xl px-6 py-3 bg-[#1d2021] shadow-lg"
           >
             <div className="flex items-center gap-3">
               <motion.div
                 className="w-2 h-2 rounded-full"
                 style={{ backgroundColor: showingTask.color }}
-                animate={{
-                  scale: [1, 1.2, 1],
-                }}
+                animate={{ scale: [1, 1.2, 1] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
               />
               <span className="text-white/90 font-medium text-sm">
@@ -232,6 +229,17 @@ const RadarChart: React.FC<RadarChart> = ({
           </motion.div>
         )}
       </AnimatePresence>
+
+      <div className="mt-8 flex items-center justify-center gap-6 text-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-[#ebdbb2] opacity-40"></div>
+          <span className="text-[#a89984]">Before</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-[#fe8019]"></div>
+          <span className="text-[#a89984]">After</span>
+        </div>
+      </div>
     </div>
   );
 };
