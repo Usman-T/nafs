@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronLeft, Sparkles } from "lucide-react";
+import {  Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/utils";
 import Logo from "../logo";
