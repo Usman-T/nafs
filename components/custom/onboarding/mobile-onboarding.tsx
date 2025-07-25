@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import {  Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Logo from "../logo";
 import InteractiveCalendarDemo from "./mobile-onboarding/interactive-calendar-demo";
