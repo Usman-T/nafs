@@ -51,7 +51,7 @@ const features = [
     description: "Listen to beautiful Quran recitations",
     icon: Headphones,
     color: "#8ec07c",
-    route: "/dashboard/guidance/audio/1",
+    route: "/dashboard/guidance/surah",
     stats: "12.5 hours listened",
     badge: "New",
   },
