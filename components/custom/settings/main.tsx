@@ -1,9 +1,11 @@
 "use client";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSession } from "next-auth/react";
 import GeneralSettingsTab from "./general-tab";
 import AccountSettingsTab from "./account-tab";
 import PrivacySettingsTab from "./privacy-tab";
+import LoadingSettings from "./settings-loading";
 
 const tabs = [
   {
@@ -21,6 +23,12 @@ const tabs = [
 ];
 
 const SettingsMain = () => {
+  const { status } = useSession();
+
+  if (status === "loading") {
+    return <LoadingSettings />; 
+  }
+
   return (
     <Tabs defaultValue="general" className="w-full">
       <TabsList className="bg-[#1d2021] border border-[#3c3836] mb-4">
@@ -36,9 +44,7 @@ const SettingsMain = () => {
       </TabsList>
 
       <GeneralSettingsTab />
-
       <AccountSettingsTab />
-
       <PrivacySettingsTab />
     </Tabs>
   );

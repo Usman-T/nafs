@@ -16,7 +16,6 @@ export {
 // task and day system
 export { completeTask } from "@/lib/actions/complete-task";
 export { initializeDayTasks } from "@/lib/actions/init-day-tasks";
-export { createExtraTask } from "@/lib/actions/add-extra-task";
 
 // helper streak functions
 export {

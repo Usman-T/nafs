@@ -13,8 +13,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TabsContent } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 const AccountSettingsTab = () => {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
+
+  const updatePrivacySettings = () => {
+    toast.promise(new Promise((resolve) => setTimeout(resolve, 2000)), {
+      loading: "Saving...",
+      success: <b>Settings saved!</b>,
+    });
+  };
+
   return (
     <TabsContent value="account">
       <motion.div
@@ -38,17 +58,17 @@ const AccountSettingsTab = () => {
                   </Label>
                   <Input
                     id="account-email"
-                    defaultValue="abdullah@example.com"
+                    defaultValue={session?.user?.email}
                     className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2]"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="account-username" className="text-[#a89984]">
-                    Username
+                    Name
                   </Label>
                   <Input
                     id="account-username"
-                    defaultValue="abdullah_ahmed"
+                    defaultValue={session?.user?.name}
                     className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2]"
                   />
                 </div>
@@ -136,40 +156,14 @@ const AccountSettingsTab = () => {
                     Disconnect
                   </Button>
                 </div>
-
-                <div className="flex items-center justify-between p-3 rounded-md bg-[#1d2021] border border-[#3c3836]">
-                  <div className="flex items-center">
-                    <div className="h-8 w-8 rounded-full bg-[#3c3836] flex items-center justify-center mr-3">
-                      <svg
-                        className="h-4 w-4 text-[#1877F2]"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
-                        />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="text-[#ebdbb2]">Facebook</div>
-                      <div className="text-xs text-[#a89984]">
-                        Not connected
-                      </div>
-                    </div>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-[#3c3836] text-[#a89984] hover:bg-[#3c3836] hover:text-[#ebdbb2]"
-                  >
-                    Connect
-                  </Button>
-                </div>
               </div>
             </div>
           </CardContent>
           <CardFooter className="border-t border-[#3c3836] pt-4 flex justify-end">
-            <Button className="bg-[#fe8019] hover:bg-[#d65d0e] text-[#1d2021]">
+            <Button
+              onClick={() => updatePrivacySettings()}
+              className="bg-[#fe8019] hover:bg-[#d65d0e] text-[#1d2021]"
+            >
               Save Changes
             </Button>
           </CardFooter>

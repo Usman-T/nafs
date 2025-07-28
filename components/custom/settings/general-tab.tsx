@@ -20,8 +20,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Moon, Globe, Clock, Languages } from "lucide-react";
+import { toast } from "sonner";
 
 const GeneralSettingsTab = () => {
+  const updateGeneralSettings = () => {
+    toast.promise(new Promise((resolve) => setTimeout(resolve, 2000)), {
+      loading: "Saving...",
+      success: <b>Settings saved!</b>,
+    });
+  };
+
   return (
     <TabsContent value="general">
       <motion.div
@@ -41,9 +49,11 @@ const GeneralSettingsTab = () => {
                     <Moon className="h-5 w-5 text-[#fe8019]" />
                   </div>
                   <div>
-                    <div className="text-[#ebdbb2] font-medium">Reduce Animations</div>
+                    <div className="text-[#ebdbb2] font-medium">
+                      Reduce Animations
+                    </div>
                     <div className="text-sm text-[#a89984]">
-                        Minimize animations throughout the app
+                      Minimize animations throughout the app
                     </div>
                   </div>
                 </div>
@@ -149,7 +159,10 @@ const GeneralSettingsTab = () => {
             </div>
           </CardContent>
           <CardFooter className="border-t border-[#3c3836] pt-4 flex justify-end">
-            <Button className="bg-[#fe8019] hover:bg-[#d65d0e] text-[#1d2021]">
+            <Button
+              onClick={() => updateGeneralSettings()}
+              className="bg-[#fe8019] hover:bg-[#d65d0e] text-[#1d2021]"
+            >
               Save Changes
             </Button>
           </CardFooter>
