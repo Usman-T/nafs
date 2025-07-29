@@ -29,6 +29,7 @@ import { reflectAyah, saveAyah } from "@/lib/actions/manage-guidance";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { P } from "pino";
 
 type WordByWord = {
   arabic: string;
@@ -128,23 +129,35 @@ const AyahContent = ({ verse, ayahId }: AyahContentProps) => {
   };
 
   const handleBookmark = async () => {
+    if (isBookmarked) {
+      toast.info("Already saved");
+      return;
+    }
+
+    if (!session?.user?.email) {
+      toast.error("Not logged in");
+      return;
+    }
+
     try {
-      if (!isBookmarked) {
-        await saveAyah(
-          verse.reference,
-          verse.arabic,
-          verse.translation,
-          verse.surahId.toString(),
-          session?.user?.email || ""
-        );
-        toast.success("Saved to your Ayahs");
-      } else {
-        toast.info("Already saved");
-      }
-      setIsBookmarked((prev) => !prev);
+      toast.promise(
+        () =>
+          saveAyah(
+            verse.reference,
+            verse.arabic,
+            verse.translation,
+            verse.surahId.toString(),
+            session?.user?.email || ""
+          ),
+        {
+          loading: "Saving...",
+          success: "Saved to your Ayahs",
+          error: "Failed to save Ayah",
+        }
+      );
+      setIsBookmarked(true);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to save ayah");
     }
   };
 
@@ -155,14 +168,21 @@ const AyahContent = ({ verse, ayahId }: AyahContentProps) => {
         return;
       }
 
-      await reflectAyah(
-        reflection.trim(),
-        verse.reference,
-        verse.arabic,
-        session?.user?.email || ""
+      toast.promise(
+        () =>
+          reflectAyah(
+            reflection.trim(),
+            verse.reference,
+            verse.arabic,
+            session?.user?.email || ""
+          ),
+        {
+          loading: "Saving reflection...",
+          success: "Reflection saved",
+          error: "Failed to save reflection",
+        }
       );
 
-      toast.success("Reflection saved");
       setReflection("");
     } catch (err) {
       console.error(err);
