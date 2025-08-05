@@ -1,4 +1,4 @@
-import ChallengeCompletionFlow from "@/components/custom/challenges/challenge-completion-flow";
+import ChallengeCompletionFlow from "@/components/custom/challenges/completion/challenge/challenge-completion-flow";
 import {
   fetchChallenges,
   fetchDailyTasks,
