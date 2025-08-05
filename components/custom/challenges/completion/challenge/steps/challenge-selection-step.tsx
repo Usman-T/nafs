@@ -59,7 +59,7 @@ export const ChallengeSelectionStep: React.FC<ChallengeSelectionStepProps> = ({
           className="w-full"
           opts={{
             align: "start",
-            dragFree: false,
+            dragFree: true,
             loop: false,
             slidesToScroll: 1,
           }}

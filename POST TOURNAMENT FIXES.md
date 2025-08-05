@@ -18,4 +18,5 @@ At the end of each day, I will write in this very Document the problems that I f
 - Having `toast promises` instead of `clear toasts` would make give it a much more polished look (ok I made that work now)
 - Search of guidance page is broken
 - Can't listen to surahs
-- When enrolling a challenge, custom challenge form must be more prominent and would have a Dropdown Based Task Selector (would make it much nicer to get an idea)
+- When enrolling a challenge, custom challenge form must be more prominent and would have a Dropdown Based Task Selector (would make it much nicer to get an idea from pre-existing tasks)
+- 

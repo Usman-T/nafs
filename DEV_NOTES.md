@@ -99,56 +99,60 @@ AHHHHHHHHHHHHHHHHHHHHH
 - Streaks are now checked once a day when the user visits /challenges
 
 ## Complete Day for Streaks:
+
 You can only do complete day once in a day, and it will set a localStorage item witht he current date, the button and task completions will be disabled. A new confirmation screen will be shown before the user completes the day to ensure good work of it
 
 ## Complete a Challenge
+
 If current streak === challenge duration, nahhh
-If completions are all in consecutive *duration* days then we say challenge completed enroll in new one
+If completions are all in consecutive _duration_ days then we say challenge completed enroll in new one
 
 Nice the UI is made, we just gotta fix up all the steps. We do that one step at a time
 Like dont just go ahead and fix every fucking error in there, wire up each and every step one by one
 
 ## TODOs:
-  ### feat: Guidance Page:
+
+### feat: Guidance Page:
+
     - Fetch random ayah from Quran API and display on home screen (done)
     - Make daily ayah show up properly (done)
     - Add tafsir section to it (done)
     - Update database to create the following options for users:
- - Reflections
-       - Recent Surahs (3) + Progression
-       - Reading streak
-    - View all Chapter (surahs) page to read (done)
-    - View all Chapter (surahs) page to listen (done)
-    - Specific Surah page (read):
-      - Make Drawer trigger in the header (done)
-      - Show info regarding the surah in (i) icon 
-      - Fetch and map Verses on the page and (x) option
-      - Create an action to create reflection of specific ayah with reference to user
-      - Create action to save ayahId with reference to the user 
-    - Fetch all reflections of user and display on /refs
-    - Fetch all saved of user and display on /saved
-    - Create specific ayah page by fetching a single ayah
-    - IF REFLECTION ALREADY EXISTS, SHOW (SHOW REFLECTION) button instead of creating one
-    - Audio page pointed to by the /audio will now fetch the surah info and show it for now
-    - Hook up the Quran API CDN with it and use an <audio> tag
-    - Then add audio suport for specific ayah page
-    - Similarly use the CDN to make them work on the specific surah page
-    - Create the command pallete search function which points to surahs and ayahs
-    - Map the results of query properly
-  
-  ### fix: Bugs to be Fixed
+
+- Reflections - Recent Surahs (3) + Progression - Reading streak
+  - View all Chapter (surahs) page to read (done)
+  - View all Chapter (surahs) page to listen (done)
+  - Specific Surah page (read):
+    - Make Drawer trigger in the header (done)
+    - Show info regarding the surah in (i) icon
+    - Fetch and map Verses on the page and (x) option
+    - Create an action to create reflection of specific ayah with reference to user
+    - Create action to save ayahId with reference to the user
+  - Fetch all reflections of user and display on /refs
+  - Fetch all saved of user and display on /saved
+  - Create specific ayah page by fetching a single ayah
+  - IF REFLECTION ALREADY EXISTS, SHOW (SHOW REFLECTION) button instead of creating one
+  - Audio page pointed to by the /audio will now fetch the surah info and show it for now
+  - Hook up the Quran API CDN with it and use an <audio> tag
+  - Then add audio suport for specific ayah page
+  - Similarly use the CDN to make them work on the specific surah page
+  - Create the command pallete search function which points to surahs and ayahs
+  - Map the results of query properly
+
+### fix: Bugs to be Fixed
+
     - Mobile users can pinch zoom (fixed)
     - Remove Header and Footer on search and guidance pages (fixed)
     - Onboarding shows up everytime the user opens app then redirects (fixed)
     - Better offline page support
 
-
 ## FIXES BEFORE SHIPPING
-- Make the onboarding flow full screened and fix all steps 
+
+- Make the onboarding flow full screened and fix all steps
   - Use a drawer for add tasks
   - A carousel for the challenge selection
-  - Duration selection in  a mid step (based on user level)
-- Add *optional tasks of the day* (worth 2 points instead of 1) at the end of onboaridng
+  - Duration selection in a mid step (based on user level)
+- Add _optional tasks of the day_ (worth 2 points instead of 1) at the end of onboaridng
   (not a modal)
   - Database chars for optional task
   - Show the optional task of the day modal at the start of each day
@@ -159,6 +163,7 @@ Like dont just go ahead and fix every fucking error in there, wire up each and e
 - Enroll in new challenge after completing one
 
 ## TODAY WE SHIP
+
 - Challenge completetin flow
   - whats missing
     - Duration setting (Done)
@@ -173,7 +178,7 @@ Like dont just go ahead and fix every fucking error in there, wire up each and e
     - Reset the current position in the progression system
     - Work of around 1 hour
   - Optional tasks
-    - When running init day tasks, check for optional tasks if they exist 
+    - When running init day tasks, check for optional tasks if they exist
     - Optional task pop up opens up, if not no UI update to the dash otherwise show one below all
     - Complete optional task gives 2 points
     - Should take you 1 30 minutes, one podomoro session
@@ -184,6 +189,7 @@ Like dont just go ahead and fix every fucking error in there, wire up each and e
     - If you loose a challenge, the current one is reset
     - Must take around like 2 hours
   - Guidance system
+
     - Just render the reading streak
     - Render the saved ayahs
     - Create a simple db WRITE to save an ayah
@@ -199,7 +205,7 @@ Like dont just go ahead and fix every fucking error in there, wire up each and e
       - Hook up the surah info modal - 5 minutes
       - Add just audio at the bottom of the page - whole audio no per ayah scroll complexity - 15 minutes
       - Button per ayah to listen to it seperately - 10 minutes
-      - Click on each word for the translation (kinda complex but we can figure it out, maybe mapping each word into an invisible div rendered same as a <p> on click shows a popover)  - 15 minutes
+      - Click on each word for the translation (kinda complex but we can figure it out, maybe mapping each word into an invisible div rendered same as a <p> on click shows a popover) - 15 minutes
       - WE CAN ADD DIFFERENT TRANSLATIONS SELECTION AND DIFFERENT TASFASIR FETCHING BUT MAYBE THATS OVERKILL
     - Onboarding
       - Finally fix the actual app onboarding where the <audio> doesnt work - 10 minutes
@@ -209,11 +215,11 @@ Like dont just go ahead and fix every fucking error in there, wire up each and e
       - Static offline page for when cache is not available - 5 minutes (just the dashboard layout without the content)
       - BACK TO ALL DIMENSIONS button very infuriating when seeing own progress (restyle or better to remove)
       - Toast notifs dont match the theme and are just default shadcn ones
-    
+
     I THINK THAT IS ENOUGH TO SHIP HAHAHAHAHAAHHAHAHAH
-    
 
 ## Streak Breaking
+
 - Step 1: Streak Break + Countdown Animation + Left Tasks Summary
 - Step 2: Radar chart showing decrease in left point
 - Step 3: Enroll same challenge + Start new one -> End if same
@@ -225,33 +231,31 @@ Like dont just go ahead and fix every fucking error in there, wire up each and e
 
 Change of plans, only 4 steps, there is branching on the 3rd step otherwise you go straight to the summary page
 Branching is pretty good like this:
- - Select the current -> Go to summary
- - Selct new -> See pre defs and custom
-    - Select a pre def -> select tasks
-    - Select a custom -> create tasks
-      - Then Go to summary
+
+- Select the current -> Go to summary
+- Selct new -> See pre defs and custom
+  - Select a pre def -> select tasks
+  - Select a custom -> create tasks
+    - Then Go to summary
 
 ## Next features:
-  - Fix the progress page (like responsiveness ig) --- done
-  - Create the level page, just visuals and simple data hooking --- skip
-  - For the gudance page, just make two 0's render and im happy --- done
-    - Then for it, write 2 functions nothing more for saving refs and ayahs 
-    - Then just write data.ts 2 funcs to fetch and rende rthose
-    - Hook those funcs to their corresponding buttons and we're good to go
-    - Fetch specific ayah audio and play it with the Data Service
-    - Fetch full surah audio and play it with the Data Service
-    - Fix the scrolling in surah page
-  - Implement the streak break (MOST IMPORTANT)
-  - Settings
-    - Change name
-    - Change password
-    - 
 
+- Fix the progress page (like responsiveness ig) --- done
+- Create the level page, just visuals and simple data hooking --- skip
+- For the gudance page, just make two 0's render and im happy --- done
+  - Then for it, write 2 functions nothing more for saving refs and ayahs
+  - Then just write data.ts 2 funcs to fetch and rende rthose
+  - Hook those funcs to their corresponding buttons and we're good to go
+  - Fetch specific ayah audio and play it with the Data Service
+  - Fetch full surah audio and play it with the Data Service
+  - Fix the scrolling in surah page
+- Implement the streak break (MOST IMPORTANT)
+- Settings
+  - Change name
+  - Change password
 
-### FINALLY THE STREAK BREAK FLOW IS DONEEEE
-Only one problem left, seriously the last one. You forgor to actually deduct the points from their dimension values birch
-A 10 minute task dont worry about it
-
-## MOBIE ONBOARDING IS NEXT OR THE FUCKING LANDING PAGE?
-I want to work on the landing page its the most fun looking for now but I need to complete the actual app before working on the marketing, reels and everything in between
-Then just basically fake the Audio Player for now where it just takes you to the Surahs Page and you click the headphones and it opens the surah viewer *hehe*
+## What we are doing today:
+- Streak break redirection logic will work perfectly
+- Update the Custom Task Form
+- Work on the Mobile Onboarding (finish it)
+- Make the General and Account Pages in settings

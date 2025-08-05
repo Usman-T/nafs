@@ -2,8 +2,8 @@ import prisma from "@/prisma";
 import { auth } from "@/auth";
 import { isSameDay, startOfDay, subDays } from "date-fns";
 import { initializeDayTasks } from "./actions";
-import { Prisma, Reflection, SavedAyah, User } from "@prisma/client";
-import { redirect, RedirectType } from "next/navigation";
+import { Prisma, Reflection, SavedAyah } from "@prisma/client";
+import { redirect } from "next/navigation";
 
 export const getUsers = async () => {
   try {
