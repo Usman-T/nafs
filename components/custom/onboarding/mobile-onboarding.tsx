@@ -17,6 +17,7 @@ import { StreakAnimation } from "./mobile-onboarding/streak-animation";
 import { OnboardingProgress } from "./mobile-onboarding/onboading-progress";
 import { SpiritualRadar } from "./mobile-onboarding/spiritual-radar";
 import Logo from "../logo";
+import Link from "next/link";
 
 const onboardingSteps = [
   {
@@ -47,20 +48,23 @@ const onboardingSteps = [
   },
   {
     icon: (
-      <div className="text-center space-y-4 sm:space-y-6">
-        <Moon className="w-12 h-12 sm:w-16 sm:h-16 text-[#fe8019] mx-auto" />
+      <div className="text-center items-center justify-center flex  flex-col space-y-8">
+        <AnimatedLogo />
         <div className="space-y-2">
           <h3 className="text-xl sm:text-2xl font-bold text-[#ebdbb2]">
             Begin Your Journey
           </h3>
           <p className="text-[#ebdbb2]/70 text-sm sm:text-base">
-            Start your path to spiritual excellence
+            Join thousands of muslims on a journey of spiritual growth and
+            self-improvement.
           </p>
         </div>
-        <Button className="bg-[#fe8019] hover:bg-[#d79921] text-[#1d2021] px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold text-base sm:text-lg shadow-lg shadow-[#fe8019]/25 flex items-center gap-2">
-          Start Journey
-          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-        </Button>
+        <Link href="/register" className="mt- w-full">
+          <Button className="bg-[#fe8019] hover:bg-[#d79921] text-[#1d2021] px-6 sm:px-8 py-2 sm:py-3 text-base items-center gap-2">
+            Register Now
+            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          </Button>
+        </Link>
       </div>
     ),
     title: "",

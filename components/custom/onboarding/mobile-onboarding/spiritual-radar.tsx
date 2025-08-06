@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { motion } from "framer-motion"
-import { iconMap } from "@/lib/iconMap"
-import { X } from "lucide-react"
+import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { iconMap } from "@/lib/iconMap";
+import { X } from "lucide-react";
 
 const dimensions = [
   {
@@ -11,85 +11,90 @@ const dimensions = [
     description: "Learning for the soul through Quran and Sunnah",
     color: "#FFD300",
     icon: "BookOpen",
-    value: 0.85,
+    value: 0.78,
   },
   {
     name: "Body",
     description: "The amana of your health and physical well-being",
     color: "#00BFFF",
     icon: "Dumbbell",
-    value: 0.72,
+    value: 0.62,
   },
   {
     name: "Purpose",
     description: "Ambition for the akhira and worldly success",
     color: "#B026FF",
     icon: "Target",
-    value: 0.68,
+    value: 0.52,
   },
   {
     name: "Faith",
     description: "Iman in practice and spiritual connection",
     color: "#00FFFF",
     icon: "Sparkles",
-    value: 0.91,
+    value: 0.82,
   },
   {
     name: "Character",
     description: "The Sunnah in action and noble conduct",
     color: "#39FF14",
     icon: "HeartHandshake",
-    value: 0.79,
+    value: 0.68,
   },
   {
     name: "Discipline",
     description: "Mastering the self and building consistency",
     color: "#FF073A",
     icon: "AlarmClock",
-    value: 0.64,
+    value: 0.49,
   },
   {
     name: "Remembrance",
     description: "Inner connection to Allah through dhikr",
     color: "#FF6EC7",
     icon: "Brain",
-    value: 0.88,
+    value: 0.75,
   },
-]
+];
 
 interface CustomRadarChartProps {
-  isActive?: boolean
+  isActive?: boolean;
 }
 
 export function SpiritualRadar({ isActive = false }: CustomRadarChartProps) {
-  const [selectedDimension, setSelectedDimension] = useState<string | null>(null)
-  const [hasInteracted, setHasInteracted] = useState(false)
-  const [animationComplete, setAnimationComplete] = useState(false)
-  const hasBeenActiveRef = useRef(false)
-  const size = 280
-  const center = size / 2
-  const radius = size * 0.35
+  const [selectedDimension, setSelectedDimension] = useState<string | null>(
+    null
+  );
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [animationComplete, setAnimationComplete] = useState(false);
+  const hasBeenActiveRef = useRef(false);
+  const size = 280;
+  const center = size / 2;
+  const radius = size * 0.35;
 
   useEffect(() => {
     if (isActive) {
-      setAnimationComplete(false)
-      const isFirstTime = !hasBeenActiveRef.current
-      hasBeenActiveRef.current = true
-      
-      const timer = setTimeout(() => {
-        setAnimationComplete(true)
-      }, isFirstTime ? 2500 : 1200) 
-      
-      return () => clearTimeout(timer)
+      setAnimationComplete(false);
+      const isFirstTime = !hasBeenActiveRef.current;
+      hasBeenActiveRef.current = true;
+
+      const timer = setTimeout(
+        () => {
+          setAnimationComplete(true);
+        },
+        isFirstTime ? 2500 : 1200
+      );
+
+      return () => clearTimeout(timer);
     } else {
-      setAnimationComplete(false)
-      setSelectedDimension(null)
+      setAnimationComplete(false);
+      setSelectedDimension(null);
     }
-  }, [isActive])
+  }, [isActive]);
 
   // Calculate points on the chart
   const points = dimensions.map((dim, i) => {
-    const angle = (Math.PI * 2 * i) / dimensions.length - Math.PI / 2
+    const angle = (Math.PI * 2 * i) / dimensions.length - Math.PI / 2;
     return {
       x: center + radius * Math.cos(angle) * dim.value,
       y: center + radius * Math.sin(angle) * dim.value,
@@ -103,63 +108,72 @@ export function SpiritualRadar({ isActive = false }: CustomRadarChartProps) {
       description: dim.description,
       icon: dim.icon,
       angle,
-    }
-  })
+    };
+  });
 
   const path =
-    points.map((point, i) => (i === 0 ? "M" : "L") + point.x + "," + point.y).join(" ") + "Z"
+    points
+      .map((point, i) => (i === 0 ? "M" : "L") + point.x + "," + point.y)
+      .join(" ") + "Z";
 
   const handleDimensionClick = (dimensionName: string) => {
-    setSelectedDimension(selectedDimension === dimensionName ? null : dimensionName)
+    setSelectedDimension(
+      selectedDimension === dimensionName ? null : dimensionName
+    );
     if (!hasInteracted) {
-      setHasInteracted(true)
+      setHasInteracted(true);
     }
-  }
+  };
 
   const selectedDimensionData = selectedDimension
     ? dimensions.find((d) => d.name === selectedDimension)
-    : null
+    : null;
 
   const selectedPoint = selectedDimension
     ? points.find((p) => p.name === selectedDimension)
-    : null
+    : null;
 
   // Calculate popover position based on selected dimension
   const getPopoverPosition = () => {
-    if (!selectedPoint) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }
-    
-    const xPercent = (selectedPoint.labelX / size) * 100
-    const yPercent = (selectedPoint.labelY / size) * 100
-    
-    let left = `${xPercent}%`
-    let top = `${yPercent}%`
-    let transform = 'translate(-50%, -50%)'
-    
+    if (!selectedPoint)
+      return { top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
+
+    const xPercent = (selectedPoint.labelX / size) * 100;
+    const yPercent = (selectedPoint.labelY / size) * 100;
+
+    let left = `${xPercent}%`;
+    let top = `${yPercent}%`;
+    let transform = "translate(-50%, -50%)";
+
     if (xPercent < 30) {
-      left = `${xPercent + 15}%`
-      transform = 'translate(0, -50%)'
+      left = `${xPercent + 15}%`;
+      transform = "translate(0, -50%)";
     } else if (xPercent > 70) {
-      left = `${xPercent - 15}%`
-      transform = 'translate(-100%, -50%)'
+      left = `${xPercent - 15}%`;
+      transform = "translate(-100%, -50%)";
     }
-    
+
     if (yPercent < 25) {
       // Top - position below
-      top = `${yPercent + 12}%`
-      transform = transform.replace('-50%)', '0)')
+      top = `${yPercent + 12}%`;
+      transform = transform.replace("-50%)", "0)");
     } else if (yPercent > 75) {
       // Bottom - position above
-      top = `${yPercent - 12}%`
-      transform = transform.replace('-50%)', '-100%)')
+      top = `${yPercent - 12}%`;
+      transform = transform.replace("-50%)", "-100%)");
     }
-    
-    return { left, top, transform }
-  }
 
-  const isFirstTime = !hasBeenActiveRef.current || (isActive && !hasBeenActiveRef.current)
+    return { left, top, transform };
+  };
+
+  const isFirstTime =
+    !hasBeenActiveRef.current || (isActive && !hasBeenActiveRef.current);
 
   return (
-    <div className="relative w-full max-w-[280px] mx-auto" style={{ height: '280px' }}>
+    <div
+      className="relative w-full max-w-[280px] mx-auto"
+      style={{ height: "280px" }}
+    >
       {/* Popover */}
       {selectedDimensionData && selectedPoint && (
         <motion.div
@@ -173,10 +187,18 @@ export function SpiritualRadar({ isActive = false }: CustomRadarChartProps) {
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-2 mb-2">
                 {(() => {
-                  const IconComponent = iconMap[selectedDimensionData.icon as keyof typeof iconMap]
-                  return <IconComponent className="w-4 h-4" style={{ color: selectedDimensionData.color }} />
+                  const IconComponent =
+                    iconMap[selectedDimensionData.icon as keyof typeof iconMap];
+                  return (
+                    <IconComponent
+                      className="w-4 h-4"
+                      style={{ color: selectedDimensionData.color }}
+                    />
+                  );
                 })()}
-                <h3 className="text-[#ebdbb2] font-semibold text-sm">{selectedDimensionData.name}</h3>
+                <h3 className="text-[#ebdbb2] font-semibold text-sm">
+                  {selectedDimensionData.name}
+                </h3>
               </div>
               <button
                 onClick={() => setSelectedDimension(null)}
@@ -185,7 +207,9 @@ export function SpiritualRadar({ isActive = false }: CustomRadarChartProps) {
                 <X className="w-3 h-3" />
               </button>
             </div>
-            <p className="text-[#ebdbb2]/80 text-xs leading-relaxed">{selectedDimensionData.description}</p>
+            <p className="text-[#ebdbb2]/80 text-xs leading-relaxed">
+              {selectedDimensionData.description}
+            </p>
             <div className="mt-2 flex items-center gap-2">
               <div className="flex-1 h-1 bg-[#504945] rounded-full overflow-hidden">
                 <div
@@ -204,7 +228,12 @@ export function SpiritualRadar({ isActive = false }: CustomRadarChartProps) {
         </motion.div>
       )}
 
-      <svg width="100%" height="100%" viewBox={`0 0 ${size} ${size}`} className="overflow-visible">
+      <svg
+        width="100%"
+        height="100%"
+        viewBox={`0 0 ${size} ${size}`}
+        className="overflow-visible"
+      >
         {/* Concentric circles - only animate on first time */}
         {[0.2, 0.4, 0.6, 0.8, 1].map((level, i) => (
           <motion.circle
@@ -217,10 +246,12 @@ export function SpiritualRadar({ isActive = false }: CustomRadarChartProps) {
             strokeWidth="1"
             opacity={0.3}
             initial={{ scale: 0, opacity: 0 }}
-            animate={isActive ? { scale: 1, opacity: 0.3 } : { scale: 0, opacity: 0 }}
-            transition={{ 
-              duration: 0.5, 
-              delay: isFirstTime ? i * 0.1 : 0 
+            animate={
+              isActive ? { scale: 1, opacity: 0.3 } : { scale: 0, opacity: 0 }
+            }
+            transition={{
+              duration: 0.5,
+              delay: isFirstTime ? i * 0.1 : 0,
             }}
           />
         ))}
@@ -237,10 +268,14 @@ export function SpiritualRadar({ isActive = false }: CustomRadarChartProps) {
             strokeWidth="1"
             opacity={0.5}
             initial={{ pathLength: 0, opacity: 0 }}
-            animate={isActive ? { pathLength: 1, opacity: 0.5 } : { pathLength: 0, opacity: 0 }}
-            transition={{ 
-              duration: isFirstTime ? 0.6 : 0.3, 
-              delay: isFirstTime ? 0.5 + i * 0.08 : 0 
+            animate={
+              isActive
+                ? { pathLength: 1, opacity: 0.5 }
+                : { pathLength: 0, opacity: 0 }
+            }
+            transition={{
+              duration: isFirstTime ? 0.6 : 0.3,
+              delay: isFirstTime ? 0.5 + i * 0.08 : 0,
             }}
           />
         ))}
@@ -251,22 +286,35 @@ export function SpiritualRadar({ isActive = false }: CustomRadarChartProps) {
           fill="rgba(254, 128, 25, 0.2)"
           stroke="#fe8019"
           strokeWidth="2"
-          initial={isFirstTime ? { pathLength: 0, opacity: 0 } : { scaleY: 0, opacity: 0 }}
-          animate={isActive ? 
-            (isFirstTime ? { pathLength: 1, opacity: 1 } : { scaleY: 1, opacity: 1 }) : 
-            (isFirstTime ? { pathLength: 0, opacity: 0 } : { scaleY: 0, opacity: 0 })
+          initial={
+            isFirstTime
+              ? { pathLength: 0, opacity: 0 }
+              : { scaleY: 0, opacity: 0 }
           }
-          style={!isFirstTime ? { transformOrigin: `${center}px ${center + radius}px` } : {}}
-          transition={{ 
-            duration: isFirstTime ? 1.2 : 0.6, 
-            delay: isFirstTime ? 1.1 : 0.2, 
-            ease: "easeOut" 
+          animate={
+            isActive
+              ? isFirstTime
+                ? { pathLength: 1, opacity: 1 }
+                : { scaleY: 1, opacity: 1 }
+              : isFirstTime
+              ? { pathLength: 0, opacity: 0 }
+              : { scaleY: 0, opacity: 0 }
+          }
+          style={
+            !isFirstTime
+              ? { transformOrigin: `${center}px ${center + radius}px` }
+              : {}
+          }
+          transition={{
+            duration: isFirstTime ? 1.2 : 0.6,
+            delay: isFirstTime ? 1.1 : 0.2,
+            ease: "easeOut",
           }}
         />
 
         {/* Data points - only show orange dot on selected */}
         {points.map((point, i) => {
-          const isSelected = selectedDimension === point.name
+          const isSelected = selectedDimension === point.name;
           return (
             <g key={i}>
               {/* Only show dot if selected */}
@@ -318,12 +366,12 @@ export function SpiritualRadar({ isActive = false }: CustomRadarChartProps) {
                 />
               )}
             </g>
-          )
+          );
         })}
 
         {/* Labels */}
         {points.map((point, i) => {
-          const isSelected = selectedDimension === point.name
+          const isSelected = selectedDimension === point.name;
 
           return (
             <motion.text
@@ -332,7 +380,7 @@ export function SpiritualRadar({ isActive = false }: CustomRadarChartProps) {
               y={point.labelY}
               textAnchor="middle"
               dominantBaseline="middle"
-              fontSize="10"
+              fontSize="14"
               fill={isSelected ? "#ebdbb2" : point.color}
               fontWeight={isSelected ? "bold" : "500"}
               initial={{ opacity: 0, y: 10 }}
@@ -346,15 +394,20 @@ export function SpiritualRadar({ isActive = false }: CustomRadarChartProps) {
             >
               {point.name}
             </motion.text>
-          )
+          );
         })}
       </svg>
 
       {/* Pulsing ring only on Faith dimension - subtle interaction cue */}
       {animationComplete && !hasInteracted && (
-        <svg width="100%" height="100%" viewBox={`0 0 ${size} ${size}`} className="absolute inset-0 overflow-visible pointer-events-none">
+        <svg
+          width="100%"
+          height="100%"
+          viewBox={`0 0 ${size} ${size}`}
+          className="absolute inset-0 overflow-visible pointer-events-none"
+        >
           {points.map((point, i) => {
-            if (point.name !== "Faith") return null
+            if (point.name !== "Faith") return null;
             return (
               <motion.circle
                 key={i}
@@ -370,13 +423,13 @@ export function SpiritualRadar({ isActive = false }: CustomRadarChartProps) {
                 transition={{
                   duration: 2.5,
                   repeat: Number.POSITIVE_INFINITY,
-                  ease: "easeOut"
+                  ease: "easeOut",
                 }}
               />
-            )
+            );
           })}
         </svg>
       )}
     </div>
-  )
+  );
 }
