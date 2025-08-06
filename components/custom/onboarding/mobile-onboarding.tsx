@@ -103,8 +103,7 @@ export default function Component() {
             <CarouselItem key={index} className="h-full">
               <Card className="border-0 bg-transparent shadow-none w-full max-w-md mx-auto h-full">
                 <CardContent
-                  className={`text-center px-4 py-8 w-full h-full flex items-center justify-center flex-col  gap-24
-                  `}
+                  className={`text-center px-4 py-8 w-full h-full flex items-center justify-center flex-col transition-all duration-300 gap-24`}
                 >
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
