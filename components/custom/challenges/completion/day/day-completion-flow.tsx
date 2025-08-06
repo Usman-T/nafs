@@ -5,13 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, ChevronRight, Sparkles } from "lucide-react";
-import Celebration from "./completion/day/celebration";
-import StreakProgression from "./completion/day/streak-progression";
-import TaskImpactVisualization from "./completion/day/task-impact";
-import DimensionDetail from "./completion/day/dimension-detail";
-import RadarChart from "./completion/day/radar-chart";
-import AnimatedCounter from "./completion/day/animated-counter";
-import Particle from "./completion/day/particle";
+import Celebration from "./celebration";
+import DimensionDetail from "./dimension-detail";
+import Particle from "./particle";
+import StreakProgression from "./streak-progression";
+import TaskImpactVisualization from "./task-impact";
+import RadarChart from "./radar-chart";
+import AnimatedCounter from "./animated-counter";
 import {
   CompletedTask,
   DailyTask,

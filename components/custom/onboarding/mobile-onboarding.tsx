@@ -33,7 +33,7 @@ const onboardingSteps = [
     description: "Build habits that strengthen your connection with Allah.",
   },
   {
-    icon: <SpiritualRadar />,
+    icon: null,
     title: "Track your",
     subtitle: "spiritual growth",
     description:
@@ -84,16 +84,9 @@ export default function Component() {
   }, [api]);
 
   return (
-    <div className="bg-[#1d2021] overflow-x-hidden h-screen flex flex-col justify-between pt-4">
-      <div className="relative z-10 p-4 flex items-center justify-between flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <Logo className="h-6 w-6 text-[#fe8019]" />
-          <span className="text-[#ebdbb2] font-bold text-lg">Nafs</span>
-        </div>
-      </div>
+    <>
       <Carousel
         setApi={setApi}
-        className="flex-1 w-full h-full flex items-center justify-center"
         opts={{
           align: "start",
           loop: false,
@@ -101,14 +94,14 @@ export default function Component() {
           dragFree: false,
         }}
       >
-        <CarouselContent className="flex-1 ">
+        <CarouselContent className="flex h-screen items-center">
           {onboardingSteps.map((step, index) => (
-            <CarouselItem
-              key={index}
-              className="flex items-center justify-center"
-            >
-              <Card className="border-0 bg-transparent shadow-none w-full max-w-md mx-auto h-full flex">
-                <CardContent className="flex flex-col items-center text-center px-4 py-8 justify-center w-full h-full">
+            <CarouselItem key={index} className="h-full">
+              <Card className="border-0 bg-transparent shadow-none w-full max-w-md mx-auto h-full">
+                <CardContent
+                  className={`text-center px-4 py-8 w-full h-full flex items-center justify-center flex-col gap-24
+                  `}
+                >
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{
@@ -116,10 +109,12 @@ export default function Component() {
                       y: current === index ? 0 : 20,
                     }}
                     transition={{ duration: 0.6, delay: 0.2 }}
-                    className="mb-6 sm:mb-8"
+                    className="flex items-center justify-center w-full h-24 sm:h-32"
                   >
                     {index === 1 ? (
                       <AnimatedTasks isActive={current === 1} />
+                    ) : index === 2 ? (
+                      <SpiritualRadar isActive={current === 2} />
                     ) : index === 3 ? (
                       <StreakAnimation isActive={current === 3} />
                     ) : (
@@ -135,7 +130,7 @@ export default function Component() {
                         y: current === index ? 0 : 20,
                       }}
                       transition={{ duration: 0.6, delay: 0.4 }}
-                      className="space-y-3 sm:space-y-4 max-w-xs sm:max-w-sm px-4 sm:px-0 text-center"
+                      className="flex flex-col space-y-3 sm:space-y-4 max-w-xs sm:max-w-sm text-center"
                     >
                       {step.title && (
                         <h2 className="text-base sm:text-lg text-[#ebdbb2]/80 font-normal leading-tight">
@@ -161,9 +156,9 @@ export default function Component() {
         </CarouselContent>
       </Carousel>
 
-      <div className="pb-6 relative z-10 p-4 items-center justify-center flex-shrink-0">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 p-4 flex items-center justify-center">
         <OnboardingProgress current={current} total={count} />
       </div>
-    </div>
+    </>
   );
 }

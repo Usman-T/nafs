@@ -3,9 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Dimension, DimensionValue } from "@prisma/client";
-import { ArrowLeft } from "lucide-react";
 import { iconMap } from "@/lib/iconMap";
 import ProgressSkeleton from "./progress-skelton";
 import {
@@ -73,7 +71,6 @@ const ProgressComponent = ({
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [getSize]);
-
 
   const points = useMemo(() => {
     return dimensions.map((dim, i) => {

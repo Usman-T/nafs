@@ -94,7 +94,7 @@ export function StreakAnimation({ isActive = false }: StreakAnimationProps) {
               duration: 0.5,
             }}
           >
-            <StreakFlame streak={3} />
+            <StreakFlame streak={4} />
           </motion.div>
         </div>
 
@@ -109,7 +109,7 @@ export function StreakAnimation({ isActive = false }: StreakAnimationProps) {
             duration: 0.6,
             ease: [0.4, 0, 0.2, 1],
           }}
-          className="h-1 bg-gradient-to-r from-[#fe8019] to-[#fabd2f] rounded-full"
+          className="h-1 bg-gradient-to-r mt-4 from-[#fe8019] to-[#fabd2f] rounded-full"
         />
 
         {/* Current Day 5 */}
