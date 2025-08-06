@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Drawer,
   DrawerContent,
@@ -11,13 +11,37 @@ import {
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BookOpen, Plus, Check, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  User,
+  Mail,
+  Phone,
+  Tag,
+  BookOpen,
+  Plus,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { iconMap } from "@/lib/iconMap";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+
+const suggestions = [
+  { id: 1, text: "John Doe", icon: User, color: "text-blue-500" },
+  { id: 2, text: "jane.smith@email.com", icon: Mail, color: "text-green-500" },
+  { id: 3, text: "+1 (555) 123-4567", icon: Phone, color: "text-purple-500" },
+  { id: 10, text: "Project Alpha", icon: Tag, color: "text-emerald-500" },
+];
 
 const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
   const [taskName, setTaskName] = useState("");
@@ -25,6 +49,7 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [carouselApi, setCarouselApi] = useState();
+  const [filteredSuggestions, setFilteredSuggestions] = useState(suggestions);
 
   const itemsPerPage = 4;
   const totalPages = Math.ceil(dimensions.length / itemsPerPage);
@@ -35,6 +60,8 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
       dimensions.slice(i * itemsPerPage, (i + 1) * itemsPerPage)
     );
   }
+  const inputRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     if (!carouselApi) {
@@ -45,6 +72,13 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
       setCurrentPage(carouselApi.selectedScrollSnap());
     });
   }, [carouselApi]);
+
+  useEffect(() => {
+    const filtered = suggestions.filter((suggestion) =>
+      suggestion.text.toLowerCase().includes(taskName.toLowerCase())
+    );
+    setFilteredSuggestions(filtered);
+  }, [taskName]);
 
   const handleSubmit = async () => {
     if (!taskName.trim() || !selectedDimension) return;
@@ -91,6 +125,28 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTaskName(e.target.value);
+    setIsOpen(true);
+  };
+
+  const handleInputFocus = () => {
+    setIsOpen(true);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setIsOpen(false);
+      inputRef.current?.blur();
+    }
+  };
+
+  const handleSuggestionClick = (suggestion: (typeof suggestions)[0]) => {
+    setTaskName(suggestion.text);
+    setIsOpen(false);
+    inputRef.current?.blur();
+  };
+
   return (
     <Drawer
       open={isOpen}
@@ -135,7 +191,10 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
                 <div className="relative">
                   <Input
                     value={taskName}
-                    onChange={(e) => setTaskName(e.target.value)}
+                    ref={inputRef}
+                    onChange={handleInputChange}
+                    onFocus={handleInputFocus}
+                    onKeyDown={handleKeyDown}
                     placeholder="Enter task name"
                     className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] placeholder-[#665c54] focus:border-[#fe8019] focus:ring-[#fe8019]/20 pr-16"
                     maxLength={50}
@@ -143,6 +202,44 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#665c54]">
                     {taskName.length}/50
                   </div>
+                  {isOpen && (
+                    <div
+                      ref={dropdownRef}
+                      className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-gray-200 rounded-md shadow-lg animate-in fade-in-0 zoom-in-95 duration-200"
+                    >
+                      <Command className="max-h-64 overflow-hidden">
+                        <CommandList>
+                          {filteredSuggestions.length === 0 ? (
+                            <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
+                              No suggestions found.
+                            </CommandEmpty>
+                          ) : (
+                            <CommandGroup className="p-2">
+                              {filteredSuggestions.map((suggestion) => {
+                                const IconComponent = suggestion.icon;
+                                return (
+                                  <CommandItem
+                                    key={suggestion.id}
+                                    onSelect={() =>
+                                      handleSuggestionClick(suggestion)
+                                    }
+                                    className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors duration-150"
+                                  >
+                                    <IconComponent
+                                      className={`h-4 w-4 ${suggestion.color} flex-shrink-0`}
+                                    />
+                                    <span className="flex-1 text-sm">
+                                      {suggestion.text}
+                                    </span>
+                                  </CommandItem>
+                                );
+                              })}
+                            </CommandGroup>
+                          )}
+                        </CommandList>
+                      </Command>
+                    </div>
+                  )}{" "}
                 </div>
               </div>
               {/* Dimension Selection */}

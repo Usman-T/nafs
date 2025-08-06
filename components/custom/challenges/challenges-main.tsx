@@ -10,12 +10,13 @@ import StreakProgressCard from "@/components/custom/challenges/challenges-main/s
 import WeekCalendar from "@/components/custom/challenges/challenges-main/week-calendar";
 import TasksSection from "@/components/custom/challenges/challenges-main/tasks-section";
 import ChallengeInfoCard from "@/components/custom/challenges/challenges-main/challenge-info-card";
-import DayCompletionFlow from "@/components/custom/challenges/day-completion-flow";
+
 import LoadingSkeleton from "@/components/custom/challenges/challenges-skeleton";
 import CompletedChallenge from "@/components/custom/challenges/completed-challenge";
 
 import { ChallengesProps } from "@/components/custom/challenges/challenges-main/type";
 import { useSession } from "next-auth/react";
+import TaskCompletionFlow from "./completion/day/day-completion-flow";
 
 const Challenges = ({
   challenge,
@@ -98,7 +99,7 @@ const Challenges = ({
 
       <AnimatePresence>
         {showCompletionFlow && (
-          <DayCompletionFlow
+          <TaskCompletionFlow
             tasks={tasks}
             currentStreak={currentStreak}
             userLevel={tasks[0]?.user.level || 1}

@@ -20,7 +20,7 @@ export function AnimatedLogo() {
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-      className="mx-auto h-16 w-16 rounded-full flex items-center justify-center mb-4"
+      className="mx-auto h-14 w-14 rounded-full flex items-center "
     >
       <Logo className="h-14 w-14 text-[#fe8019]" />
     </motion.div>

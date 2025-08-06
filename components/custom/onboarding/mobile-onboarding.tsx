@@ -20,7 +20,7 @@ import Logo from "../logo";
 
 const onboardingSteps = [
   {
-    icon: <AnimatedLogo />,
+    icon: null,
     title: "Meet your",
     subtitle: "spiritual companion",
     description:
@@ -99,7 +99,7 @@ export default function Component() {
             <CarouselItem key={index} className="h-full">
               <Card className="border-0 bg-transparent shadow-none w-full max-w-md mx-auto h-full">
                 <CardContent
-                  className={`text-center px-4 py-8 w-full h-full flex items-center justify-center flex-col gap-24
+                  className={`text-center px-4 py-8 w-full h-full flex items-center justify-center flex-col  gap-24
                   `}
                 >
                   <motion.div
@@ -111,7 +111,9 @@ export default function Component() {
                     transition={{ duration: 0.6, delay: 0.2 }}
                     className="flex items-center justify-center w-full h-24 sm:h-32"
                   >
-                    {index === 1 ? (
+                    {index === 0 ? (
+                      <AnimatedLogo />
+                    ) : index === 1 ? (
                       <AnimatedTasks isActive={current === 1} />
                     ) : index === 2 ? (
                       <SpiritualRadar isActive={current === 2} />
@@ -121,7 +123,6 @@ export default function Component() {
                       step.icon
                     )}
                   </motion.div>
-
                   {(step.title || step.subtitle || step.description) && (
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
