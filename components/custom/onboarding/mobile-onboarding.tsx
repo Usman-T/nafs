@@ -9,23 +9,41 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
-import { Moon, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { AnimatedLogo } from "./mobile-onboarding/animated-logo";
 import { AnimatedTasks } from "./mobile-onboarding/animated-tasks";
 import { StreakAnimation } from "./mobile-onboarding/streak-animation";
 import { OnboardingProgress } from "./mobile-onboarding/onboading-progress";
 import { SpiritualRadar } from "./mobile-onboarding/spiritual-radar";
-import Logo from "../logo";
 import Link from "next/link";
 
 const onboardingSteps = [
   {
-    icon: null,
-    title: "Meet your",
-    subtitle: "spiritual companion",
-    description:
-      "Nafs guides your journey of self-improvement through Islamic principles.",
+    icon: (
+      <div className="text-center items-center justify-center flex  flex-col space-y-8">
+        <AnimatedLogo />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="flex flex-col space-y-3 sm:space-y-4 max-w-xs sm:max-w-sm text-center"
+        >
+          <h2 className="text-base sm:text-lg text-[#ebdbb2]/80 font-normal leading-tight">
+            Meet your
+          </h2>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#ebdbb2] leading-tight">
+            spiritual companion
+          </h1>
+          <p className="text-xs sm:text-sm text-[#ebdbb2]/70 leading-relaxed">
+            Nafs guides your journey of self-improvement through Islamic
+            principles.
+          </p>
+        </motion.div>
+      </div>
+    ),
+    title: "",
+    subtitle: "",
+    description: "",
   },
   {
     icon: null,
