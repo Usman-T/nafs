@@ -17,7 +17,6 @@ import {
 
 // hoooks
 import { useChallengeCompletion } from "@/lib/hooks/use-challenge-completion";
-import { useSelectedChallenge } from "@/lib/hooks/use-selected-challenge";
 import { useConfettiEffect } from "@/lib/hooks/use-confetti-effect";
 
 import { calculateDimensionProgress } from "@/lib/utils/dimensionsCalculations";
@@ -25,11 +24,8 @@ import { calculateDimensionProgress } from "@/lib/utils/dimensionsCalculations";
 // steps
 import { CelebrationStep } from "@/components/custom/challenges/completion/challenge/steps/celebration-step";
 import { DimensionProgressStep } from "@/components/custom/challenges/completion/challenge/steps/dimension-progress-step";
-import { ChallengeSelectionStep } from "@/components/custom/challenges/completion/challenge/steps/challenge-selection-step";
 import { CustomChallengeStep } from "@/components/custom/challenges/completion/challenge/steps/custom-challenge-step";
 
-import ChallengeSummary from "@/components/custom/onboarding/onboarding-challenge-summary";
-import Task from "@/components/custom/onboarding/onboarding-task";
 import { Badge } from "@/components/ui/badge";
 
 interface DimensionValueWithDimension extends DimensionValue {
@@ -52,7 +48,6 @@ interface DailyTaskWithDetails extends DailyTask {
 interface ChallengeCompletionFlowProps {
   completedChallenge: UserChallenge & { challenge: Challenge };
   dailyTasks: DailyTaskWithDetails[];
-  predefinedChallenges: Challenge[];
   dimensions: Dimension[];
   dimensionValues: DimensionValueWithDimension[];
   userLevel: number;
@@ -61,7 +56,6 @@ interface ChallengeCompletionFlowProps {
 export default function ChallengeCompletionFlow({
   completedChallenge,
   dailyTasks,
-  predefinedChallenges,
   dimensions,
   dimensionValues,
   userLevel,
@@ -71,13 +65,10 @@ export default function ChallengeCompletionFlow({
     step,
     setStep,
     customChallenge,
-    selectedTasks,
-    setSelectedTasks,
     isLoading,
     handleChallengeCompletion,
     addCustomTask,
     removeCustomTask,
-    toggleTaskSelection,
   } = useChallengeCompletion(completedChallenge.id, userLevel);
 
   useConfettiEffect(step);

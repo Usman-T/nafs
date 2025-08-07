@@ -15,14 +15,12 @@ const ChallengeCompletionPage = async () => {
     dailyTasks,
     dimensionValues,
     dimensions,
-    challenges,
     userLevel,
   ] = await Promise.all([
     fetchUserChallenge(),
     fetchDailyTasks(),
     fetchUserDimensions(),
     fetchDimensions(),
-    fetchChallenges(),
     fetchUserLevel(),
   ]);
 
@@ -32,7 +30,6 @@ const ChallengeCompletionPage = async () => {
       dailyTasks={dailyTasks}
       dimensions={dimensions}
       dimensionValues={dimensionValues}
-      predefinedChallenges={challenges}
       userLevel={userLevel}
     />
   );

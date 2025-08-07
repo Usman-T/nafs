@@ -182,7 +182,6 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
               animate={{ opacity: 1, y: 0 }}
               className="px-4 space-y-6 overflow-y-auto flex-1"
             >
-              {/* Task Name Input */}
               <div className="space-y-3">
                 <label className="text-sm font-medium text-[#ebdbb2] flex items-center gap-2">
                   Task Name
@@ -202,7 +201,7 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#665c54]">
                     {taskName.length}/50
                   </div>
-                  {isOpen && (
+                  {/* {isOpen && (
                     <div
                       ref={dropdownRef}
                       className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-gray-200 rounded-md shadow-lg animate-in fade-in-0 zoom-in-95 duration-200"
@@ -239,7 +238,7 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
                         </CommandList>
                       </Command>
                     </div>
-                  )}{" "}
+                  )}{" "} */}
                 </div>
               </div>
               {/* Dimension Selection */}
