@@ -1,14 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { Challenge, Dimension } from "@prisma/client";
-import {
-  createCustomChallenge,
-  enrollInExistingChallenge,
-} from "@/lib/actions";
+import { Dimension } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { signOut } from "next-auth/react";
-
-// Types
+import { startChallenge } from "@/lib/actions";
 interface CustomTask {
   name: string;
   dimension: Dimension;
@@ -61,7 +56,7 @@ export const useChallengeOnboarding = () => {
     try {
       setIsLoading(true);
 
-      const creationResult = await createCustomChallenge({
+      const creationResult = await startChallenge({
         title: customChallenge.title,
         description: customChallenge.description,
         tasks: customChallenge.tasks.map((t) => ({

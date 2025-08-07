@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { completeChallenge, createCustomChallenge } from "@/lib/actions";
+import { completeChallenge, startChallenge } from "@/lib/actions";
 import { Dimension } from "@prisma/client";
 import { toast } from "sonner";
 import { useLocalStorage } from "./use-local-storage";
@@ -20,9 +20,6 @@ export const useChallengeCompletion = (
 ) => {
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(
-    null
-  );
   const [customChallenge, setCustomChallenge] = useState<CustomChallenge>({
     title: "Custom Challenge",
     description: "Your personalized day challenge",
@@ -50,26 +47,18 @@ export const useChallengeCompletion = (
 
       await completeChallenge(completedChallengeId);
 
-      let tasksToPass;
-      if (selectedChallengeId) {
-        tasksToPass = selectedTasks; // passing selected task indices only
-      } else {
-        tasksToPass = customChallenge?.tasks.map((t) => ({
-          name: t?.name,
-          dimensionId: t?.dimension.id,
-        })); // passing full task objects
-      }
+      const tasksToPass = customChallenge?.tasks.map((t) => ({
+        name: t?.name,
+        dimensionId: t?.dimension.id,
+      })); // passing full task objects
 
-      const creationResult = await createCustomChallenge(
-        selectedChallengeId,
-        duration,
-        {
-          title: customChallenge?.title,
-          description: customChallenge?.description,
-          tasks: tasksToPass,
-          nextDay: true,
-        }
-      );
+      const creationResult = await startChallenge({
+        title: customChallenge?.title,
+        duration: duration,
+        description: customChallenge?.description,
+        tasks: tasksToPass,
+        nextDay: true,
+      });
 
       if (!creationResult.success) {
         throw new Error(creationResult.message);
@@ -92,7 +81,6 @@ export const useChallengeCompletion = (
       ...prev,
       tasks: [...prev.tasks, task],
     }));
-    setSelectedChallengeId(null);
   };
 
   const removeCustomTask = (index: number) => {
@@ -113,8 +101,6 @@ export const useChallengeCompletion = (
   return {
     step,
     setStep,
-    selectedChallengeId,
-    setSelectedChallengeId,
     customChallenge,
     setCustomChallenge,
     selectedTasks,

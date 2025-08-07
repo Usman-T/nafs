@@ -38,7 +38,7 @@ export const startChallenge = async (challengeData: {
             data: {
               name: task.name,
               dimensionId: task.dimensionId,
-              points: Math.floor(Math.random() * (4 - 2 + 1)) + 1, // Random points between 2 and 4
+              points: Math.floor(Math.random() * (4 - 2 + 1)) + 1, // random points between 2 and 4
             },
           })
         )
