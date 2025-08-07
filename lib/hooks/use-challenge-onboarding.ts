@@ -27,9 +27,6 @@ export const useChallengeOnboarding = () => {
 
   // State
   const [step, setStep] = useState(0);
-  const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(
-    null
-  );
   const [customChallenge, setCustomChallenge] = useState<CustomChallengeState>({
     title: "Custom Challenge",
     description: "Your personalized 3 day challenge",
@@ -39,62 +36,20 @@ export const useChallengeOnboarding = () => {
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [challengeLoading, setChallengeLoading] = useState(false);
-  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(
-    null
-  );
-  const [carouselApi, setCarouselApi] = useState<any>();
-  const [currentSlide, setCurrentSlide] = useState(0);
 
   // Effects
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = 0;
     }
-    if (step === 5) {
-      setSelectedChallengeId(null);
-      setSelectedChallenge(null);
-    }
   }, [step]);
 
-  useEffect(() => {
-    const loadChallenge = async () => {
-      if (!selectedChallengeId) return;
-
-      try {
-        setChallengeLoading(true);
-        const response = await fetch(`/api/challenges/${selectedChallengeId}`);
-        const data = await response.json();
-        setSelectedChallenge(data.challenge);
-      } catch (error) {
-        console.error("Error fetching challenge:", error);
-      } finally {
-        setChallengeLoading(false);
-      }
-    };
-
-    if (selectedChallengeId) {
-      loadChallenge();
-    }
-  }, [selectedChallengeId]);
-
-  useEffect(() => {
-    if (!carouselApi) return;
-
-    carouselApi.on("select", () => {
-      setCurrentSlide(carouselApi.selectedScrollSnap());
-    });
-  }, [carouselApi]);
-
-  // Handlers
   const handleAddTask = (task: { name: string; dimension: Dimension }) => {
     setCustomChallenge((prev) => ({
       ...prev,
       tasks: [...prev.tasks, { ...task, dimension: task.dimension }],
     }));
     setShowTaskForm(false);
-    setSelectedChallengeId(null);
-    setSelectedChallenge(null);
   };
 
   const handleRemoveTask = (index: number) => {
@@ -104,42 +59,23 @@ export const useChallengeOnboarding = () => {
     }));
   };
 
-  const handleChallengeSelect = (challengeId: string) => {
-    setSelectedChallengeId(challengeId);
-  };
-
   const handleStartChallenge = async () => {
-    const INITIAL_CHALLENGE_DURATION = 3;
-
     try {
       setIsLoading(true);
 
-      if (selectedChallengeId) {
-        const result = await enrollInExistingChallenge(
-          selectedChallengeId,
-          selectedTasks,
-          INITIAL_CHALLENGE_DURATION,
-          false
-        );
-        if (!result.success) throw new Error(result.message);
-      } else if (customChallenge.tasks.length > 0) {
-        const creationResult = await createCustomChallenge(
-          undefined,
-          INITIAL_CHALLENGE_DURATION,
-          {
-            title: customChallenge.title,
-            description: customChallenge.description,
-            tasks: customChallenge.tasks.map((t) => ({
-              name: t.name,
-              dimensionId: t.dimension.id,
-            })),
-            nextDay: false,
-          }
-        );
+      const creationResult = await createCustomChallenge({
+        title: customChallenge.title,
+        description: customChallenge.description,
+        tasks: customChallenge.tasks.map((t) => ({
+          name: t.name,
+          dimensionId: t.dimension.id,
+        })),
+        nextDay: false,
+        duration: customChallenge.duration,
+      });
 
-        if (!creationResult.success) {
-          throw new Error(creationResult?.message);
-        }
+      if (!creationResult.success) {
+        throw new Error(creationResult?.message);
       }
 
       toast.success("Challenge started successfully!");
