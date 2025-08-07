@@ -25,7 +25,6 @@ export const useChallengeOnboarding = () => {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // State
   const [step, setStep] = useState(0);
   const [customChallenge, setCustomChallenge] = useState<CustomChallengeState>({
     title: "Custom Challenge",
@@ -37,7 +36,6 @@ export const useChallengeOnboarding = () => {
   const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Effects
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = 0;
@@ -121,9 +119,7 @@ export const useChallengeOnboarding = () => {
   };
 
   const handleNext = () => {
-    if (step === 1 && !selectedChallengeId) {
-      setStep(4);
-    } else if (step === 3 || step === 5) {
+    if (step === 2) {
       handleStartChallenge();
     } else {
       setStep(step + 1);
@@ -131,65 +127,44 @@ export const useChallengeOnboarding = () => {
   };
 
   const handleBack = () => {
-    if (step === 4) {
-      setStep(1);
-    } else {
-      setStep(Math.max(0, step - 1));
-    }
+    setStep(Math.max(0, step - 1));
   };
 
-  // Computed values
   const isNextDisabled = () => {
     switch (step) {
       case 1:
-        return !selectedChallengeId && step !== 3;
-      case 2:
-        return selectedTasks.length < 3;
-      case 4:
         return !(
           customChallenge.tasks.length >= 3 && customChallenge.tasks.length <= 5
         );
-      case 5:
-        return customChallenge.tasks.length === 0;
       default:
         return false;
     }
   };
 
   const showFinishButton = () => {
-    return (step === 3 && selectedChallengeId) || step === 5;
+    return step === 2;
   };
 
-  const totalSteps = selectedChallengeId ? 4 : 7;
+  const totalSteps = 3;
 
   return {
-    // State
     step,
-    selectedChallengeId,
     customChallenge,
     showTaskForm,
     selectedTasks,
     isLoading,
-    challengeLoading,
-    selectedChallenge,
-    carouselApi,
-    currentSlide,
     containerRef,
 
-    // Handlers
     handleAddTask,
     handleRemoveTask,
-    handleChallengeSelect,
     handleStartChallenge,
     handleNext,
     handleBack,
     setStep,
     setShowTaskForm,
     setSelectedTasks,
-    setCarouselApi,
     setCustomChallenge,
 
-    // Computed
     isNextDisabled,
     showFinishButton,
     totalSteps,

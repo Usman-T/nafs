@@ -1,45 +1,30 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Challenge, Dimension } from "@prisma/client";
-import SelectedChallenge from "@/components/custom/onboarding/onboarding-selected-challenge";
 import OnboardingWelcome from "@/components/custom/onboarding/onboarding-welcome";
-import ChallengeSummary from "@/components/custom/onboarding/onboarding-challenge-summary";
 import { CustomTasksStep } from "./steps/custom-task-step";
 import { CustomChallengeSummaryStep } from "./steps/custom-challenge-summary";
 import { OnboardingHeader } from "./onboarding-header";
 import { OnboardingNavigation } from "./onboarding-navigation";
-import { ChallengeSelectionStep } from "./steps/challenge-selection";
 import { useChallengeOnboarding } from "@/lib/hooks/use-challenge-onboarding";
+import { Dimension } from "@prisma/client";
 
 export default function ChallengeOnboarding({
-  predefinedChallenges,
   dimensions,
 }: {
-  predefinedChallenges: Challenge[];
   dimensions: Dimension[];
 }) {
   const {
     step,
-    selectedChallengeId,
     customChallenge,
     showTaskForm,
-    selectedTasks,
     isLoading,
-    challengeLoading,
-    selectedChallenge,
-    carouselApi,
-    currentSlide,
     containerRef,
     handleAddTask,
     handleRemoveTask,
-    handleChallengeSelect,
     handleNext,
     handleBack,
     setShowTaskForm,
-    setSelectedTasks,
-    setCarouselApi,
-    setStep,
     isNextDisabled,
     showFinishButton,
     totalSteps,
@@ -51,35 +36,6 @@ export default function ChallengeOnboarding({
         return <OnboardingWelcome />;
       case 1:
         return (
-          <ChallengeSelectionStep
-            predefinedChallenges={predefinedChallenges}
-            selectedChallengeId={selectedChallengeId}
-            onChallengeSelect={handleChallengeSelect}
-            carouselApi={carouselApi}
-            setCarouselApi={setCarouselApi}
-            currentSlide={currentSlide}
-            onCreateCustom={() => setStep(4)}
-          />
-        );
-      case 2:
-        return (
-          <SelectedChallenge
-            selectedTasks={selectedTasks}
-            setSelectedTasks={setSelectedTasks}
-            challenge={selectedChallenge}
-            loading={challengeLoading}
-          />
-        );
-      case 3:
-        return (
-          <ChallengeSummary
-            duration={3}
-            selectedTasks={selectedTasks}
-            challenge={selectedChallenge}
-          />
-        );
-      case 4:
-        return (
           <CustomTasksStep
             customChallenge={customChallenge}
             onAddTask={handleAddTask}
@@ -89,7 +45,7 @@ export default function ChallengeOnboarding({
             dimensions={dimensions}
           />
         );
-      case 5:
+      case 2:
         return <CustomChallengeSummaryStep customChallenge={customChallenge} />;
       default:
         return null;

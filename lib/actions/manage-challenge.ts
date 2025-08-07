@@ -4,7 +4,7 @@ import prisma from "@/prisma";
 import { requireAuth } from "@/lib/utils/auth";
 import { revalidatePath } from "next/cache";
 
-export const createCustomChallenge = async (challengeData: {
+export const startChallenge = async (challengeData: {
   duration: number;
   title: string | null;
   description: string | null;
@@ -56,7 +56,7 @@ export const createCustomChallenge = async (challengeData: {
         startDate.setDate(startDate.getDate() + 1);
       }
       const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + duration);
+      endDate.setDate(startDate.getDate() + challenge.duration);
 
       await tx.userChallenge.create({
         data: {
@@ -73,14 +73,17 @@ export const createCustomChallenge = async (challengeData: {
         data: { challengeId: challenge.id },
       });
 
-      const dailyTasks = Array.from({ length: challenge.duration }, (_, day) => {
-        const taskDate = new Date(startDate);
-        taskDate.setDate(startDate.getDate() + day);
-        return {
-          date: taskDate,
-          taskIds: tasks.map((t) => t.id),
-        };
-      }).flatMap(({ date, taskIds }) =>
+      const dailyTasks = Array.from(
+        { length: challenge.duration },
+        (_, day) => {
+          const taskDate = new Date(startDate);
+          taskDate.setDate(startDate.getDate() + day);
+          return {
+            date: taskDate,
+            taskIds: tasks.map((t) => t.id),
+          };
+        }
+      ).flatMap(({ date, taskIds }) =>
         taskIds.map((taskId) => ({
           userId,
           taskId,
