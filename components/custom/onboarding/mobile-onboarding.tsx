@@ -23,7 +23,7 @@ const onboardingSteps = [
     icon: (
       <div className="text-center items-center justify-center flex  flex-col space-y-8">
         <AnimatedLogo />
-        <motion.div
+        <div
           initial={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.6, delay: 0.4 }}
           className="flex flex-col space-y-3 sm:space-y-4 max-w-xs sm:max-w-sm text-center"
@@ -38,7 +38,7 @@ const onboardingSteps = [
             Nafs guides your journey of self-improvement through Islamic
             principles.
           </p>
-        </motion.div>
+        </div>
       </div>
     ),
     title: "",
@@ -132,9 +132,7 @@ export default function Component() {
                     transition={{ duration: 0.6, delay: 0.2 }}
                     className="flex items-center justify-center w-full h-24 sm:h-32"
                   >
-                    {index === 0 ? (
-                      <AnimatedLogo />
-                    ) : index === 1 ? (
+                    {index === 1 ? (
                       <AnimatedTasks isActive={current === 1} />
                     ) : index === 2 ? (
                       <SpiritualRadar isActive={current === 2} />

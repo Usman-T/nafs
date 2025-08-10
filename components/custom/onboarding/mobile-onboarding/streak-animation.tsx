@@ -17,7 +17,6 @@ export function StreakAnimation({ isActive = false }: StreakAnimationProps) {
 
   const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
 
-  // Clear all timeouts on cleanup
   const clearAllTimeouts = () => {
     timeoutRefs.current.forEach((timeout) => clearTimeout(timeout));
     timeoutRefs.current = [];
@@ -25,7 +24,6 @@ export function StreakAnimation({ isActive = false }: StreakAnimationProps) {
 
   useEffect(() => {
     if (!isActive) {
-      // Reset all states when not active
       setShowPrevious(false);
       setShowConnector(false);
       setShowCurrent(false);
@@ -35,7 +33,6 @@ export function StreakAnimation({ isActive = false }: StreakAnimationProps) {
       return;
     }
 
-    // Reset and start animation sequence when slide becomes active
     setShowPrevious(false);
     setShowConnector(false);
     setShowCurrent(false);
@@ -43,30 +40,25 @@ export function StreakAnimation({ isActive = false }: StreakAnimationProps) {
     setProgressWidth("0%");
     clearAllTimeouts();
 
-    // Step 1: Show previous bubble (Day 3)
     const timer1 = setTimeout(() => {
       setShowPrevious(true);
     }, 300);
 
-    // Step 2: Show connecting bar
     const timer2 = setTimeout(() => {
       setShowConnector(true);
-    }, 900);
+    }, 700);
 
-    // Step 3: Show current bubble (Day 5)
     const timer3 = setTimeout(() => {
       setShowCurrent(true);
-    }, 1500);
+    }, 1200);
 
-    // Step 4: Show progress details
     const timer4 = setTimeout(() => {
       setShowDetails(true);
-    }, 2200);
+    },2000);
 
-    // Step 5: Animate progress bar
     const timer5 = setTimeout(() => {
       setProgressWidth("71%");
-    }, 2600);
+    }, 2000);
 
     timeoutRefs.current = [timer1, timer2, timer3, timer4, timer5];
 
@@ -98,7 +90,6 @@ export function StreakAnimation({ isActive = false }: StreakAnimationProps) {
           </motion.div>
         </div>
 
-        {/* Connecting Bar */}
         <motion.div
           initial={{ width: 0, opacity: 0 }}
           animate={{
