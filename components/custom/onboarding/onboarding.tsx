@@ -14,6 +14,10 @@ export default function ChallengeOnboarding({
 }: {
   dimensions: Dimension[];
 }) {
+  console.log({
+    dimensionInClient: dimensions.length,
+    success: dimensions.length > 0,
+  });
   const {
     step,
     customChallenge,

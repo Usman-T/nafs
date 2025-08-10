@@ -85,7 +85,7 @@ const main = async () => {
 
   const dim = (name: string) => dimensions.get(name)!;
 
-  const taskData = [
+  const taskData: [[string, string, number]] = [
     // Fajr Warrior
     ["Wake up before Fajr and make du'a", "Faith", 3],
     ["Pray Fajr in congregation/masjid", "Faith", 4],
@@ -153,102 +153,6 @@ const main = async () => {
       data: { name, dimensionId: dim(dimension), points },
     });
     tasks.set(name, task.id);
-  }
-
-  const challengeEntries = [
-    ["Fajr Warrior", "Faith"],
-    ["Dhikr Engine", "Remembrance"],
-    ["Qur’an Connection", "Knowledge"],
-    ["Sunnah in Action", "Character"],
-    ["Nafs Breaker", "Discipline"],
-    ["Sacred Time", "Discipline"],
-    ["Family Ties", "Character"],
-    ["Akhlaq Mastery", "Character"],
-    ["Body as Trust", "Body"],
-    ["Living with Intention", "Purpose"],
-  ];
-
-  const challenges = new Map<string, string>();
-  for (const [name, _] of challengeEntries) {
-    const c = await prisma.challenge.create({
-      data: { name, description: "", duration: 3 },
-    });
-    challenges.set(name, c.id);
-  }
-
-  const challengeTasksMap: Record<string, string[]> = {
-    "Fajr Warrior": [
-      "Wake up before Fajr and make du'a",
-      "Pray Fajr in congregation/masjid",
-      "Stay awake after Fajr for dhikr or learning",
-      "No phone until after sunrise",
-    ],
-    "Dhikr Engine": [
-      "Say 100x istighfar",
-      "Send 100 salawat throughout the day",
-      "10-minute guided dhikr session",
-      "Do tasbih after every salah",
-    ],
-    "Qur’an Connection": [
-      "Recite Qur’an with translation (1 page)",
-      "Listen to a Qur’an tafsir clip (10+ min)",
-      "Memorize one new ayah and reflect",
-      "Write down 1 lesson from what you read",
-    ],
-    "Sunnah in Action": [
-      "Eat/drink with right hand + Bismillah",
-      "Sleep on your right side with du’as",
-      "Greet people first + with smile",
-      "Fast a Monday or Thursday",
-    ],
-    "Nafs Breaker": [
-      "No social media or YouTube till Maghrib",
-      "Fast from food or sugar for the day",
-      "Delay responding to urges",
-      "Choose discomfort: cold shower/walk/posture work",
-    ],
-    "Sacred Time": [
-      "Plan your day after Fajr",
-      "No phone for the first hour",
-      "Block 2 hours for deep, focused work",
-      "Reflect before bed on time usage",
-    ],
-    "Family Ties": [
-      "Call a relative you haven't spoken to in 1+ month",
-      "Help a family member without being asked",
-      "Speak gently during a conflict",
-      "Say or write a sincere appreciation",
-    ],
-    "Akhlaq Mastery": [
-      "Hold back anger in a heated moment",
-      "Give secret charity",
-      "Apologize or forgive even if you're right",
-      "Be radically honest for one day",
-    ],
-    "Body as Trust": [
-      "30-minute workout or walk",
-      "Stretch hips, back, and shoulders before bed",
-      "Avoid all junk and drink 2L+ water",
-      "Sleep by 11pm",
-    ],
-    "Living with Intention": [
-      "Set 3 intentions at the start of the day",
-      "Write in a gratitude journal",
-      "Review your mission statement",
-      "Make du’a before a major task",
-    ],
-  };
-
-  for (const [challengeName, taskNames] of Object.entries(challengeTasksMap)) {
-    const challengeId = challenges.get(challengeName)!;
-    for (const taskName of taskNames) {
-      await prisma.challengeTask.create({
-        data: {
-          challengeId,
-          taskId: tasks.get(taskName)!,
-        },
-      });
-    }
   }
 
   console.timeEnd("🌱 Seeding complete");

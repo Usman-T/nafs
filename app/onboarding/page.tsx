@@ -3,7 +3,11 @@ import { fetchDimensions } from "@/lib/data";
 
 const Onboarding = async () => {
   const dimensions = await fetchDimensions();
-  console.log(dimensions)
+
+  console.log({
+    dimensionsInServer: dimensions.length,
+    success: dimensions.length > 0,
+  });
 
   return <ChallengeOnboarding dimensions={dimensions} />;
 };

@@ -15,9 +15,7 @@ import StreakBreakSummary from "./steps/streak-break-summary";
 import ExitAnimation from "./extras/exit-animation";
 import StreakBreakRestart from "./steps/streak-break-restart/streak-break-restart";
 import {
-  createCustomChallenge,
   dimensionsReset,
-  enrollInExistingChallenge,
   resetTasks,
 } from "@/lib/actions";
 

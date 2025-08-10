@@ -18,7 +18,6 @@ import {
   Tag,
   BookOpen,
   Plus,
-  Check,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -28,13 +27,6 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 
 const suggestions = [
   { id: 1, text: "John Doe", icon: User, color: "text-blue-500" },
@@ -201,44 +193,6 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#665c54]">
                     {taskName.length}/50
                   </div>
-                  {/* {isOpen && (
-                    <div
-                      ref={dropdownRef}
-                      className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-gray-200 rounded-md shadow-lg animate-in fade-in-0 zoom-in-95 duration-200"
-                    >
-                      <Command className="max-h-64 overflow-hidden">
-                        <CommandList>
-                          {filteredSuggestions.length === 0 ? (
-                            <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
-                              No suggestions found.
-                            </CommandEmpty>
-                          ) : (
-                            <CommandGroup className="p-2">
-                              {filteredSuggestions.map((suggestion) => {
-                                const IconComponent = suggestion.icon;
-                                return (
-                                  <CommandItem
-                                    key={suggestion.id}
-                                    onSelect={() =>
-                                      handleSuggestionClick(suggestion)
-                                    }
-                                    className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors duration-150"
-                                  >
-                                    <IconComponent
-                                      className={`h-4 w-4 ${suggestion.color} flex-shrink-0`}
-                                    />
-                                    <span className="flex-1 text-sm">
-                                      {suggestion.text}
-                                    </span>
-                                  </CommandItem>
-                                );
-                              })}
-                            </CommandGroup>
-                          )}
-                        </CommandList>
-                      </Command>
-                    </div>
-                  )}{" "} */}
                 </div>
               </div>
               {/* Dimension Selection */}
