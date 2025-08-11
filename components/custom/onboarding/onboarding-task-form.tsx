@@ -121,9 +121,10 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTaskName(e.target.value);
-    setShowAutocomplete(false);
+    setShowAutocomplete(false); 
     setSelectedSuggestionIndex(-1);
   };
+
 
   const handleSuggestionClick = (suggestion: (typeof taskSuggestions)[0]) => {
     const dimension = dimensions.find(
