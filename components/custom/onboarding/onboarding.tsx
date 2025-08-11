@@ -75,7 +75,6 @@ export default function ChallengeOnboarding({
 
       <OnboardingNavigation
         step={step}
-        totalSteps={totalSteps}
         onBack={handleBack}
         onNext={handleNext}
         isLoading={isLoading}
