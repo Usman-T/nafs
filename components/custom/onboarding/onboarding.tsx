@@ -87,39 +87,37 @@ export default function ChallengeOnboarding({
   ];
 
   return (
-    <div className="w-full justify-center items-center h-screen flex flex-col">
-      <Carousel
-        setApi={setApi}
-        opts={{
-          align: "start",
-          loop: false,
-          watchDrag: true,
-          dragFree: false,
-        }}
-        className="flex justify-center items-center w-full h-full"
-      >
-        <CarouselContent className="flex h-full">
-          {steps.map((step, index) => (
-            <CarouselItem
-              key={index}
-              className="flex items-center justify-center w-full h-full"
-            >
-              <Card className="border-0 bg-transparent shadow-none w-full max-w-md mx-auto h-full">
-                <CardContent className="w-full h-full flex items-center justify-center">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="w-full"
-                  >
-                    {step.component}
-                  </motion.div>
-                </CardContent>
-              </Card>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
-    </div>
+    <Carousel
+      setApi={setApi}
+      opts={{
+        align: "start",
+        loop: false,
+        watchDrag: true,
+        dragFree: false,
+      }}
+      className="flex justify-center items-center w-full h-screen"
+    >
+      <CarouselContent className="flex h-screen items-center">
+        {steps.map((step, index) => (
+          <CarouselItem
+            key={index}
+            className="flex items-center justify-center w-full h-full"
+          >
+            <Card className="border-0 bg-transparent shadow-none w-full max-w-md mx-auto h-full">
+              <CardContent className="w-full h-full flex items-center justify-center">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="w-full"
+                >
+                  {step.component}
+                </motion.div>
+              </CardContent>
+            </Card>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+    </Carousel>
   );
 }
