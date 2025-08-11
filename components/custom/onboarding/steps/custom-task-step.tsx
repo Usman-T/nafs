@@ -25,6 +25,7 @@ export const CustomTasksStep = ({
   onRemoveTask,
   showTaskForm,
   setShowTaskForm,
+  isActive,
   dimensions,
 }: {
   customChallenge: CustomChallengeState;
@@ -32,12 +33,12 @@ export const CustomTasksStep = ({
   onRemoveTask: (index: number) => void;
   showTaskForm: boolean;
   setShowTaskForm: (show: boolean) => void;
+  isActive: boolean;
   dimensions: Dimension[];
 }) => (
   <>
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
       exit={{ opacity: 0, y: -20 }}
       className="space-y-6"
     >

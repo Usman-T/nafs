@@ -19,12 +19,13 @@ interface CustomChallengeState {
 
 export const CustomChallengeSummaryStep = ({
   customChallenge,
+  isActive,
 }: {
   customChallenge: CustomChallengeState;
+  isActive: boolean;
 }) => (
   <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
+    animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
     exit={{ opacity: 0, y: -20 }}
     className="space-y-6"
   >

@@ -59,7 +59,7 @@ export default function ChallengeOnboarding({
     };
   }, [api, step, setStep, isNextDisabled]);
 
-  const stepComponents = [
+  const steps = [
     {
       component: <OnboardingWelcome />,
     },
@@ -72,12 +72,16 @@ export default function ChallengeOnboarding({
           showTaskForm={showTaskForm}
           setShowTaskForm={setShowTaskForm}
           dimensions={dimensions}
+          isActive={step === 1}
         />
       ),
     },
     {
       component: (
-        <CustomChallengeSummaryStep customChallenge={customChallenge} />
+        <CustomChallengeSummaryStep
+          isActive={step === 2}
+          customChallenge={customChallenge}
+        />
       ),
     },
   ];
@@ -95,46 +99,25 @@ export default function ChallengeOnboarding({
         className="flex justify-center items-center w-full h-full"
       >
         <CarouselContent className="flex h-full">
-          {/* Step 0 */}
-          <CarouselItem className="flex items-center justify-center w-full h-full">
-            <Card className="border-0 bg-transparent shadow-none w-full max-w-md mx-auto h-full">
-              <CardContent className="w-full h-full flex items-center justify-center">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4 }}
-                  className="w-full"
-                >
-                  <OnboardingWelcome />
-                </motion.div>
-              </CardContent>
-            </Card>
-          </CarouselItem>
-
-          {/* Step 1 */}
-          <CarouselItem className="flex items-center justify-center w-full h-full">
-            <Card className="border-0 bg-transparent shadow-none w-full max-w-md mx-auto h-full">
-              <CardContent className="w-full h-full flex items-center justify-center">
-                <CustomTasksStep
-                  customChallenge={customChallenge}
-                  onAddTask={handleAddTask}
-                  onRemoveTask={handleRemoveTask}
-                  showTaskForm={showTaskForm}
-                  setShowTaskForm={setShowTaskForm}
-                  dimensions={dimensions}
-                />
-              </CardContent>
-            </Card>
-          </CarouselItem>
-
-          {/* Step 2 */}
-          <CarouselItem className="flex items-center justify-center w-full h-full">
-            <Card className="border-0 bg-transparent shadow-none w-full max-w-md mx-auto h-full">
-              <CardContent className="w-full h-full flex items-center justify-center">
-                <CustomChallengeSummaryStep customChallenge={customChallenge} />
-              </CardContent>
-            </Card>
-          </CarouselItem>
+          {steps.map((step, index) => (
+            <CarouselItem
+              key={index}
+              className="flex items-center justify-center w-full h-full"
+            >
+              <Card className="border-0 bg-transparent shadow-none w-full max-w-md mx-auto h-full">
+                <CardContent className="w-full h-full flex items-center justify-center">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="w-full"
+                  >
+                    {step.component}
+                  </motion.div>
+                </CardContent>
+              </Card>
+            </CarouselItem>
+          ))}
         </CarouselContent>
       </Carousel>
     </div>
