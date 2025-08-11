@@ -1,4 +1,4 @@
-import { ArrowUp01, Award, Sparkles, Star, Trophy } from "lucide-react";
+import { Award, Sparkles, Star, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import React from "react";
 import {
@@ -40,25 +40,9 @@ const ChallengeWelcome = ({
   completedChallenge,
   dailyTasks,
 }: ChallengeWelcomeProps) => {
-  // Get unique tasks from daily tasks (since daily tasks can repeat across days)
-  const uniqueTasks = dailyTasks.reduce((acc, dailyTask) => {
-    const taskId = dailyTask.task.id;
-    if (!acc.find((task) => task.id === taskId)) {
-      acc.push(dailyTask.task);
-    }
-    return acc;
-  }, [] as TaskWithDimension[]);
-
-  const totalTasks = uniqueTasks.length;
   const completedTasksCount = dailyTasks.filter(
     (dailyTask) => dailyTask.completions.length > 0
   ).length;
-
-  // Calculate completion percentage
-  const completionPercentage =
-    totalTasks > 0
-      ? Math.round((completedTasksCount / dailyTasks.length) * 100)
-      : 0;
 
   const streakBonus = dailyTasks[0]?.user?.currentStreak || 0;
   const userLevel = dailyTasks[0]?.user?.level || 1;

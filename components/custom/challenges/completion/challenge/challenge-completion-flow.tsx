@@ -17,7 +17,6 @@ import {
 
 // hoooks
 import { useChallengeCompletion } from "@/lib/hooks/use-challenge-completion";
-import { useSelectedChallenge } from "@/lib/hooks/use-selected-challenge";
 import { useConfettiEffect } from "@/lib/hooks/use-confetti-effect";
 
 import { calculateDimensionProgress } from "@/lib/utils/dimensionsCalculations";
@@ -25,11 +24,8 @@ import { calculateDimensionProgress } from "@/lib/utils/dimensionsCalculations";
 // steps
 import { CelebrationStep } from "@/components/custom/challenges/completion/challenge/steps/celebration-step";
 import { DimensionProgressStep } from "@/components/custom/challenges/completion/challenge/steps/dimension-progress-step";
-import { ChallengeSelectionStep } from "@/components/custom/challenges/completion/challenge/steps/challenge-selection-step";
 import { CustomChallengeStep } from "@/components/custom/challenges/completion/challenge/steps/custom-challenge-step";
 
-import ChallengeSummary from "@/components/custom/onboarding/onboarding-challenge-summary";
-import Task from "@/components/custom/onboarding/onboarding-task";
 import { Badge } from "@/components/ui/badge";
 
 interface DimensionValueWithDimension extends DimensionValue {
@@ -52,7 +48,6 @@ interface DailyTaskWithDetails extends DailyTask {
 interface ChallengeCompletionFlowProps {
   completedChallenge: UserChallenge & { challenge: Challenge };
   dailyTasks: DailyTaskWithDetails[];
-  predefinedChallenges: Challenge[];
   dimensions: Dimension[];
   dimensionValues: DimensionValueWithDimension[];
   userLevel: number;
@@ -61,7 +56,6 @@ interface ChallengeCompletionFlowProps {
 export default function ChallengeCompletionFlow({
   completedChallenge,
   dailyTasks,
-  predefinedChallenges,
   dimensions,
   dimensionValues,
   userLevel,
@@ -70,20 +64,12 @@ export default function ChallengeCompletionFlow({
   const {
     step,
     setStep,
-    selectedChallengeId,
-    setSelectedChallengeId,
     customChallenge,
-    selectedTasks,
-    setSelectedTasks,
     isLoading,
     handleChallengeCompletion,
     addCustomTask,
     removeCustomTask,
-    toggleTaskSelection,
   } = useChallengeCompletion(completedChallenge.id, userLevel);
-
-  const { selectedChallenge, challengeLoading } =
-    useSelectedChallenge(selectedChallengeId);
 
   useConfettiEffect(step);
 
@@ -130,110 +116,6 @@ export default function ChallengeCompletionFlow({
 
       case 2:
         return (
-          <ChallengeSelectionStep
-            predefinedChallenges={predefinedChallenges}
-            duration={duration}
-            selectedChallengeId={selectedChallengeId}
-            onSelectChallenge={setSelectedChallengeId}
-            onCreateCustom={() => setStep(5)}
-          />
-        );
-
-      case 3:
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
-          >
-            {selectedChallenge && !challengeLoading ? (
-              <>
-                <div className="text-center">
-                  <h2 className="text-xl font-bold text-[#ebdbb2]">
-                    {selectedChallenge.name}
-                  </h2>
-                  <p className="text-[#a89984]">
-                    {selectedChallenge.description}
-                  </p>
-                </div>
-
-                <div className="flex justify-center gap-3 flex-wrap">
-                  <Badge className="bg-[#3c3836] text-[#ebdbb2] hover:bg-[#504945] transition-colors">
-                    {duration} days
-                  </Badge>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="text-[#ebdbb2] font-medium">
-                    Challenge Tasks
-                  </h3>
-                  <div className="space-y-2">
-                    {selectedChallenge.tasks.map(({ task }, i) => (
-                      <Task
-                        key={i}
-                        task={task}
-                        isSelected={selectedTasks.includes(i)}
-                        onClick={() => toggleTaskSelection(i)}
-                        selectedTasks={selectedTasks}
-                        setSelectedTasks={setSelectedTasks}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="text-sm text-[#a89984] text-center">
-                  <p>
-                    Select at least 3 tasks and complete them daily to progress
-                    in your spiritual journey.
-                  </p>
-                </div>
-              </>
-            ) : (
-              <div className="space-y-6 animate-pulse">
-                <div className="text-center space-y-2">
-                  <div className="h-7 w-3/4 bg-[#3c3836] rounded mx-auto"></div>
-                  <div className="h-4 w-5/6 bg-[#3c3836] rounded mx-auto"></div>
-                </div>
-                <div className="flex justify-center">
-                  <div className="h-8 w-24 bg-[#3c3836] rounded-full"></div>
-                </div>
-                <div className="space-y-3">
-                  <div className="h-5 w-1/3 bg-[#3c3836] rounded"></div>
-                  <div className="space-y-2">
-                    {[...Array(3)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="h-14 bg-[#3c3836] rounded-lg"
-                      ></div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        );
-
-      case 4:
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-6"
-          >
-            {selectedChallenge && (
-              <ChallengeSummary
-                selectedTasks={selectedTasks}
-                challenge={selectedChallenge}
-                duration={duration}
-              />
-            )}
-          </motion.div>
-        );
-
-      case 5:
-        return (
           <CustomChallengeStep
             customChallenge={customChallenge}
             dimensions={dimensions}
@@ -242,7 +124,7 @@ export default function ChallengeCompletionFlow({
           />
         );
 
-      case 6:
+      case 3:
         return (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -310,17 +192,11 @@ export default function ChallengeCompletionFlow({
       case 1:
         return true;
       case 2:
-        return selectedChallengeId !== null;
-      case 3:
-        return selectedTasks.length >= 3;
-      case 4:
-        return true;
-      case 5:
         return (
           customChallenge.tasks.length >= 3 &&
           customChallenge.title.trim() !== ""
         );
-      case 6:
+      case 3:
         return true;
       default:
         return false;
@@ -342,13 +218,7 @@ export default function ChallengeCompletionFlow({
   };
 
   const handleBack = () => {
-    if (step === 3 && selectedChallengeId === null) {
-      setStep(2);
-    } else if (step === 5) {
-      setStep(2);
-    } else {
-      setStep(step - 1);
-    }
+    setStep(step - 1);
   };
 
   const getNextButtonText = () => {
@@ -358,14 +228,8 @@ export default function ChallengeCompletionFlow({
       case 1:
         return "Choose Next Challenge";
       case 2:
-        return "Preview Challenge";
-      case 3:
-        return "Continue";
-      case 4:
-        return isLoading ? "Starting Challenge..." : "Start Challenge";
-      case 5:
         return "Create Challenge";
-      case 6:
+      case 3:
         return isLoading ? "Starting Challenge..." : "Start Challenge";
       default:
         return "Next";
@@ -381,9 +245,7 @@ export default function ChallengeCompletionFlow({
             Challenge Onboarding
           </span>
         </div>
-        <div className="text-[#a89984] text-sm">
-          Step {step + 1} of {selectedChallengeId ? 4 : 7}
-        </div>
+        <div className="text-[#a89984] text-sm">Step {step + 1} of 4</div>
       </div>
 
       {/* Content */}

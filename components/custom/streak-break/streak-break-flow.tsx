@@ -14,12 +14,7 @@ import StreakBreakFooter from "@/components/custom/streak-break/extras/streak-br
 import StreakBreakSummary from "./steps/streak-break-summary";
 import ExitAnimation from "./extras/exit-animation";
 import StreakBreakRestart from "./steps/streak-break-restart/streak-break-restart";
-import {
-  createCustomChallenge,
-  dimensionsReset,
-  enrollInExistingChallenge,
-  resetTasks,
-} from "@/lib/actions";
+import { dimensionsReset, resetTasks, startChallenge } from "@/lib/actions";
 
 type ExtendedChallenge = Challenge & {
   tasks: {
@@ -50,15 +45,9 @@ interface FlowState {
 }
 
 interface ChallengeSelection {
-  type: "existing" | "custom" | null;
-  challengeId?: string;
-  selectedTasks?: number[];
-  customChallenge?: {
-    title: string;
-    description: string;
-    tasks: Array<{ name: string; dimension: Dimension }>;
-  };
-  selectedChallenge?: ExtendedChallenge;
+  title: string;
+  description: string;
+  tasks: Array<{ name: string; dimension: Dimension }>;
 }
 
 export default function StreakBreakFlow({
@@ -82,15 +71,9 @@ export default function StreakBreakFlow({
 
   const [challengeSelection, setChallengeSelection] =
     useState<ChallengeSelection>({
-      type: null,
-      challengeId: undefined,
-      selectedTasks: [],
-      customChallenge: {
-        title: "",
-        description: "",
-        tasks: [],
-      },
-      selectedChallenge: undefined,
+      title: "",
+      description: "",
+      tasks: [],
     });
 
   const getDuration = useCallback(() => {
@@ -120,93 +103,45 @@ export default function StreakBreakFlow({
   );
 
   const canProceedFromRestart = useCallback((): boolean => {
-    if (!challengeSelection.type) return false;
-
-    if (challengeSelection.type === "existing") {
-      return !!(
-        challengeSelection.challengeId &&
-        challengeSelection.selectedTasks &&
-        challengeSelection.selectedTasks.length >= 3 &&
-        challengeSelection.selectedTasks.length <= 5 &&
-        challengeSelection.selectedChallenge
-      );
-    }
-
-    if (challengeSelection.type === "custom") {
-      return !!(
-        challengeSelection.customChallenge?.tasks &&
-        challengeSelection.customChallenge.tasks.length >= 3 &&
-        challengeSelection.customChallenge.tasks.length <= 5
-      );
-    }
-
-    return false;
+    return !!(
+      challengeSelection?.tasks &&
+      challengeSelection.tasks.length >= 3 &&
+      challengeSelection.tasks.length <= 5
+    );
   }, [challengeSelection]);
 
   const handleComplete = useCallback(async () => {
     updateFlowState({ isLoading: true });
     try {
       const duration = getDuration();
+      const { title, description, tasks } = challengeSelection; 
 
-      if (
-        challengeSelection.type === "existing" &&
-        challengeSelection.challengeId &&
-        challengeSelection.selectedTasks
-      ) {
-        const result = await enrollInExistingChallenge(
-          challengeSelection.challengeId,
-          challengeSelection.selectedTasks,
-          duration,
-          false
-        );
+      const tasksReset = await resetTasks();
+      if (!tasksReset.success) throw new Error("Couldn't start challenge");
 
-        const tasksReset = await resetTasks();
-        if (!tasksReset.success) throw new Error("Couldn't start challenge");
+      const dimensionsUpdated = await dimensionsReset(missedTasks);
+      if (!dimensionsUpdated.success)
+        throw new Error("Couldn't start challenge");
 
-        const dimensionsUpdated = await dimensionsReset(missedTasks);
-        if (!dimensionsUpdated.success) throw new Error("Couldn't start challenge");
+      const result = await startChallenge({
+        title: title,
+        description: description,
+        duration: duration,
+        tasks: tasks.map((t) => ({
+          name: t.name,
+          dimensionId: t.dimension.id,
+        })),
+        nextDay: false,
+      });
 
-        if (!result.success) {
-          throw new Error(result.message || "Failed to enroll in challenge");
-        }
-      } else if (
-        challengeSelection.type === "custom" &&
-        challengeSelection.customChallenge
-      ) {
-        const { title, description, tasks } =
-          challengeSelection.customChallenge;
-
-        const tasksReset = await resetTasks();
-        if (!tasksReset.success) throw new Error("Couldn't start challenge");
-
-        const dimensionsUpdated = await dimensionsReset(missedTasks);
-        if (!dimensionsUpdated.success) throw new Error("Couldn't start challenge");
-
-        const result = await createCustomChallenge(undefined, duration, {
-          title,
-          description,
-          tasks: tasks.map((t) => ({
-            name: t.name,
-            dimensionId: t.dimension.id,
-          })),
-          nextDay: false,
-        });
-
-        if (!result.success) {
-          throw new Error(
-            result.message || "Failed to create custom challenge"
-          );
-        }
-      } else {
-        throw new Error("Invalid challenge selection");
+      if (!result.success) {
+        throw new Error(result.message || "Failed to create custom challenge");
       }
 
       localStorage.removeItem("dayCompleted");
       updateFlowState({ isExiting: true });
       toast.success("Challenge started successfully!");
-      setTimeout(() => {
-        router.push("/dashboard/");
-      }, 2000);
+      router.push("/dashboard/");
       return true;
     } catch (error) {
       console.error("Challenge start error:", error);
@@ -217,7 +152,7 @@ export default function StreakBreakFlow({
     } finally {
       updateFlowState({ isLoading: false });
     }
-  }, [router, updateFlowState, challengeSelection, getDuration]);
+  }, [router, updateFlowState, challengeSelection, getDuration, missedTasks]);
 
   const goToStep = useCallback(
     (step: FlowStep) => {

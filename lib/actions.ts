@@ -8,10 +8,7 @@ export {
 
 // challenge management
 export { completeChallenge } from "@/lib/actions/complete-challenge";
-export {
-  enrollInExistingChallenge,
-  createCustomChallenge,
-} from "@/lib/actions/manage-challenge";
+export { startChallenge } from "@/lib/actions/manage-challenge";
 
 // task and day system
 export { completeTask } from "@/lib/actions/complete-task";
@@ -24,8 +21,4 @@ export {
   completeDayAndUpdateStreak,
 } from "@/lib/actions/manage-streak";
 
-
-export { 
-  resetTasks, 
-  dimensionsReset
-} from "@/lib/actions/streak-break"
+export { resetTasks, dimensionsReset } from "@/lib/actions/streak-break";

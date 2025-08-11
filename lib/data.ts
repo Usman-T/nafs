@@ -124,6 +124,10 @@ export const fetchChallenges = async () => {
 export const fetchDimensions = async () => {
   const dimensions = await prisma.dimension.findMany({});
 
+  console.log({
+    dimensionsFetched: dimensions.length,
+    success: dimensions.length > 0,
+  });
   return dimensions;
 };
 

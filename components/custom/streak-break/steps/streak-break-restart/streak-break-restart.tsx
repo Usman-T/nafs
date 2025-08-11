@@ -5,7 +5,6 @@ import { Challenge, Dimension, Task } from "@prisma/client";
 import { useStreakBreakRestart } from "@/lib/hooks/use-streak-break";
 import ChoosePredefinedBranch from "./choose-existing";
 import StartNewChallenge from "./start-new";
-import SelectedChallenge from "./selected-challenge";
 import { CustomChallengeStep } from "@/components/custom/challenges/completion/challenge/steps/custom-challenge-step";
 
 type ExtendedChallenge = Challenge & {
@@ -39,7 +38,6 @@ interface StreakBreakRestartProps {
 
 const StreakBreakRestart: React.FC<StreakBreakRestartProps> = ({
   currentChallenge,
-  predefinedChallenges,
   dimensions,
   duration,
   challengeSelection,
@@ -48,26 +46,18 @@ const StreakBreakRestart: React.FC<StreakBreakRestartProps> = ({
 }) => {
   const {
     flowBranch,
-    isLoading: hookLoading,
-    selectedChallenge,
     customChallenge,
     completedTasks,
-    selectedTasks,
-    carouselApi,
-    currentSlide,
-    setCarouselApi,
-    goToChoose,
-    goToPredefined,
-    goToCustom,
     handleContinueCurrentChallenge,
-    handleSelectPredefinedChallenge,
-    handleToggleTask,
     handleAddCustomTask,
     handleRemoveCustomTask,
     handleUpdateCustomChallenge,
+    goToCustom,
+    goToChoose
   } = useStreakBreakRestart({
     currentChallenge,
     duration,
+    dimensions,
     challengeSelection,
     onUpdateSelection,
   });
@@ -80,37 +70,7 @@ const StreakBreakRestart: React.FC<StreakBreakRestartProps> = ({
             currentChallenge={currentChallenge}
             completedTasks={completedTasks}
             onContinueChallenge={handleContinueCurrentChallenge}
-            onStartNew={goToPredefined}
-            isLoading={isLoading || hookLoading}
-          />
-        );
-
-      case "predefined":
-        return (
-          <ChoosePredefinedBranch
-            predefinedChallenges={predefinedChallenges}
-            selectedChallengeId={challengeSelection.challengeId || null}
-            duration={duration}
-            currentSlide={currentSlide}
-            carouselApi={carouselApi}
-            onSelectChallenge={handleSelectPredefinedChallenge}
-            onCreateCustom={goToCustom}
-            onBack={goToChoose}
-            setCarouselApi={setCarouselApi}
-            isLoading={isLoading || hookLoading}
-          />
-        );
-
-      case "select-tasks":
-        return (
-          <SelectedChallenge
-            challenge={selectedChallenge}
-            loading={hookLoading}
-            selectedTasks={selectedTasks}
-            onToggleTask={handleToggleTask}
-            onBack={goToPredefined}
-            minTasks={3}
-            maxTasks={5}
+            onStartNew={goToCustom}
           />
         );
 
@@ -122,7 +82,7 @@ const StreakBreakRestart: React.FC<StreakBreakRestartProps> = ({
             onAddTask={handleAddCustomTask}
             onRemoveTask={handleRemoveCustomTask}
             onUpdateChallenge={handleUpdateCustomChallenge}
-            onBack={goToPredefined}
+            onBack={goToChoose}
             minTasks={3}
             maxTasks={5}
             isLoading={isLoading}

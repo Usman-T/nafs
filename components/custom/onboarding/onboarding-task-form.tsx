@@ -1,5 +1,7 @@
 "use client";
 
+import type React from "react";
+
 import { useEffect, useRef, useState } from "react";
 import {
   Drawer,
@@ -8,19 +10,15 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  User,
-  Mail,
-  Phone,
-  Tag,
   BookOpen,
   Plus,
-  Check,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 import { iconMap } from "@/lib/iconMap";
 import {
@@ -28,28 +26,55 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { Dimension } from "@prisma/client";
 
-const suggestions = [
-  { id: 1, text: "John Doe", icon: User, color: "text-blue-500" },
-  { id: 2, text: "jane.smith@email.com", icon: Mail, color: "text-green-500" },
-  { id: 3, text: "+1 (555) 123-4567", icon: Phone, color: "text-purple-500" },
-  { id: 10, text: "Project Alpha", icon: Tag, color: "text-emerald-500" },
+const taskSuggestions = [
+  // Faith
+  { dimension: "Faith", text: "Pray 5 times on time" },
+  { dimension: "Faith", text: "Make dua 5 mins" },
+  { dimension: "Faith", text: "Read 1 Qur’an page" },
+
+  // Remembrance
+  { dimension: "Remembrance", text: "Do morning & evening adhkar" },
+  { dimension: "Remembrance", text: "Say Astaghfirullah 100×" },
+  { dimension: "Remembrance", text: "Send salawat 50×" },
+
+  // Knowledge
+  { dimension: "Knowledge", text: "Watch/read 10-min Islamic talk" },
+  { dimension: "Knowledge", text: "Learn 3 Qur’anic words" },
+  { dimension: "Knowledge", text: "Study 1 hadith" },
+
+  // Character
+  { dimension: "Character", text: "Speak kindly all day" },
+  { dimension: "Character", text: "Show patience once" },
+  { dimension: "Character", text: "Give sincere thanks" },
+
+  // Discipline
+  { dimension: "Discipline", text: "Wake at first Fajr alarm" },
+  { dimension: "Discipline", text: "Fast or skip snacks" },
+  { dimension: "Discipline", text: "Plan & follow day" },
+
+  // Body
+  { dimension: "Body", text: "Do 20-min workout" },
+  { dimension: "Body", text: "Sleep 7+ hours" },
+  { dimension: "Body", text: "Drink 8 glasses water" },
+
+  // Purpose
+  { dimension: "Purpose", text: "Write 3 goals" },
+  { dimension: "Purpose", text: "1h on key project" },
+  { dimension: "Purpose", text: "Check intentions" },
 ];
 
 const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
   const [taskName, setTaskName] = useState("");
-  const [selectedDimension, setSelectedDimension] = useState(null);
+  const [selectedDimension, setSelectedDimension] = useState<Dimension | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [carouselApi, setCarouselApi] = useState();
-  const [filteredSuggestions, setFilteredSuggestions] = useState(suggestions);
+  const [showAutocomplete, setShowAutocomplete] = useState(false);
+  const [filteredSuggestions, setFilteredSuggestions] =
+    useState(taskSuggestions);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
 
   const itemsPerPage = 4;
   const totalPages = Math.ceil(dimensions.length / itemsPerPage);
@@ -74,19 +99,20 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
   }, [carouselApi]);
 
   useEffect(() => {
-    const filtered = suggestions.filter((suggestion) =>
-      suggestion.text.toLowerCase().includes(taskName.toLowerCase())
-    );
-    setFilteredSuggestions(filtered);
-  }, [taskName]);
+    if (selectedDimension) {
+      const filtered = taskSuggestions.filter((suggestion) =>
+        suggestion.dimension.toLowerCase().includes(selectedDimension.name)
+      );
+      setFilteredSuggestions(filtered);
+    } else {
+      setFilteredSuggestions(taskSuggestions);
+    }
+  }, [selectedDimension, taskName]);
 
   const handleSubmit = async () => {
     if (!taskName.trim() || !selectedDimension) return;
 
     setIsSubmitting(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 800));
 
     onAdd({
       name: taskName.trim(),
@@ -103,6 +129,7 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
   const handleCancel = () => {
     setTaskName("");
     setSelectedDimension(null);
+    setShowAutocomplete(false);
     onCancel();
     setIsOpen(false);
   };
@@ -127,24 +154,25 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTaskName(e.target.value);
-    setIsOpen(true);
+    setShowAutocomplete(false);
+    setSelectedSuggestionIndex(-1);
   };
 
-  const handleInputFocus = () => {
-    setIsOpen(true);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape") {
-      setIsOpen(false);
-      inputRef.current?.blur();
-    }
-  };
-
-  const handleSuggestionClick = (suggestion: (typeof suggestions)[0]) => {
+  const handleSuggestionClick = (suggestion: (typeof taskSuggestions)[0]) => {
+    const dimension = dimensions.find(
+      (dim) => dim.name === suggestion.dimension
+    );
     setTaskName(suggestion.text);
-    setIsOpen(false);
-    inputRef.current?.blur();
+    setSelectedDimension(dimension);
+    setShowAutocomplete(false);
+    setSelectedSuggestionIndex(-1);
+
+    inputRef.current?.focus();
+  };
+
+  const toggleAutocomplete = () => {
+    setShowAutocomplete(!showAutocomplete);
+    setSelectedSuggestionIndex(-1);
   };
 
   return (
@@ -182,64 +210,112 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
               animate={{ opacity: 1, y: 0 }}
               className="px-4 space-y-6 overflow-y-auto flex-1"
             >
-              {/* Task Name Input */}
               <div className="space-y-3">
                 <label className="text-sm font-medium text-[#ebdbb2] flex items-center gap-2">
                   Task Name
                   <span className="text-[#fe8019]">*</span>
                 </label>
                 <div className="relative">
-                  <Input
-                    value={taskName}
-                    ref={inputRef}
-                    onChange={handleInputChange}
-                    onFocus={handleInputFocus}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Enter task name"
-                    className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] placeholder-[#665c54] focus:border-[#fe8019] focus:ring-[#fe8019]/20 pr-16"
-                    maxLength={50}
-                  />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#665c54]">
-                    {taskName.length}/50
-                  </div>
-                  {isOpen && (
-                    <div
-                      ref={dropdownRef}
-                      className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-gray-200 rounded-md shadow-lg animate-in fade-in-0 zoom-in-95 duration-200"
+                  <div className="relative">
+                    <Input
+                      value={taskName}
+                      ref={inputRef}
+                      onChange={handleInputChange}
+                      placeholder="Enter task name"
+                      className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] placeholder-[#665c54] focus:border-[#fe8019] focus:ring-[#fe8019]/20 pr-20"
+                      maxLength={50}
+                    />
+                    <div className="absolute right-12 top-1/2 -translate-y-1/2 text-xs text-[#665c54]">
+                      {taskName.length}/50
+                    </div>
+                    <motion.button
+                      type="button"
+                      onClick={toggleAutocomplete}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md bg-[#3c3836] hover:bg-[#504945] transition-colors"
                     >
-                      <Command className="max-h-64 overflow-hidden">
-                        <CommandList>
-                          {filteredSuggestions.length === 0 ? (
-                            <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
-                              No suggestions found.
-                            </CommandEmpty>
-                          ) : (
-                            <CommandGroup className="p-2">
-                              {filteredSuggestions.map((suggestion) => {
-                                const IconComponent = suggestion.icon;
-                                return (
-                                  <CommandItem
-                                    key={suggestion.id}
-                                    onSelect={() =>
-                                      handleSuggestionClick(suggestion)
-                                    }
-                                    className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors duration-150"
+                      <motion.div
+                        animate={{ rotate: showAutocomplete ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ChevronDown className="w-4 h-4 text-[#a89984]" />
+                      </motion.div>
+                    </motion.button>
+                  </div>
+
+                  <AnimatePresence>
+                    {showAutocomplete && (
+                      <motion.div
+                        ref={dropdownRef}
+                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute top-full left-0 right-0 mt-2 bg-[#282828] border border-[#3c3836] rounded-lg shadow-xl z-50 max-h-64 overflow-hidden"
+                      >
+                        <div className="overflow-y-auto max-h-64 scrollbar-thin scrollbar-thumb-[#504945] scrollbar-track-[#3c3836]">
+                          {filteredSuggestions
+                            .slice(0, 12)
+                            .map((suggestion, index) => {
+                              const dimension = dimensions.find(
+                                (dim) => dim.name === suggestion.dimension
+                              );
+                              const IconComponent = iconMap[dimension.icon];
+                              const iconColor = dimension.color;
+                              const isSelected =
+                                index === selectedSuggestionIndex;
+
+                              return (
+                                <motion.div
+                                  key={`${suggestion.text}-${index}`}
+                                  onClick={() =>
+                                    handleSuggestionClick(suggestion)
+                                  }
+                                  className={`
+                                  flex items-center gap-3 p-3 cursor-pointer transition-all duration-150
+                                  ${
+                                    isSelected
+                                      ? "bg-[#fe8019]/20 border-l-2 border-[#fe8019]"
+                                      : "hover:bg-[#3c3836]/50"
+                                  }
+                                `}
+                                >
+                                  <div
+                                    className="w-8 h-8 rounded-full flex items-center justify-center"
+                                    style={{
+                                      backgroundColor: `${iconColor}20`,
+                                    }}
                                   >
                                     <IconComponent
-                                      className={`h-4 w-4 ${suggestion.color} flex-shrink-0`}
+                                      className="w-4 h-4"
+                                      style={{ color: iconColor }}
                                     />
-                                    <span className="flex-1 text-sm">
-                                      {suggestion.text}
-                                    </span>
-                                  </CommandItem>
-                                );
-                              })}
-                            </CommandGroup>
+                                  </div>
+                                  <span
+                                    className={`
+                                  text-sm transition-colors duration-150
+                                  ${
+                                    isSelected
+                                      ? "text-[#fe8019]"
+                                      : "text-[#ebdbb2]"
+                                  }
+                                `}
+                                  >
+                                    {suggestion.text}
+                                  </span>
+                                </motion.div>
+                              );
+                            })}
+                          {filteredSuggestions.length === 0 && (
+                            <div className="p-4 text-center text-[#665c54] text-sm">
+                              No suggestions found
+                            </div>
                           )}
-                        </CommandList>
-                      </Command>
-                    </div>
-                  )}{" "}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
               {/* Dimension Selection */}
@@ -377,7 +453,7 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
             <div className="flex gap-3">
               <Button
                 variant="outline"
-                className="flex-1 border-[#3c3836] text-[#ebdbb2] hover:bg-[#3c3836] hover:text-[#ebdbb2]"
+                className="flex-1 border-[#3c3836] text-[#ebdbb2] hover:bg-[#3c3836] hover:text-[#ebdbb2] bg-transparent"
                 onClick={handleCancel}
               >
                 Cancel
@@ -395,7 +471,7 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
                       animate={{ rotate: 360 }}
                       transition={{
                         duration: 1,
-                        repeat: Infinity,
+                        repeat: Number.POSITIVE_INFINITY,
                         ease: "linear",
                       }}
                       className="w-4 h-4 border-2 border-[#1d2021] border-t-transparent rounded-full"

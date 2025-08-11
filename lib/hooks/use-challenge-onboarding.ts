@@ -1,14 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { Challenge, Dimension } from "@prisma/client";
-import {
-  createCustomChallenge,
-  enrollInExistingChallenge,
-} from "@/lib/actions";
+import { Dimension } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { signOut } from "next-auth/react";
-
-// Types
+import { startChallenge } from "@/lib/actions";
 interface CustomTask {
   name: string;
   dimension: Dimension;
@@ -25,11 +20,7 @@ export const useChallengeOnboarding = () => {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // State
   const [step, setStep] = useState(0);
-  const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(
-    null
-  );
   const [customChallenge, setCustomChallenge] = useState<CustomChallengeState>({
     title: "Custom Challenge",
     description: "Your personalized 3 day challenge",
@@ -39,62 +30,19 @@ export const useChallengeOnboarding = () => {
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [challengeLoading, setChallengeLoading] = useState(false);
-  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(
-    null
-  );
-  const [carouselApi, setCarouselApi] = useState<any>();
-  const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Effects
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = 0;
     }
-    if (step === 5) {
-      setSelectedChallengeId(null);
-      setSelectedChallenge(null);
-    }
   }, [step]);
 
-  useEffect(() => {
-    const loadChallenge = async () => {
-      if (!selectedChallengeId) return;
-
-      try {
-        setChallengeLoading(true);
-        const response = await fetch(`/api/challenges/${selectedChallengeId}`);
-        const data = await response.json();
-        setSelectedChallenge(data.challenge);
-      } catch (error) {
-        console.error("Error fetching challenge:", error);
-      } finally {
-        setChallengeLoading(false);
-      }
-    };
-
-    if (selectedChallengeId) {
-      loadChallenge();
-    }
-  }, [selectedChallengeId]);
-
-  useEffect(() => {
-    if (!carouselApi) return;
-
-    carouselApi.on("select", () => {
-      setCurrentSlide(carouselApi.selectedScrollSnap());
-    });
-  }, [carouselApi]);
-
-  // Handlers
   const handleAddTask = (task: { name: string; dimension: Dimension }) => {
     setCustomChallenge((prev) => ({
       ...prev,
       tasks: [...prev.tasks, { ...task, dimension: task.dimension }],
     }));
     setShowTaskForm(false);
-    setSelectedChallengeId(null);
-    setSelectedChallenge(null);
   };
 
   const handleRemoveTask = (index: number) => {
@@ -104,49 +52,29 @@ export const useChallengeOnboarding = () => {
     }));
   };
 
-  const handleChallengeSelect = (challengeId: string) => {
-    setSelectedChallengeId(challengeId);
-  };
-
   const handleStartChallenge = async () => {
-    const INITIAL_CHALLENGE_DURATION = 3;
-
     try {
       setIsLoading(true);
 
-      if (selectedChallengeId) {
-        const result = await enrollInExistingChallenge(
-          selectedChallengeId,
-          selectedTasks,
-          INITIAL_CHALLENGE_DURATION,
-          false
-        );
-        if (!result.success) throw new Error(result.message);
-      } else if (customChallenge.tasks.length > 0) {
-        const creationResult = await createCustomChallenge(
-          undefined,
-          INITIAL_CHALLENGE_DURATION,
-          {
-            title: customChallenge.title,
-            description: customChallenge.description,
-            tasks: customChallenge.tasks.map((t) => ({
-              name: t.name,
-              dimensionId: t.dimension.id,
-            })),
-            nextDay: false,
-          }
-        );
+      const result = await startChallenge({
+        title: customChallenge.title,
+        description: customChallenge.description,
+        tasks: customChallenge.tasks.map((t) => ({
+          name: t.name,
+          dimensionId: t.dimension.id,
+        })),
+        nextDay: false,
+        duration: customChallenge.duration,
+      });
 
-        if (!creationResult.success) {
-          throw new Error(creationResult?.message);
-        }
+      if (!result.success) {
+        throw new Error(result?.message);
       }
 
-      toast.success("Challenge started successfully!");
-
-      setTimeout(() => {
+      if (result.success) {
+        toast.success("Challenge started successfully!");
         router.push("/dashboard");
-      }, 1000);
+      }
     } catch (error: any) {
       const isAuthError =
         error.message?.includes("auth") ||
@@ -185,9 +113,7 @@ export const useChallengeOnboarding = () => {
   };
 
   const handleNext = () => {
-    if (step === 1 && !selectedChallengeId) {
-      setStep(4);
-    } else if (step === 3 || step === 5) {
+    if (step === 2) {
       handleStartChallenge();
     } else {
       setStep(step + 1);
@@ -195,65 +121,44 @@ export const useChallengeOnboarding = () => {
   };
 
   const handleBack = () => {
-    if (step === 4) {
-      setStep(1);
-    } else {
-      setStep(Math.max(0, step - 1));
-    }
+    setStep(Math.max(0, step - 1));
   };
 
-  // Computed values
   const isNextDisabled = () => {
     switch (step) {
       case 1:
-        return !selectedChallengeId && step !== 3;
-      case 2:
-        return selectedTasks.length < 3;
-      case 4:
         return !(
           customChallenge.tasks.length >= 3 && customChallenge.tasks.length <= 5
         );
-      case 5:
-        return customChallenge.tasks.length === 0;
       default:
         return false;
     }
   };
 
   const showFinishButton = () => {
-    return (step === 3 && selectedChallengeId) || step === 5;
+    return step === 2;
   };
 
-  const totalSteps = selectedChallengeId ? 4 : 7;
+  const totalSteps = 3;
 
   return {
-    // State
     step,
-    selectedChallengeId,
     customChallenge,
     showTaskForm,
     selectedTasks,
     isLoading,
-    challengeLoading,
-    selectedChallenge,
-    carouselApi,
-    currentSlide,
     containerRef,
 
-    // Handlers
     handleAddTask,
     handleRemoveTask,
-    handleChallengeSelect,
     handleStartChallenge,
     handleNext,
     handleBack,
     setStep,
     setShowTaskForm,
     setSelectedTasks,
-    setCarouselApi,
     setCustomChallenge,
 
-    // Computed
     isNextDisabled,
     showFinishButton,
     totalSteps,

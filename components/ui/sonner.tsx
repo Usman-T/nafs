@@ -34,7 +34,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           description:
             "text-[#a89984] text-sm opacity-90 group-[.toast]:mt-1",
           actionButton:
-            "bg-[#fe8019] text-[#1d2021] hover:bg-[#fabd2f] border border-[#d65d0e]",
+            "bg-[#1d2021] text-[#ebddb2] hover:bg-[#fabd2f] border border-[#d65d0e]",
           cancelButton:
             "bg-[#282828] text-[#ebdbb2] hover:bg-[#3c3836] border border-[#3c3836]",
           closeButton:

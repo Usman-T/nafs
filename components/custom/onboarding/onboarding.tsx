@@ -1,127 +1,125 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { Challenge, Dimension } from "@prisma/client";
-import SelectedChallenge from "@/components/custom/onboarding/onboarding-selected-challenge";
+import { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from "@/components/ui/carousel";
+import { useChallengeOnboarding } from "@/lib/hooks/use-challenge-onboarding";
+import { Dimension } from "@prisma/client";
 import OnboardingWelcome from "@/components/custom/onboarding/onboarding-welcome";
-import ChallengeSummary from "@/components/custom/onboarding/onboarding-challenge-summary";
 import { CustomTasksStep } from "./steps/custom-task-step";
 import { CustomChallengeSummaryStep } from "./steps/custom-challenge-summary";
-import { OnboardingHeader } from "./onboarding-header";
-import { OnboardingNavigation } from "./onboarding-navigation";
-import { ChallengeSelectionStep } from "./steps/challenge-selection";
-import { useChallengeOnboarding } from "@/lib/hooks/use-challenge-onboarding";
 
 export default function ChallengeOnboarding({
-  predefinedChallenges,
   dimensions,
 }: {
-  predefinedChallenges: Challenge[];
   dimensions: Dimension[];
 }) {
   const {
     step,
-    selectedChallengeId,
     customChallenge,
     showTaskForm,
-    selectedTasks,
-    isLoading,
-    challengeLoading,
-    selectedChallenge,
-    carouselApi,
-    currentSlide,
-    containerRef,
     handleAddTask,
     handleRemoveTask,
-    handleChallengeSelect,
-    handleNext,
-    handleBack,
     setShowTaskForm,
-    setSelectedTasks,
-    setCarouselApi,
-    setStep,
     isNextDisabled,
-    showFinishButton,
-    totalSteps,
+    setStep,
   } = useChallengeOnboarding();
 
-  const renderStepContent = () => {
-    switch (step) {
-      case 0:
-        return <OnboardingWelcome />;
-      case 1:
-        return (
-          <ChallengeSelectionStep
-            predefinedChallenges={predefinedChallenges}
-            selectedChallengeId={selectedChallengeId}
-            onChallengeSelect={handleChallengeSelect}
-            carouselApi={carouselApi}
-            setCarouselApi={setCarouselApi}
-            currentSlide={currentSlide}
-            onCreateCustom={() => setStep(4)}
-          />
-        );
-      case 2:
-        return (
-          <SelectedChallenge
-            selectedTasks={selectedTasks}
-            setSelectedTasks={setSelectedTasks}
-            challenge={selectedChallenge}
-            loading={challengeLoading}
-          />
-        );
-      case 3:
-        return (
-          <ChallengeSummary
-            duration={3}
-            selectedTasks={selectedTasks}
-            challenge={selectedChallenge}
-          />
-        );
-      case 4:
-        return (
-          <CustomTasksStep
-            customChallenge={customChallenge}
-            onAddTask={handleAddTask}
-            onRemoveTask={handleRemoveTask}
-            showTaskForm={showTaskForm}
-            setShowTaskForm={setShowTaskForm}
-            dimensions={dimensions}
-          />
-        );
-      case 5:
-        return <CustomChallengeSummaryStep customChallenge={customChallenge} />;
-      default:
-        return null;
+  const [api, setApi] = useState<CarouselApi>();
+
+  useEffect(() => {
+    if (api && api.selectedScrollSnap() !== step) {
+      api.scrollTo(step);
     }
-  };
+  }, [step, api]);
+
+  useEffect(() => {
+    if (!api) return;
+
+    const handleSelect = () => {
+      const newIndex = api.selectedScrollSnap();
+
+      if (newIndex > step && isNextDisabled()) {
+        api.scrollTo(step);
+        return;
+      }
+
+      setStep(newIndex);
+    };
+
+    api.on("select", handleSelect);
+    return () => {
+      api.off("select", handleSelect);
+    };
+  }, [api, step, setStep, isNextDisabled]);
+
+  const steps = [
+    {
+      component: <OnboardingWelcome />,
+    },
+    {
+      component: (
+        <CustomTasksStep
+          customChallenge={customChallenge}
+          onAddTask={handleAddTask}
+          onRemoveTask={handleRemoveTask}
+          showTaskForm={showTaskForm}
+          setShowTaskForm={setShowTaskForm}
+          dimensions={dimensions}
+          isActive={step === 1}
+        />
+      ),
+    },
+    {
+      component: (
+        <CustomChallengeSummaryStep
+          isActive={step === 2}
+          customChallenge={customChallenge}
+        />
+      ),
+    },
+  ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="rounded-lg w-full h-screen justify-between flex flex-col"
-    >
-      <OnboardingHeader step={step} totalSteps={totalSteps} />
-
-      <div
-        ref={containerRef}
-        className="flex overflow-y-auto justify-center items-center p-4 sm:p-6"
+    <div className="w-full justify-center items-center h-screen flex flex-col">
+      <Carousel
+        setApi={setApi}
+        opts={{
+          align: "start",
+          loop: false,
+          watchDrag: true,
+          dragFree: false,
+        }}
+        className="flex justify-center items-center w-full h-full"
       >
-        <AnimatePresence mode="wait">
-          <div key={step}>{renderStepContent()}</div>
-        </AnimatePresence>
-      </div>
-
-      <OnboardingNavigation
-        step={step}
-        totalSteps={totalSteps}
-        onBack={handleBack}
-        onNext={handleNext}
-        isLoading={isLoading}
-        isNextDisabled={isNextDisabled()}
-        showFinishButton={showFinishButton()}
-      />
-    </motion.div>
+        <CarouselContent className="flex h-full">
+          {steps.map((step, index) => (
+            <CarouselItem
+              key={index}
+              className="flex items-center justify-center w-full h-full"
+            >
+              <Card className="border-0 bg-transparent shadow-none w-full max-w-md mx-auto h-full">
+                <CardContent className="w-full h-full flex items-center justify-center">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="w-full"
+                  >
+                    {step.component}
+                  </motion.div>
+                </CardContent>
+              </Card>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
+    </div>
   );
 }

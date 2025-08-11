@@ -9,7 +9,6 @@ import {
 
 export const OnboardingNavigation = ({
   step,
-  totalSteps,
   onBack,
   onNext,
   isLoading,
@@ -17,7 +16,6 @@ export const OnboardingNavigation = ({
   showFinishButton,
 }: {
   step: number;
-  totalSteps: number;
   onBack: () => void;
   onNext: () => void;
   isLoading: boolean;
