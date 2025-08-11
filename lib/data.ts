@@ -94,9 +94,14 @@ export const fetchUserChallenge = async () => {
     },
   });
 
-  return user?.challenges.find(
+  const currentChallenge = user?.challenges.find(
     (userChallenge) => userChallenge.challengeId === user.challengeId
   );
+  if (!currentChallenge) {
+    redirect("/onboarding");
+  }
+
+  return currentChallenge;
 };
 
 export const fetchChallenges = async () => {

@@ -67,7 +67,9 @@ const taskSuggestions = [
 
 const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
   const [taskName, setTaskName] = useState("");
-  const [selectedDimension, setSelectedDimension] = useState<Dimension | null>(null);
+  const [selectedDimension, setSelectedDimension] = useState<Dimension | null>(
+    null
+  );
   const [currentPage, setCurrentPage] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [carouselApi, setCarouselApi] = useState();
@@ -99,14 +101,7 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
   }, [carouselApi]);
 
   useEffect(() => {
-    if (selectedDimension) {
-      const filtered = taskSuggestions.filter((suggestion) =>
-        suggestion.dimension.toLowerCase().includes(selectedDimension.name)
-      );
-      setFilteredSuggestions(filtered);
-    } else {
-      setFilteredSuggestions(taskSuggestions);
-    }
+    setFilteredSuggestions(taskSuggestions);
   }, [selectedDimension, taskName]);
 
   const handleSubmit = async () => {
@@ -252,7 +247,7 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute top-full left-0 right-0 mt-2 bg-[#282828] border border-[#3c3836] rounded-lg shadow-xl z-50 max-h-64 overflow-hidden"
+                        className="absolute top-full left-0 right-0 mt-2 bg-[#282828] border border-[#3c3836] rounded-lg shadow-xl z-50 max-h-48 overflow-hidden"
                       >
                         <div className="overflow-y-auto max-h-64 scrollbar-thin scrollbar-thumb-[#504945] scrollbar-track-[#3c3836]">
                           {filteredSuggestions

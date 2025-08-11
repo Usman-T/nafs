@@ -113,11 +113,7 @@ export const useChallengeOnboarding = () => {
   };
 
   const handleNext = () => {
-    if (step === 2) {
-      handleStartChallenge();
-    } else {
       setStep(step + 1);
-    }
   };
 
   const handleBack = () => {

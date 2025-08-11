@@ -28,6 +28,7 @@ export default function ChallengeOnboarding({
     handleRemoveTask,
     setShowTaskForm,
     isNextDisabled,
+    handleStartChallenge,
     setStep,
   } = useChallengeOnboarding();
 
@@ -81,6 +82,7 @@ export default function ChallengeOnboarding({
         <CustomChallengeSummaryStep
           isActive={step === 2}
           customChallenge={customChallenge}
+          handleStartChallenge={handleStartChallenge}
         />
       ),
     },

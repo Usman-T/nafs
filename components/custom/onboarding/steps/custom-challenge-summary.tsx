@@ -20,9 +20,11 @@ interface CustomChallengeState {
 export const CustomChallengeSummaryStep = ({
   customChallenge,
   isActive,
+  handleStartChallenge,
 }: {
   customChallenge: CustomChallengeState;
   isActive: boolean;
+  handleStartChallenge: () => void;
 }) => (
   <AnimatePresence mode="wait">
     {isActive && (
@@ -77,6 +79,21 @@ export const CustomChallengeSummaryStep = ({
         <div className="text-sm text-[#a89984] text-center">
           <p>Your challenge will begin today.</p>
         </div>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="flex justify-center"
+        >
+          <motion.button
+            onClick={handleStartChallenge}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-6 py-3 rounded-md font-semibold text-[#1d2021] bg-[#fe8019] hover:bg-[#d65d0e] focus:outline-none shadow-lg"
+          >
+            Start Challenge
+          </motion.button>
+        </motion.div>
       </motion.div>
     )}
   </AnimatePresence>
