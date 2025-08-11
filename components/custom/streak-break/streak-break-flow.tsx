@@ -14,10 +14,7 @@ import StreakBreakFooter from "@/components/custom/streak-break/extras/streak-br
 import StreakBreakSummary from "./steps/streak-break-summary";
 import ExitAnimation from "./extras/exit-animation";
 import StreakBreakRestart from "./steps/streak-break-restart/streak-break-restart";
-import {
-  dimensionsReset,
-  resetTasks,
-} from "@/lib/actions";
+import { dimensionsReset, resetTasks, startChallenge } from "@/lib/actions";
 
 type ExtendedChallenge = Challenge & {
   tasks: {
@@ -158,11 +155,23 @@ export default function StreakBreakFlow({
           false
         );
 
+        const result = await startChallenge({
+          title: "",
+          description: "",
+          nextDay: false,
+          tasks: challengeSelection.selectedTasks.map((t) => ({
+            name: t.name,
+            dimension: t.dimension.id,
+          })),
+          duration: duration,
+        });
+
         const tasksReset = await resetTasks();
         if (!tasksReset.success) throw new Error("Couldn't start challenge");
 
         const dimensionsUpdated = await dimensionsReset(missedTasks);
-        if (!dimensionsUpdated.success) throw new Error("Couldn't start challenge");
+        if (!dimensionsUpdated.success)
+          throw new Error("Couldn't start challenge");
 
         if (!result.success) {
           throw new Error(result.message || "Failed to enroll in challenge");
@@ -178,7 +187,8 @@ export default function StreakBreakFlow({
         if (!tasksReset.success) throw new Error("Couldn't start challenge");
 
         const dimensionsUpdated = await dimensionsReset(missedTasks);
-        if (!dimensionsUpdated.success) throw new Error("Couldn't start challenge");
+        if (!dimensionsUpdated.success)
+          throw new Error("Couldn't start challenge");
 
         const result = await createCustomChallenge(undefined, duration, {
           title,

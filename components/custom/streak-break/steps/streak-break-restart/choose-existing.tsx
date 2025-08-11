@@ -23,7 +23,6 @@ interface ChoosePredefinedBranchProps {
 }
 
 const ChoosePredefinedBranch: React.FC<ChoosePredefinedBranchProps> = ({
-  predefinedChallenges,
   selectedChallengeId,
   duration,
   currentSlide,
@@ -57,8 +56,7 @@ const ChoosePredefinedBranch: React.FC<ChoosePredefinedBranchProps> = ({
           }}
           setApi={setCarouselApi}
         >
-          <CarouselContent>
-            {predefinedChallenges.map((challenge, i) => (
+          <CarouselContent> {predefinedChallenges.map((challenge, i) => (
               <CarouselItem key={i} className="px-2 pl-8">
                 <ChallengeCard
                   challenge={{ ...challenge, duration: duration }}

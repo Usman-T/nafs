@@ -10,7 +10,7 @@ type ExtendedChallenge = Challenge & {
   }[];
 };
 
-type FlowBranchType = "choose" | "predefined" | "custom" | "select-tasks";
+type FlowBranchType = "choose" | "custom";
 
 interface CustomTask {
   name: string;
@@ -33,7 +33,6 @@ interface ChallengeSelection {
 
 interface UseStreakBreakRestartProps {
   currentChallenge: ExtendedChallenge;
-  predefinedChallenges: Challenge[];
   dimensions: Dimension[];
   duration: number;
   challengeSelection: ChallengeSelection;
@@ -47,11 +46,8 @@ export const useStreakBreakRestart = ({
   onUpdateSelection,
 }: UseStreakBreakRestartProps) => {
   const [flowBranch, setFlowBranch] = useState<FlowBranchType>("choose");
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedChallenge, setSelectedChallenge] =
     useState<ExtendedChallenge | null>(null);
-  const [carouselApi, setCarouselApi] = useState<any>(null);
-  const [currentSlide, setCurrentSlide] = useState(0);
 
   const [customChallenge, setCustomChallenge] = useState<CustomChallengeData>({
     title: "Custom Challenge",
@@ -68,53 +64,11 @@ export const useStreakBreakRestart = ({
     }
   }, [customChallenge, challengeSelection.type, onUpdateSelection]);
 
-  useEffect(() => {
-    if (!carouselApi) return;
-
-    const handleSelect = () => {
-      setCurrentSlide(carouselApi.selectedScrollSnap());
-    };
-
-    carouselApi.on("select", handleSelect);
-    return () => carouselApi.off("select", handleSelect);
-  }, [carouselApi]);
-
-  const loadChallengeDetails = useCallback(
-    async (challengeId: string) => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/api/challenges/${challengeId}`);
-        if (!response.ok) throw new Error("Failed to fetch challenge");
-
-        const data = await response.json();
-        setSelectedChallenge(data.challenge);
-        setFlowBranch("select-tasks");
-
-        onUpdateSelection({
-          type: "existing",
-          challengeId: challengeId,
-          selectedTasks: [],
-          selectedChallenge: data.challenge,
-        });
-      } catch (error) {
-        console.error("Error loading challenge:", error);
-        toast.error("Failed to load challenge details");
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [onUpdateSelection]
-  );
-
   const goToChoose = useCallback(() => {
     setFlowBranch("choose");
     setSelectedChallenge(null);
     onUpdateSelection({ type: null });
   }, [onUpdateSelection]);
-
-  const goToPredefined = useCallback(() => {
-    setFlowBranch("predefined");
-  }, []);
 
   const goToCustom = useCallback(() => {
     setFlowBranch("custom");
@@ -133,31 +87,6 @@ export const useStreakBreakRestart = ({
       selectedChallenge: currentChallenge,
     });
   }, [currentChallenge, onUpdateSelection]);
-
-  const handleSelectPredefinedChallenge = useCallback(
-    (challengeId: string) => {
-      loadChallengeDetails(challengeId);
-    },
-    [loadChallengeDetails]
-  );
-
-  const handleToggleTask = useCallback(
-    (taskIndex: number) => {
-      const currentTasks = challengeSelection.selectedTasks || [];
-      const newTasks = currentTasks.includes(taskIndex)
-        ? currentTasks.filter((index) => index !== taskIndex)
-        : [...currentTasks, taskIndex];
-
-      if (newTasks.length <= 5) {
-        onUpdateSelection({
-          selectedTasks: newTasks,
-        });
-      } else {
-        toast.error("You can select a maximum of 5 tasks");
-      }
-    },
-    [challengeSelection.selectedTasks, onUpdateSelection]
-  );
 
   const handleAddCustomTask = useCallback(
     (task: CustomTask) => {
@@ -207,23 +136,14 @@ export const useStreakBreakRestart = ({
 
   return {
     flowBranch,
-    isLoading,
     selectedChallenge,
     customChallenge,
     completedTasks,
     selectedTasks,
-
-    carouselApi,
-    currentSlide,
-    setCarouselApi,
-
     goToChoose,
-    goToPredefined,
     goToCustom,
 
     handleContinueCurrentChallenge,
-    handleSelectPredefinedChallenge,
-    handleToggleTask,
     handleAddCustomTask,
     handleRemoveCustomTask,
     handleUpdateCustomChallenge,
