@@ -56,7 +56,7 @@ export const useChallengeOnboarding = () => {
     try {
       setIsLoading(true);
 
-      const creationResult = await startChallenge({
+      const result = await startChallenge({
         title: customChallenge.title,
         description: customChallenge.description,
         tasks: customChallenge.tasks.map((t) => ({
@@ -67,15 +67,14 @@ export const useChallengeOnboarding = () => {
         duration: customChallenge.duration,
       });
 
-      if (!creationResult.success) {
-        throw new Error(creationResult?.message);
+      if (!result.success) {
+        throw new Error(result?.message);
       }
 
-      toast.success("Challenge started successfully!");
-
-      setTimeout(() => {
+      if (result.success) {
+        toast.success("Challenge started successfully!");
         router.push("/dashboard");
-      }, 1000);
+      }
     } catch (error: any) {
       const isAuthError =
         error.message?.includes("auth") ||

@@ -3,6 +3,7 @@
 import prisma from "@/prisma";
 import { requireAuth } from "@/lib/utils/auth";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export const startChallenge = async (challengeData: {
   duration: number;
