@@ -26,15 +26,48 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
+import { Dimension } from "@prisma/client";
 
 const taskSuggestions = [
-  { text: "Wake up before Fajr", dimension: "Faith" },
-  // { text: "Review team feedback", icon: Sparkles, color: "#83a598" }, { text: "Update documentation", icon: Sparkles, color: "#83a598" },
+  // Faith
+  { dimension: "Faith", text: "Pray 5 times on time" },
+  { dimension: "Faith", text: "Make dua 5 mins" },
+  { dimension: "Faith", text: "Read 1 Qur’an page" },
+
+  // Remembrance
+  { dimension: "Remembrance", text: "Do morning & evening adhkar" },
+  { dimension: "Remembrance", text: "Say Astaghfirullah 100×" },
+  { dimension: "Remembrance", text: "Send salawat 50×" },
+
+  // Knowledge
+  { dimension: "Knowledge", text: "Watch/read 10-min Islamic talk" },
+  { dimension: "Knowledge", text: "Learn 3 Qur’anic words" },
+  { dimension: "Knowledge", text: "Study 1 hadith" },
+
+  // Character
+  { dimension: "Character", text: "Speak kindly all day" },
+  { dimension: "Character", text: "Show patience once" },
+  { dimension: "Character", text: "Give sincere thanks" },
+
+  // Discipline
+  { dimension: "Discipline", text: "Wake at first Fajr alarm" },
+  { dimension: "Discipline", text: "Fast or skip snacks" },
+  { dimension: "Discipline", text: "Plan & follow day" },
+
+  // Body
+  { dimension: "Body", text: "Do 20-min workout" },
+  { dimension: "Body", text: "Sleep 7+ hours" },
+  { dimension: "Body", text: "Drink 8 glasses water" },
+
+  // Purpose
+  { dimension: "Purpose", text: "Write 3 goals" },
+  { dimension: "Purpose", text: "1h on key project" },
+  { dimension: "Purpose", text: "Check intentions" },
 ];
 
 const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
   const [taskName, setTaskName] = useState("");
-  const [selectedDimension, setSelectedDimension] = useState(null);
+  const [selectedDimension, setSelectedDimension] = useState<Dimension | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [carouselApi, setCarouselApi] = useState();
@@ -66,15 +99,15 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
   }, [carouselApi]);
 
   useEffect(() => {
-    if (taskName.trim()) {
+    if (selectedDimension) {
       const filtered = taskSuggestions.filter((suggestion) =>
-        suggestion.text.toLowerCase().includes(taskName.toLowerCase())
+        suggestion.dimension.toLowerCase().includes(selectedDimension.name)
       );
       setFilteredSuggestions(filtered);
     } else {
       setFilteredSuggestions(taskSuggestions);
     }
-  }, [taskName]);
+  }, [selectedDimension, taskName]);
 
   const handleSubmit = async () => {
     if (!taskName.trim() || !selectedDimension) return;
@@ -121,10 +154,9 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTaskName(e.target.value);
-    setShowAutocomplete(false); 
+    setShowAutocomplete(false);
     setSelectedSuggestionIndex(-1);
   };
-
 
   const handleSuggestionClick = (suggestion: (typeof taskSuggestions)[0]) => {
     const dimension = dimensions.find(
