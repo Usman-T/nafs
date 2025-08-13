@@ -88,10 +88,8 @@ const TaskCompletionFlow = ({
     return 1 + Math.floor(calculatedNewStreak / 7) * 0.5;
   };
 
-  // Calculate new streak on component mount
   useEffect(() => {
-    // Simple streak calculation logic for display
-    // The actual streak will be calculated on the server
+    // actual streak is calculated on the server
     const newStreak = currentStreak + 1;
     setCalculatedNewStreak(newStreak);
   }, [currentStreak]);

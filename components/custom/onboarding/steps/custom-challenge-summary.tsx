@@ -29,8 +29,9 @@ export const CustomChallengeSummaryStep = ({
   <AnimatePresence mode="wait">
     {isActive && (
       <motion.div
-        animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-        exit={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
         className="space-y-6"
       >
         <div className="text-center space-y-2">

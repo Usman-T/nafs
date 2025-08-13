@@ -121,7 +121,6 @@ export const checkUserStreak = async () => {
     });
 
     if (!pastTaskDates.length) {
-      // No task history → nothing to break
       await prisma.user.update({
         where: { id: userId },
         data: {
@@ -133,7 +132,6 @@ export const checkUserStreak = async () => {
 
     const mostRecentDay = pastTaskDates[0].date;
 
-    // 2. Get all tasks for that day
     const missedTasks = await prisma.dailyTask.findMany({
       where: {
         userId,
@@ -145,6 +143,7 @@ export const checkUserStreak = async () => {
     });
 
     const missed = missedTasks.some((task) => task.completions.length === 0);
+    console.log("Missed tasks:", missed);
 
     if (missed && user.currentStreak > 0) {
       await prisma.user.update({
@@ -155,7 +154,6 @@ export const checkUserStreak = async () => {
         },
       });
     } else {
-      // Update active date even if nothing was missed
       await prisma.user.update({
         where: { id: userId },
         data: {
