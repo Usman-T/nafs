@@ -272,7 +272,7 @@ Branching is pretty good like this:
 
 ## Last time im writing here:
 Only a few things are there that need to be done
-- Firstly, rewrite `startChallenge`, `completeTask`, `checkUserStreak`, `breakUserStreak` to only spawn tasks based on conditions
+- Firstly, rewrite `startChallenge`, `completeTask`, `checkUserStreak`, `breakUserStreak` to only spawn tasks based on conditions (done)
 - Secondly, add swipe indicator to the onboaridng page
 - Thirdly, 
   - the quran viewer must be made very performant by rendering 20 cards at a time
@@ -282,7 +282,7 @@ Only a few things are there that need to be done
   - call abdul basit's recording only from Quran.com
   - wrap in <audio> tag based on context
 - Fourthly,
-  - remove the ability to be able to hold down links and see pop ups
+  - remove the ability to be able to hold down links and see pop ups (done)
   - add offline fallback when registering
   - redirect all auth pages to /dashboard if logged in or offline
   - 
