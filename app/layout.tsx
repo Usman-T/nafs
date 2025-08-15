@@ -6,6 +6,7 @@ import { SessionProvider } from "next-auth/react";
 import "../lib/utils/setup-logger";
 import DisablePinchZoom from "@/components/ui/pinch-zoom";
 import { Toaster } from "@/components/ui/sonner";
+import DisableContextMenu from "@/components/ui/disable-context-menu";
 
 const geist = Geist({ subsets: ["latin"] });
 
@@ -77,6 +78,7 @@ export default function RootLayout({
           <DisablePinchZoom />
           <SessionProvider>
             {children}
+            <DisableContextMenu />
             <Toaster />
           </SessionProvider>
         </div>

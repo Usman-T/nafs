@@ -281,9 +281,8 @@ Only a few things are there that need to be done
   - clicking or holding an ayah should open its specific `ayah/` view
   - call abdul basit's recording only from Quran.com
   - wrap in <audio> tag based on context
-
 - Fourthly,
   - remove the ability to be able to hold down links and see pop ups
   - add offline fallback when registering
-  - redirect all auth pages to /dashboard if logged in
+  - redirect all auth pages to /dashboard if logged in or offline
   - 
