@@ -259,3 +259,31 @@ Branching is pretty good like this:
 - Update the Custom Task Form
 - Work on the Mobile Onboarding (finish it)
 - Make the General and Account Pages in settings
+
+## 29th July 2025
+
+- The user is in no way punished for missing tasks and just restarts the challenge (streak-break-flow needs to be hooked up)
+- When holding down ANY `link`, you get a chrome pop up menu
+- The `header` inside the surah viewer needs to plop up and down properly (it hides instead of sticking)
+- Having `toast promises` instead of `clear toasts` would make give it a much more polished look (ok I made that work now)
+- Search of guidance page is broken
+- Can't listen to surahs
+- When enrolling a challenge, custom challenge form must be more prominent and would have a Dropdown Based Task Selector (would make it much nicer to get an idea from pre-existing tasks)
+
+## Last time im writing here:
+Only a few things are there that need to be done
+- Firstly, rewrite `startChallenge`, `completeTask`, `checkUserStreak`, `breakUserStreak` to only spawn tasks based on conditions
+- Secondly, add swipe indicator to the onboaridng page
+- Thirdly, 
+  - the quran viewer must be made very performant by rendering 20 cards at a time
+  - the quran viewer must have the scroll to ayah working
+  - the header must be ploppy instead of absolute
+  - clicking or holding an ayah should open its specific `ayah/` view
+  - call abdul basit's recording only from Quran.com
+  - wrap in <audio> tag based on context
+
+- Fourthly,
+  - remove the ability to be able to hold down links and see pop ups
+  - add offline fallback when registering
+  - redirect all auth pages to /dashboard if logged in
+  - 

@@ -5,28 +5,45 @@ import { requireAuth } from "@/lib/utils/auth";
 import { revalidatePath } from "next/cache";
 
 export const startChallenge = async (challengeData: {
-  duration: number;
   title: string | null;
   description: string | null;
+  duration: number;
   tasks: Array<{ name: string; dimensionId: string }>;
-  nextDay: boolean | undefined | null;
+  nextDay?: boolean | null;
 }) => {
   try {
     const userId = await requireAuth();
-
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user) {
-      throw Error("User not found!");
-    }
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new Error("User not found!");
 
     return await prisma.$transaction(async (tx) => {
+      // determine dominant dimension
+      const dimensionCount: Record<string, number> = {};
+      challengeData.tasks.forEach((task) => {
+        dimensionCount[task.dimensionId] =
+          (dimensionCount[task.dimensionId] || 0) + 1;
+      });
+
+      const maxCount = Math.max(...Object.values(dimensionCount));
+      const dominantDimensions = Object.keys(dimensionCount).filter(
+        (dim) => dimensionCount[dim] === maxCount
+      );
+
+      let challengeName: string;
+      let challengeDescription: string;
+
+      if (dominantDimensions.length === 1) {
+        challengeName = `${dominantDimensions[0]} Mastery`;
+        challengeDescription = `A ${challengeData.duration}-day challenge focused on ${dominantDimensions[0]}`;
+      } else {
+        challengeName = "Balanced Growth";
+        challengeDescription = `Level up in ${challengeData.duration} days with balanced growth.`;
+      }
+
       const challenge = await tx.challenge.create({
         data: {
-          name: challengeData.title,
-          description: `Your personalized ${challengeData.duration} day challenge`,
+          name: challengeName,
+          description: challengeDescription,
           duration: challengeData.duration,
           icon: "custom",
         },
@@ -38,7 +55,7 @@ export const startChallenge = async (challengeData: {
             data: {
               name: task.name,
               dimensionId: task.dimensionId,
-              points: Math.floor(Math.random() * (4 - 2 + 1)) + 1, // random points between 2 and 4
+              points: Math.floor(Math.random() * 3) + 2,
             },
           })
         )
@@ -52,11 +69,10 @@ export const startChallenge = async (challengeData: {
       });
 
       const startDate = new Date();
-      if (challengeData.nextDay) {
-        startDate.setDate(startDate.getDate() + 1);
-      }
+      if (challengeData.nextDay) startDate.setDate(startDate.getDate() + 1);
+
       const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + challenge.duration);
+      endDate.setDate(startDate.getDate() + challengeData.duration);
 
       await tx.userChallenge.create({
         data: {
@@ -73,34 +89,20 @@ export const startChallenge = async (challengeData: {
         data: { challengeId: challenge.id },
       });
 
-      const dailyTasks = Array.from(
-        { length: challenge.duration },
-        (_, day) => {
-          const taskDate = new Date(startDate);
-          taskDate.setDate(startDate.getDate() + day);
-          return {
-            date: taskDate,
-            taskIds: tasks.map((t) => t.id),
-          };
-        }
-      ).flatMap(({ date, taskIds }) =>
-        taskIds.map((taskId) => ({
-          userId,
-          taskId,
-          date,
-        }))
-      );
+      const todayTasks = tasks.map((task) => ({
+        userId,
+        taskId: task.id,
+        date: startDate,
+      }));
 
-      await tx.dailyTask.createMany({
-        data: dailyTasks,
-        skipDuplicates: true,
-      });
+      await tx.dailyTask.createMany({ data: todayTasks, skipDuplicates: true });
 
       revalidatePath("/dashboard");
+
       return { success: true, challengeId: challenge.id };
     });
   } catch (error) {
-    console.error("Creation failed:", error);
+    console.error("Challenge creation failed:", error);
     return {
       success: false,
       message:

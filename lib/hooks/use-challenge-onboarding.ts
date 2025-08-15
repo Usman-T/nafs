@@ -56,8 +56,7 @@ export const useChallengeOnboarding = () => {
     try {
       setIsLoading(true);
 
-      const result = await startChallenge({
-        title: customChallenge.title,
+      const result = await startChallenge({ title: customChallenge.title,
         description: customChallenge.description,
         tasks: customChallenge.tasks.map((t) => ({
           name: t.name,

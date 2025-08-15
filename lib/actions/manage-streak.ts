@@ -2,92 +2,11 @@
 
 import prisma from "@/prisma";
 import { requireAuth } from "@/lib/utils/auth";
-import { startOfDay, subDays, isSameDay } from "date-fns";
+import { startOfDay, subDays } from "date-fns";
 
-export const updateUserStreak = async () => {
-  try {
-    const userId = await requireAuth();
-
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        lastActiveDate: true,
-        currentStreak: true,
-        longestStreak: true,
-        challengeId: true,
-      },
-    });
-
-    if (!user) return null;
-
-    const today = startOfDay(new Date());
-    const yesterday = startOfDay(subDays(today, 1));
-
-    if (user.lastActiveDate && isSameDay(user.lastActiveDate, today)) {
-      return user.currentStreak;
-    }
-
-    const todayTasks = await prisma.dailyTask.findMany({
-      where: {
-        userId,
-        date: {
-          gte: today,
-          lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-        },
-      },
-      include: {
-        completions: {
-          where: {
-            completedAt: {
-              gte: today,
-              lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-            },
-          },
-        },
-      },
-    });
-
-    const allTasksCompleted =
-      todayTasks.length > 0 &&
-      todayTasks.every((task) => task.completions.length > 0);
-
-    if (!allTasksCompleted) {
-      return user.currentStreak;
-    }
-
-    let newStreak = 1;
-
-    // check if user was active yesterday to continue streak
-    if (user.lastActiveDate) {
-      if (isSameDay(user.lastActiveDate, yesterday)) {
-        newStreak = user.currentStreak + 1;
-      } else if (!isSameDay(user.lastActiveDate, today)) {
-        newStreak = 1;
-      } else {
-        return user.currentStreak;
-      }
-    }
-
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        currentStreak: newStreak,
-        longestStreak: Math.max(user.longestStreak, newStreak),
-        lastActiveDate: today,
-      },
-      select: {
-        currentStreak: true,
-      },
-    });
-
-    return updatedUser.currentStreak;
-  } catch (error) {
-    console.error("Error updating user streak:", error);
-    return null;
-  }
-};
-
-export const checkUserStreak = async () => {
+export const checkUserStreak = async (): Promise<
+  { streakBroken: boolean } | undefined
+> => {
   try {
     const userId = await requireAuth();
 
@@ -103,7 +22,9 @@ export const checkUserStreak = async () => {
     if (!user) return;
 
     const today = startOfDay(new Date());
+    const yesterday = startOfDay(subDays(today, 1));
 
+    // get all past task dates before today
     const pastTaskDates = await prisma.dailyTask.findMany({
       where: {
         userId,
@@ -111,40 +32,32 @@ export const checkUserStreak = async () => {
           lt: today,
         },
       },
-      select: {
-        date: true,
-      },
+      select: { date: true },
       distinct: ["date"],
-      orderBy: {
-        date: "desc",
-      },
+      orderBy: { date: "desc" },
     });
 
+    // no previous tasks, just update lastActiveDate
     if (!pastTaskDates.length) {
       await prisma.user.update({
         where: { id: userId },
-        data: {
-          lastActiveDate: today,
-        },
+        data: { lastActiveDate: today },
       });
       return;
     }
 
     const mostRecentDay = pastTaskDates[0].date;
 
-    const missedTasks = await prisma.dailyTask.findMany({
-      where: {
-        userId,
-        date: mostRecentDay,
-      },
-      include: {
-        completions: true,
-      },
+    // fetch all tasks of recent most day
+    const tasks = await prisma.dailyTask.findMany({
+      where: { userId, date: mostRecentDay },
+      include: { completions: true },
     });
 
-    const missed = missedTasks.some((task) => task.completions.length === 0);
-    console.log("Missed tasks:", missed);
+    // check if any task was missed
+    const missed = tasks.some((task) => task.completions.length === 0);
 
+    // if missed tasks, reset streak and set flag in localstorage
     if (missed && user.currentStreak > 0) {
       await prisma.user.update({
         where: { id: userId },
@@ -153,60 +66,76 @@ export const checkUserStreak = async () => {
           lastActiveDate: today,
         },
       });
-    } else {
+
+      return { streakBroken: true };
+    }
+
+    // if no missed tasks, update streak if last active date was yesterday
+    if (user.lastActiveDate) {
+      const lastActive = startOfDay(new Date(user.lastActiveDate));
+      const isConsecutive = lastActive.getTime() === yesterday.getTime();
+
+      const newStreak = isConsecutive ? user.currentStreak + 1 : 1;
+      const longestStreak = Math.max(user.longestStreak, newStreak);
+
       await prisma.user.update({
         where: { id: userId },
         data: {
+          currentStreak: newStreak,
+          longestStreak,
           lastActiveDate: today,
         },
       });
+    } else {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { currentStreak: 1, longestStreak: 1, lastActiveDate: today },
+      });
     }
+
+    return { streakBroken: false };
   } catch (error) {
-    console.error("Error checking user streak:", error);
+    console.error("error checking user streak:", error);
+    return { streakBroken: false };
   }
 };
-
-
 
 export const completeDayAndUpdateStreak = async () => {
   try {
     const userId = await requireAuth();
-
     const today = startOfDay(new Date());
 
     const todayTasks = await prisma.dailyTask.findMany({
-      where: {
-        userId,
-        date: {
-          gte: today,
-          lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-        },
-      },
-      include: {
-        completions: {
-          where: {
-            completedAt: {
-              gte: today,
-              lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-            },
-          },
-        },
-      },
+      where: { userId, date: today },
+      include: { completions: true },
     });
 
-    const allTasksCompleted =
+    const allCompleted =
       todayTasks.length > 0 &&
       todayTasks.every((task) => task.completions.length > 0);
 
-    if (!allTasksCompleted) {
-      return { success: false, message: "Not all tasks completed" };
+    if (!allCompleted) {
+      return { success: false, message: "not all tasks completed" };
     }
 
-    const newStreak = await updateUserStreak();
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return { success: false, message: "user not found" };
 
-    return { success: true, newStreak };
+    const newCurrentStreak = user.currentStreak + 1;
+    const newLongestStreak = Math.max(user.longestStreak, newCurrentStreak);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        currentStreak: newCurrentStreak,
+        longestStreak: newLongestStreak,
+        lastActiveDate: today,
+      },
+    });
+
+    return { success: true, newStreak: newCurrentStreak };
   } catch (error) {
-    console.error("Error completing day:", error);
-    return { success: false, message: "Failed to complete day" };
+    console.error("error completing day:", error);
+    return { success: false, message: "failed to complete day" };
   }
 };

@@ -19,4 +19,3 @@ At the end of each day, I will write in this very Document the problems that I f
 - Search of guidance page is broken
 - Can't listen to surahs
 - When enrolling a challenge, custom challenge form must be more prominent and would have a Dropdown Based Task Selector (would make it much nicer to get an idea from pre-existing tasks)
-- 

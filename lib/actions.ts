@@ -10,15 +10,14 @@ export {
 export { completeChallenge } from "@/lib/actions/complete-challenge";
 export { startChallenge } from "@/lib/actions/manage-challenge";
 
-// task and day system
+// task completion system
 export { completeTask } from "@/lib/actions/complete-task";
-export { initializeDayTasks } from "@/lib/actions/init-day-tasks";
 
-// helper streak functions
+// streak management functions
 export {
   checkUserStreak,
-  updateUserStreak,
   completeDayAndUpdateStreak,
 } from "@/lib/actions/manage-streak";
 
+// streak break management
 export { resetTasks, dimensionsReset } from "@/lib/actions/streak-break";

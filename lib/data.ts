@@ -243,17 +243,12 @@ export const loadChallengesPageData = async () => {
   const dimensionValues = await fetchUserDimensions();
   const hasCompletedChallenge = await fetchChallengeCompletionStatus();
 
-  const today = new Date();
-  let todayTasks = dailyTasks?.filter((t) => isSameDay(t.date, today));
+  const today = startOfDay(new Date());
+  const todayTasks = dailyTasks.filter((t) => isSameDay(t.date, today));
 
-  if (!todayTasks?.length && currentChallenge) {
-    await initializeDayTasks(currentChallenge.id);
-    const updatedTasks = await fetchDailyTasks();
-    todayTasks = updatedTasks?.filter((t) => isSameDay(t.date, today));
-  }
   return {
     currentChallenge,
-    dailyTasks,
+    dailyTasks: todayTasks,
     dimensions,
     dimensionValues,
     hasCompletedChallenge,

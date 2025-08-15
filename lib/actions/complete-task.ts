@@ -6,87 +6,71 @@ import { requireAuth } from "@/lib/utils/auth";
 export const completeTask = async (taskId: string) => {
   try {
     const userId = await requireAuth();
-
     const dailyTask = await prisma.dailyTask.findUnique({
       where: { id: taskId },
-      include: {
-        task: {
-          include: {
-            dimension: true,
-          },
-        },
-      },
+      include: { task: { include: { dimension: true } } },
     });
 
-    if (!dailyTask) throw new Error("Task not found");
+    if (!dailyTask) throw new Error("task not found");
 
     const existingCompletion = await prisma.completedTask.findFirst({
       where: { dailyTaskId: taskId, userId },
     });
 
     if (existingCompletion) {
-      return { success: false, message: "Task already completed" };
+      return { success: false, message: "task already completed" };
     }
-
-    await prisma.completedTask.create({
-      data: {
-        userId,
-        dailyTaskId: taskId,
-      },
-    });
-
-    await prisma.dimensionValue.update({
-      where: {
-        userId_dimensionId: {
-          userId,
-          dimensionId: dailyTask.task.dimensionId,
-        },
-      },
-      data: {
-        value: {
-          increment: 1,
-        },
-      },
-    });
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { challengeId: true },
     });
 
-    if (!user?.challengeId) return { success: true };
+    await prisma.$transaction(async (tx) => {
+      await tx.completedTask.create({
+        data: { userId, dailyTaskId: taskId },
+      });
 
-    const totalTasks = await prisma.challengeTask.count({
-      where: { challengeId: user.challengeId },
-    });
-
-    const completedTasks = await prisma.completedTask.count({
-      where: {
-        userId,
-        dailyTask: {
-          task: {
-            challenges: {
-              some: { challengeId: user.challengeId },
-            },
+      await tx.dimensionValue.update({
+        where: {
+          userId_dimensionId: {
+            userId,
+            dimensionId: dailyTask.task.dimensionId,
           },
         },
-      },
-    });
+        data: { value: { increment: dailyTask.task.points ?? 2 } },
+      });
 
-    const progress = Math.min((completedTasks / totalTasks) * 100, 100);
+      if (user?.challengeId) {
+        const totalTasks = await tx.challengeTask.count({
+          where: { challengeId: user.challengeId },
+        });
 
-    await prisma.userChallenge.updateMany({
-      where: { userId, challengeId: user.challengeId },
-      data: { progress },
+        const completedTasks = await tx.completedTask.count({
+          where: {
+            userId,
+            dailyTask: {
+              task: { challenges: { some: { challengeId: user.challengeId } } },
+            },
+          },
+        });
+
+        const progress = Math.min((completedTasks / totalTasks) * 100, 100);
+
+        await tx.userChallenge.updateMany({
+          where: { userId, challengeId: user.challengeId },
+          data: { progress },
+        });
+      }
     });
 
     return { success: true };
   } catch (error) {
-    console.error("Error completing task:", error);
+    console.error("error completing task:", error);
     return {
       success: false,
       message:
-        error instanceof Error ? error.message : "Failed to complete task",
+        error instanceof Error ? error.message : "failed to complete task",
     };
   }
 };
