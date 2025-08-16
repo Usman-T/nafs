@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { SurahProvider } from "@/lib/context/surah-page-context";
 import SurahHeader from "@/components/custom/guidance/surah/surah-header";
-import SurahIntro from "@/components/custom/guidance/surah/surah-intro";
 import AudioPlayer from "@/components/custom/guidance/surah/surah-audio-player";
 import SettingsPanel from "@/components/custom/guidance/surah/surah-settings";
 import VerseListPanel from "@/components/custom/guidance/surah/surah-verse-list";
@@ -24,11 +23,10 @@ export default async function SurahPage({
 
   return (
     <SurahProvider initialSurah={surah} initialVerses={verses}>
-      <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2] pb-20">
+      <div className="bg-[#1d2021] text-[#ebdbb2] pb-20">
         <SurahHeader />
         <div className="max-w-3xl mx-auto px-4 py-6">
-          <SurahIntro />
-          <SurahVerses verses={verses} />
+          <SurahVerses  />
         </div>
         <AudioPlayer />
         <SettingsPanel />
