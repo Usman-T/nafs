@@ -12,6 +12,7 @@ import { ArrowLeft, Info, Menu, Sliders, List, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useSurah } from "@/lib/context/surah-page-context";
+import { useEffect, useRef, useState } from "react";
 
 export default function SurahHeader() {
   const router = useRouter();
@@ -30,14 +31,30 @@ export default function SurahHeader() {
   const drawerBorder = isDarkMode ? "border-[#3c3836]" : "border-gray-200";
   const iconColor = isDarkMode ? "text-[#a89984]" : "text-gray-500";
   const iconHover = isDarkMode ? "hover:text-[#ebdbb2]" : "hover:text-gray-700";
+  const lastScrollY = useRef(0);
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const delta = currentScrollY - lastScrollY.current;
+      if (currentScrollY > lastScrollY.current && delta > 5) {
+        setHidden(true);
+      } else {
+        setHidden(false);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <div
-      className={`sticky top-0 z-10 ${
-        isDarkMode
-          ? "bg-[#1d2021] border-b border-[#3c3836]"
-          : "bg-white border-b border-gray-200"
-      }`}
+    <motion.div
+      className={`sticky top-0 z-10 ${"bg-[#1d2021] border-b border-[#3c3836]"}`}
+      animate={{ y: hidden ? -100 : 0 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
       <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
         <Button
@@ -139,6 +156,6 @@ export default function SurahHeader() {
           </Drawer>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

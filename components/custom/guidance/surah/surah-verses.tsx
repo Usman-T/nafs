@@ -4,6 +4,7 @@ import { Virtuoso } from "react-virtuoso";
 import Verse from "./surah-verse";
 
 const SurahVerses = ({ verses }) => {
+  console.log(verses)
   return (
     <Virtuoso
       data={verses}
