@@ -14,11 +14,11 @@ import {
 const VerseListPanel = () => {
   const {
     state: { currentVerse },
-    refs: { verseButtonRef },
+    refs: { verseButtonRef, actionsButtonRef },
     actions: { scrollToVerse },
   } = useSurah();
 
-  const { verses } = useSurah(); 
+  const { verses } = useSurah();
 
   return (
     <Sheet>
@@ -48,7 +48,11 @@ const VerseListPanel = () => {
                     ? "bg-[#3c3836] border-[#fe8019]"
                     : "bg-[#1d2021] border-[#3c3836] hover:border-[#504945]"
                 }`}
-                onClick={() => scrollToVerse(verse.id)}
+                onClick={() => {
+                  actionsButtonRef.current.click();
+                  verseButtonRef.current.click();
+                  scrollToVerse(verse.id);
+                }}
               >
                 <div className="flex items-center gap-4">
                   <div
