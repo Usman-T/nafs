@@ -8,6 +8,7 @@ import SettingsPanel from "@/components/custom/guidance/surah/surah-settings";
 import VerseListPanel from "@/components/custom/guidance/surah/surah-verse-list";
 import SurahInfoPanel from "@/components/custom/guidance/surah/surah-info-panel";
 import { SurahDataService } from "@/lib/context/surah-data-service";
+import { VList } from "virtua";
 
 export default async function SurahPage({ params }: { params: { id: string } }) {
   const surahId = Number(params.id);
@@ -24,11 +25,17 @@ export default async function SurahPage({ params }: { params: { id: string } }) 
         <SurahHeader />
         <div className="max-w-3xl mx-auto px-4 py-6">
           <SurahIntro />
-          <div className="space-y-6">
+          {/* <div className="space-y-6">
             {verses.map((verse) => (
               <Verse key={verse.id} verse={verse} />
             ))}
-          </div>
+          </div> */}
+          <VList className="space-y-6" count={verses.length} horizontal  >
+
+            {verses.map((verse) => (
+              <Verse key={verse.id} verse={verse} />
+            ))}
+          </VList>
         </div>
         <AudioPlayer />
         <SettingsPanel />

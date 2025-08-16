@@ -21,8 +21,6 @@ const main = async () => {
       prisma.savedAyah.deleteMany(),
       prisma.reflection.deleteMany(),
     ]);
-
-    return;
   }
 
   const dimensionEntries = [
@@ -81,6 +79,8 @@ const main = async () => {
     const created = await prisma.dimension.create({ data: entry });
     dimensions.set(entry.name, created.id);
   }
+
+  console.log("🌱 Dimensions seeded:", dimensions);
 
   console.timeEnd("🌱 Seeding complete");
 };

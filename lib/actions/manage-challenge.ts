@@ -29,12 +29,17 @@ export const startChallenge = async (challengeData: {
         (dim) => dimensionCount[dim] === maxCount
       );
 
+      const mostActiveDim = await tx.dimension.findMany({
+        where: { id: { in: dominantDimensions } },
+        select: { id: true, name: true },
+      });
+
       let challengeName: string;
       let challengeDescription: string;
 
       if (dominantDimensions.length === 1) {
-        challengeName = `${dominantDimensions[0]} Mastery`;
-        challengeDescription = `A ${challengeData.duration}-day challenge focused on ${dominantDimensions[0]}`;
+        challengeName = `${mostActiveDim.name} Mastery`;
+        challengeDescription = `A ${challengeData.duration}-day challenge focused on ${mostActiveDim.name}`;
       } else {
         challengeName = "Balanced Growth";
         challengeDescription = `Level up in ${challengeData.duration} days with balanced growth.`;

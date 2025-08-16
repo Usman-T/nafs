@@ -2,7 +2,7 @@
 
 import prisma from "@/prisma";
 import { requireAuth } from "@/lib/utils/auth";
-import { startOfDay, subDays } from "date-fns";
+import { endOfDay, startOfDay, subDays } from "date-fns";
 
 export const checkUserStreak = async (): Promise<
   { streakBroken: boolean } | undefined
@@ -105,14 +105,25 @@ export const completeDayAndUpdateStreak = async () => {
     const userId = await requireAuth();
     const today = startOfDay(new Date());
 
+    const start = startOfDay(new Date());
+    const end = endOfDay(new Date());
+
     const todayTasks = await prisma.dailyTask.findMany({
-      where: { userId, date: today },
+      where: {
+        userId,
+        date: {
+          gte: start,
+          lte: end,
+        },
+      },
       include: { completions: true },
     });
 
     const allCompleted =
       todayTasks.length > 0 &&
       todayTasks.every((task) => task.completions.length > 0);
+
+    console.log(todayTasks, allCompleted);
 
     if (!allCompleted) {
       return { success: false, message: "not all tasks completed" };
