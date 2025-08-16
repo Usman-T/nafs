@@ -19,6 +19,7 @@ import {
 import { useSurah } from "@/lib/context/surah-page-context";
 import { arabicFontClass } from "@/lib/utils/font";
 
+
 const Verse = ({ verse }: { verse: any }) => {
   const { state, actions } = useSurah();
   const [copied, setCopied] = useState(false);

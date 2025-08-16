@@ -115,15 +115,6 @@ const DailyAyahSection = ({ apiVerse }) => {
                 <Share2 className="h-5 w-5" />
               </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 rounded-full text-[#a89984] hover:text-[#fe8019] hover:bg-[#3c3836] transition"
-              onClick={navigateToVerse}
-              aria-label="Go to verse"
-            >
-              <Scroll className="h-5 w-5" />
-            </Button>
           </div>
         </CardContent>
       </Card>
