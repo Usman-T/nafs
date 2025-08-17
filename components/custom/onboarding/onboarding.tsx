@@ -54,7 +54,9 @@ export default function ChallengeOnboarding({
           );
         } else if (customChallenge.tasks.length > 5) {
           toast.error(
-            `Remove ${customChallenge.tasks.length - 5} task(s) to proceed`
+            `Remove ${customChallenge.tasks.length - 5} task${
+              customChallenge.tasks.length - 5 > 1 ? "s" : ""
+            } to proceed`
           );
         }
 
