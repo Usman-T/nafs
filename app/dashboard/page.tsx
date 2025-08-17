@@ -1,9 +1,11 @@
 import Challenges from "@/components/custom/challenges/challenges-main";
 import { checkUserStreak } from "@/lib/actions";
+import { spawnDailyTasksIfMissing } from "@/lib/actions/manage-streak";
 import { loadChallengesPageData } from "@/lib/data";
 import { redirect } from "next/navigation";
 
 const ChallengesPage = async () => {
+  await spawnDailyTasksIfMissing()
   const streakCheck = await checkUserStreak();
 
   const {

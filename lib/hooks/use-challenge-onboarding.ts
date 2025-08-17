@@ -1,9 +1,10 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Dimension } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { signOut } from "next-auth/react";
 import { startChallenge } from "@/lib/actions";
+
 interface CustomTask {
   name: string;
   dimension: Dimension;
@@ -19,6 +20,7 @@ interface CustomChallengeState {
 export const useChallengeOnboarding = () => {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
+  const isExecutingRef = useRef(false); // Prevent double execution
 
   const [step, setStep] = useState(0);
   const [customChallenge, setCustomChallenge] = useState<CustomChallengeState>({
@@ -52,8 +54,11 @@ export const useChallengeOnboarding = () => {
     }));
   };
 
-  const handleStartChallenge = async () => {
-    if (isLoading) return;
+  const handleStartChallenge = useCallback(async () => {
+    // Prevent double execution
+    if (isLoading || isExecutingRef.current) return;
+    isExecutingRef.current = true;
+
     try {
       setIsLoading(true);
 
@@ -74,11 +79,11 @@ export const useChallengeOnboarding = () => {
 
       if (result.success) {
         toast.success("Challenge started successfully!");
-        router.refresh();
-
-        await new Promise((resolve) => setTimeout(resolve, 200));
-
-        router.push("/dashboard");
+        
+        // More aggressive approach - use window.location instead of router
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 1500); // Give time for toast to show
       }
     } catch (error: any) {
       const isAuthError =
@@ -114,8 +119,9 @@ export const useChallengeOnboarding = () => {
       console.error("Onboarding error:", error);
     } finally {
       setIsLoading(false);
+      isExecutingRef.current = false;
     }
-  };
+  }, [customChallenge, isLoading]);
 
   const handleNext = () => {
     setStep(step + 1);

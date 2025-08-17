@@ -37,7 +37,6 @@ const handleCompletionFlowFinished = async () => {
       localStorage.removeItem("nafs-hide-mobile-nav");
       window.dispatchEvent(new Event("storage"));
       
-      // Force a hard refresh to ensure data consistency
       window.location.reload();
     } else {
       console.error("Failed to complete day:", result.message, result.error);
