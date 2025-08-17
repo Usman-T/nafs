@@ -15,35 +15,44 @@ export const useChallenges = () => {
     completed: boolean;
   }>("dayCompleted", { date: "", completed: false });
 
-  const handleCompletionFlowFinished = async () => {
-    setIsCompletingDay(true);
-
-    try {
-      const result = await completeDayAndUpdateStreak();
-      console.log({ result });
-      if (result.success) {
-        setShowCompletionFlow(false);
-        setDayCompleted({
-          date: new Date().toDateString(),
-          completed: true,
-        });
-        localStorage.removeItem("nafs-hide-mobile-nav");
-        window.dispatchEvent(new Event("storage"));
-        router.refresh();
-      } else {
-        console.error("Failed to complete day:", result.message);
-        setShowCompletionFlow(false);
-        localStorage.removeItem("nafs-hide-mobile-nav");
-      }
-    } catch (error) {
-      console.error("Error completing day:", error);
+const handleCompletionFlowFinished = async () => {
+  if (isCompletingDay) {
+    console.log("Already completing day, ignoring duplicate call");
+    return;
+  }
+  
+  setIsCompletingDay(true);
+  try {
+    console.log("Starting day completion...");
+    const result = await completeDayAndUpdateStreak();
+    console.log("Day completion result:", result);
+    
+    if (result.success) {
+      console.log("Day completed successfully, new streak:", result.newStreak);
       setShowCompletionFlow(false);
+      setDayCompleted({
+        date: new Date().toDateString(),
+        completed: true,
+      });
       localStorage.removeItem("nafs-hide-mobile-nav");
       window.dispatchEvent(new Event("storage"));
-    } finally {
-      setIsCompletingDay(false);
+      
+      // Force a hard refresh to ensure data consistency
+      window.location.reload();
+    } else {
+      console.error("Failed to complete day:", result.message, result.error);
+      setShowCompletionFlow(false);
+      localStorage.removeItem("nafs-hide-mobile-nav");
     }
-  };
+  } catch (error) {
+    console.error("Error completing day:", error);
+    setShowCompletionFlow(false);
+    localStorage.removeItem("nafs-hide-mobile-nav");
+    window.dispatchEvent(new Event("storage"));
+  } finally {
+    setIsCompletingDay(false);
+  }
+};
 
   const isTodayCompleted = () => {
     if (!dayCompleted?.date) return false;

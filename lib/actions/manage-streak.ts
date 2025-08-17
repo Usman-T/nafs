@@ -122,55 +122,107 @@ export const completeDayAndUpdateStreak = async () => {
   try {
     const userId = await requireAuth();
     const today = startOfDay(new Date());
-    const start = today;
-    const end = endOfDay(today);
 
-    // Fetch today's tasks including completions
     const todayTasks = await prisma.dailyTask.findMany({
-      where: {
-        userId,
-        date: {
-          gte: start,
-          lte: end,
-        },
-      },
+      where: { userId, date: { gte: today, lte: endOfDay(today) } },
       include: { completions: true },
     });
 
     const allCompleted =
       todayTasks.length > 0 &&
-      todayTasks.every((task) => task.completions.length > 0);
+      todayTasks.every((t) => t.completions.length > 0);
 
     if (!allCompleted) {
       return { success: false, message: "not all tasks completed" };
     }
 
-    // Atomically increment currentStreak
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { currentStreak: true, longestStreak: true },
+    });
+
+    if (!user) {
+      return { success: false, message: "user not found" };
+    }
+
+    const newCurrentStreak = user.currentStreak + 1;
+    const newLongestStreak = Math.max(user.longestStreak, newCurrentStreak);
+
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        currentStreak: { increment: 1 },
+        currentStreak: newCurrentStreak,
+        longestStreak: newLongestStreak,
         lastActiveDate: today,
       },
     });
 
-    // Update longestStreak if needed
-    const newLongestStreak = Math.max(
-      updatedUser.longestStreak,
-      updatedUser.currentStreak + 1
-    );
-
-    await prisma.user.update({
-      where: { id: userId },
-      data: { longestStreak: newLongestStreak },
-    });
-
-    // Revalidate dashboard so new streak shows up immediately
     revalidatePath("/dashboard");
 
-    return { success: true, newStreak: updatedUser.currentStreak + 1 };
+    return { success: true, newStreak: updatedUser.currentStreak };
   } catch (error) {
     console.error("error completing day:", error);
-    return { success: false, message: "failed to complete day" };
+    return {
+      success: false,
+      message: "failed to complete day",
+      error: error.message,
+    };
+  }
+};
+
+// SOLUTION 2: Alternative using a transaction for atomicity
+export const completeDayAndUpdateStreakTransaction = async () => {
+  try {
+    const userId = await requireAuth();
+    const today = startOfDay(new Date());
+
+    const result = await prisma.$transaction(async (tx) => {
+      const todayTasks = await tx.dailyTask.findMany({
+        where: { userId, date: { gte: today, lte: endOfDay(today) } },
+        include: { completions: true },
+      });
+
+      const allCompleted =
+        todayTasks.length > 0 &&
+        todayTasks.every((t) => t.completions.length > 0);
+
+      if (!allCompleted) {
+        throw new Error("not all tasks completed");
+      }
+
+      const user = await tx.user.findUnique({
+        where: { id: userId },
+        select: { currentStreak: true, longestStreak: true },
+      });
+
+      if (!user) {
+        throw new Error("user not found");
+      }
+
+      const newCurrentStreak = user.currentStreak + 1;
+      const newLongestStreak = Math.max(user.longestStreak, newCurrentStreak);
+
+      const updatedUser = await tx.user.update({
+        where: { id: userId },
+        data: {
+          currentStreak: newCurrentStreak,
+          longestStreak: newLongestStreak,
+          lastActiveDate: today,
+        },
+      });
+
+      return updatedUser;
+    });
+
+    revalidatePath("/dashboard");
+
+    return { success: true, newStreak: result.currentStreak };
+  } catch (error) {
+    console.error("error completing day:", error);
+    return {
+      success: false,
+      message: error.message || "failed to complete day",
+      error: error.message,
+    };
   }
 };

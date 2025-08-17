@@ -1,13 +1,14 @@
 import ChallengeOnboarding from "@/components/custom/onboarding/onboarding";
-import { fetchDimensions } from "@/lib/data";
+import { fetchDimensions, fetchUserChallenge } from "@/lib/data";
+import { redirect } from "next/navigation";
 
 const Onboarding = async () => {
   const dimensions = await fetchDimensions();
+  const currentChallenge = await fetchUserChallenge();
 
-  console.log({
-    dimensionsInServer: dimensions.length,
-    success: dimensions.length > 0,
-  });
+  if (currentChallenge) {
+    redirect("/dashboard");
+  }
 
   return <ChallengeOnboarding dimensions={dimensions} />;
 };

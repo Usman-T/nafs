@@ -69,6 +69,7 @@ export const useChallengeCompletion = (
       tomorrow.setDate(tomorrow.getDate() + 1);
       setNextChallengeDate({ date: tomorrow.toString() });
       router.push("/dashboard");
+      router.refresh();
     } catch (error) {
       console.error("Challenge completion error:", error);
     } finally {

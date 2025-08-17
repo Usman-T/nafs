@@ -13,11 +13,18 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { login, loginState } from "@/lib/actions";
 import Logo from "@/components/custom/logo";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
   const initialState: loginState = { message: null, errors: {} };
   const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
+  const { data } = useSession();
+
+  if (data?.user) {
+    router.push("/dashboard");
+  }
 
   const [state, formAction, isPending] = useActionState(login, initialState);
 

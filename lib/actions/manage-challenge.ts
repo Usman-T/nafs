@@ -29,7 +29,7 @@ export const startChallenge = async (challengeData: {
         (dim) => dimensionCount[dim] === maxCount
       );
 
-      const mostActiveDim = await tx.dimension.findMany({
+      const mostActiveDim = await tx.dimension.findFirst({
         where: { id: { in: dominantDimensions } },
         select: { id: true, name: true },
       });

@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { createUser, State } from "@/lib/actions";
 import { Separator } from "@/components/ui/separator";
 import Logo from "@/components/custom/logo";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 interface FormValues {
   name: string;
@@ -28,15 +28,21 @@ const Register = () => {
   const initialState: State = { message: null, errors: {} };
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
+  const { data } = useSession();
+
+  if (data?.user) {
+    router.push("/dashboard");
+  }
+
   const callbackUrl = "/dashboard";
-  
+
   // State for form values preservation
   const [formValues, setFormValues] = useState<FormValues>({
-    name: '',
-    email: '',
-    password: '',
-    confirm: '',
-    terms: false
+    name: "",
+    email: "",
+    password: "",
+    confirm: "",
+    terms: false,
   });
 
   // State for password visibility
@@ -51,7 +57,7 @@ const Register = () => {
         email: formData.get("email") as string,
         password: formData.get("password") as string,
         confirm: formData.get("confirm") as string,
-        terms: formData.get("terms") === "on"
+        terms: formData.get("terms") === "on",
       };
       setFormValues(currentValues);
 
@@ -68,10 +74,13 @@ const Register = () => {
     field: "name" | "email" | "password" | "confirm" | "terms"
   ) => state?.errors?.[field]?.[0];
 
-  const handleInputChange = (field: keyof FormValues, value: string | boolean) => {
-    setFormValues(prev => ({
+  const handleInputChange = (
+    field: keyof FormValues,
+    value: string | boolean
+  ) => {
+    setFormValues((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -165,7 +174,7 @@ const Register = () => {
                     placeholder="Your full name"
                     className="bg-[#32302f] border-[#3c3836] text-[#ebdbb2] focus-visible:ring-[#fe8019]"
                     value={formValues.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
                     disabled={isPending}
                   />
                   {getFirstError("name") && (
@@ -174,7 +183,7 @@ const Register = () => {
                     </p>
                   )}
                 </div>
-                
+
                 <div className="space-y-2 col-span-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -184,7 +193,7 @@ const Register = () => {
                     placeholder="name@example.com"
                     className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] focus-visible:ring-[#fe8019]"
                     value={formValues.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
                     disabled={isPending}
                   />
                   {getFirstError("email") && (
@@ -193,7 +202,7 @@ const Register = () => {
                     </p>
                   )}
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
                   <div className="relative">
@@ -204,7 +213,9 @@ const Register = () => {
                       placeholder="••••••••"
                       className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] focus-visible:ring-[#fe8019] pr-10"
                       value={formValues.password}
-                      onChange={(e) => handleInputChange('password', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("password", e.target.value)
+                      }
                       disabled={isPending}
                     />
                     <button
@@ -226,7 +237,7 @@ const Register = () => {
                     </p>
                   )}
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="confirm">Confirm Password</Label>
                   <div className="relative">
@@ -237,13 +248,17 @@ const Register = () => {
                       placeholder="••••••••"
                       className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] focus-visible:ring-[#fe8019] pr-10"
                       value={formValues.confirm}
-                      onChange={(e) => handleInputChange('confirm', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("confirm", e.target.value)
+                      }
                       disabled={isPending}
                     />
                     <button
                       type="button"
                       className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#a89984] hover:text-[#ebdbb2] transition-colors"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       disabled={isPending}
                     >
                       {showConfirmPassword ? (
@@ -268,7 +283,9 @@ const Register = () => {
                   name="terms"
                   className="border-[#3c3836] data-[state=checked]:bg-[#fe8019] data-[state=checked]:border-[#fe8019]"
                   checked={formValues.terms}
-                  onCheckedChange={(checked) => handleInputChange('terms', checked as boolean)}
+                  onCheckedChange={(checked) =>
+                    handleInputChange("terms", checked as boolean)
+                  }
                   disabled={isPending}
                 />
                 <label
@@ -276,11 +293,19 @@ const Register = () => {
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#a89984]"
                 >
                   I agree to the{" "}
-                  <Link href="https://nafs.in/privacy" target="_blank" className="text-[#fe8019] hover:underline">
+                  <Link
+                    href="https://nafs.in/privacy"
+                    target="_blank"
+                    className="text-[#fe8019] hover:underline"
+                  >
                     terms of service
                   </Link>{" "}
                   and{" "}
-                  <Link href="https://nafs.in/privacy" target="_blank" className="text-[#fe8019] hover:underline">
+                  <Link
+                    href="https://nafs.in/privacy"
+                    target="_blank"
+                    className="text-[#fe8019] hover:underline"
+                  >
                     privacy policy
                   </Link>
                 </label>
@@ -292,7 +317,7 @@ const Register = () => {
               )}
 
               <input type="hidden" name="redirectTo" value={callbackUrl} />
-              
+
               <Button
                 type="submit"
                 className="w-full bg-[#fe8019] hover:bg-[#d65d0e] text-[#1d2021]"
