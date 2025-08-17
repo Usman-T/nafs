@@ -98,15 +98,6 @@ export const startChallenge = async (challengeData: {
         data: { challengeId: challenge.id },
       });
 
-      const todayTasks = tasks.map((task) => ({
-        userId,
-        taskId: task.id,
-        date: startDate,
-      }));
-
-      await tx.dailyTask.createMany({ data: todayTasks, skipDuplicates: true });
-      console.log("CREATED DAILY TASKS IN CHALLENGE ONBOARDING")
-
       revalidatePath("/dashboard");
 
       return { success: true, challengeId: challenge.id };

@@ -9,7 +9,6 @@ export const spawnDailyTasksIfMissing = async () => {
   const userId = await requireAuth();
   const today = startOfDay(new Date());
 
-  // More robust check - count existing tasks to prevent double spawning
   const existingCount = await prisma.dailyTask.count({
     where: { userId, date: today },
   });
@@ -18,7 +17,6 @@ export const spawnDailyTasksIfMissing = async () => {
     return { spawned: false, existing: existingCount };
   }
 
-  // Fetch user's current challenge
   const userChallenge = await prisma.userChallenge.findFirst({
     where: { userId, completed: false },
     include: {
@@ -34,7 +32,6 @@ export const spawnDailyTasksIfMissing = async () => {
     return { spawned: false, reason: "No active challenge" };
   }
 
-  // Map over correct `tasks` field
   const todayTasks = userChallenge.challenge.tasks.map((ct) => ({
     userId,
     taskId: ct.task.id,

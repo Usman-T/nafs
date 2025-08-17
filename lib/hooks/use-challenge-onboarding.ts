@@ -80,10 +80,9 @@ export const useChallengeOnboarding = () => {
       if (result.success) {
         toast.success("Challenge started successfully!");
         
-        // More aggressive approach - use window.location instead of router
         setTimeout(() => {
           window.location.href = "/dashboard";
-        }, 1500); // Give time for toast to show
+        }, 1500); 
       }
     } catch (error: any) {
       const isAuthError =
