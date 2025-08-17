@@ -15,6 +15,7 @@ import OnboardingWelcome from "@/components/custom/onboarding/onboarding-welcome
 import { CustomTasksStep } from "./steps/custom-task-step";
 import { CustomChallengeSummaryStep } from "./steps/custom-challenge-summary";
 import { OnboardingProgress } from "./mobile-onboarding/onboading-progress";
+import { toast } from "sonner";
 
 export default function ChallengeOnboarding({
   dimensions,
@@ -36,10 +37,36 @@ export default function ChallengeOnboarding({
   const [api, setApi] = useState<CarouselApi>();
 
   useEffect(() => {
-    if (api && api.selectedScrollSnap() !== step) {
-      api.scrollTo(step);
-    }
-  }, [step, api]);
+    if (!api) return;
+
+    const handleSelect = () => {
+      const newIndex = api.selectedScrollSnap();
+
+      // Block forward scroll if tasks count is invalid
+      if (newIndex > step && isNextDisabled()) {
+        api.scrollTo(step);
+
+        if (customChallenge.tasks.length < 3) {
+          toast.error(
+            `Add at least ${3 - customChallenge.tasks.length} more task${
+              customChallenge.tasks.length > 1 ? "" : "s"
+            } to proceed`
+          );
+        } else if (customChallenge.tasks.length > 5) {
+          toast.error(
+            `Remove ${customChallenge.tasks.length - 5} task(s) to proceed`
+          );
+        }
+
+        return;
+      }
+
+      setStep(newIndex);
+    };
+
+    api.on("select", handleSelect);
+    return () => api.off("select", handleSelect);
+  }, [api, step, isNextDisabled, customChallenge.tasks.length, setStep]);
 
   useEffect(() => {
     if (!api) return;

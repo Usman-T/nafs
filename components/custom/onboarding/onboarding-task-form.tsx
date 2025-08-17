@@ -227,11 +227,8 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
                       onChange={handleInputChange}
                       placeholder="Enter task name"
                       className="bg-[#282828] border-[#3c3836] text-[#ebdbb2] placeholder-[#665c54] focus:border-[#fe8019] focus:ring-[#fe8019]/20 pr-20"
-                      maxLength={50}
+                      maxLength={30}
                     />
-                    <div className="absolute right-12 top-1/2 -translate-y-1/2 text-xs text-[#665c54]">
-                      {taskName.length}/50
-                    </div>
                     <motion.button
                       type="button"
                       onClick={toggleAutocomplete}

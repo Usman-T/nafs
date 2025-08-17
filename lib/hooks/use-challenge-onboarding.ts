@@ -53,6 +53,7 @@ export const useChallengeOnboarding = () => {
   };
 
   const handleStartChallenge = async () => {
+    if (isLoading) return;
     try {
       setIsLoading(true);
 
