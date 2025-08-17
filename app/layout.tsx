@@ -53,7 +53,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning={false}>
       <head>
-        <meta name="theme-color" content="#000000" />
+        <meta name="theme-color" content="#1d2021" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -69,7 +69,7 @@ export default function RootLayout({
           name="viewport"
           content="width=device-width, initial-scale=1.0, user-scalable=no"
         />
-        <meta name="msapplication-TileColor" content="#000000" />
+        <meta name="msapplication-TileColor" content="#1d2021" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body
