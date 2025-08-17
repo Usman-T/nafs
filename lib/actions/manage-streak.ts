@@ -50,6 +50,8 @@ export const spawnDailyTasksIfMissing = async () => {
     skipDuplicates: true 
   });
 
+  console.log("SPAWNED DAILY TASKS FOR USER IN CHECK USER STREAK CALL AHHHH")
+
   return { spawned: true, count: todayTasks.length };
 };
 

@@ -105,6 +105,7 @@ export const startChallenge = async (challengeData: {
       }));
 
       await tx.dailyTask.createMany({ data: todayTasks, skipDuplicates: true });
+      console.log("CREATED DAILY TASKS IN CHALLENGE ONBOARDING")
 
       revalidatePath("/dashboard");
 
