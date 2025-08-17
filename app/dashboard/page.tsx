@@ -5,8 +5,10 @@ import { loadChallengesPageData } from "@/lib/data";
 import { redirect } from "next/navigation";
 
 const ChallengesPage = async () => {
-  await spawnDailyTasksIfMissing()
   const streakCheck = await checkUserStreak();
+  if (streakCheck?.streakBroken) redirect("/streak-break");
+
+  await spawnDailyTasksIfMissing();
 
   const {
     currentChallenge,
@@ -16,7 +18,6 @@ const ChallengesPage = async () => {
     hasCompletedChallenge,
   } = await loadChallengesPageData();
 
-  if (streakCheck?.streakBroken) redirect("/streak-break");
   if (!currentChallenge) redirect("/onboarding");
 
   return (
