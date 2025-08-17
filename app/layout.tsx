@@ -7,6 +7,7 @@ import "../lib/utils/setup-logger";
 import DisablePinchZoom from "@/components/ui/pinch-zoom";
 import { Toaster } from "@/components/ui/sonner";
 import DisableContextMenu from "@/components/ui/disable-context-menu";
+import { GlobalErrorWrapper } from "@/components/ui/global-error-wrapper";
 
 const geist = Geist({ subsets: ["latin"] });
 
@@ -77,10 +78,14 @@ export default function RootLayout({
         <div className="h-screen select-none overflow-y-auto overscroll-none">
           <DisablePinchZoom />
           <DisableContextMenu />
-          <SessionProvider>
+          
+          <GlobalErrorWrapper>
+            <SessionProvider>
               {children}
-            <Toaster />
-          </SessionProvider>
+            </SessionProvider>
+          </GlobalErrorWrapper>
+          
+          <Toaster />
         </div>
       </body>
     </html>
