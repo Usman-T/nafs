@@ -29,7 +29,6 @@ import {
 import { Dimension } from "@prisma/client";
 
 const taskSuggestions = [
-  // Faith
   { dimension: "Faith", text: "Pray 5 times on time" },
   { dimension: "Faith", text: "Make dua 5 mins" },
   { dimension: "Faith", text: "Read 1 Qur’an page" },
@@ -101,8 +100,16 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
   }, [carouselApi]);
 
   useEffect(() => {
-    setFilteredSuggestions(taskSuggestions);
-  }, [selectedDimension, taskName]);
+    if (!selectedDimension) {
+      setFilteredSuggestions(taskSuggestions);
+    } else {
+      setFilteredSuggestions(
+        taskSuggestions.filter((s) =>
+          dimensions.some((d) => d.name === s.dimension)
+        )
+      );
+    }
+  }, [selectedDimension, dimensions, taskName]);
 
   const handleSubmit = async () => {
     if (!taskName.trim() || !selectedDimension) return;
@@ -154,15 +161,17 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
   };
 
   const handleSuggestionClick = (suggestion: (typeof taskSuggestions)[0]) => {
-    const dimension = dimensions.find(
+    const dimensionIndex = dimensions.findIndex(
       (dim) => dim.name === suggestion.dimension
     );
+    if (dimensionIndex !== -1) {
+      const pageIndex = Math.floor(dimensionIndex / itemsPerPage);
+      goToPage(pageIndex);
+      setSelectedDimension(dimensions[dimensionIndex]);
+    }
     setTaskName(suggestion.text);
-    setSelectedDimension(dimension);
     setShowAutocomplete(false);
     setSelectedSuggestionIndex(-1);
-
-    inputRef.current?.focus();
   };
 
   const toggleAutocomplete = () => {
@@ -251,7 +260,6 @@ const CustomTaskForm = ({ onAdd, onCancel, dimensions, isOpen, setIsOpen }) => {
                       >
                         <div className="overflow-y-auto max-h-64 scrollbar-thin scrollbar-thumb-[#504945] scrollbar-track-[#3c3836]">
                           {filteredSuggestions
-                            .slice(0, 12)
                             .map((suggestion, index) => {
                               const dimension = dimensions.find(
                                 (dim) => dim.name === suggestion.dimension

@@ -56,7 +56,8 @@ export const useChallengeOnboarding = () => {
     try {
       setIsLoading(true);
 
-      const result = await startChallenge({ title: customChallenge.title,
+      const result = await startChallenge({
+        title: customChallenge.title,
         description: customChallenge.description,
         tasks: customChallenge.tasks.map((t) => ({
           name: t.name,
@@ -72,6 +73,10 @@ export const useChallengeOnboarding = () => {
 
       if (result.success) {
         toast.success("Challenge started successfully!");
+        router.refresh();
+
+        await new Promise((resolve) => setTimeout(resolve, 200));
+
         router.push("/dashboard");
       }
     } catch (error: any) {
@@ -112,7 +117,7 @@ export const useChallengeOnboarding = () => {
   };
 
   const handleNext = () => {
-      setStep(step + 1);
+    setStep(step + 1);
   };
 
   const handleBack = () => {

@@ -97,6 +97,7 @@ export const fetchUserChallenge = async () => {
   const currentChallenge = user?.challenges.find(
     (userChallenge) => userChallenge.challengeId === user.challengeId
   );
+
   if (!currentChallenge) {
     redirect("/onboarding");
   }
@@ -104,6 +105,42 @@ export const fetchUserChallenge = async () => {
   return currentChallenge;
 };
 
+export const getUserChallenge = async () => {
+  const session = await auth();
+  if (!session?.user) {
+    return null;
+  }
+  
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email ?? undefined },
+    include: {
+      currentChallenge: true,
+      challenges: {
+        include: {
+          challenge: {
+            include: {
+              tasks: {
+                include: {
+                  task: {
+                    include: {
+                      dimension: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+  
+  const currentChallenge = user?.challenges.find(
+    (userChallenge) => userChallenge.challengeId === user.challengeId
+  );
+  
+  return currentChallenge || null; // Return null instead of redirecting
+};
 export const fetchChallenges = async () => {
   const challenges = await prisma.challenge.findMany({
     take: 3,
