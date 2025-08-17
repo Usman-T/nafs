@@ -129,10 +129,6 @@ export const fetchChallenges = async () => {
 export const fetchDimensions = async () => {
   const dimensions = await prisma.dimension.findMany({});
 
-  console.log({
-    dimensionsFetched: dimensions.length,
-    success: dimensions.length > 0,
-  });
   return dimensions;
 };
 
@@ -243,12 +239,9 @@ export const loadChallengesPageData = async () => {
   const dimensionValues = await fetchUserDimensions();
   const hasCompletedChallenge = await fetchChallengeCompletionStatus();
 
-  const today = startOfDay(new Date());
-  const todayTasks = dailyTasks.filter((t) => isSameDay(t.date, today));
-
   return {
     currentChallenge,
-    dailyTasks: todayTasks,
+    dailyTasks,
     dimensions,
     dimensionValues,
     hasCompletedChallenge,

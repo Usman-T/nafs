@@ -50,6 +50,7 @@ const ChallengesComplete = ({ task }: ChallengesCompleteProps) => {
       setProgress((prev) => {
         const newProgress = prev + 2;
         if (newProgress >= 100) {
+          if (progressTimer.current) clearInterval(progressTimer.current);
           completeTask();
           return 100;
         }

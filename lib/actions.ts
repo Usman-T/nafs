@@ -21,3 +21,5 @@ export {
 
 // streak break management
 export { resetTasks, dimensionsReset } from "@/lib/actions/streak-break";
+
+export { ensureDailyTasksForToday } from "@/lib/actions/ensure-daily-tasks";

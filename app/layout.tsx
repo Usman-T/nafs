@@ -50,7 +50,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning={false}>
       <head>
         <meta name="theme-color" content="#000000" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -76,9 +76,9 @@ export default function RootLayout({
       >
         <div className="h-screen select-none overflow-y-auto overscroll-none">
           <DisablePinchZoom />
+          <DisableContextMenu />
           <SessionProvider>
-            {children}
-            <DisableContextMenu />
+              {children}
             <Toaster />
           </SessionProvider>
         </div>
