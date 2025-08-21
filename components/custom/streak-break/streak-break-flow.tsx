@@ -1,20 +1,26 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useCallback, useEffect } from "react";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Challenge, DailyTask, Dimension, Task } from "@prisma/client";
 
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 import BackgroundParticles from "@/components/custom/streak-break/extras/background-particles";
 import StreakBreakInfo from "@/components/custom/streak-break/steps/streak-break-info";
 import StreakBreakVisual from "@/components/custom/streak-break/steps/streak-break-visual";
-import StreakBreakHeader from "@/components/custom/streak-break/extras/streak-break-header";
-import StreakBreakFooter from "@/components/custom/streak-break/extras/streak-break-footer";
 import StreakBreakSummary from "./steps/streak-break-summary";
 import ExitAnimation from "./extras/exit-animation";
 import StreakBreakRestart from "./steps/streak-break-restart/streak-break-restart";
 import { dimensionsReset, resetTasks, startChallenge } from "@/lib/actions";
+import { OnboardingProgress } from "../onboarding/mobile-onboarding/onboading-progress";
 
 type ExtendedChallenge = Challenge & {
   tasks: {
@@ -69,6 +75,9 @@ export default function StreakBreakFlow({
     isLoading: false,
   });
 
+  const [api, setApi] = useState<CarouselApi>();
+  const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0);
+
   const [challengeSelection, setChallengeSelection] =
     useState<ChallengeSelection>({
       title: "",
@@ -114,7 +123,7 @@ export default function StreakBreakFlow({
     updateFlowState({ isLoading: true });
     try {
       const duration = getDuration();
-      const { title, description, tasks } = challengeSelection; 
+      const { title, description, tasks } = challengeSelection;
 
       const tasksReset = await resetTasks();
       if (!tasksReset.success) throw new Error("Couldn't start challenge");
@@ -158,14 +167,43 @@ export default function StreakBreakFlow({
     (step: FlowStep) => {
       if (flowState.isAnimating || flowState.isLoading) return;
 
+      const stepIndex = steps.indexOf(step);
+      if (stepIndex === -1) return;
+
       updateFlowState({ isAnimating: true });
+
+      // Update carousel position
+      if (api && stepIndex !== currentCarouselIndex) {
+        api.scrollTo(stepIndex);
+      }
 
       setTimeout(() => {
         updateFlowState({ currentStep: step, isAnimating: false });
-      }, 800);
+      }, 300);
     },
-    [flowState.isAnimating, flowState.isLoading, updateFlowState]
+    [flowState.isAnimating, flowState.isLoading, updateFlowState, api, currentCarouselIndex, steps]
   );
+
+  const canGoNext = useCallback((): boolean => {
+    if (flowState.isAnimating || flowState.isLoading) return false;
+
+    switch (flowState.currentStep) {
+      case "info":
+      case "visual":
+        return true;
+      case "restart":
+        return canProceedFromRestart();
+      case "summary":
+        return true;
+      default:
+        return false;
+    }
+  }, [
+    flowState.isAnimating,
+    flowState.isLoading,
+    flowState.currentStep,
+    canProceedFromRestart,
+  ]);
 
   const goNext = useCallback(async () => {
     const nextIndex = currentStepIndex + 1;
@@ -196,110 +234,152 @@ export default function StreakBreakFlow({
     if (prevIndex >= 0) {
       goToStep(steps[prevIndex]);
     }
-  }, [currentStepIndex, goToStep]);
+  }, [currentStepIndex, goToStep, steps]);
 
-  const canGoNext = useCallback((): boolean => {
-    if (flowState.isAnimating || flowState.isLoading) return false;
+  const stepComponents = [
+    {
+      component: (
+        <StreakBreakInfo
+          missedTasks={missedTasks}
+          missedDay={missedDay}
+          challengeName={currentChallenge.name}
+          isActive={currentCarouselIndex === 0}
+        />
+      ),
+    },
+    {
+      component: (
+        <StreakBreakVisual
+          currentValues={currentValues}
+          previousValues={previousValues}
+          missedTasks={missedTasks}
+          dimensions={dimensions}
+          isActive={currentCarouselIndex === 1}
+        />
+      ),
+    },
+    {
+      component: (
+        <StreakBreakRestart
+          currentChallenge={currentChallenge}
+          predefinedChallenges={predefinedChallenges}
+          dimensions={dimensions}
+          duration={getDuration()}
+          challengeSelection={challengeSelection}
+          onUpdateSelection={updateChallengeSelection}
+          isLoading={flowState.isLoading}
+          isActive={currentCarouselIndex === 2}
+        />
+      ),
+    },
+    {
+      component: (
+        <StreakBreakSummary
+          challengeSelection={challengeSelection}
+          duration={getDuration()}
+          isActive={currentCarouselIndex === 3}
+        />
+      ),
+    },
+  ];
 
-    switch (flowState.currentStep) {
-      case "info":
-      case "visual":
-        return true;
-      case "restart":
-        return canProceedFromRestart();
-      case "summary":
-        return true;
-      default:
-        return false;
+  // Handle carousel API setup and events
+  useEffect(() => {
+    if (!api) return;
+
+    const handleSelect = () => {
+      const selectedIndex = api.selectedScrollSnap();
+      setCurrentCarouselIndex(selectedIndex);
+      
+      // Prevent moving forward if conditions aren't met
+      if (selectedIndex > currentStepIndex) {
+        if (!canGoNext()) {
+          // Scroll back to current allowed position
+          api.scrollTo(currentStepIndex, false);
+          
+          if (flowState.currentStep === "restart" && !canProceedFromRestart()) {
+            toast.error("Please complete your challenge selection");
+          }
+          return;
+        }
+      }
+
+      // Update current step if it's different
+      const newStep = steps[selectedIndex];
+      if (newStep && newStep !== flowState.currentStep) {
+        updateFlowState({ currentStep: newStep });
+      }
+    };
+
+    api.on("select", handleSelect);
+    
+    // Set initial position
+    setCurrentCarouselIndex(api.selectedScrollSnap());
+
+    return () => {
+      api.off("select", handleSelect);
+    };
+  }, [api, currentStepIndex, canGoNext, flowState.currentStep, canProceedFromRestart, steps, updateFlowState]);
+
+  // Sync carousel position with current step
+  useEffect(() => {
+    if (api && currentStepIndex !== currentCarouselIndex) {
+      api.scrollTo(currentStepIndex, false);
     }
-  }, [
-    flowState.isAnimating,
-    flowState.isLoading,
-    flowState.currentStep,
-    canProceedFromRestart,
-  ]);
-
-  const renderStepContent = () => {
-    switch (flowState.currentStep) {
-      case "info":
-        return (
-          <StreakBreakInfo
-            missedTasks={missedTasks}
-            missedDay={missedDay}
-            challengeName={currentChallenge.name}
-          />
-        );
-
-      case "visual":
-        return (
-          <StreakBreakVisual
-            currentValues={currentValues}
-            previousValues={previousValues}
-            missedTasks={missedTasks}
-            dimensions={dimensions}
-          />
-        );
-
-      case "restart":
-        return (
-          <StreakBreakRestart
-            currentChallenge={currentChallenge}
-            predefinedChallenges={predefinedChallenges}
-            dimensions={dimensions}
-            duration={getDuration()}
-            challengeSelection={challengeSelection}
-            onUpdateSelection={updateChallengeSelection}
-            isLoading={flowState.isLoading}
-          />
-        );
-
-      case "summary":
-        return (
-          <StreakBreakSummary
-            challengeSelection={challengeSelection}
-            duration={getDuration()}
-          />
-        );
-      default:
-        return null;
-    }
-  };
+  }, [api, currentStepIndex, currentCarouselIndex]);
 
   return (
-    <div className="h-screen w-full bg-gradient-to-br from-[#1d2021] via-[#282828] to-[#1d2021] text-[#ebdbb2] flex flex-col">
-      <BackgroundParticles />
-      <StreakBreakHeader step={currentStepIndex} />
+    <>
+      <BackgroundParticles isActive={true} />
+      <Carousel
+        setApi={setApi}
+        opts={{
+          align: "start",
+          loop: false,
+          watchDrag: true,
+          dragFree: false,
+          skipSnaps: false,
+        }}
+        className="flex justify-center items-center w-full h-screen"
+      >
+        <CarouselContent className="flex h-screen items-center">
+          {stepComponents.map((step, index) => (
+            <CarouselItem
+              key={index}
+              className="flex items-center justify-center w-full h-full"
+            >
+              <Card className="border-0 bg-transparent shadow-none w-full max-w-md mx-auto h-full">
+                <CardContent className="w-full h-full flex items-center justify-center">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ 
+                      opacity: currentCarouselIndex === index ? 1 : 0.7, 
+                      y: currentCarouselIndex === index ? 0 : 20 
+                    }}
+                    transition={{ duration: 0.4 }}
+                    className="w-full"
+                  >
+                    {step.component}
+                  </motion.div>
+                </CardContent>
+              </Card>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="flex max-h-screen items-center justify-center">
-          <AnimatePresence mode="wait">
-            {!flowState.isExiting && (
-              <motion.div
-                key={flowState.currentStep}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-                className="w-full max-w-2xl"
-              >
-                {renderStepContent()}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-
-      <div className="shrink-0">
-        <StreakBreakFooter
-          step={currentStepIndex}
-          isExiting={flowState.isExiting}
-          handleNext={goNext}
-          handleBack={goBack}
-          canGoNext={canGoNext}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 p-4 flex items-center justify-center">
+        <OnboardingProgress 
+          current={currentCarouselIndex} 
+          total={steps.length}
+          isActive={true}
         />
       </div>
 
-      <ExitAnimation isExiting={flowState.isExiting} />
-    </div>
+      <ExitAnimation 
+        isExiting={flowState.isExiting} 
+        isActive={flowState.isExiting}
+      />
+    </>
   );
 }
