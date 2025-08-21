@@ -163,26 +163,6 @@ export default function StreakBreakFlow({
     }
   }, [router, updateFlowState, challengeSelection, getDuration, missedTasks]);
 
-  const goToStep = useCallback(
-    (step: FlowStep) => {
-      if (flowState.isAnimating || flowState.isLoading) return;
-
-      const stepIndex = steps.indexOf(step);
-      if (stepIndex === -1) return;
-
-      updateFlowState({ isAnimating: true });
-
-      // Update carousel position
-      if (api && stepIndex !== currentCarouselIndex) {
-        api.scrollTo(stepIndex);
-      }
-
-      setTimeout(() => {
-        updateFlowState({ currentStep: step, isAnimating: false });
-      }, 300);
-    },
-    [flowState.isAnimating, flowState.isLoading, updateFlowState, api, currentCarouselIndex, steps]
-  );
 
   const canGoNext = useCallback((): boolean => {
     if (flowState.isAnimating || flowState.isLoading) return false;
@@ -204,37 +184,6 @@ export default function StreakBreakFlow({
     flowState.currentStep,
     canProceedFromRestart,
   ]);
-
-  const goNext = useCallback(async () => {
-    const nextIndex = currentStepIndex + 1;
-
-    if (flowState.currentStep === "restart") {
-      if (!canProceedFromRestart()) {
-        toast.error("Please complete your challenge selection");
-        return;
-      }
-    }
-
-    if (nextIndex < steps.length) {
-      goToStep(steps[nextIndex]);
-    } else {
-      handleComplete();
-    }
-  }, [
-    currentStepIndex,
-    flowState.currentStep,
-    canProceedFromRestart,
-    goToStep,
-    handleComplete,
-    steps,
-  ]);
-
-  const goBack = useCallback(() => {
-    const prevIndex = currentStepIndex - 1;
-    if (prevIndex >= 0) {
-      goToStep(steps[prevIndex]);
-    }
-  }, [currentStepIndex, goToStep, steps]);
 
   const stepComponents = [
     {
@@ -283,7 +232,6 @@ export default function StreakBreakFlow({
     },
   ];
 
-  // Handle carousel API setup and events
   useEffect(() => {
     if (!api) return;
 
@@ -291,10 +239,8 @@ export default function StreakBreakFlow({
       const selectedIndex = api.selectedScrollSnap();
       setCurrentCarouselIndex(selectedIndex);
       
-      // Prevent moving forward if conditions aren't met
       if (selectedIndex > currentStepIndex) {
         if (!canGoNext()) {
-          // Scroll back to current allowed position
           api.scrollTo(currentStepIndex, false);
           
           if (flowState.currentStep === "restart" && !canProceedFromRestart()) {
@@ -304,7 +250,6 @@ export default function StreakBreakFlow({
         }
       }
 
-      // Update current step if it's different
       const newStep = steps[selectedIndex];
       if (newStep && newStep !== flowState.currentStep) {
         updateFlowState({ currentStep: newStep });
@@ -313,7 +258,6 @@ export default function StreakBreakFlow({
 
     api.on("select", handleSelect);
     
-    // Set initial position
     setCurrentCarouselIndex(api.selectedScrollSnap());
 
     return () => {
@@ -321,7 +265,6 @@ export default function StreakBreakFlow({
     };
   }, [api, currentStepIndex, canGoNext, flowState.currentStep, canProceedFromRestart, steps, updateFlowState]);
 
-  // Sync carousel position with current step
   useEffect(() => {
     if (api && currentStepIndex !== currentCarouselIndex) {
       api.scrollTo(currentStepIndex, false);
@@ -330,7 +273,7 @@ export default function StreakBreakFlow({
 
   return (
     <>
-      <BackgroundParticles isActive={true} />
+      <BackgroundParticles  />
       <Carousel
         setApi={setApi}
         opts={{
@@ -372,13 +315,11 @@ export default function StreakBreakFlow({
         <OnboardingProgress 
           current={currentCarouselIndex} 
           total={steps.length}
-          isActive={true}
         />
       </div>
 
       <ExitAnimation 
         isExiting={flowState.isExiting} 
-        isActive={flowState.isExiting}
       />
     </>
   );
