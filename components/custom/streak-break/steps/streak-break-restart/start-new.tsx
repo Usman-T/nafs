@@ -20,6 +20,7 @@ const StartNewChallenge: React.FC<StartNewChallengeProps> = ({
   onContinueChallenge,
   onStartNew,
 }) => {
+  
   return (
     <div className="space-y-6">
       <motion.div

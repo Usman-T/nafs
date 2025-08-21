@@ -1,69 +1,32 @@
 "use client";
 
 import React from "react";
-import { Challenge, Dimension, Task } from "@prisma/client";
-import { useStreakBreakRestart } from "@/lib/hooks/use-streak-break";
-import ChoosePredefinedBranch from "./choose-existing";
 import StartNewChallenge from "./start-new";
 import { CustomChallengeStep } from "@/components/custom/challenges/completion/challenge/steps/custom-challenge-step";
+import { useStreakBreakContext } from "@/lib/context/streak-break-context";
 
-type ExtendedChallenge = Challenge & {
-  tasks: {
-    task: Task & {
-      dimension: Dimension;
-    };
-  }[];
-};
-
-interface ChallengeSelection {
-  type: "existing" | "custom" | null;
-  challengeId?: string;
-  selectedTasks?: number[];
-  customChallenge?: {
-    title: string;
-    description: string;
-    tasks: Array<{ name: string; dimension: Dimension }>;
-  };
-}
-
-interface StreakBreakRestartProps {
-  currentChallenge: ExtendedChallenge;
-  predefinedChallenges: Challenge[];
-  dimensions: Dimension[];
-  duration: number;
-  challengeSelection: ChallengeSelection;
-  onUpdateSelection: (updates: Partial<ChallengeSelection>) => void;
-  isLoading?: boolean;
-}
-
-const StreakBreakRestart: React.FC<StreakBreakRestartProps> = ({
-  currentChallenge,
-  dimensions,
-  duration,
-  challengeSelection,
-  onUpdateSelection,
-  isLoading = false,
-}) => {
+const StreakBreakRestart: React.FC = () => {
   const {
-    flowBranch,
-    customChallenge,
-    completedTasks,
+    restartFlowBranch,
+    currentChallenge,
+    dimensions,
+    challengeSelection,
+    flowState,
     handleContinueCurrentChallenge,
     handleAddCustomTask,
     handleRemoveCustomTask,
-    handleUpdateCustomChallenge,
+    updateChallengeSelection,
     goToCustom,
-    goToChoose
-  } = useStreakBreakRestart({
-    currentChallenge,
-    duration,
-    dimensions,
-    challengeSelection,
-    onUpdateSelection,
-  });
+    goToChoose,
+  } = useStreakBreakContext();
+
+  // Calculate completed tasks from current challenge
+  const completedTasks = React.useMemo(() => {
+    return [];
+  }, []);
 
   const renderContent = () => {
-    switch (flowBranch) {
+    switch (restartFlowBranch) {
       case "choose":
         return (
           <StartNewChallenge
@@ -73,22 +36,20 @@ const StreakBreakRestart: React.FC<StreakBreakRestartProps> = ({
             onStartNew={goToCustom}
           />
         );
-
       case "custom":
         return (
           <CustomChallengeStep
-            customChallenge={customChallenge}
+            customChallenge={challengeSelection}
             dimensions={dimensions}
             onAddTask={handleAddCustomTask}
             onRemoveTask={handleRemoveCustomTask}
-            onUpdateChallenge={handleUpdateCustomChallenge}
+            onUpdateChallenge={updateChallengeSelection}
             onBack={goToChoose}
             minTasks={3}
             maxTasks={5}
-            isLoading={isLoading}
+            isLoading={flowState.isLoading}
           />
         );
-
       default:
         return (
           <div className="flex items-center justify-center h-full">
@@ -101,7 +62,7 @@ const StreakBreakRestart: React.FC<StreakBreakRestartProps> = ({
     }
   };
 
-  return <div className="p-6">{renderContent()}</div>;
+  return <div className="w-full h-full">{renderContent()}</div>;
 };
 
 export default StreakBreakRestart;

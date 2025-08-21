@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import { Challenge, DailyTask, Dimension, Task } from "@prisma/client";
 
@@ -19,8 +18,8 @@ import StreakBreakVisual from "@/components/custom/streak-break/steps/streak-bre
 import StreakBreakSummary from "./steps/streak-break-summary";
 import ExitAnimation from "./extras/exit-animation";
 import StreakBreakRestart from "./steps/streak-break-restart/streak-break-restart";
-import { dimensionsReset, resetTasks, startChallenge } from "@/lib/actions";
 import { OnboardingProgress } from "../onboarding/mobile-onboarding/onboading-progress";
+import { StreakBreakProvider, useStreakBreakContext } from "@/lib/context/streak-break-context";
 
 type ExtendedChallenge = Challenge & {
   tasks: {
@@ -29,8 +28,6 @@ type ExtendedChallenge = Challenge & {
     };
   }[];
 };
-
-type FlowStep = "info" | "visual" | "restart" | "summary";
 
 interface StreakBreakFlowProps {
   predefinedChallenges: Challenge[];
@@ -43,147 +40,27 @@ interface StreakBreakFlowProps {
   missedDay: number;
 }
 
-interface FlowState {
-  currentStep: FlowStep;
-  isAnimating: boolean;
-  isExiting: boolean;
-  isLoading: boolean;
-}
-
-interface ChallengeSelection {
-  title: string;
-  description: string;
-  tasks: Array<{ name: string; dimension: Dimension }>;
-}
-
-export default function StreakBreakFlow({
-  predefinedChallenges,
-  dimensions,
-  missedTasks,
-  currentValues,
-  previousValues,
-  currentChallenge,
-  userLevel,
-  missedDay,
-}: StreakBreakFlowProps) {
-  const router = useRouter();
-
-  const [flowState, setFlowState] = useState<FlowState>({
-    currentStep: "info",
-    isAnimating: false,
-    isExiting: false,
-    isLoading: false,
-  });
+function StreakBreakFlowContent() {
+  const {
+    flowState,
+    canGoNext,
+    canProceedFromRestart,
+    goToStep,
+    missedTasks,
+    missedDay,
+    currentChallenge,
+    currentValues,
+    previousValues,
+    dimensions,
+    challengeSelection,
+    getDuration,
+  } = useStreakBreakContext();
 
   const [api, setApi] = useState<CarouselApi>();
   const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0);
 
-  const [challengeSelection, setChallengeSelection] =
-    useState<ChallengeSelection>({
-      title: "",
-      description: "",
-      tasks: [],
-    });
-
-  const getDuration = useCallback(() => {
-    const durationMap: Record<number, number> = {
-      1: 3,
-      2: 5,
-      3: 7,
-      4: 10,
-      5: 15,
-      6: 20,
-    };
-    return durationMap[userLevel + 1] ?? 30;
-  }, [userLevel]);
-
-  const steps: FlowStep[] = ["info", "visual", "restart", "summary"];
+  const steps = ["info", "visual", "restart", "summary"] as const;
   const currentStepIndex = steps.indexOf(flowState.currentStep);
-
-  const updateFlowState = useCallback((updates: Partial<FlowState>) => {
-    setFlowState((prev) => ({ ...prev, ...updates }));
-  }, []);
-
-  const updateChallengeSelection = useCallback(
-    (updates: Partial<ChallengeSelection>) => {
-      setChallengeSelection((prev) => ({ ...prev, ...updates }));
-    },
-    []
-  );
-
-  const canProceedFromRestart = useCallback((): boolean => {
-    return !!(
-      challengeSelection?.tasks &&
-      challengeSelection.tasks.length >= 3 &&
-      challengeSelection.tasks.length <= 5
-    );
-  }, [challengeSelection]);
-
-  const handleComplete = useCallback(async () => {
-    updateFlowState({ isLoading: true });
-    try {
-      const duration = getDuration();
-      const { title, description, tasks } = challengeSelection;
-
-      const tasksReset = await resetTasks();
-      if (!tasksReset.success) throw new Error("Couldn't start challenge");
-
-      const dimensionsUpdated = await dimensionsReset(missedTasks);
-      if (!dimensionsUpdated.success)
-        throw new Error("Couldn't start challenge");
-
-      const result = await startChallenge({
-        title: title,
-        description: description,
-        duration: duration,
-        tasks: tasks.map((t) => ({
-          name: t.name,
-          dimensionId: t.dimension.id,
-        })),
-        nextDay: false,
-      });
-
-      if (!result.success) {
-        throw new Error(result.message || "Failed to create custom challenge");
-      }
-
-      localStorage.removeItem("dayCompleted");
-      updateFlowState({ isExiting: true });
-      toast.success("Challenge started successfully!");
-      router.push("/dashboard/");
-      return true;
-    } catch (error) {
-      console.error("Challenge start error:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to start challenge"
-      );
-      return false;
-    } finally {
-      updateFlowState({ isLoading: false });
-    }
-  }, [router, updateFlowState, challengeSelection, getDuration, missedTasks]);
-
-
-  const canGoNext = useCallback((): boolean => {
-    if (flowState.isAnimating || flowState.isLoading) return false;
-
-    switch (flowState.currentStep) {
-      case "info":
-      case "visual":
-        return true;
-      case "restart":
-        return canProceedFromRestart();
-      case "summary":
-        return true;
-      default:
-        return false;
-    }
-  }, [
-    flowState.isAnimating,
-    flowState.isLoading,
-    flowState.currentStep,
-    canProceedFromRestart,
-  ]);
 
   const stepComponents = [
     {
@@ -192,7 +69,6 @@ export default function StreakBreakFlow({
           missedTasks={missedTasks}
           missedDay={missedDay}
           challengeName={currentChallenge.name}
-          isActive={currentCarouselIndex === 0}
         />
       ),
     },
@@ -203,30 +79,17 @@ export default function StreakBreakFlow({
           previousValues={previousValues}
           missedTasks={missedTasks}
           dimensions={dimensions}
-          isActive={currentCarouselIndex === 1}
         />
       ),
     },
     {
-      component: (
-        <StreakBreakRestart
-          currentChallenge={currentChallenge}
-          predefinedChallenges={predefinedChallenges}
-          dimensions={dimensions}
-          duration={getDuration()}
-          challengeSelection={challengeSelection}
-          onUpdateSelection={updateChallengeSelection}
-          isLoading={flowState.isLoading}
-          isActive={currentCarouselIndex === 2}
-        />
-      ),
+      component: <StreakBreakRestart />
     },
     {
       component: (
         <StreakBreakSummary
           challengeSelection={challengeSelection}
           duration={getDuration()}
-          isActive={currentCarouselIndex === 3}
         />
       ),
     },
@@ -238,13 +101,13 @@ export default function StreakBreakFlow({
     const handleSelect = () => {
       const selectedIndex = api.selectedScrollSnap();
       setCurrentCarouselIndex(selectedIndex);
-      
+
       if (selectedIndex > currentStepIndex) {
         if (!canGoNext()) {
           api.scrollTo(currentStepIndex, false);
-          
+
           if (flowState.currentStep === "restart" && !canProceedFromRestart()) {
-            toast.error("Please complete your challenge selection");
+            toast.error("Select a challenge to restart");
           }
           return;
         }
@@ -252,18 +115,25 @@ export default function StreakBreakFlow({
 
       const newStep = steps[selectedIndex];
       if (newStep && newStep !== flowState.currentStep) {
-        updateFlowState({ currentStep: newStep });
+        goToStep(newStep);
       }
     };
 
     api.on("select", handleSelect);
-    
     setCurrentCarouselIndex(api.selectedScrollSnap());
 
     return () => {
       api.off("select", handleSelect);
     };
-  }, [api, currentStepIndex, canGoNext, flowState.currentStep, canProceedFromRestart, steps, updateFlowState]);
+  }, [
+    api,
+    currentStepIndex,
+    canGoNext,
+    flowState.currentStep,
+    canProceedFromRestart,
+    steps,
+    goToStep,
+  ]);
 
   useEffect(() => {
     if (api && currentStepIndex !== currentCarouselIndex) {
@@ -273,7 +143,7 @@ export default function StreakBreakFlow({
 
   return (
     <>
-      <BackgroundParticles  />
+      <BackgroundParticles />
       <Carousel
         setApi={setApi}
         opts={{
@@ -293,17 +163,20 @@ export default function StreakBreakFlow({
             >
               <Card className="border-0 bg-transparent shadow-none w-full max-w-md mx-auto h-full">
                 <CardContent className="w-full h-full flex items-center justify-center">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ 
-                      opacity: currentCarouselIndex === index ? 1 : 0.7, 
-                      y: currentCarouselIndex === index ? 0 : 20 
-                    }}
-                    transition={{ duration: 0.4 }}
-                    className="w-full"
-                  >
-                    {step.component}
-                  </motion.div>
+                  <AnimatePresence mode="sync">
+                    {currentCarouselIndex === index ? (
+                      <motion.div
+                        key={index}
+                        className="w-full h-full flex items-center justify-center"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.4 }}
+                      >
+                        {step.component}
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
                 </CardContent>
               </Card>
             </CarouselItem>
@@ -312,15 +185,22 @@ export default function StreakBreakFlow({
       </Carousel>
 
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 p-4 flex items-center justify-center">
-        <OnboardingProgress 
-          current={currentCarouselIndex} 
+        <OnboardingProgress
+          current={currentCarouselIndex}
           total={steps.length}
         />
       </div>
 
-      <ExitAnimation 
-        isExiting={flowState.isExiting} 
-      />
+      <ExitAnimation isExiting={flowState.isExiting} />
     </>
+  );
+}
+
+// Main component that provides the context
+export default function StreakBreakFlow(props: StreakBreakFlowProps) {
+  return (
+    <StreakBreakProvider {...props}>
+      <StreakBreakFlowContent />
+    </StreakBreakProvider>
   );
 }
