@@ -275,9 +275,9 @@ Only a few things are there that need to be done
 - Firstly, rewrite `startChallenge`, `completeTask`, `checkUserStreak`, `breakUserStreak` to only spawn tasks based on conditions (done)
 - Secondly, add swipe indicator to the onboaridng page (done)
 - Thirdly, 
-  - the quran viewer must be made very performant by rendering 20 cards at a time
-  - the quran viewer must have the scroll to ayah working
-  - the header must be ploppy instead of absolute
+  - the quran viewer must be made very performant by rendering 20 cards at a time (done)
+  - the quran viewer must have the scroll to ayah working (done)
+  - the header must be ploppy instead of absolute (done)
   - clicking or holding an ayah should open its specific `ayah/` view
   - call abdul basit's recording only from Quran.com
   - wrap in <audio> tag based on context

@@ -8,7 +8,9 @@ const ChallengesPage = async () => {
   const streakCheck = await checkUserStreak();
   if (streakCheck?.streakBroken) redirect("/streak-break");
 
-  await spawnDailyTasksIfMissing();
+  if (!streakCheck?.streakBroken) {
+    await spawnDailyTasksIfMissing();
+  }
 
   const {
     currentChallenge,
