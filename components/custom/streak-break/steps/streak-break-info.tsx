@@ -1,25 +1,18 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import BrokenEmber from "@/components/custom/streak-break/extras/broken-ember";
 import { iconMap } from "@/lib/iconMap";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useStreakBreakContext } from "@/lib/context/streak-break-context";
 
-const StreakBreakInfo = ({
-  missedDay,
-  missedTasks,
-  challengeName,
-}: {
-  missedDay: number;
-  missedTasks: { name: string; icon: string; color: string }[];
-  challengeName: string;
-  isActive: boolean;
-}) => {
+const StreakBreakInfo = () => {
+  const { missedDay, currentChallenge, missedTasks } = useStreakBreakContext();
   return (
     <>
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-10 px-4 py-"
+        className="text-center space-y-10 px-4"
       >
         <div className="relative flex items-center justify-center ">
           <motion.div
@@ -60,7 +53,7 @@ const StreakBreakInfo = ({
             className="space-y-3"
           >
             <p className="text-xl text-[#fe8019] font-bold">
-              Day {missedDay} of {challengeName}
+              Day {missedDay} of {currentChallenge.name}
             </p>
           </motion.div>
         </div>
@@ -81,7 +74,7 @@ const StreakBreakInfo = ({
             animate={{ y: [0, 10, 0] }}
             transition={{ delay: 2, duration: 0.6 }}
           >
-            <ScrollArea className="h-32 ">
+            <ScrollArea className="h:">
               <div className="space-y-3">
                 {missedTasks.map((task, i) => {
                   const IconComponent = iconMap[task.icon] || X;
@@ -111,7 +104,7 @@ const StreakBreakInfo = ({
             </ScrollArea>{" "}
           </motion.div>
           <div className="flex justify-center pt-2 text-[#928374] text-xs animate-pulse">
-            ↓
+            {missedTasks.length > 3 ? "↓" : ""}
           </div>
         </motion.div>
       </motion.div>

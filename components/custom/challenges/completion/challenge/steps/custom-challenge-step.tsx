@@ -5,26 +5,19 @@ import { Plus, Trash } from "lucide-react";
 import { Dimension } from "@prisma/client";
 import CustomTaskForm from "@/components/custom/onboarding/onboarding-task-form";
 import { iconMap } from "@/lib/iconMap";
+import { useStreakBreakContext } from "@/lib/context/streak-break-context";
 
-interface CustomChallengeStepProps {
-  customChallenge: {
-    tasks: { name: string; dimension: Dimension }[];
-  };
-  dimensions: Dimension[];
-  onAddTask: (task: { name: string; dimension: Dimension }) => void;
-  onRemoveTask: (index: number) => void;
-}
-
-export const CustomChallengeStep: React.FC<CustomChallengeStepProps> = ({
-  customChallenge,
-  dimensions,
-  onAddTask,
-  onRemoveTask,
-}) => {
+export const CustomChallengeStep = () => {
   const [showTaskForm, setShowTaskForm] = useState(false);
+  const {
+    challengeSelection: customChallenge,
+    dimensions,
+    handleAddCustomTask,
+    handleRemoveCustomTask,
+  } = useStreakBreakContext();
 
   const handleAddTask = (task: { name: string; dimension: Dimension }) => {
-    onAddTask(task);
+    handleAddCustomTask(task.name, task.dimension);
     setShowTaskForm(false);
   };
 
@@ -34,7 +27,7 @@ export const CustomChallengeStep: React.FC<CustomChallengeStepProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className="space-y-6" 
+        className="space-y-6"
       >
         <div className="text-center">
           <h2 className="text-xl font-bold text-[#ebdbb2]">
@@ -80,7 +73,7 @@ export const CustomChallengeStep: React.FC<CustomChallengeStepProps> = ({
                       size="sm"
                       className="h-8 w-8 p-0 text-[#a89984] hover:text-[#fb4934] hover:bg-transparent flex-shrink-0"
                       onClick={() => {
-                        onRemoveTask(i);
+                        handleRemoveCustomTask(i);
                       }}
                     >
                       <Trash className="w-6 h-6" />

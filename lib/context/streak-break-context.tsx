@@ -29,19 +29,23 @@ interface FlowState {
   isExiting: boolean;
   isLoading: boolean;
 }
+interface MissedTask {
+  id: string;
+  name: string;
+  dimension: string;
+  color: string;
+  icon: string;
+  dimensionId: string;
+  points: number;
+}
 
 interface StreakBreakState {
-  // Flow management
   flowState: FlowState;
   restartFlowBranch: RestartFlowBranch;
-  
-  // Data
   challengeSelection: ChallengeSelection;
-  
-  // Props (read-only)
   predefinedChallenges: Challenge[];
   dimensions: Dimension[];
-  missedTasks: DailyTask[];
+  missedTasks: MissedTask[];
   currentValues: Record<string, number>;
   previousValues: Record<string, number>;
   currentChallenge: ExtendedChallenge;
@@ -164,7 +168,6 @@ export function StreakBreakProvider({
     updateFlowState({ currentStep: step });
   }, [updateFlowState]);
 
-  // Restart flow actions
   const handleContinueCurrentChallenge = useCallback(() => {
     updateChallengeSelection({
       title: currentChallenge.name,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import { Challenge, DailyTask, Dimension, Task } from "@prisma/client";
@@ -19,7 +19,10 @@ import StreakBreakSummary from "./steps/streak-break-summary";
 import ExitAnimation from "./extras/exit-animation";
 import StreakBreakRestart from "./steps/streak-break-restart/streak-break-restart";
 import { OnboardingProgress } from "../onboarding/mobile-onboarding/onboading-progress";
-import { StreakBreakProvider, useStreakBreakContext } from "@/lib/context/streak-break-context";
+import {
+  StreakBreakProvider,
+  useStreakBreakContext,
+} from "@/lib/context/streak-break-context";
 
 type ExtendedChallenge = Challenge & {
   tasks: {
@@ -41,57 +44,27 @@ interface StreakBreakFlowProps {
 }
 
 function StreakBreakFlowContent() {
-  const {
-    flowState,
-    canGoNext,
-    canProceedFromRestart,
-    goToStep,
-    missedTasks,
-    missedDay,
-    currentChallenge,
-    currentValues,
-    previousValues,
-    dimensions,
-    challengeSelection,
-    getDuration,
-  } = useStreakBreakContext();
+  const { flowState, canGoNext, canProceedFromRestart, goToStep } =
+    useStreakBreakContext();
 
   const [api, setApi] = useState<CarouselApi>();
   const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0);
 
-  const steps = ["info", "visual", "restart", "summary"] as const;
+  const steps = useMemo(() => ["info", "visual", "restart", "summary"], []);
   const currentStepIndex = steps.indexOf(flowState.currentStep);
 
   const stepComponents = [
     {
-      component: (
-        <StreakBreakInfo
-          missedTasks={missedTasks}
-          missedDay={missedDay}
-          challengeName={currentChallenge.name}
-        />
-      ),
+      component: <StreakBreakInfo />,
     },
     {
-      component: (
-        <StreakBreakVisual
-          currentValues={currentValues}
-          previousValues={previousValues}
-          missedTasks={missedTasks}
-          dimensions={dimensions}
-        />
-      ),
+      component: <StreakBreakVisual />,
     },
     {
-      component: <StreakBreakRestart />
+      component: <StreakBreakRestart />,
     },
     {
-      component: (
-        <StreakBreakSummary
-          challengeSelection={challengeSelection}
-          duration={getDuration()}
-        />
-      ),
+      component: <StreakBreakSummary />,
     },
   ];
 
@@ -162,7 +135,7 @@ function StreakBreakFlowContent() {
               className="flex items-center justify-center w-full h-full"
             >
               <Card className="border-0 bg-transparent shadow-none w-full max-w-md mx-auto h-full">
-                <CardContent className="w-full h-full flex items-center justify-center">
+                <CardContent>
                   <AnimatePresence mode="sync">
                     {currentCarouselIndex === index ? (
                       <motion.div
@@ -173,7 +146,7 @@ function StreakBreakFlowContent() {
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.4 }}
                       >
-                        {step.component}
+                        <div className="flex-1">{step.component}</div>
                       </motion.div>
                     ) : null}
                   </AnimatePresence>
@@ -196,7 +169,6 @@ function StreakBreakFlowContent() {
   );
 }
 
-// Main component that provides the context
 export default function StreakBreakFlow(props: StreakBreakFlowProps) {
   return (
     <StreakBreakProvider {...props}>

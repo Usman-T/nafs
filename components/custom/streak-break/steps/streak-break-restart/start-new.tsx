@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 import { cn } from "@/lib/utils/utils";
 import { Button } from "@/components/ui/button";
@@ -6,21 +5,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { Plus, RotateCcw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useStreakBreakContext } from "@/lib/context/streak-break-context";
 
-interface StartNewChallengeProps {
-  currentChallenge: any;
-  completedTasks: any[];
-  onContinueChallenge: () => void;
-  onStartNew: () => void;
-}
+const StartNewChallenge = () => {
+  const {
+    challengeSelection,
+    currentChallenge,
+    handleContinueCurrentChallenge,
+    goToCustom,
+  } = useStreakBreakContext();
 
-const StartNewChallenge: React.FC<StartNewChallengeProps> = ({
-  currentChallenge,
-  completedTasks,
-  onContinueChallenge,
-  onStartNew,
-}) => {
-  
+  const continueSameChallenge: boolean =
+    challengeSelection?.title === currentChallenge.name;
+
   return (
     <div className="space-y-6">
       <motion.div
@@ -30,11 +27,12 @@ const StartNewChallenge: React.FC<StartNewChallengeProps> = ({
       >
         <Card
           className={cn(
-            "relative overflow-hidden transition-all duration-500 cursor-pointer group",
-            "bg-gradient-to-br from-[#fe8019]/10 to-[#d65d0e]/5 border-2 border-[#fe8019]/30",
-            "hover:border-[#fe8019] hover:shadow-lg hover:shadow-[#fe8019]/20"
+            "relative overflow-hidden transition-all duration-300 cursor-pointer group",
+            "bg-gradient-to-br from-[#fe8019]/10 to-[#d65d0e]/5 border-2 border-[#fe8019]/30 rounded-xl",
+            "hover:border-[#fe8019] hover:shadow-lg hover:shadow-[#fe8019]/20",
+            `${continueSameChallenge ? "border-[#fe8019] shadow-lg" : ""}`
           )}
-          onClick={onContinueChallenge}
+          onClick={handleContinueCurrentChallenge}
         >
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center text-[#ebdbb2] text-2xl font-bold">
@@ -52,10 +50,6 @@ const StartNewChallenge: React.FC<StartNewChallengeProps> = ({
               <Badge className="bg-[#3c3836] text-[#ebdbb2] px-3 py-1">
                 Day {currentChallenge?.currentDay || 1} of{" "}
                 {currentChallenge.duration}
-              </Badge>
-              <Badge className="bg-[#8ec07c]/20 text-[#8ec07c] px-3 py-1">
-                {completedTasks.length}/{currentChallenge?.tasks.length} tasks
-                completed
               </Badge>
             </div>
           </CardContent>
@@ -84,7 +78,7 @@ const StartNewChallenge: React.FC<StartNewChallengeProps> = ({
             "border-2 border-dashed",
             "border-[#fe8019] text-[#fe8019] bg-[#fe8019]/5 shadow-lg shadow-[#fe8019]/10"
           )}
-          onClick={onStartNew}
+          onClick={goToCustom}
         >
           <div className="flex items-center gap-4">
             <div className="p-2 bg-[#fe8019]/20 rounded-lg">

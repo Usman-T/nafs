@@ -6,50 +6,14 @@ import { CustomChallengeStep } from "@/components/custom/challenges/completion/c
 import { useStreakBreakContext } from "@/lib/context/streak-break-context";
 
 const StreakBreakRestart: React.FC = () => {
-  const {
-    restartFlowBranch,
-    currentChallenge,
-    dimensions,
-    challengeSelection,
-    flowState,
-    handleContinueCurrentChallenge,
-    handleAddCustomTask,
-    handleRemoveCustomTask,
-    updateChallengeSelection,
-    goToCustom,
-    goToChoose,
-  } = useStreakBreakContext();
-
-  // Calculate completed tasks from current challenge
-  const completedTasks = React.useMemo(() => {
-    return [];
-  }, []);
+  const { restartFlowBranch } = useStreakBreakContext();
 
   const renderContent = () => {
     switch (restartFlowBranch) {
       case "choose":
-        return (
-          <StartNewChallenge
-            currentChallenge={currentChallenge}
-            completedTasks={completedTasks}
-            onContinueChallenge={handleContinueCurrentChallenge}
-            onStartNew={goToCustom}
-          />
-        );
+        return <StartNewChallenge />;
       case "custom":
-        return (
-          <CustomChallengeStep
-            customChallenge={challengeSelection}
-            dimensions={dimensions}
-            onAddTask={handleAddCustomTask}
-            onRemoveTask={handleRemoveCustomTask}
-            onUpdateChallenge={updateChallengeSelection}
-            onBack={goToChoose}
-            minTasks={3}
-            maxTasks={5}
-            isLoading={flowState.isLoading}
-          />
-        );
+        return <CustomChallengeStep />;
       default:
         return (
           <div className="flex items-center justify-center h-full">
@@ -62,7 +26,11 @@ const StreakBreakRestart: React.FC = () => {
     }
   };
 
-  return <div className="w-full h-full">{renderContent()}</div>;
+  return (
+    <div className="h-full w-full flex items-center justify-center">
+      <div className="flex-1">{renderContent()}</div>
+    </div>
+  );
 };
 
 export default StreakBreakRestart;

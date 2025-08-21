@@ -1,32 +1,13 @@
-import { Dimension } from "@prisma/client";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import RadarChart from "@/components/custom/streak-break/extras/streak-break-radar-chart";
 import { iconMap } from "@/lib/iconMap";
 import { BookOpen } from "lucide-react";
+import { useStreakBreakContext } from "@/lib/context/streak-break-context";
 
-interface MissedTask {
-  id: string;
-  name: string;
-  dimension: string;
-  color: string;
-  icon: string;
-  dimensionId: string;
-  points: number;
-}
+const StreakBreakVisual = () => {
+  const { dimensions, missedTasks, previousValues, currentValues } =
+    useStreakBreakContext();
 
-const StreakBreakVisual = ({
-  dimensions,
-  missedTasks,
-  previousValues,
-  currentValues,
-  isActive,
-}: {
-  dimensions: Dimension[];
-  missedTasks: MissedTask[];
-  previousValues: Record<string, number>;
-  currentValues: Record<string, number>;
-  isActive: boolean;
-}) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -72,7 +53,7 @@ const StreakBreakVisual = ({
                       >
                         <IconComponent
                           style={{ color: task.color }}
-                          className="h-6 w-6 text-[#1d2021]"
+                          className="h-4 w-4 text-[#1d2021]"
                         />
                       </div>
                       <span className="text-[#ebdbb2] font-medium">

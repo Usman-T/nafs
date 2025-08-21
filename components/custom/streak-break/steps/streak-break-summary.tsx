@@ -7,11 +7,12 @@ import { useStreakBreakContext } from "@/lib/context/streak-break-context";
 
 const StreakBreakSummary = () => {
   const { challengeSelection, getDuration } = useStreakBreakContext();
-  
+
   const duration = getDuration();
-  
-  const hasValidSelection = challengeSelection.title && challengeSelection.tasks.length > 0;
-  
+
+  const hasValidSelection =
+    challengeSelection.title && challengeSelection.tasks.length > 0;
+
   if (!hasValidSelection) {
     return (
       <motion.div
@@ -24,7 +25,9 @@ const StreakBreakSummary = () => {
           <div className="mx-auto h-16 w-16 rounded-full bg-[#665c54] flex items-center justify-center mb-4">
             <Award className="h-8 w-8 text-[#ebdbb2]" />
           </div>
-          <h2 className="text-xl font-bold text-[#ebdbb2]">No Challenge Selected</h2>
+          <h2 className="text-xl font-bold text-[#ebdbb2]">
+            No Challenge Selected
+          </h2>
           <p className="text-[#a89984]">
             Please go back and select a challenge to continue
           </p>
@@ -49,9 +52,7 @@ const StreakBreakSummary = () => {
         >
           <Award className="h-8 w-8 text-[#1d2021]" />
         </motion.div>
-        <h2 className="text-xl font-bold text-[#ebdbb2]">
-          Challenge Ready!
-        </h2>
+        <h2 className="text-xl font-bold text-[#ebdbb2]">Challenge Ready!</h2>
         <p className="text-[#a89984]">
           You&apos;re ready to begin your challenge and get back on track
         </p>
@@ -64,7 +65,7 @@ const StreakBreakSummary = () => {
         <div className="text-sm text-[#a89984] mb-3">
           {challengeSelection.description}
         </div>
-        
+
         <div className="flex gap-2 mb-4 flex-wrap">
           <Badge className="bg-[#3c3836] text-[#ebdbb2] hover:bg-[#3c3836]">
             {duration} days
@@ -73,7 +74,7 @@ const StreakBreakSummary = () => {
             {challengeSelection.tasks.length} tasks
           </Badge>
         </div>
-        
+
         <div className="space-y-2">
           <div className="text-xs text-[#a89984] mb-2 uppercase tracking-wide">
             Daily Tasks
@@ -92,10 +93,9 @@ const StreakBreakSummary = () => {
           ))}
         </div>
       </div>
-      
+
       <div className="text-sm text-[#a89984] text-center space-y-1">
         <p>Your challenge will begin today.</p>
-        <p className="text-xs">Complete all tasks daily to maintain your streak!</p>
       </div>
     </motion.div>
   );
