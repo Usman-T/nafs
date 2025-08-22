@@ -6,11 +6,11 @@ import { redirect } from "next/navigation";
 
 const ChallengesPage = async () => {
   const streakCheck = await checkUserStreak();
-  if (streakCheck?.streakBroken) redirect("/streak-break");
+  console.log(streakCheck)
 
-  if (!streakCheck?.streakBroken) {
-    await spawnDailyTasksIfMissing();
-  }
+  if (streakCheck.streakBroken) redirect("/streak-break");
+
+  await spawnDailyTasksIfMissing();
 
   const {
     currentChallenge,

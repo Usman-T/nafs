@@ -1,4 +1,4 @@
-"use server"
+"use server";
 
 import prisma from "@/prisma";
 import { requireAuth } from "@/lib/utils/auth";
@@ -11,20 +11,19 @@ export const resetTasks = async () => {
     const userId = await requireAuth();
     const today = startOfDay(new Date());
 
-    const futureTasks = await prisma.dailyTask.findMany({
+    // Fetch only today's tasks
+    const todayTasks = await prisma.dailyTask.findMany({
       where: {
         userId,
-        date: {
-          gte: today,
-        },
+        date: today,
       },
       include: {
         completions: true,
       },
     });
 
-    const taskIds = futureTasks.map((task) => task.id);
-    const completionIds = futureTasks.flatMap((task) =>
+    const taskIds = todayTasks.map((task) => task.id);
+    const completionIds = todayTasks.flatMap((task) =>
       task.completions.map((c) => c.id)
     );
 
@@ -48,10 +47,17 @@ export const resetTasks = async () => {
       });
     }
 
+    // Reset streakBrokenToday flag
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        streakBrokenToday: false,
+      },
+    });
+
     return { success: true };
   } catch (error) {
     console.error("Error resetting tasks:", error);
-    console.log(error);
     return { success: false, message: "Could not reset tasks." };
   }
 };

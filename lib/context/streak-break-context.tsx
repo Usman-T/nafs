@@ -212,7 +212,6 @@ export function StreakBreakProvider({
     setRestartFlowBranch("choose");
   }, []);
 
-  // Completion handler (the only thing that's 100% right!)
   const handleComplete = useCallback(async (): Promise<boolean> => {
     updateFlowState({ isLoading: true });
     try {
