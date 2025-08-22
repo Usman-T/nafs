@@ -4,7 +4,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSession } from "next-auth/react";
 import GeneralSettingsTab from "./general-tab";
 import AccountSettingsTab from "./account-tab";
-import PrivacySettingsTab from "./privacy-tab";
 import LoadingSettings from "./settings-loading";
 
 const tabs = [
@@ -15,10 +14,6 @@ const tabs = [
   {
     label: "Account",
     value: "account",
-  },
-  {
-    label: "Privacy",
-    value: "privacy",
   },
 ];
 
@@ -45,7 +40,6 @@ const SettingsMain = () => {
 
       <GeneralSettingsTab />
       <AccountSettingsTab />
-      <PrivacySettingsTab />
     </Tabs>
   );
 };
