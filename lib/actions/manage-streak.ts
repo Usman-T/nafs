@@ -12,7 +12,7 @@ export const spawnDailyTasksIfMissing = async () => {
   const existingCount = await prisma.dailyTask.count({
     where: { userId, date: today },
   });
-  
+
   if (existingCount > 0) {
     return { spawned: false, existing: existingCount };
   }
@@ -27,7 +27,7 @@ export const spawnDailyTasksIfMissing = async () => {
       },
     },
   });
-  
+
   if (!userChallenge) {
     return { spawned: false, reason: "No active challenge" };
   }
@@ -42,38 +42,35 @@ export const spawnDailyTasksIfMissing = async () => {
     return { spawned: false, reason: "No tasks in challenge" };
   }
 
-  await prisma.dailyTask.createMany({ 
-    data: todayTasks, 
-    skipDuplicates: true 
+  await prisma.dailyTask.createMany({
+    data: todayTasks,
+    skipDuplicates: true,
   });
 
-  console.log("SPAWNED DAILY TASKS FOR USER IN CHECK USER STREAK CALL AHHHH")
+  console.log("SPAWNED DAILY TASKS FOR USER IN CHECK USER STREAK CALL AHHHH");
 
   return { spawned: true, count: todayTasks.length };
 };
 
-
-export const checkUserStreak = async (): Promise<
-  { streakBroken: boolean } | undefined
-> => {
+export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
   try {
     const userId = await requireAuth();
+    const today = startOfDay(new Date());
+    const yesterday = startOfDay(subDays(today, 1));
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
-        lastActiveDate: true,
         currentStreak: true,
         longestStreak: true,
+        lastActiveDate: true,
+        streakBrokenToday: true,
       },
     });
-    
+
     if (!user) return { streakBroken: false };
 
-    const today = startOfDay(new Date());
-    const yesterday = startOfDay(subDays(today, 1));
-
-    // Get all past task dates (excluding today)
+    // Fetch past task dates excluding today
     const pastTaskDates = await prisma.dailyTask.findMany({
       where: { userId, date: { lt: today } },
       select: { date: true },
@@ -81,32 +78,33 @@ export const checkUserStreak = async (): Promise<
       orderBy: { date: "desc" },
     });
 
-    // If no past tasks, this is the first day - no streak to break
+    // First day scenario
     if (!pastTaskDates.length) {
       await prisma.user.update({
         where: { id: userId },
-        data: { lastActiveDate: today },
+        data: { lastActiveDate: today, streakBrokenToday: false },
       });
       return { streakBroken: false };
     }
 
-    // Check the most recent day's tasks for completion
     const mostRecentDay = pastTaskDates[0].date;
     const mostRecentTasks = await prisma.dailyTask.findMany({
       where: { userId, date: mostRecentDay },
       include: { completions: true },
     });
 
-    // Check if any tasks were missed on the most recent day
-    const hasMissedTasks = mostRecentTasks.some((task) => task.completions.length === 0);
-    
+    const hasMissedTasks = mostRecentTasks.some(
+      (task) => task.completions.length === 0
+    );
+
     if (hasMissedTasks && user.currentStreak > 0) {
-      // Streak was broken - reset to 0
+      // break the streak
       await prisma.user.update({
         where: { id: userId },
-        data: { 
-          currentStreak: 0, 
-          lastActiveDate: today 
+        data: {
+          currentStreak: 0,
+          lastActiveDate: today,
+          streakBrokenToday: true,
         },
       });
       return { streakBroken: true };
@@ -116,8 +114,6 @@ export const checkUserStreak = async (): Promise<
     const lastActive = user.lastActiveDate
       ? startOfDay(new Date(user.lastActiveDate))
       : undefined;
-    
-    // Check if yesterday was completed (consecutive day)
     const isConsecutiveDay = lastActive?.getTime() === yesterday.getTime();
     const newStreak = isConsecutiveDay ? user.currentStreak + 1 : 1;
     const newLongestStreak = Math.max(user.longestStreak, newStreak);
@@ -128,6 +124,7 @@ export const checkUserStreak = async (): Promise<
         currentStreak: newStreak,
         longestStreak: newLongestStreak,
         lastActiveDate: today,
+        streakBrokenToday: false,
       },
     });
 

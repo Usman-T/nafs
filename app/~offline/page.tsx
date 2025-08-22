@@ -30,7 +30,6 @@ const navItems = [
   { name: "Progress", href: "/dashboard/progress", icon: BarChart3 },
   { name: "Calendar", href: "/dashboard/calendar", icon: Calendar },
   { name: "Guidance", href: "/dashboard/guidance", icon: BookOpen },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
 export default function OfflinePage() {
@@ -45,7 +44,7 @@ export default function OfflinePage() {
   };
 
   return (
-    <>
+    <div className="h-screen w-screen overflow-hidden flex flex-col bg-[#1d2021]">
       <header className="justify-between sticky top-0 z-10 flex h-16 items-center border-b border-[#2e2e2e] bg-[#1d2021]/80 px-6 backdrop-blur-md md:px-8 shadow-lg">
         <Link href="/dashboard" className="flex items-center gap-2">
           <div className="flex-1 flex space-x-2">
@@ -87,9 +86,36 @@ export default function OfflinePage() {
         </DropdownMenu>
       </header>
 
+      <main className="flex-1 flex items-center justify-center">
+        <div className="text-center space-y-6 max-w-md mx-auto px-4">
+          <WifiOff className="h-16 w-16 text-[#fe8019] mx-auto opacity-80" />
+
+          <div className="space-y-3">
+            <h2 className="text-2xl font-semibold text-[#ebdbb2]">
+              You're offline
+            </h2>
+            <p className="text-[#a89984] text-sm leading-relaxed">
+              Check your connection and try again. Your progress is saved
+              locally.
+            </p>
+          </div>
+
+          <Button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="bg-[#fe8019] hover:bg-[#d65d0e] text-white px-6 py-2 rounded-lg transition-colors"
+          >
+            <RefreshCw
+              className={cn("h-4 w-4 mr-2", isRefreshing && "animate-spin")}
+            />
+            {isRefreshing ? "Refreshing..." : "Try again"}
+          </Button>
+        </div>
+      </main>
+
       <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#2e2e2e] bg-[#1d2021] shadow-lg md:hidden">
         <div className="flex items-center justify-between px-2">
-          {navItems.slice(0, 2).map((item) => {
+          {navItems.map((item) => {
             const isActive = false;
             return (
               <Link
@@ -109,37 +135,6 @@ export default function OfflinePage() {
           })}
         </div>
       </div>
-
-      <div className="flex justify-center items-center bg-[#1d2021] h-full">
-        <div className="flex flex-col flex-1">
-          <main className="flex-1 bg-[#1d2021] pb-16 md:pb-0 overflow-auto flex items-center justify-center">
-            <div className="text-center space-y-6 max-w-md mx-auto px-4">
-              <WifiOff className="h-16 w-16 text-[#fe8019] mx-auto opacity-80" />
-              
-              <div className="space-y-3">
-                <h2 className="text-2xl font-semibold text-[#ebdbb2]">
-                  You're offline
-                </h2>
-                <p className="text-[#a89984] text-sm leading-relaxed">
-                  Check your connection and try again. Your progress is saved locally.
-                </p>
-              </div>
-
-              <Button
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-                className="bg-[#fe8019] hover:bg-[#d65d0e] text-white px-6 py-2 rounded-lg transition-colors"
-              >
-                <RefreshCw className={cn(
-                  "h-4 w-4 mr-2",
-                  isRefreshing && "animate-spin"
-                )} />
-                {isRefreshing ? "Refreshing..." : "Try again"}
-              </Button>
-            </div>
-          </main>
-        </div>
-      </div>
-    </>
+    </div>
   );
 }

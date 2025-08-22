@@ -29,14 +29,10 @@ export const startChallenge = async (challengeData: {
         (dim) => dimensionCount[dim] === maxCount
       );
 
-      console.log("Dominant dimensions", dominantDimensions);
-
       const mostActiveDim = await tx.dimension.findFirst({
         where: { id: { in: dominantDimensions } },
         select: { id: true, name: true },
       });
-
-      console.log("Most active dimension:", mostActiveDim);
 
       let challengeName: string;
       let challengeDescription: string;
@@ -95,7 +91,7 @@ export const startChallenge = async (challengeData: {
 
       await tx.user.update({
         where: { id: userId },
-        data: { challengeId: challenge.id },
+        data: { challengeId: challenge.id, currentStreak: 0, streakBrokenToday: false },
       });
 
       revalidatePath("/dashboard");
