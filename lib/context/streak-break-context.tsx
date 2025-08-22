@@ -1,10 +1,10 @@
 "use client";
 
-import React, { createContext, useContext, useCallback, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { Challenge, DailyTask, Dimension, Task } from '@prisma/client';
-import { dimensionsReset, resetTasks, startChallenge } from '@/lib/actions';
+import React, { createContext, useContext, useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Challenge, DailyTask, Dimension, Task } from "@prisma/client";
+import { dimensionsReset, resetTasks, startChallenge } from "@/lib/actions";
 
 type ExtendedChallenge = Challenge & {
   tasks: {
@@ -60,7 +60,7 @@ interface StreakBreakActions {
   goToStep: (step: FlowStep) => void;
   canGoNext: () => boolean;
   canProceedFromRestart: () => boolean;
-  
+
   // Challenge selection
   updateChallengeSelection: (updates: Partial<ChallengeSelection>) => void;
   handleContinueCurrentChallenge: () => void;
@@ -68,7 +68,7 @@ interface StreakBreakActions {
   handleRemoveCustomTask: (index: number) => void;
   goToCustom: () => void;
   goToChoose: () => void;
-  
+
   // Completion
   handleComplete: () => Promise<boolean>;
   getDuration: () => number;
@@ -111,13 +111,15 @@ export function StreakBreakProvider({
     isLoading: false,
   });
 
-  const [restartFlowBranch, setRestartFlowBranch] = useState<RestartFlowBranch>("choose");
+  const [restartFlowBranch, setRestartFlowBranch] =
+    useState<RestartFlowBranch>("choose");
 
-  const [challengeSelection, setChallengeSelection] = useState<ChallengeSelection>({
-    title: "",
-    description: "",
-    tasks: [],
-  });
+  const [challengeSelection, setChallengeSelection] =
+    useState<ChallengeSelection>({
+      title: "",
+      description: "",
+      tasks: [],
+    });
 
   // Utility functions
   const getDuration = useCallback(() => {
@@ -129,16 +131,19 @@ export function StreakBreakProvider({
       5: 15,
       6: 20,
     };
-    return durationMap[userLevel + 1] ?? 30;
+    return durationMap[userLevel] ?? 30;
   }, [userLevel]);
 
   const updateFlowState = useCallback((updates: Partial<FlowState>) => {
     setFlowState((prev) => ({ ...prev, ...updates }));
   }, []);
 
-  const updateChallengeSelection = useCallback((updates: Partial<ChallengeSelection>) => {
-    setChallengeSelection((prev) => ({ ...prev, ...updates }));
-  }, []);
+  const updateChallengeSelection = useCallback(
+    (updates: Partial<ChallengeSelection>) => {
+      setChallengeSelection((prev) => ({ ...prev, ...updates }));
+    },
+    []
+  );
 
   const canProceedFromRestart = useCallback((): boolean => {
     return !!(
@@ -162,39 +167,57 @@ export function StreakBreakProvider({
       default:
         return false;
     }
-  }, [flowState.isAnimating, flowState.isLoading, flowState.currentStep, canProceedFromRestart]);
+  }, [
+    flowState.isAnimating,
+    flowState.isLoading,
+    flowState.currentStep,
+    canProceedFromRestart,
+  ]);
 
-  const goToStep = useCallback((step: FlowStep) => {
-    updateFlowState({ currentStep: step });
-  }, [updateFlowState]);
+  const goToStep = useCallback(
+    (step: FlowStep) => {
+      updateFlowState({ currentStep: step });
+    },
+    [updateFlowState]
+  );
 
   const handleContinueCurrentChallenge = useCallback(() => {
     updateChallengeSelection({
       title: currentChallenge.name,
-      description: currentChallenge.description || `Continue your ${currentChallenge.name} challenge`,
-      tasks: currentChallenge.tasks.map(t => ({
+      description:
+        currentChallenge.description ||
+        `Continue your ${currentChallenge.name} challenge`,
+      tasks: currentChallenge.tasks.map((t) => ({
         name: t.task.name,
         dimension: t.task.dimension,
       })),
     });
   }, [currentChallenge, updateChallengeSelection]);
 
-  const handleAddCustomTask = useCallback((taskName: string, dimension: Dimension) => {
-    const newTask = { name: taskName, dimension };
-    const updatedTasks = [...challengeSelection.tasks, newTask];
-    
-    updateChallengeSelection({
-      tasks: updatedTasks,
-    });
-  }, [challengeSelection.tasks, updateChallengeSelection]);
+  const handleAddCustomTask = useCallback(
+    (taskName: string, dimension: Dimension) => {
+      const newTask = { name: taskName, dimension };
+      const updatedTasks = [...challengeSelection.tasks, newTask];
 
-  const handleRemoveCustomTask = useCallback((index: number) => {
-    const updatedTasks = challengeSelection.tasks.filter((_, i) => i !== index);
-    
-    updateChallengeSelection({
-      tasks: updatedTasks,
-    });
-  }, [challengeSelection.tasks, updateChallengeSelection]);
+      updateChallengeSelection({
+        tasks: updatedTasks,
+      });
+    },
+    [challengeSelection.tasks, updateChallengeSelection]
+  );
+
+  const handleRemoveCustomTask = useCallback(
+    (index: number) => {
+      const updatedTasks = challengeSelection.tasks.filter(
+        (_, i) => i !== index
+      );
+
+      updateChallengeSelection({
+        tasks: updatedTasks,
+      });
+    },
+    [challengeSelection.tasks, updateChallengeSelection]
+  );
 
   const goToCustom = useCallback(() => {
     setRestartFlowBranch("custom");
@@ -222,7 +245,8 @@ export function StreakBreakProvider({
       if (!tasksReset.success) throw new Error("Couldn't start challenge");
 
       const dimensionsUpdated = await dimensionsReset(missedTasks);
-      if (!dimensionsUpdated.success) throw new Error("Couldn't start challenge");
+      if (!dimensionsUpdated.success)
+        throw new Error("Couldn't start challenge");
 
       const result = await startChallenge({
         title: title,
@@ -242,7 +266,7 @@ export function StreakBreakProvider({
       localStorage.removeItem("dayCompleted");
       updateFlowState({ isExiting: true });
       toast.success("Challenge started successfully!");
-      router.push("/dashboard/");
+      setTimeout(() => router.push("/dashboard"), 800);
       return true;
     } catch (error) {
       console.error("Challenge start error:", error);
@@ -268,7 +292,7 @@ export function StreakBreakProvider({
     currentChallenge,
     userLevel,
     missedDay,
-    
+
     // Actions
     updateFlowState,
     setRestartFlowBranch,
@@ -295,7 +319,9 @@ export function StreakBreakProvider({
 export function useStreakBreakContext() {
   const context = useContext(StreakBreakContext);
   if (!context) {
-    throw new Error('useStreakBreakContext must be used within a StreakBreakProvider');
+    throw new Error(
+      "useStreakBreakContext must be used within a StreakBreakProvider"
+    );
   }
   return context;
 }

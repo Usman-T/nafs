@@ -44,8 +44,13 @@ interface StreakBreakFlowProps {
 }
 
 function StreakBreakFlowContent() {
-  const { flowState, canGoNext, canProceedFromRestart, goToStep } =
-    useStreakBreakContext();
+  const {
+    flowState,
+    challengeSelection,
+    canGoNext,
+    canProceedFromRestart,
+    goToStep,
+  } = useStreakBreakContext();
 
   const [api, setApi] = useState<CarouselApi>();
   const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0);
@@ -80,7 +85,21 @@ function StreakBreakFlowContent() {
           api.scrollTo(currentStepIndex, false);
 
           if (flowState.currentStep === "restart" && !canProceedFromRestart()) {
-            toast.error("Select a challenge to restart");
+            if (challengeSelection.tasks.length < 3) {
+              toast.error(
+                `Add at least ${3 - challengeSelection.tasks.length} more task${
+                  challengeSelection.tasks.length > 1 ? "" : "s"
+                } to proceed`
+              );
+            } else if (challengeSelection.tasks.length > 5) {
+              toast.error(
+                `Remove ${challengeSelection.tasks.length - 5} task${
+                  challengeSelection.tasks.length - 5 > 1 ? "s" : ""
+                } to proceed`
+              );
+            } else {
+              toast.error("Select a challenge to restart");
+            }
           }
           return;
         }
@@ -106,6 +125,7 @@ function StreakBreakFlowContent() {
     canProceedFromRestart,
     steps,
     goToStep,
+    challengeSelection.tasks.length,
   ]);
 
   useEffect(() => {
@@ -163,8 +183,6 @@ function StreakBreakFlowContent() {
           total={steps.length}
         />
       </div>
-
-      <ExitAnimation isExiting={flowState.isExiting} />
     </>
   );
 }

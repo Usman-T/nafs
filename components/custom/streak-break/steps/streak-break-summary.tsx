@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { useStreakBreakContext } from "@/lib/context/streak-break-context";
 
 const StreakBreakSummary = () => {
-  const { challengeSelection, getDuration } = useStreakBreakContext();
+  const { challengeSelection, getDuration, handleComplete } =
+    useStreakBreakContext();
 
   const duration = getDuration();
 
@@ -62,9 +63,6 @@ const StreakBreakSummary = () => {
         <h3 className="text-[#ebdbb2] font-medium mb-2">
           {challengeSelection.title}
         </h3>
-        <div className="text-sm text-[#a89984] mb-3">
-          {challengeSelection.description}
-        </div>
 
         <div className="flex gap-2 mb-4 flex-wrap">
           <Badge className="bg-[#3c3836] text-[#ebdbb2] hover:bg-[#3c3836]">
@@ -96,6 +94,16 @@ const StreakBreakSummary = () => {
 
       <div className="text-sm text-[#a89984] text-center space-y-1">
         <p>Your challenge will begin today.</p>
+      </div>
+      <div className="flex justify-center items-center w-full">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          onClick={handleComplete}
+          whileTap={{ scale: 0.95 }}
+          className="px-6 py-3 rounded-md font-semibold text-[#1d2021] bg-[#fe8019] hover:bg-[#d65d0e] focus:outline-none shadow-lg"
+        >
+          Start Challenge
+        </motion.button>
       </div>
     </motion.div>
   );

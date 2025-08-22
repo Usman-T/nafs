@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 
 const ChallengesPage = async () => {
   const streakCheck = await checkUserStreak();
-  console.log(streakCheck)
 
   if (streakCheck.streakBroken) redirect("/streak-break");
 
