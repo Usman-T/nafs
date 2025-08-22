@@ -1,3 +1,5 @@
+"use server"
+
 import { auth } from "@/auth";
 import prisma from "@/prisma";
 import { revalidatePath } from "next/cache";
@@ -18,8 +20,8 @@ export const updateGeneralSettings = async ({
       throw new Error("Authentication failed");
     }
 
-    const updatedUser = await prisma.user.update({
-      where: { id: session?.user?.id },
+    const updatedUser = await prisma.userSettings.update({
+      where: { userId: session?.user?.id },
       data: {
         emailNotifications,
         analyticsEnabled,

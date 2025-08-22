@@ -89,10 +89,15 @@ export const createUser = async (prevState: State, formData: FormData) => {
       value: 5,
     }));
 
+    await prisma.userSettings.create({
+      data: { userId: user.id },
+    });
+
     await prisma.dimensionValue.createMany({
       data: dimVals,
     });
-    revalidatePath('/dashboard')
+
+    revalidatePath("/dashboard");
 
     await signIn("credentials", {
       email,

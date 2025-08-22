@@ -20,24 +20,46 @@ import {
 import { Shield, BarChart, Loader2, Pause, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import { updateGeneralSettings } from "@/lib/actions";
+import { useLocalStorage } from "@/lib/hooks/use-local-storage";
 
 const GeneralSettingsTab = () => {
   const [loading, setLoading] = useState(false);
+  const [emailNotifications, setEmailNotifications] = useState(false);
+  const [analyticsEnabled, setAnalyticsEnabled] = useState(true);
+  const [personalizationEnabled, setPersonalizationEnabled] = useState(true);
+  const [reduceAnimations, setReduceAnimations] = useLocalStorage(
+    "reduceAnimations",
+    false
+  );
 
-  const updateSettings = () => {
-    toast.promise(
-      new Promise((resolve) => {
-        setLoading(true);
-        setTimeout(() => {
-          setLoading(false);
-          resolve();
-        }, 2000);
-      }),
-      {
-        loading: "Saving...",
-        success: <b>Settings saved!</b>,
-      }
-    );
+  const saveSettings = async () => {
+    setLoading(true);
+    try {
+      toast.promise(
+        new Promise(async (resolve, reject) => {
+          const result = await updateGeneralSettings({
+            emailNotifications,
+            analyticsEnabled,
+            personalizationEnabled,
+          });
+          if (result.success) {
+            resolve(result);
+          } else {
+            reject(result.error);
+          }
+        }),
+        {
+          loading: "Saving settings...",
+          success: "Settings saved successfully!",
+          error: (error) => `Failed to save settings: ${error}`,
+        }
+      );
+    } catch (e) {
+      toast.error("Failed to save settings");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const SettingRow = ({ icon: Icon, title, subtitle, children }) => (
@@ -56,24 +78,8 @@ const GeneralSettingsTab = () => {
         </Popover>
 
         <div className="flex flex-col min-w-0">
-          <Popover>
-            <PopoverTrigger className="text-left truncate text-[#ebdbb2] cursor-pointer hover:underline">
-              {title}
-            </PopoverTrigger>
-            <PopoverContent className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] max-w-xs">
-              <div className="font-medium mb-2">{title}</div>
-              <div className="text-sm text-[#a89984]">{subtitle}</div>
-            </PopoverContent>
-          </Popover>
-          <Popover>
-            <PopoverTrigger className="text-xs text-[#a89984] truncate">
-              {subtitle}
-            </PopoverTrigger>
-            <PopoverContent className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] max-w-xs">
-              <div className="font-medium mb-2">{title}</div>
-              <div className="text-sm text-[#a89984]">{subtitle}</div>
-            </PopoverContent>
-          </Popover>
+          <div className="text-left truncate text-[#ebdbb2]">{title}</div>
+          <div className="text-xs text-[#a89984] truncate">{subtitle}</div>
         </div>
       </div>
       {children}
@@ -101,14 +107,22 @@ const GeneralSettingsTab = () => {
                 title="Reduce Animations"
                 subtitle="Minimize animations throughout the app"
               >
-                <Switch className="data-[state=checked]:bg-[#fe8019]" />
+                <Switch
+                  checked={reduceAnimations}
+                  onCheckedChange={setReduceAnimations}
+                  className="data-[state=checked]:bg-[#fe8019]"
+                />
               </SettingRow>
               <SettingRow
                 icon={Mail}
                 title="Email Notifications"
                 subtitle="Receive important updates and tips directly in your inbox"
               >
-                <Switch className="data-[state=checked]:bg-[#fe8019]" />
+                <Switch
+                  checked={emailNotifications}
+                  onCheckedChange={setEmailNotifications}
+                  className="data-[state=checked]:bg-[#fe8019]"
+                />
               </SettingRow>
             </div>
 
@@ -122,7 +136,8 @@ const GeneralSettingsTab = () => {
                 subtitle="Allow anonymous usage data collection"
               >
                 <Switch
-                  defaultChecked
+                  checked={analyticsEnabled}
+                  onCheckedChange={setAnalyticsEnabled}
                   className="data-[state=checked]:bg-[#fe8019]"
                 />
               </SettingRow>
@@ -133,7 +148,8 @@ const GeneralSettingsTab = () => {
                 subtitle="Personalize your experience based on activity"
               >
                 <Switch
-                  defaultChecked
+                  checked={personalizationEnabled}
+                  onCheckedChange={setPersonalizationEnabled}
                   className="data-[state=checked]:bg-[#fe8019]"
                 />
               </SettingRow>
@@ -142,9 +158,9 @@ const GeneralSettingsTab = () => {
             <Separator className="bg-[#3c3836]" />
           </CardContent>
 
-          <CardFooter className="mt-4   pt-3 flex justify-end">
+          <CardFooter className="mt-4 pt-3 flex justify-end">
             <Button
-              onClick={updateSettings}
+              onClick={saveSettings}
               disabled={loading}
               className="bg-[#fe8019] hover:bg-[#d65d0e] text-[#1d2021] font-semibold px-6 flex items-center gap-2"
             >

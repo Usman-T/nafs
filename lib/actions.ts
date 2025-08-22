@@ -21,3 +21,6 @@ export {
 
 // streak break management
 export { resetTasks, dimensionsReset } from "@/lib/actions/streak-break";
+
+// settings management
+export { updateGeneralSettings } from "@/lib/actions/settings";
