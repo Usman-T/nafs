@@ -16,10 +16,13 @@ import { Separator } from "@/components/ui/separator";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 
 const AccountSettingsTab = () => {
   const { data: session, status } = useSession();
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -28,11 +31,20 @@ const AccountSettingsTab = () => {
     }
   }, [status, router]);
 
-  const updatePrivacySettings = () => {
-    toast.promise(new Promise((resolve) => setTimeout(resolve, 2000)), {
-      loading: "Saving...",
-      success: <b>Settings saved!</b>,
-    });
+  const updateSettings = () => {
+    toast.promise(
+      new Promise((resolve) => {
+        setLoading(true);
+        setTimeout(() => {
+          setLoading(false); // reset after operation
+          resolve();
+        }, 2000);
+      }),
+      {
+        loading: "Saving...",
+        success: <b>Settings saved!</b>,
+      }
+    );
   };
 
   return (
@@ -55,7 +67,10 @@ const AccountSettingsTab = () => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <Label htmlFor="account-email" className="text-[#a89984] text-xs">
+                  <Label
+                    htmlFor="account-email"
+                    className="text-[#a89984] text-xs"
+                  >
                     Email Address
                   </Label>
                   <Input
@@ -65,7 +80,10 @@ const AccountSettingsTab = () => {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="account-username" className="text-[#a89984] text-xs">
+                  <Label
+                    htmlFor="account-username"
+                    className="text-[#a89984] text-xs"
+                  >
                     Name
                   </Label>
                   <Input
@@ -86,7 +104,10 @@ const AccountSettingsTab = () => {
               </h3>
               <div className="space-y-3">
                 <div className="space-y-1">
-                  <Label htmlFor="current-password" className="text-[#a89984] text-xs">
+                  <Label
+                    htmlFor="current-password"
+                    className="text-[#a89984] text-xs"
+                  >
                     Current Password
                   </Label>
                   <Input
@@ -97,7 +118,10 @@ const AccountSettingsTab = () => {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="new-password" className="text-[#a89984] text-xs">
+                  <Label
+                    htmlFor="new-password"
+                    className="text-[#a89984] text-xs"
+                  >
                     New Password
                   </Label>
                   <Input
@@ -108,7 +132,10 @@ const AccountSettingsTab = () => {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="confirm-password" className="text-[#a89984] text-xs">
+                  <Label
+                    htmlFor="confirm-password"
+                    className="text-[#a89984] text-xs"
+                  >
                     Confirm New Password
                   </Label>
                   <Input
@@ -168,10 +195,18 @@ const AccountSettingsTab = () => {
 
           <CardFooter className="border-t border-[#3c3836] pt-3 flex justify-end">
             <Button
-              onClick={() => updatePrivacySettings()}
-              className="bg-[#fe8019] hover:bg-[#d65d0e] text-[#1d2021]"
+              onClick={updateSettings}
+              disabled={loading}
+              className="bg-[#fe8019] hover:bg-[#d65d0e] text-[#1d2021] font-semibold px-6 flex items-center gap-2"
             >
-              Save Changes
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
             </Button>
           </CardFooter>
         </Card>

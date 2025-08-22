@@ -17,18 +17,19 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { Moon, Shield, BarChart, Loader2 } from "lucide-react";
+import { Shield, BarChart, Loader2, Pause, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 
 const GeneralSettingsTab = () => {
   const [loading, setLoading] = useState(false);
+
   const updateSettings = () => {
     toast.promise(
       new Promise((resolve) => {
         setLoading(true);
         setTimeout(() => {
-          setLoading(false); // reset after operation
+          setLoading(false);
           resolve();
         }, 2000);
       }),
@@ -96,9 +97,16 @@ const GeneralSettingsTab = () => {
             <div className="space-y-4">
               <h3 className="text-[#ebdbb2] font-medium text-base">General</h3>
               <SettingRow
-                icon={Moon}
+                icon={Pause}
                 title="Reduce Animations"
                 subtitle="Minimize animations throughout the app"
+              >
+                <Switch className="data-[state=checked]:bg-[#fe8019]" />
+              </SettingRow>
+              <SettingRow
+                icon={Mail}
+                title="Email Notifications"
+                subtitle="Receive important updates and tips directly in your inbox"
               >
                 <Switch className="data-[state=checked]:bg-[#fe8019]" />
               </SettingRow>

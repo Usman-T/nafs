@@ -1,9 +1,11 @@
 import SettingsMain from "@/components/custom/settings/main";
 
-export default function SettingsPage() {
+const SettingsPage = () => {
   return (
     <div className="space-y-8 p-8">
-      <SettingsMain />
+        <SettingsMain />
     </div>
   );
-}
+};
+
+export default SettingsPage;
