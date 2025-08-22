@@ -16,7 +16,7 @@ export const updateGeneralSettings = async ({
   try {
     const session = await auth();
 
-    if (session?.user) {
+    if (!session?.user) {
       throw new Error("Authentication failed");
     }
 
