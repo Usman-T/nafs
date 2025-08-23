@@ -9,37 +9,35 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  level             Int       @default(1)
-  currentStreak     Int       @default(0)
-  readingStreak     Int       @default(0)
-  longestStreak     Int       @default(0)
-  lastActiveDate    DateTime? @default(now())
+  id                String            @id @default(cuid())
+  name              String
+  email             String            @unique
+  password          String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  level             Int               @default(1)
+  currentStreak     Int               @default(0)
+  readingStreak     Int               @default(0)
+  longestStreak     Int               @default(0)
+  lastActiveDate    DateTime?         @default(now())
   challengeId       String?
   extraTaskId       String?
   emailVerified     DateTime?
   image             String?
-  streakBrokenToday Boolean   @default(false)
-
-  accounts         Account[]
-  sessions         Session[]
-  dimensionValues  DimensionValue[]
-  dailyTasks       DailyTask[]
-  completedTasks   CompletedTask[]
-  achievements     UserAchievement[]
-  challenges       UserChallenge[]
-  settings         UserSettings?
-  reflections      Reflection[]
-  currentChallenge Challenge?        @relation(fields: [challengeId], references: [id])
-  savedAyahs       SavedAyah[]
-  readings         Reading[]
-  extraTask        ExtraTask?
+  streakBrokenToday Boolean           @default(false)
+  accounts          Account[]
+  completedTasks    CompletedTask[]
+  dailyTasks        DailyTask[]
+  dimensionValues   DimensionValue[]
+  extraTask         ExtraTask?
+  readings          Reading?
+  reflections       Reflection[]
+  savedAyahs        SavedAyah[]
+  sessions          Session[]
+  currentChallenge  Challenge?        @relation(fields: [challengeId], references: [id])
+  achievements      UserAchievement[]
+  challenges        UserChallenge[]
+  settings          UserSettings?
 }
 
 model Account {
@@ -48,15 +46,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -66,8 +63,7 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
@@ -79,118 +75,109 @@ model VerificationToken {
 }
 
 model Dimension {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String   @db.Text
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String
   color       String
   icon        String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  values     DimensionValue[]
-  tasks      Task[]
-  extraTasks ExtraTask[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  values      DimensionValue[]
+  extraTasks  ExtraTask[]
+  tasks       Task[]
 }
 
 model DimensionValue {
-  id          String @id @default(cuid())
+  id          String    @id @default(cuid())
   userId      String
   dimensionId String
   value       Float
-
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  dimension Dimension @relation(fields: [dimensionId], references: [id], onDelete: Cascade)
+  dimension   Dimension @relation(fields: [dimensionId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, dimensionId])
   @@index([userId])
 }
 
 model Task {
-  id          String   @id @default(cuid())
+  id          String          @id @default(cuid())
   name        String
-  description String?  @db.Text
+  description String?
   dimensionId String
-  points      Int      @default(1)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  dimension  Dimension       @relation(fields: [dimensionId], references: [id])
-  dailyTasks DailyTask[]
-  challenges ChallengeTask[]
+  points      Int             @default(1)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  challenges  ChallengeTask[]
+  dailyTasks  DailyTask[]
+  dimension   Dimension       @relation(fields: [dimensionId], references: [id])
 }
 
 model DailyTask {
-  id        String   @id @default(cuid())
-  userId    String
-  taskId    String
-  date      DateTime @default(now())
-  createdAt DateTime @default(now())
-
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  task        Task            @relation(fields: [taskId], references: [id])
+  id          String          @id @default(cuid())
+  userId      String
+  taskId      String
+  date        DateTime        @default(now())
+  createdAt   DateTime        @default(now())
   completions CompletedTask[]
+  task        Task            @relation(fields: [taskId], references: [id])
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, taskId, date])
   @@index([userId, date])
 }
 
 model CompletedTask {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   userId      String
   dailyTaskId String
-  completedAt DateTime @default(now())
-
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  dailyTask DailyTask @relation(fields: [dailyTaskId], references: [id], onDelete: Cascade)
+  completedAt DateTime  @default(now())
+  dailyTask   DailyTask @relation(fields: [dailyTaskId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, completedAt])
 }
 
 model Achievement {
-  id          String   @id @default(cuid())
+  id          String            @id @default(cuid())
   name        String
-  description String   @db.Text
+  description String
   icon        String?
-  points      Int      @default(10)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  users UserAchievement[]
+  points      Int               @default(10)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  users       UserAchievement[]
 }
 
 model UserAchievement {
-  id            String   @id @default(cuid())
+  id            String      @id @default(cuid())
   userId        String
   achievementId String
-  unlockedAt    DateTime @default(now())
-
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement Achievement @relation(fields: [achievementId], references: [id])
+  unlockedAt    DateTime    @default(now())
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, achievementId])
 }
 
 model Challenge {
-  id          String   @id @default(cuid())
+  id          String          @id @default(cuid())
   name        String
-  description String   @db.Text
+  description String
   duration    Int
   icon        String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  tasks ChallengeTask[]
-  users UserChallenge[]
-  User  User[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  tasks       ChallengeTask[]
+  User        User[]
+  users       UserChallenge[]
 }
 
 model ChallengeTask {
-  id          String @id @default(cuid())
+  id          String    @id @default(cuid())
   challengeId String
   taskId      String
-
-  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
-  task      Task      @relation(fields: [taskId], references: [id])
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  task        Task      @relation(fields: [taskId], references: [id])
 
   @@unique([challengeId, taskId])
 }
@@ -203,9 +190,8 @@ model UserChallenge {
   endDate     DateTime?
   completed   Boolean   @default(false)
   progress    Float     @default(0)
-
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  challenge Challenge @relation(fields: [challengeId], references: [id])
+  challenge   Challenge @relation(fields: [challengeId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, startDate])
 }
@@ -228,20 +214,18 @@ model UserSettings {
   analyticsEnabled         Boolean  @default(true)
   personalizationEnabled   Boolean  @default(true)
   updatedAt                DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model SavedAyah {
   id          String   @id @default(cuid())
   userId      String
   verseKey    String
-  surahName   String
   arabic      String
-  translation String
   createdAt   DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  surahName   String
+  translation String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, verseKey])
   @@index([userId])
@@ -252,43 +236,36 @@ model Reflection {
   userId         String
   arabic         String
   reflectionText String
-  verseKey       String
   favourite      Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verseKey       String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }
 
 model Reading {
   id           String   @id @default(cuid())
-  userId       String
+  userId       String   @unique
   lastRead     DateTime @default(now())
   currentVerse Int
   surahId      Int
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId])
   @@index([userId])
 }
 
 model ExtraTask {
-  id        String   @id @default(cuid())
-  name      String
-  date      DateTime @default(now())
-  points    Int      @default(1)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  id          String    @id @default(cuid())
+  name        String
+  date        DateTime  @default(now())
+  points      Int       @default(1)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   dimensionId String
-  userId      String
-
-  dimension Dimension @relation(fields: [dimensionId], references: [id])
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId])
+  userId      String    @unique
+  dimension   Dimension @relation(fields: [dimensionId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -21,7 +21,7 @@ if (isUsingAccelerate) {
     globalThis.prismaGlobal = prisma;
   }
 } else {
-  console.log("DEV MODE BABYYYYY")
+  console.log("DEV MODE BABYYYYY");
   // Development: Use regular Prisma Client
   const { PrismaClient } = require("@prisma/client");
 
@@ -44,4 +44,3 @@ if (isUsingAccelerate) {
 }
 
 export default prisma;
-

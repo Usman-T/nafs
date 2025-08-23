@@ -32,6 +32,7 @@ export default function ChallengeOnboarding({
     isNextDisabled,
     handleStartChallenge,
     setStep,
+    isLoading
   } = useChallengeOnboarding();
 
   const [api, setApi] = useState<CarouselApi>();
@@ -111,6 +112,7 @@ export default function ChallengeOnboarding({
       component: (
         <CustomChallengeSummaryStep
           isActive={step === 2}
+          isLoading={isLoading}
           customChallenge={customChallenge}
           handleStartChallenge={handleStartChallenge}
         />

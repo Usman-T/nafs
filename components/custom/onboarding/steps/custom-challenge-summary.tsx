@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Award } from "lucide-react";
+import { Award, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Dimension } from "@prisma/client";
 
@@ -21,10 +21,12 @@ export const CustomChallengeSummaryStep = ({
   customChallenge,
   isActive,
   handleStartChallenge,
+  isLoading,
 }: {
   customChallenge: CustomChallengeState;
   isActive: boolean;
   handleStartChallenge: () => void;
+  isLoading: boolean;
 }) => (
   <AnimatePresence mode="wait">
     {isActive && (
@@ -91,8 +93,16 @@ export const CustomChallengeSummaryStep = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="px-6 py-3 rounded-md font-semibold text-[#1d2021] bg-[#fe8019] hover:bg-[#d65d0e] focus:outline-none shadow-lg"
+            disabled={isLoading}
           >
-            Start Challenge
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Starting...
+              </>
+            ) : (
+              "Start Challenge"
+            )}
           </motion.button>
         </motion.div>
       </motion.div>
