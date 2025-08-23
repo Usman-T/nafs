@@ -96,10 +96,10 @@ export const CustomChallengeSummaryStep = ({
             disabled={isLoading}
           >
             {isLoading ? (
-              <>
+              <div className="flex items-center gap-2 ">
+                <p>Starting...</p>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Starting...
-              </>
+              </div>
             ) : (
               "Start Challenge"
             )}

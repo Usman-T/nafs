@@ -23,8 +23,8 @@ const LoadingSettings = () => {
   );
 
   return (
-    <div>
-      <Card className="bg-[#282828] overflow-hidden shadow-lg rounded-2xl">
+    <div className="p-8">
+      <Card className="bg-[#282828]  overflow-hidden shadow-lg rounded-2xl">
         <CardHeader className="pb-3">
           <CardTitle>
             <Skeleton className="h-5 w-40 bg-[#3c3836]" />

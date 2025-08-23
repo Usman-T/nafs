@@ -25,7 +25,7 @@ const LoadingSettings = () => {
   return (
     <div>
       {/* Tabs Skeleton */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 p-8 mb-4">
         <Skeleton className="h-9 w-24 rounded-md bg-[#3c3836]" />
         <Skeleton className="h-9 w-24 rounded-md bg-[#3c3836]" />
       </div>

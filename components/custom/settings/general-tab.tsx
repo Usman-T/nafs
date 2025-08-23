@@ -64,24 +64,23 @@ const GeneralSettingsTab = () => {
 
   const SettingRow = ({ icon: Icon, title, subtitle, children }) => (
     <div className="flex items-center justify-between gap-4">
-      <div className="flex items-start gap-3 min-w-0">
-        <Popover>
-          <PopoverTrigger asChild>
-            <div className="h-10 w-10 flex-shrink-0 rounded-xl bg-[#3c3836] flex items-center justify-center cursor-pointer hover:opacity-80">
+      <Popover>
+        <PopoverTrigger asChild>
+          <div className="flex items-start gap-3 min-w-0 cursor-pointer hover:opacity-80">
+            <div className="h-10 w-10 flex-shrink-0 rounded-xl bg-[#3c3836] flex items-center justify-center">
               <Icon className="h-5 w-5 text-[#fe8019]" />
             </div>
-          </PopoverTrigger>
-          <PopoverContent className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] max-w-xs">
-            <div className="font-medium mb-2">{title}</div>
-            <div className="text-sm text-[#a89984]">{subtitle}</div>
-          </PopoverContent>
-        </Popover>
-
-        <div className="flex flex-col min-w-0">
-          <div className="text-left truncate text-[#ebdbb2]">{title}</div>
-          <div className="text-xs text-[#a89984] truncate">{subtitle}</div>
-        </div>
-      </div>
+            <div className="flex flex-col min-w-0">
+              <div className="text-left truncate text-[#ebdbb2]">{title}</div>
+              <div className="text-xs text-[#a89984] truncate">{subtitle}</div>
+            </div>
+          </div>
+        </PopoverTrigger>
+        <PopoverContent className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] max-w-xs">
+          <div className="font-medium mb-2">{title}</div>
+          <div className="text-sm text-[#a89984]">{subtitle}</div>
+        </PopoverContent>
+      </Popover>
       {children}
     </div>
   );
