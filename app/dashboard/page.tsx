@@ -5,6 +5,7 @@ import { loadChallengesPageData } from "@/lib/data";
 import { redirect } from "next/navigation";
 
 const ChallengesPage = async () => {
+  console.log("ChallengesPage loaded");
   const streakCheck = await checkUserStreak();
 
   if (streakCheck.streakBroken) redirect("/streak-break");

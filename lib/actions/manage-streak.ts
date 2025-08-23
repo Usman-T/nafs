@@ -2,7 +2,7 @@
 
 import prisma from "@/prisma";
 import { requireAuth } from "@/lib/utils/auth";
-import { endOfDay, startOfDay, subDays } from "date-fns";
+import { endOfDay, isSameDay, startOfDay, subDays } from "date-fns";
 import { revalidatePath } from "next/cache";
 
 export const spawnDailyTasksIfMissing = async () => {
@@ -53,6 +53,7 @@ export const spawnDailyTasksIfMissing = async () => {
 };
 
 export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
+  console.log("Checking user streak...");
   try {
     const userId = await requireAuth();
     const today = startOfDay(new Date());
@@ -65,21 +66,65 @@ export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
         longestStreak: true,
         lastActiveDate: true,
         streakBrokenToday: true,
+        dailyTasks: {
+          include: {
+            completions: true
+          },
+        },
       },
     });
+    console.log("User found:", user);
 
     if (!user) return { streakBroken: false };
 
-    // Fetch past task dates excluding today
-    const pastTaskDates = await prisma.dailyTask.findMany({
-      where: { userId, date: { lt: today } },
-      select: { date: true },
-      distinct: ["date"],
-      orderBy: { date: "desc" },
-    });
+    if (user.streakBrokenToday) {
+      console.log("Streak already broken today skip the shenaigins");
+      return { streakBroken: true };
+    }
 
-    // First day scenario
-    if (!pastTaskDates.length) {
+    const groupedByDate = user.dailyTasks.reduce((acc, task) => {
+      const day = startOfDay(new Date(task.date)).toISOString();
+      acc[day] = acc[day] || [];
+      acc[day].push(task);
+      return acc;
+    }, {} as Record<string, typeof user.dailyTasks>);
+
+    const missedDates = Object.entries(groupedByDate).filter(
+      ([dateStr, tasks]) => {
+        const taskDate = new Date(dateStr);
+
+        if (taskDate > today) return false;
+
+        return tasks.some((task) => {
+          return (
+            task.completions.length === 0 ||
+            task.completions.every(
+              (completion) =>
+                !isSameDay(new Date(completion.completedAt), taskDate)
+            )
+          );
+        });
+      }
+    );
+
+    const [mostRecentMissedDate, missedTasksArray] = missedDates.sort(
+      ([a], [b]) => new Date(b).getTime() - new Date(a).getTime()
+    )[0];
+
+    const missedDay = new Date(mostRecentMissedDate);
+
+    const missedTasks = missedTasksArray.filter((task) => {
+      return (
+        task.completions.length === 0 ||
+        task.completions.every(
+          (completion) =>
+            !isSameDay(new Date(completion.completedAt), missedDay)
+        )
+      );
+    });
+    console.log({ missedTasks });
+
+    if (!missedTasks.length) {
       await prisma.user.update({
         where: { id: userId },
         data: { lastActiveDate: today, streakBrokenToday: false },
@@ -87,17 +132,7 @@ export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
       return { streakBroken: false };
     }
 
-    const mostRecentDay = pastTaskDates[0].date;
-    const mostRecentTasks = await prisma.dailyTask.findMany({
-      where: { userId, date: mostRecentDay },
-      include: { completions: true },
-    });
-
-    const hasMissedTasks = mostRecentTasks.some(
-      (task) => task.completions.length === 0
-    );
-
-    if (hasMissedTasks && user.currentStreak > 0) {
+    if (missedTasks.length > 0 && user.currentStreak > 0) {
       // break the streak
       await prisma.user.update({
         where: { id: userId },
