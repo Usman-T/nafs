@@ -285,3 +285,8 @@ Only a few things are there that need to be done
   - remove the ability to be able to hold down links and see pop ups (done)
   - add offline fallback when registering
   - redirect all auth pages to /dashboard if logged in or offline
+
+
+Basically, 
+We check at the same exact TIME DOWN TO THE SECONDS to check for missed tasks when in reality it is a spectrum from that day to the end of that day
+If any tasks within that SPECTRUM are not completed, we break the streak em else we dont...

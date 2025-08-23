@@ -1,12 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Award } from "lucide-react";
+import { Award, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useStreakBreakContext } from "@/lib/context/streak-break-context";
 
 const StreakBreakSummary = () => {
-  const { challengeSelection, getDuration, handleComplete } =
+  const { challengeSelection, getDuration, handleComplete, flowState } =
     useStreakBreakContext();
 
   const duration = getDuration();
@@ -101,8 +101,16 @@ const StreakBreakSummary = () => {
           onClick={handleComplete}
           whileTap={{ scale: 0.95 }}
           className="px-6 py-3 rounded-md font-semibold text-[#1d2021] bg-[#fe8019] hover:bg-[#d65d0e] focus:outline-none shadow-lg"
+          disabled={flowState.isLoading}
         >
-          Start Challenge
+          {flowState.isLoading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Starting...
+            </>
+          ) : (
+            "Start Challenge"
+          )}
         </motion.button>
       </div>
     </motion.div>
