@@ -101,7 +101,7 @@ const StreakBreakSummary = () => {
           onClick={handleComplete}
           whileTap={{ scale: 0.95 }}
           className="px-6 py-3 rounded-md font-semibold text-[#1d2021] bg-[#fe8019] hover:bg-[#d65d0e] focus:outline-none shadow-lg"
-          disabled={flowState.isLoading}
+          disabled={flowState.isLoading || flowState.isExiting}
         >
           {flowState.isLoading ? (
             <div className="flex items-center gap-2 ">

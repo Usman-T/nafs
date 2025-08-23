@@ -78,7 +78,7 @@ const ChallengesComplete = ({ task }: ChallengesCompleteProps) => {
       }
 
       toast.success("Task completed successfully!");
-      setTimeout(() => router.push("/dashboard"), 1500);
+      setTimeout(() => router.push("/dashboard"), 800);
     } catch (error) {
       console.error("Error completing task:", error);
       toast.error("An unexpected error occurred.");
