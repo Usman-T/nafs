@@ -66,9 +66,10 @@ export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
         longestStreak: true,
         lastActiveDate: true,
         streakBrokenToday: true,
+        lastStreakBreakDate: true,
         dailyTasks: {
           include: {
-            completions: true
+            completions: true,
           },
         },
       },
@@ -81,6 +82,10 @@ export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
       console.log("Streak already broken today skip the shenaigins");
       return { streakBroken: true };
     }
+
+    const lastBreakDate = user.lastStreakBreakDate
+      ? startOfDay(new Date(user.lastStreakBreakDate))
+      : null;
 
     const groupedByDate = user.dailyTasks.reduce((acc, task) => {
       const day = startOfDay(new Date(task.date)).toISOString();
@@ -132,36 +137,23 @@ export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
       return { streakBroken: false };
     }
 
-    if (missedTasks.length > 0 && user.currentStreak > 0) {
+    if (
+      missedTasks.length > 0 &&
+      user.currentStreak > 0 &&
+      (!lastBreakDate || missedDay > lastBreakDate)
+    ) {
       // break the streak
       await prisma.user.update({
         where: { id: userId },
         data: {
           currentStreak: 0,
           lastActiveDate: today,
+          lastStreakBreakDate: missedDay,
           streakBrokenToday: true,
         },
       });
       return { streakBroken: true };
     }
-
-    // Update streak if no missed tasks
-    const lastActive = user.lastActiveDate
-      ? startOfDay(new Date(user.lastActiveDate))
-      : undefined;
-    const isConsecutiveDay = lastActive?.getTime() === yesterday.getTime();
-    const newStreak = isConsecutiveDay ? user.currentStreak + 1 : 1;
-    const newLongestStreak = Math.max(user.longestStreak, newStreak);
-
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        currentStreak: newStreak,
-        longestStreak: newLongestStreak,
-        lastActiveDate: today,
-        streakBrokenToday: false,
-      },
-    });
 
     return { streakBroken: false };
   } catch (error) {

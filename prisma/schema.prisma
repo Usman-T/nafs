@@ -9,35 +9,36 @@ datasource db {
 }
 
 model User {
-  id                String            @id @default(cuid())
-  name              String
-  email             String            @unique
-  password          String?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  level             Int               @default(1)
-  currentStreak     Int               @default(0)
-  readingStreak     Int               @default(0)
-  longestStreak     Int               @default(0)
-  lastActiveDate    DateTime?         @default(now())
-  challengeId       String?
-  extraTaskId       String?
-  emailVerified     DateTime?
-  image             String?
-  streakBrokenToday Boolean           @default(false)
-  accounts          Account[]
-  completedTasks    CompletedTask[]
-  dailyTasks        DailyTask[]
-  dimensionValues   DimensionValue[]
-  extraTask         ExtraTask?
-  readings          Reading?
-  reflections       Reflection[]
-  savedAyahs        SavedAyah[]
-  sessions          Session[]
-  currentChallenge  Challenge?        @relation(fields: [challengeId], references: [id])
-  achievements      UserAchievement[]
-  challenges        UserChallenge[]
-  settings          UserSettings?
+  id                  String            @id @default(cuid())
+  name                String
+  email               String            @unique
+  password            String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  level               Int               @default(1)
+  currentStreak       Int               @default(0)
+  readingStreak       Int               @default(0)
+  longestStreak       Int               @default(0)
+  lastActiveDate      DateTime?         @default(now())
+  challengeId         String?
+  extraTaskId         String?
+  emailVerified       DateTime?
+  image               String?
+  streakBrokenToday   Boolean           @default(false)
+  lastStreakBreakDate DateTime?
+  accounts            Account[]
+  completedTasks      CompletedTask[]
+  dailyTasks          DailyTask[]
+  dimensionValues     DimensionValue[]
+  extraTask           ExtraTask?
+  readings            Reading?
+  reflections         Reflection[]
+  savedAyahs          SavedAyah[]
+  sessions            Session[]
+  currentChallenge    Challenge?        @relation(fields: [challengeId], references: [id])
+  achievements        UserAchievement[]
+  challenges          UserChallenge[]
+  settings            UserSettings?
 }
 
 model Account {
