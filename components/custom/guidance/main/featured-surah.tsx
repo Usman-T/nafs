@@ -33,7 +33,7 @@ const FeaturedSurahsSection = ({ surahs }) => {
         </div>
 
         <div ref={ref} className="space-y-3">
-          {surahs.length > 0 ? (
+          {surahs && surahs?.length > 0 ? (
             surahs.map((surah) => (
               <div
                 key={surah.id}

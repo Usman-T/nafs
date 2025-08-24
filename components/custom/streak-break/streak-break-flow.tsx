@@ -16,7 +16,6 @@ import BackgroundParticles from "@/components/custom/streak-break/extras/backgro
 import StreakBreakInfo from "@/components/custom/streak-break/steps/streak-break-info";
 import StreakBreakVisual from "@/components/custom/streak-break/steps/streak-break-visual";
 import StreakBreakSummary from "./steps/streak-break-summary";
-import ExitAnimation from "./extras/exit-animation";
 import StreakBreakRestart from "./steps/streak-break-restart/streak-break-restart";
 import { OnboardingProgress } from "../onboarding/mobile-onboarding/onboading-progress";
 import {

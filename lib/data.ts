@@ -110,7 +110,7 @@ export const getUserChallenge = async () => {
   if (!session?.user) {
     return null;
   }
-  
+
   const user = await prisma.user.findUnique({
     where: { email: session.user.email ?? undefined },
     include: {
@@ -134,11 +134,11 @@ export const getUserChallenge = async () => {
       },
     },
   });
-  
+
   const currentChallenge = user?.challenges.find(
     (userChallenge) => userChallenge.challengeId === user.challengeId
   );
-  
+
   return currentChallenge || null; // Return null instead of redirecting
 };
 export const fetchChallenges = async () => {
@@ -484,24 +484,22 @@ export const fetchGuidancePageStats = async () => {
 };
 
 export const fetchFeaturedSurahs = async () => {
+  console.log("FETCHING SURAH HAS BEEN REACHED");
   const session = await auth();
 
   if (!session?.user) {
     throw new Error("Not authenticated");
   }
 
-  const user = (await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
       email: session?.user?.email,
     },
     include: {
       readings: true,
     },
-  })) as Prisma.UserGetPayload<{
-    include: {
-      readings: true;
-    };
-  }>;
+  });
+
 
   return { readings: user?.readings };
 };
