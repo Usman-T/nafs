@@ -40,7 +40,7 @@ const CalendarMain = ({
   const [months, setMonths] = useState<Date[]>([]);
   const [currentMonthIndex, setCurrentMonthIndex] = useState(6);
 
-  // Parse tasks
+  // Parse tasks once
   const processedDailyTasks = useMemo<ProcessedDailyTask[]>(() => {
     return dailyTasks.map((task) => ({
       ...task,
@@ -52,7 +52,7 @@ const CalendarMain = ({
     }));
   }, [dailyTasks]);
 
-  // Init months centered on current
+  // Init: 13 months centered on current
   useEffect(() => {
     const today = new Date();
     setSelectedDate(today);
@@ -66,96 +66,46 @@ const CalendarMain = ({
     setCurrentMonthIndex(6);
   }, []);
 
-  // Carousel init
+  // After mount: scroll to current month
   useEffect(() => {
-    if (api && months.length > 0 && isMounted) {
-      setTimeout(() => api.scrollTo(6, false), 50);
+    if (api && isMounted && months.length > 0) {
+      api.scrollTo(6, false);
     }
-  }, [api, months.length, isMounted]);
+  }, [api, isMounted, months.length]);
 
-  // Infinite scroll
+  // Sync currentMonthIndex on scroll
   useEffect(() => {
     if (!api) return;
 
-    const handleScroll = () => {
-      const progress = api.scrollProgress();
-      const idx = api.selectedScrollSnap();
-      setCurrentMonthIndex(idx);
-
-      // Append
-      if (progress > 0.85 && idx >= months.length - 3) {
-        const last = months[months.length - 1];
-        const newOnes = Array.from({ length: 6 }, (_, i) => {
-          const d = new Date(last);
-          d.setMonth(d.getMonth() + i + 1);
-          return d;
-        });
-        setMonths((prev) => [...prev, ...newOnes]);
-      }
-
-      // Prepend
-      if (progress < 0.15 && idx <= 2) {
-        const first = months[0];
-        const newOnes = Array.from({ length: 6 }, (_, i) => {
-          const d = new Date(first);
-          d.setMonth(d.getMonth() - (6 - i));
-          return d;
-        });
-        setMonths((prev) => [...newOnes, ...prev]);
-        setCurrentMonthIndex((prev) => prev + 6);
-        setTimeout(() => api.scrollTo(idx + 6, false), 10);
-      }
+    const onSelect = () => {
+      const index = api.selectedScrollSnap();
+      setCurrentMonthIndex(index);
     };
 
-    api.on("scroll", handleScroll);
-    api.on("select", handleScroll);
-    return () => {
-      api.off("scroll", handleScroll);
-      api.off("select", handleScroll);
-    };
-  }, [api, months]);
+    api.on("select", onSelect);
+    return () => api.off("select", onSelect);
+  }, [api]);
 
-  useEffect(() => {
-    setIsMounted(true);
-    const timer = setTimeout(() => setIsLoading(false), 200);
-    return () => clearTimeout(timer);
-  }, []);
-
+  // Go to today
   const goToToday = useCallback(() => {
-    const today = new Date();
-    const key = `${today.getFullYear()}-${today.getMonth()}`;
-    const idx = months.findIndex(
-      (m) => `${m.getFullYear()}-${m.getMonth()}` === key
-    );
+    setSelectedDate(new Date());
+    api?.scrollTo(6, true);
+    setCurrentMonthIndex(6);
+  }, [api]);
 
-    setSelectedDate(today);
-    if (idx >= 0 && api) {
-      api.scrollTo(idx, true);
-      setCurrentMonthIndex(idx);
-    } else {
-      const y = today.getFullYear();
-      const m = today.getMonth();
-      const newMonths = Array.from(
-        { length: 13 },
-        (_, i) => new Date(y, m + i - 6, 1)
-      );
-      setMonths(newMonths);
-      setCurrentMonthIndex(6);
-      setTimeout(() => api?.scrollTo(6, true), 100);
-    }
-  }, [api, months]);
-
-  const isSameDay = (d1: Date, d2: Date) =>
-    d1.toDateString() === d2.toDateString();
+  // Date utils
+  const isSameDay = useCallback(
+    (d1: Date, d2: Date) => d1.toDateString() === d2.toDateString(),
+    []
+  );
 
   const getDailyTasks = useCallback(
     (date: Date) => processedDailyTasks.filter((t) => isSameDay(t.date, date)),
-    [processedDailyTasks]
+    [processedDailyTasks, isSameDay]
   );
 
   const getStatus = useCallback(
-    (date: Date | null) => {
-      if (!date) return "empty";
+    (date: Date) => {
       const tasks = getDailyTasks(date);
       if (tasks.length === 0) return "none";
       const all = tasks.every((t) => t.completions.length > 0);
@@ -166,30 +116,32 @@ const CalendarMain = ({
   );
 
   const isToday = useCallback(
-    (date: Date | null) => (date ? isSameDay(date, new Date()) : false),
-    []
+    (date: Date) => isSameDay(date, new Date()),
+    [isSameDay]
   );
+
   const isSelected = useCallback(
-    (date: Date | null) => (date ? isSameDay(date, selectedDate) : false),
-    [selectedDate]
+    (date: Date) => isSameDay(date, selectedDate),
+    [selectedDate, isSameDay]
   );
 
-  const handleDateClick = useCallback(
-    (date: Date) => setSelectedDate(date),
-    []
-  );
+  const handleDateClick = useCallback((date: Date) => {
+    setSelectedDate(date);
+  }, []);
 
+  // Memoized month rendering
   const renderMonth = useCallback(
     (month: Date) => {
       const y = month.getFullYear();
       const m = month.getMonth();
       const daysInMonth = new Date(y, m + 1, 0).getDate();
-      const firstDay = new Date(y, m, 1).getDay();
+      const firstDay = new Date(y, m, 1).getDay(); // 0 = Sunday
 
       const days = [];
       for (let i = 0; i < firstDay; i++) days.push(null);
-      for (let day = 1; day <= daysInMonth; day++)
+      for (let day = 1; day <= daysInMonth; day++) {
         days.push(new Date(y, m, day));
+      }
 
       return (
         <div className="grid grid-cols-7 gap-2 mt-2">
@@ -246,21 +198,21 @@ const CalendarMain = ({
     [getStatus, isSelected, isToday, handleDateClick]
   );
 
+  // Tasks for selected date
   const selectedDateTasks = useMemo(
     () => getDailyTasks(selectedDate),
     [selectedDate, getDailyTasks]
   );
   const hasTasks = selectedDateTasks.length > 0;
-  const completedTasks = selectedDateTasks.filter(
-    (t) => t.completions.length > 0
+  const completedTasks = useMemo(
+    () => selectedDateTasks.filter((t) => t.completions.length > 0),
+    [selectedDateTasks]
   );
 
-  if (!isMounted || isLoading) return <CalendarLoading />;
-
-  const getInsight = () => {
+  const getInsight = useMemo(() => {
+    if (!hasTasks) return null;
     const total = selectedDateTasks.length;
     const done = completedTasks.length;
-    if (!hasTasks) return null;
     if (done === total)
       return "Stillness follows action. You honored your path.";
     if (done >= total * 0.7) return "Rhythm found. Keep moving with intention.";
@@ -268,10 +220,19 @@ const CalendarMain = ({
       return "You met yourself where you were. That counts.";
     if (done > 0) return "Even a spark can light the way.";
     return "Rest is not failure. Breathe. Begin again.";
-  };
+  }, [hasTasks, selectedDateTasks, completedTasks]);
+
+  // Mount + loading
+  useEffect(() => {
+    setIsMounted(true);
+    const timer = setTimeout(() => setIsLoading(false), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isMounted || isLoading) return <CalendarLoading />;
 
   return (
-    <div className=" bg-[#1d2021] min-h-screen text-[#ebdbb2]">
+    <div className="bg-[#1d2021] min-h-screen text-[#ebdbb2]">
       {/* Calendar */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -293,19 +254,19 @@ const CalendarMain = ({
               Today
             </Button>
           </CardHeader>
-          <CardContent className="pb-2">
+          <CardContent>
             <Carousel
               setApi={setApi}
-              opts={{ align: "start", loop: false, dragFree: false }}
+              opts={{ align: "start", loop: false }}
               className="w-full"
             >
-              <CarouselContent className="flex h-80">
+              <CarouselContent className="flex z-50">
                 {months.map((month) => (
                   <CarouselItem
                     key={month.toISOString()}
-                    className="pl-0 min-w-[280px] sm:min-w-[300px] md:min-w-[340px] lg:min-w-[380px] px-2"
+                    className="min-w-[280px] sm:min-w-[300px] md:min-w-[340px] lg:min-w-[380px] max-w-[480px]"
                   >
-                    <div className="bg-[#282828] rounded-xl p-4 h-full border border-[#3c3836]">
+                    <div className="bg-[#282828] rounded p-4 h-full border border-[#3c3836]">
                       <h2 className="text-[#ebdbb2] text-lg font-semibold text-center mb-3">
                         {month.toLocaleDateString("en-US", {
                           month: "long",
@@ -329,7 +290,7 @@ const CalendarMain = ({
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         <Card className="bg-[#1d2021] border-none shadow-none">
-          <CardHeader className="pb-2">
+          <CardHeader>
             <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-[#fe8019]" />
@@ -425,7 +386,7 @@ const CalendarMain = ({
                     className="p-3 rounded-lg border border-[#3c3836] bg-[#282828]"
                   >
                     <p className="text-sm text-[#a89984] leading-relaxed">
-                      {getInsight()}
+                      {getInsight}
                     </p>
                   </motion.div>
                 )}

@@ -5,15 +5,6 @@ import { useRouter } from "next/navigation";
 import { useInView } from "react-intersection-observer";
 import { Bookmark, MessageSquare, Headphones, BookOpen } from "lucide-react";
 
-const userStats = {
-  totalReflections: 24,
-  savedVerses: 18,
-  completedSurahs: 3,
-  listeningHours: 12.5,
-  currentStreak: 7,
-  totalReadingDays: 45,
-};
-
 const features = [
   {
     id: "saved",
@@ -22,7 +13,6 @@ const features = [
     icon: Bookmark,
     color: "#fabd2f",
     route: "/dashboard/guidance/saved",
-    stats: `${userStats.savedVerses} verses saved`,
     badge: null,
   },
   {
@@ -32,7 +22,6 @@ const features = [
     icon: MessageSquare,
     color: "#83a598",
     route: "/dashboard/guidance/reflections",
-    stats: `${userStats.totalReflections} reflections`,
     badge: null,
   },
   {
@@ -42,7 +31,6 @@ const features = [
     icon: BookOpen,
     color: "#d3869b",
     route: "/dashboard/guidance/surah",
-    stats: `${userStats.completedSurahs} surahs completed`,
     badge: null,
   },
   {
@@ -52,8 +40,7 @@ const features = [
     icon: Headphones,
     color: "#8ec07c",
     route: "/dashboard/guidance/surah",
-    stats: "12.5 hours listened",
-    badge: "New",
+    badge: "Coming Soon",
   },
 ];
 const QuickActions = () => {

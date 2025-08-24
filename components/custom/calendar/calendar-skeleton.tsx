@@ -1,56 +1,53 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar } from "lucide-react";
 
 const CalendarLoading = () => {
   return (
-    <div className="space-y-8">
-      <Card className="bg-[#282828] border-[#3c3836] overflow-hidden">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center justify-between">
-            <Skeleton className="h-6 w-24 bg-[#3c3836]" />
-            <div className="flex space-x-2">
-              <Skeleton className="h-8 w-8 rounded-md bg-[#3c3836]" />
-              <Skeleton className="h-8 w-16 rounded-md bg-[#3c3836]" />
-              <Skeleton className="h-8 w-8 rounded-md bg-[#3c3836]" />
-            </div>
-          </CardTitle>
+    <div className="bg-[#1d2021] min-h-screen text-[#ebdbb2] animate-pulse">
+      {/* Calendar skeleton */}
+      <Card className="bg-[#1d2021] border-none shadow-none">
+        <CardHeader className="flex flex-row items-center justify-between pb-3">
+          <div className="h-6 w-32 bg-[#3c3836] rounded"></div>
+          <div className="h-9 w-20 bg-[#3c3836] rounded"></div>
         </CardHeader>
         <CardContent>
-          <Skeleton className="h-6 w-32 mb-4 bg-[#3c3836]" />
-          <div className="grid grid-cols-7 gap-1 mb-2">
-            {Array.from({ length: 7 }).map((_, i) => (
-              <Skeleton key={i} className="h-6 bg-[#3c3836]" />
-            ))}
-          </div>
-          <div className="grid grid-cols-7 gap-3">
-            {Array.from({ length: 42 }).map((_, i) => (
-              <Skeleton key={i} className="aspect-square w-full rounded-md bg-[#3c3836]" />
-            ))}
+          <div className="w-full rounded border border-[#3c3836] bg-[#282828] p-4">
+            <div className="h-6 w-40 bg-[#3c3836] rounded mb-3 mx-auto"></div>
+            <div className="grid grid-cols-7 gap-2 mt-2">
+              {Array.from({ length: 7 }).map((_, i) => (
+                <div
+                  key={`header-${i}`}
+                  className="h-4 w-4 bg-[#3c3836] rounded mx-auto"
+                />
+              ))}
+              {Array.from({ length: 42 }).map((_, i) => (
+                <div
+                  key={`day-${i}`}
+                  className="h-8 w-8 bg-[#3c3836] rounded-lg mx-auto"
+                />
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-[#282828] border-[#3c3836] overflow-hidden">
-        <CardHeader className="pb-3">
+      {/* Tasks skeleton */}
+      <Card className="bg-[#1d2021] border-none shadow-none mt-6">
+        <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Calendar className="h-5 w-5 text-[#fe8019] mr-2" />
-              <Skeleton className="h-5 w-48 bg-[#3c3836]" />
-            </div>
-            <Skeleton className="h-4 w-16 bg-[#3c3836]" />
+            <div className="h-5 w-24 bg-[#3c3836] rounded"></div>
+            <div className="h-4 w-12 bg-[#3c3836] rounded"></div>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton
-              key={i}
-              className="h-12 w-full rounded-md bg-[#3c3836]"
-            />
+            <div
+              key={`task-${i}`}
+              className="h-12 bg-[#282828] rounded-lg border border-[#3c3836]"
+            ></div>
           ))}
-          <Skeleton className="h-24 w-full rounded-md bg-[#3c3836]" />
+          <div className="h-16 bg-[#282828] rounded-lg border border-[#3c3836]" />
         </CardContent>
       </Card>
     </div>

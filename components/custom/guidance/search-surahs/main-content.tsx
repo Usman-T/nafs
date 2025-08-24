@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { arabicFont } from "@/lib/utils/font";
+import { toast } from "sonner";
 
 const SurahsPageContent = ({ surahs }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -195,7 +196,8 @@ const SurahsPageContent = ({ surahs }) => {
                         className="flex-1 min-w-[90px] border-[#3c3836] text-[#a89984] hover:bg-[#3c3836] text-xs sm:text-sm px-2 sm:px-3"
                         onClick={(e) => {
                           e.stopPropagation();
-                          router.push(`/dashboard/guidance/audio/${surah.id}`);
+                          // router.push(`/dashboard/guidance/audio/${surah.id}`);
+                          toast.info("Coming soon!");
                         }}
                       >
                         <Headphones className="h-4 w-4 sm:mr-1" />
