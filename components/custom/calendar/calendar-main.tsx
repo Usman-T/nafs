@@ -40,7 +40,7 @@ const CalendarMain = ({
   const [months, setMonths] = useState<Date[]>([]);
   const [currentMonthIndex, setCurrentMonthIndex] = useState(6);
 
-  // Process tasks
+  // Parse tasks
   const processedDailyTasks = useMemo<ProcessedDailyTask[]>(() => {
     return dailyTasks.map((task) => ({
       ...task,
@@ -52,7 +52,7 @@ const CalendarMain = ({
     }));
   }, [dailyTasks]);
 
-  // Init centered months
+  // Init months centered on current
   useEffect(() => {
     const today = new Date();
     setSelectedDate(today);
@@ -66,7 +66,7 @@ const CalendarMain = ({
     setCurrentMonthIndex(6);
   }, []);
 
-  // Set carousel to center
+  // Carousel init
   useEffect(() => {
     if (api && months.length > 0 && isMounted) {
       setTimeout(() => api.scrollTo(6, false), 50);
@@ -124,7 +124,9 @@ const CalendarMain = ({
   const goToToday = useCallback(() => {
     const today = new Date();
     const key = `${today.getFullYear()}-${today.getMonth()}`;
-    const idx = months.findIndex((m) => `${m.getFullYear()}-${m.getMonth()}` === key);
+    const idx = months.findIndex(
+      (m) => `${m.getFullYear()}-${m.getMonth()}` === key
+    );
 
     setSelectedDate(today);
     if (idx >= 0 && api) {
@@ -133,14 +135,18 @@ const CalendarMain = ({
     } else {
       const y = today.getFullYear();
       const m = today.getMonth();
-      const newMonths = Array.from({ length: 13 }, (_, i) => new Date(y, m + i - 6, 1));
+      const newMonths = Array.from(
+        { length: 13 },
+        (_, i) => new Date(y, m + i - 6, 1)
+      );
       setMonths(newMonths);
       setCurrentMonthIndex(6);
       setTimeout(() => api?.scrollTo(6, true), 100);
     }
   }, [api, months]);
 
-  const isSameDay = (d1: Date, d2: Date) => d1.toDateString() === d2.toDateString();
+  const isSameDay = (d1: Date, d2: Date) =>
+    d1.toDateString() === d2.toDateString();
 
   const getDailyTasks = useCallback(
     (date: Date) => processedDailyTasks.filter((t) => isSameDay(t.date, date)),
@@ -159,10 +165,19 @@ const CalendarMain = ({
     [getDailyTasks]
   );
 
-  const isToday = useCallback((date: Date | null) => date ? isSameDay(date, new Date()) : false, []);
-  const isSelected = useCallback((date: Date | null) => date ? isSameDay(date, selectedDate) : false, [selectedDate]);
+  const isToday = useCallback(
+    (date: Date | null) => (date ? isSameDay(date, new Date()) : false),
+    []
+  );
+  const isSelected = useCallback(
+    (date: Date | null) => (date ? isSameDay(date, selectedDate) : false),
+    [selectedDate]
+  );
 
-  const handleDateClick = useCallback((date: Date) => setSelectedDate(date), []);
+  const handleDateClick = useCallback(
+    (date: Date) => setSelectedDate(date),
+    []
+  );
 
   const renderMonth = useCallback(
     (month: Date) => {
@@ -173,12 +188,16 @@ const CalendarMain = ({
 
       const days = [];
       for (let i = 0; i < firstDay; i++) days.push(null);
-      for (let day = 1; day <= daysInMonth; day++) days.push(new Date(y, m, day));
+      for (let day = 1; day <= daysInMonth; day++)
+        days.push(new Date(y, m, day));
 
       return (
         <div className="grid grid-cols-7 gap-2 mt-2">
           {["S", "M", "T", "W", "T", "F", "S"].map((day) => (
-            <div key={day} className="text-[#a89984] text-xs font-medium text-center py-1">
+            <div
+              key={day}
+              className="text-[#a89984] text-xs font-medium text-center py-1"
+            >
               {day}
             </div>
           ))}
@@ -193,30 +212,26 @@ const CalendarMain = ({
                 key={date.toISOString()}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                whileTap={{ scale: 0.92 }}
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.08 }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 className="cursor-pointer"
                 onClick={() => handleDateClick(date)}
               >
                 <div
                   className={`
-                    h-10 w-10 mx-auto rounded-xl flex items-center justify-center text-sm font-semibold
-                    transition-all duration-300 relative
+                    h-10 w-10 mx-auto rounded-lg flex items-center justify-center text-sm font-medium
+                    transition-all duration-200 relative
                     ${
                       isSel
-                        ? "bg-[#3c3836] border-2 border-[#fe8019] shadow-[0_0_20px_#fe8019] text-[#ebdbb2] z-20 scale-110"
-                        : isTod && status === "complete"
-                        ? "bg-[#fe8019]/90 text-[#1d2021] shadow-[0_0_16px_#fe8019]"
-                        : isTod && status === "partial"
-                        ? "bg-[#3c3836] text-[#ebdbb2] shadow-[0_0_12px_rgba(60,56,54,0.6)]"
+                        ? "bg-[#3c3836] border-2 border-[#fe8019] shadow-[0_0_16px_#fe8019] text-[#ebdbb2] z-10"
                         : isTod
-                        ? "border-2 border-[#fe8019] text-[#ebdbb2] shadow-[0_0_8px_rgba(254,128,25,0.3)]"
+                        ? "border-2 border-[#fe8019] text-[#ebdbb2] bg-[#282828]"
                         : status === "complete"
-                        ? "bg-[#fe8019]/70 text-[#1d2021] hover:bg-[#fe8019]"
+                        ? "border border-[#fe8019]/50 bg-[#fe8019]/20 text-[#ebdbb2]"
                         : status === "partial"
-                        ? "bg-[#3c3836]/60 text-[#ebdbb2] hover:bg-[#3c3836]"
-                        : "text-[#a89984] hover:text-[#ebdbb2] hover:bg-[#3c3836]/30"
+                        ? "border border-[#3c3836]/50 bg-[#3c3836]/20 text-[#ebdbb2]"
+                        : "border border-[#3c3836]/40 text-[#a89984] hover:border-[#504945]"
                     }
                   `}
                 >
@@ -231,14 +246,32 @@ const CalendarMain = ({
     [getStatus, isSelected, isToday, handleDateClick]
   );
 
-  const selectedDateTasks = useMemo(() => getDailyTasks(selectedDate), [selectedDate, getDailyTasks]);
+  const selectedDateTasks = useMemo(
+    () => getDailyTasks(selectedDate),
+    [selectedDate, getDailyTasks]
+  );
   const hasTasks = selectedDateTasks.length > 0;
-  const completedTasks = selectedDateTasks.filter(t => t.completions.length > 0);
+  const completedTasks = selectedDateTasks.filter(
+    (t) => t.completions.length > 0
+  );
 
   if (!isMounted || isLoading) return <CalendarLoading />;
 
+  const getInsight = () => {
+    const total = selectedDateTasks.length;
+    const done = completedTasks.length;
+    if (!hasTasks) return null;
+    if (done === total)
+      return "Stillness follows action. You honored your path.";
+    if (done >= total * 0.7) return "Rhythm found. Keep moving with intention.";
+    if (done >= total * 0.4)
+      return "You met yourself where you were. That counts.";
+    if (done > 0) return "Even a spark can light the way.";
+    return "Rest is not failure. Breathe. Begin again.";
+  };
+
   return (
-    <div className="space-y-6 px-4 py-5 max-w-full bg-[#1d2021] min-h-screen text-[#ebdbb2]">
+    <div className=" bg-[#1d2021] min-h-screen text-[#ebdbb2]">
       {/* Calendar */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -246,14 +279,16 @@ const CalendarMain = ({
         transition={{ duration: 0.5 }}
         className="touch-pan-x"
       >
-        <Card className="bg-[#282828] border-[#3c3836] overflow-hidden shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-[#ebdbb2] text-xl font-light">Calendar</CardTitle>
+        <Card className="bg-[#1d2021] border-none shadow-none">
+          <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <CardTitle className="text-[#ebdbb2] text-2xl font-bold tracking-tight">
+              Calendar
+            </CardTitle>
             <Button
               variant="outline"
               size="sm"
               onClick={goToToday}
-              className="h-9 border-[#504945] bg-[#1d2021] text-[#a89984] hover:bg-[#3c3836] hover:text-[#ebdbb2] font-medium"
+              className="h-9 border-[#3c3836] bg-[#282828] text-[#a89984] hover:bg-[#3c3836] hover:text-[#ebdbb2] font-medium text-sm"
             >
               Today
             </Button>
@@ -268,11 +303,14 @@ const CalendarMain = ({
                 {months.map((month) => (
                   <CarouselItem
                     key={month.toISOString()}
-                    className="pl-0 min-w-[280px] sm:min-w-[300px] md:min-w-[340px] lg:min-w-[380px] px-2 flex-shrink-0"
+                    className="pl-0 min-w-[280px] sm:min-w-[300px] md:min-w-[340px] lg:min-w-[380px] px-2"
                   >
-                    <div className="bg-[#1d2021]/60 rounded-xl p-4 h-full backdrop-blur-sm border border-[#3c3836]/30">
-                      <h2 className="text-[#ebdbb2] text-lg font-bold text-center mb-3 tracking-tight">
-                        {month.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                    <div className="bg-[#282828] rounded-xl p-4 h-full border border-[#3c3836]">
+                      <h2 className="text-[#ebdbb2] text-lg font-semibold text-center mb-3">
+                        {month.toLocaleDateString("en-US", {
+                          month: "long",
+                          year: "numeric",
+                        })}
                       </h2>
                       {renderMonth(month)}
                     </div>
@@ -290,21 +328,22 @@ const CalendarMain = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <Card className="bg-[#282828] border-[#3c3836] shadow-lg">
+        <Card className="bg-[#1d2021] border-none shadow-none">
           <CardHeader className="pb-2">
             <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-[#fe8019]" />
-                <span className="text-[#ebdbb2] font-medium">
+                <span className="text-[#ebdbb2] text-lg font-medium">
                   {selectedDate.toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
-                    year: "numeric",
                   })}
                 </span>
               </div>
               <div className="text-sm text-[#a89984]">
-                {hasTasks ? `${completedTasks.length}/${selectedDateTasks.length}` : "No tasks"}
+                {hasTasks
+                  ? `${completedTasks.length}/${selectedDateTasks.length}`
+                  : ""}
               </div>
             </CardTitle>
           </CardHeader>
@@ -319,11 +358,8 @@ const CalendarMain = ({
                 className="space-y-3"
               >
                 {!hasTasks ? (
-                  <div className="p-6 text-center rounded-xl border border-dashed border-[#3c3836]/50 bg-[#1d2021]/40">
-                    <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#3c3836]/30 flex items-center justify-center">
-                      <Calendar className="h-6 w-6 text-[#a89984]" />
-                    </div>
-                    <p className="text-sm text-[#a89984]">No practices scheduled</p>
+                  <div className="p-5 text-center rounded-lg border border-dashed border-[#3c3836] bg-[#282828]">
+                    <p className="text-sm text-[#a89984]">No tasks scheduled</p>
                   </div>
                 ) : (
                   selectedDateTasks.map((task, i) => {
@@ -336,43 +372,46 @@ const CalendarMain = ({
                         initial={{ opacity: 0, x: -12 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.06 }}
-                        className="flex items-center justify-between p-4 rounded-xl bg-[#1d2021]/60 border border-[#3c3836]/40 hover:border-[#fe8019]/40 transition-all duration-200 group"
+                        className="flex items-center justify-between p-3 rounded-lg bg-[#282828] border border-[#3c3836] hover:border-[#504945] transition-colors"
                       >
                         <div className="flex items-center gap-3">
                           <div
-                            className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110"
+                            className="h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0"
                             style={{
                               backgroundColor: `${task.task.dimension.color}20`,
                             }}
                           >
                             <Icon
-                              className="h-5 w-5"
+                              className="h-4 w-4"
                               style={{ color: task.task.dimension.color }}
                             />
                           </div>
                           <span
-                            className={`text-[#ebdbb2] font-medium ${
+                            className={`text-[#ebdbb2] ${
                               isCompleted ? "line-through opacity-60" : ""
                             }`}
                           >
                             {task.task.name}
                           </span>
                         </div>
-                        <motion.div
-                          whileTap={{ scale: 0.85 }}
+                        <div
                           className={`
-                            h-8 w-8 rounded-full border-2 flex items-center justify-center
-                            transition-all duration-300
-                            ${isCompleted
-                              ? "bg-[#fe8019] border-[#fe8019] shadow-[0_0_12px_#fe8019]"
-                              : "border-[#3c3836] hover:border-[#fe8019] hover:shadow-[0_0_8px_rgba(254,128,25,0.3)]"
+                            h-7 w-7 rounded-full border-2 flex items-center justify-center
+                            transition-all duration-200
+                            ${
+                              isCompleted
+                                ? "bg-[#fe8019] border-[#fe8019]"
+                                : "border-[#3c3836] hover:border-[#fe8019]/50"
                             }
                           `}
                         >
                           {isCompleted && (
-                            <Check className="h-5 w-5 text-[#1d2021]" strokeWidth={3} />
+                            <Check
+                              className="h-4 w-4 text-[#1d2021]"
+                              strokeWidth={3}
+                            />
                           )}
-                        </motion.div>
+                        </div>
                       </motion.div>
                     );
                   })
@@ -383,20 +422,10 @@ const CalendarMain = ({
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="mt-5 p-4 rounded-xl border border-[#3c3836]/50 bg-gradient-to-r from-[#3c3836]/30 to-transparent"
+                    className="p-3 rounded-lg border border-[#3c3836] bg-[#282828]"
                   >
-                    <h3 className="text-[#ebdbb2] font-medium mb-1 text-sm flex items-center gap-1">
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#fe8019]"></span>
-                      Insight
-                    </h3>
-                    <p className="text-xs text-[#a89984] leading-relaxed">
-                      {completedTasks.length === selectedDateTasks.length
-                        ? "Perfect harmony. Your energy is aligned."
-                        : completedTasks.length / selectedDateTasks.length >= 0.7
-                        ? "Strong flow today. Keep honoring your rhythm."
-                        : completedTasks.length > 0
-                        ? "You showed up. That’s the first step."
-                        : "Rest is part of the journey. Breathe."}
+                    <p className="text-sm text-[#a89984] leading-relaxed">
+                      {getInsight()}
                     </p>
                   </motion.div>
                 )}

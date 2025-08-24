@@ -5,7 +5,7 @@ const CalendarPage = async () => {
   const dailyTasks = await fetchDailyTasks()
 
   return (
-    <div className="space-y-8 p-8">
+    <div className="space-y">
       <CalendarMain dailyTasks={dailyTasks}/>
     </div>
   );
