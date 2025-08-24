@@ -78,6 +78,9 @@ export const authConfig: NextAuthConfig = {
 
       await prisma.$transaction([
         prisma.dimensionValue.createMany({ data: dimVals }),
+        prisma.userSettings.create({
+          data: { userId: user.id },
+        }),
         prisma.user.update({
           where: { id: user.id },
           data: {

@@ -89,9 +89,11 @@ export const createUser = async (prevState: State, formData: FormData) => {
       value: 5,
     }));
 
-    await prisma.userSettings.create({
+    console.log("CREATING THE USER SETTINGS ABBYBYBYB")
+    const userSettings = await prisma.userSettings.create({
       data: { userId: user.id },
     });
+    console.log("USER SETTINGS CREATED", userSettings)
 
     await prisma.dimensionValue.createMany({
       data: dimVals,

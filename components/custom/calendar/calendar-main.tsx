@@ -45,130 +45,109 @@ const CalendarMain = ({
     return dailyTasks.map((task) => ({
       ...task,
       date: new Date(task.date),
-      completions: task.completions.map((completion) => ({
-        ...completion,
-        completedAt: new Date(completion.completedAt),
+      completions: task.completions.map((c) => ({
+        ...c,
+        completedAt: new Date(c.completedAt),
       })),
     }));
   }, [dailyTasks]);
 
-  // Initialize centered months
+  // Init centered months
   useEffect(() => {
     const today = new Date();
     setSelectedDate(today);
-
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth();
-
-    const initialMonths = Array.from({ length: 13 }, (_, i) => {
+    const y = today.getFullYear();
+    const m = today.getMonth();
+    const newMonths = Array.from({ length: 13 }, (_, i) => {
       const offset = i - 6;
-      return new Date(currentYear, currentMonth + offset, 1);
+      return new Date(y, m + offset, 1);
     });
-
-    setMonths(initialMonths);
+    setMonths(newMonths);
     setCurrentMonthIndex(6);
   }, []);
 
-  // Initialize carousel at center
+  // Set carousel to center
   useEffect(() => {
     if (api && months.length > 0 && isMounted) {
-      const init = () => api.scrollTo(6, false);
-      // Delay slightly to ensure DOM is ready
-      const timer = setTimeout(init, 50);
-      return () => clearTimeout(timer);
+      setTimeout(() => api.scrollTo(6, false), 50);
     }
   }, [api, months.length, isMounted]);
 
-  // Infinite scroll handler
+  // Infinite scroll
   useEffect(() => {
     if (!api) return;
 
     const handleScroll = () => {
       const progress = api.scrollProgress();
-      const selectedIndex = api.selectedScrollSnap();
-      setCurrentMonthIndex(selectedIndex);
+      const idx = api.selectedScrollSnap();
+      setCurrentMonthIndex(idx);
 
-      // Append more months at the end
-      if (progress > 0.85 && selectedIndex >= months.length - 3) {
-        const lastMonth = months[months.length - 1];
-        const newMonths = Array.from({ length: 6 }, (_, i) => {
-          const next = new Date(lastMonth);
-          next.setMonth(next.getMonth() + i + 1);
-          return next;
+      // Append
+      if (progress > 0.85 && idx >= months.length - 3) {
+        const last = months[months.length - 1];
+        const newOnes = Array.from({ length: 6 }, (_, i) => {
+          const d = new Date(last);
+          d.setMonth(d.getMonth() + i + 1);
+          return d;
         });
-        setMonths((prev) => [...prev, ...newMonths]);
+        setMonths((prev) => [...prev, ...newOnes]);
       }
 
-      // Prepend months at the start
-      if (progress < 0.15 && selectedIndex <= 2) {
-        const firstMonth = months[0];
-        const newMonths = Array.from({ length: 6 }, (_, i) => {
-          const prev = new Date(firstMonth);
-          prev.setMonth(prev.getMonth() - (6 - i));
-          return prev;
+      // Prepend
+      if (progress < 0.15 && idx <= 2) {
+        const first = months[0];
+        const newOnes = Array.from({ length: 6 }, (_, i) => {
+          const d = new Date(first);
+          d.setMonth(d.getMonth() - (6 - i));
+          return d;
         });
-        setMonths((prev) => [...newMonths, ...prev]);
+        setMonths((prev) => [...newOnes, ...prev]);
         setCurrentMonthIndex((prev) => prev + 6);
-
-        // Re-sync carousel position after prepend
-        setTimeout(() => {
-          api.scrollTo(selectedIndex + 6, false);
-        }, 10);
+        setTimeout(() => api.scrollTo(idx + 6, false), 10);
       }
     };
 
     api.on("scroll", handleScroll);
     api.on("select", handleScroll);
-
     return () => {
       api.off("scroll", handleScroll);
       api.off("select", handleScroll);
     };
   }, [api, months]);
 
-  // Mount effect
   useEffect(() => {
     setIsMounted(true);
     const timer = setTimeout(() => setIsLoading(false), 200);
     return () => clearTimeout(timer);
   }, []);
 
-  // Go to today
   const goToToday = useCallback(() => {
     const today = new Date();
-    const todayKey = `${today.getFullYear()}-${today.getMonth()}`;
-    const index = months.findIndex(
-      (m) => `${m.getFullYear()}-${m.getMonth()}` === todayKey
-    );
+    const key = `${today.getFullYear()}-${today.getMonth()}`;
+    const idx = months.findIndex((m) => `${m.getFullYear()}-${m.getMonth()}` === key);
 
     setSelectedDate(today);
-
-    if (index >= 0 && api) {
-      api.scrollTo(index, true);
-      setCurrentMonthIndex(index);
+    if (idx >= 0 && api) {
+      api.scrollTo(idx, true);
+      setCurrentMonthIndex(idx);
     } else {
-      const newMonths = Array.from({ length: 13 }, (_, i) => {
-        const offset = i - 6;
-        return new Date(today.getFullYear(), today.getMonth() + offset, 1);
-      });
+      const y = today.getFullYear();
+      const m = today.getMonth();
+      const newMonths = Array.from({ length: 13 }, (_, i) => new Date(y, m + i - 6, 1));
       setMonths(newMonths);
       setCurrentMonthIndex(6);
-      setTimeout(() => {
-        if (api) api.scrollTo(6, true);
-      }, 100);
+      setTimeout(() => api?.scrollTo(6, true), 100);
     }
   }, [api, months]);
 
-  // Helpers
-  const isSameDay = (d1: Date, d2: Date) =>
-    d1.toDateString() === d2.toDateString();
+  const isSameDay = (d1: Date, d2: Date) => d1.toDateString() === d2.toDateString();
 
   const getDailyTasks = useCallback(
     (date: Date) => processedDailyTasks.filter((t) => isSameDay(t.date, date)),
     [processedDailyTasks]
   );
 
-  const getCompletionStatus = useCallback(
+  const getStatus = useCallback(
     (date: Date | null) => {
       if (!date) return "empty";
       const tasks = getDailyTasks(date);
@@ -180,81 +159,64 @@ const CalendarMain = ({
     [getDailyTasks]
   );
 
-  const isToday = useCallback(
-    (date: Date | null) => {
-      if (!date) return false;
-      return isSameDay(date, new Date());
-    },
-    []
-  );
+  const isToday = useCallback((date: Date | null) => date ? isSameDay(date, new Date()) : false, []);
+  const isSelected = useCallback((date: Date | null) => date ? isSameDay(date, selectedDate) : false, [selectedDate]);
 
-  const isSelected = useCallback(
-    (date: Date | null) => {
-      return date ? isSameDay(date, selectedDate) : false;
-    },
-    [selectedDate]
-  );
+  const handleDateClick = useCallback((date: Date) => setSelectedDate(date), []);
 
-  const handleDateClick = useCallback((date: Date) => {
-    setSelectedDate(date);
-  }, []);
-
-  // Render month
   const renderMonth = useCallback(
     (month: Date) => {
-      const year = month.getFullYear();
-      const monthIdx = month.getMonth();
-      const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
-      const firstDay = new Date(year, monthIdx, 1).getDay();
+      const y = month.getFullYear();
+      const m = month.getMonth();
+      const daysInMonth = new Date(y, m + 1, 0).getDate();
+      const firstDay = new Date(y, m, 1).getDay();
 
       const days = [];
       for (let i = 0; i < firstDay; i++) days.push(null);
-      for (let day = 1; day <= daysInMonth; day++)
-        days.push(new Date(year, monthIdx, day));
+      for (let day = 1; day <= daysInMonth; day++) days.push(new Date(y, m, day));
 
       return (
-        <div className="grid grid-cols-7 gap-1.5 mt-1">
-          {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
-            <div
-              key={day}
-              className="text-[#a89984] text-[0.65rem] font-medium text-center py-1"
-            >
+        <div className="grid grid-cols-7 gap-2 mt-2">
+          {["S", "M", "T", "W", "T", "F", "S"].map((day) => (
+            <div key={day} className="text-[#a89984] text-xs font-medium text-center py-1">
               {day}
             </div>
           ))}
           {days.map((date, idx) => {
-            if (!date) return <div key={`empty-${idx}`} className="h-9" />;
-            const status = getCompletionStatus(date);
+            if (!date) return <div key={`empty-${idx}`} className="h-10" />;
+            const status = getStatus(date);
             const isSel = isSelected(date);
             const isTod = isToday(date);
 
             return (
               <motion.div
                 key={date.toISOString()}
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.15 }}
+                whileTap={{ scale: 0.92 }}
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 className="cursor-pointer"
                 onClick={() => handleDateClick(date)}
               >
                 <div
                   className={`
-                    h-9 w-9 mx-auto rounded-md flex items-center justify-center text-xs font-medium
-                    transition-all duration-200 hover:shadow-sm
-                    ${isSel
-                      ? "bg-[#3c3836] border-2 border-[#fe8019] shadow-[0_0_12px_#fe8019] text-[#ebdbb2] z-10"
-                      : isTod && status === "complete"
-                      ? "bg-[#fe8019] text-[#1d2021] shadow-[0_0_10px_#fe8019]"
-                      : isTod && status === "partial"
-                      ? "bg-[#3c3836] text-[#ebdbb2] shadow-[0_0_8px_rgba(60,56,54,0.5)]"
-                      : isTod
-                      ? "border border-[#fe8019] text-[#ebdbb2]"
-                      : status === "complete"
-                      ? "bg-[#fe8019] text-[#1d2021]"
-                      : status === "partial"
-                      ? "bg-[#3c3836] text-[#ebdbb2]"
-                      : "text-[#a89984] hover:bg-[#3c3836]/30"
+                    h-10 w-10 mx-auto rounded-xl flex items-center justify-center text-sm font-semibold
+                    transition-all duration-300 relative
+                    ${
+                      isSel
+                        ? "bg-[#3c3836] border-2 border-[#fe8019] shadow-[0_0_20px_#fe8019] text-[#ebdbb2] z-20 scale-110"
+                        : isTod && status === "complete"
+                        ? "bg-[#fe8019]/90 text-[#1d2021] shadow-[0_0_16px_#fe8019]"
+                        : isTod && status === "partial"
+                        ? "bg-[#3c3836] text-[#ebdbb2] shadow-[0_0_12px_rgba(60,56,54,0.6)]"
+                        : isTod
+                        ? "border-2 border-[#fe8019] text-[#ebdbb2] shadow-[0_0_8px_rgba(254,128,25,0.3)]"
+                        : status === "complete"
+                        ? "bg-[#fe8019]/70 text-[#1d2021] hover:bg-[#fe8019]"
+                        : status === "partial"
+                        ? "bg-[#3c3836]/60 text-[#ebdbb2] hover:bg-[#3c3836]"
+                        : "text-[#a89984] hover:text-[#ebdbb2] hover:bg-[#3c3836]/30"
                     }
                   `}
                 >
@@ -266,85 +228,74 @@ const CalendarMain = ({
         </div>
       );
     },
-    [getCompletionStatus, isSelected, isToday, handleDateClick]
+    [getStatus, isSelected, isToday, handleDateClick]
   );
 
   const selectedDateTasks = useMemo(() => getDailyTasks(selectedDate), [selectedDate, getDailyTasks]);
+  const hasTasks = selectedDateTasks.length > 0;
   const completedTasks = selectedDateTasks.filter(t => t.completions.length > 0);
 
-  if (!isMounted || isLoading) {
-    return <CalendarLoading />;
-  }
+  if (!isMounted || isLoading) return <CalendarLoading />;
 
   return (
-    <div className="space-y-6 px-3 py-4 max-w-full">
-      {/* Calendar Carousel */}
+    <div className="space-y-6 px-4 py-5 max-w-full bg-[#1d2021] min-h-screen text-[#ebdbb2]">
+      {/* Calendar */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="touch-pan-x"
       >
-        <Card className="bg-[#282828] border-[#3c3836] overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle className="text-[#ebdbb2] text-lg">Calendar</CardTitle>
+        <Card className="bg-[#282828] border-[#3c3836] overflow-hidden shadow-lg">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-[#ebdbb2] text-xl font-light">Calendar</CardTitle>
             <Button
               variant="outline"
               size="sm"
               onClick={goToToday}
-              className="h-8 border-[#3c3836] bg-[#1d2021] text-[#a89984] hover:bg-[#3c3836] hover:text-[#ebdbb2] text-xs px-3"
+              className="h-9 border-[#504945] bg-[#1d2021] text-[#a89984] hover:bg-[#3c3836] hover:text-[#ebdbb2] font-medium"
             >
               Today
             </Button>
           </CardHeader>
-          <CardContent className="pb-4">
-            <div className="relative">
-              <Carousel
-                setApi={setApi}
-                opts={{
-                  align: "start",
-                  loop: false,
-                  dragFree: false,
-                  containScroll: "trimSnaps",
-                }}
-                className="w-full"
-              >
-                <CarouselContent className="flex h-80">
-                  {months.map((month) => (
-                    <CarouselItem
-                      key={month.toISOString()}
-                      className="pl-0 min-w-[280px] sm:min-w-[300px] md:min-w-[340px] lg:min-w-[380px] flex-shrink-0 px-2"
-                    >
-                      <div className="bg-[#1d2021]/40 rounded-lg p-3 h-full">
-                        <h2 className="text-[#ebdbb2] text-base font-semibold text-center mb-3">
-                          {month.toLocaleDateString("en-US", {
-                            month: "long",
-                            year: "numeric",
-                          })}
-                        </h2>
-                        {renderMonth(month)}
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-              </Carousel>
-            </div>
+          <CardContent className="pb-2">
+            <Carousel
+              setApi={setApi}
+              opts={{ align: "start", loop: false, dragFree: false }}
+              className="w-full"
+            >
+              <CarouselContent className="flex h-80">
+                {months.map((month) => (
+                  <CarouselItem
+                    key={month.toISOString()}
+                    className="pl-0 min-w-[280px] sm:min-w-[300px] md:min-w-[340px] lg:min-w-[380px] px-2 flex-shrink-0"
+                  >
+                    <div className="bg-[#1d2021]/60 rounded-xl p-4 h-full backdrop-blur-sm border border-[#3c3836]/30">
+                      <h2 className="text-[#ebdbb2] text-lg font-bold text-center mb-3 tracking-tight">
+                        {month.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                      </h2>
+                      {renderMonth(month)}
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Tasks Panel */}
+      {/* Tasks */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <Card className="bg-[#282828] border-[#3c3836]">
-          <CardHeader className="pb-3">
+        <Card className="bg-[#282828] border-[#3c3836] shadow-lg">
+          <CardHeader className="pb-2">
             <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="flex items-center text-sm font-medium">
-                <Calendar className="h-5 w-5 text-[#fe8019] mr-2" />
-                <span className="text-[#ebdbb2]">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-[#fe8019]" />
+                <span className="text-[#ebdbb2] font-medium">
                   {selectedDate.toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
@@ -352,8 +303,8 @@ const CalendarMain = ({
                   })}
                 </span>
               </div>
-              <div className="text-xs text-[#a89984]">
-                {completedTasks.length}/{selectedDateTasks.length} completed
+              <div className="text-sm text-[#a89984]">
+                {hasTasks ? `${completedTasks.length}/${selectedDateTasks.length}` : "No tasks"}
               </div>
             </CardTitle>
           </CardHeader>
@@ -367,10 +318,12 @@ const CalendarMain = ({
                 transition={{ duration: 0.3 }}
                 className="space-y-3"
               >
-                {selectedDateTasks.length === 0 ? (
-                  <div className="p-5 text-center rounded-lg border border-dashed border-[#3c3836] bg-[#1d2021]/30">
-                    <Calendar className="h-6 w-6 mx-auto text-[#a89984]/70 mb-2" />
-                    <p className="text-sm text-[#a89984]">No practices today</p>
+                {!hasTasks ? (
+                  <div className="p-6 text-center rounded-xl border border-dashed border-[#3c3836]/50 bg-[#1d2021]/40">
+                    <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#3c3836]/30 flex items-center justify-center">
+                      <Calendar className="h-6 w-6 text-[#a89984]" />
+                    </div>
+                    <p className="text-sm text-[#a89984]">No practices scheduled</p>
                   </div>
                 ) : (
                   selectedDateTasks.map((task, i) => {
@@ -382,70 +335,71 @@ const CalendarMain = ({
                         key={task.id}
                         initial={{ opacity: 0, x: -12 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.05 }}
-                        className="flex items-center justify-between p-3 rounded-lg bg-[#1d2021]/60 border border-[#3c3836] hover:border-[#504945]/50 transition-colors"
+                        transition={{ delay: i * 0.06 }}
+                        className="flex items-center justify-between p-4 rounded-xl bg-[#1d2021]/60 border border-[#3c3836]/40 hover:border-[#fe8019]/40 transition-all duration-200 group"
                       >
-                        <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="flex items-center gap-3">
                           <div
-                            className="h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0"
+                            className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110"
                             style={{
                               backgroundColor: `${task.task.dimension.color}20`,
                             }}
                           >
                             <Icon
-                              className="h-4 w-4"
+                              className="h-5 w-5"
                               style={{ color: task.task.dimension.color }}
                             />
                           </div>
                           <span
-                            className={`text-[#ebdbb2] text-sm truncate ${
+                            className={`text-[#ebdbb2] font-medium ${
                               isCompleted ? "line-through opacity-60" : ""
                             }`}
                           >
                             {task.task.name}
                           </span>
                         </div>
-                        <div
+                        <motion.div
+                          whileTap={{ scale: 0.85 }}
                           className={`
-                            h-7 w-7 rounded-full border-2 flex items-center justify-center
-                            transition-transform duration-200
+                            h-8 w-8 rounded-full border-2 flex items-center justify-center
+                            transition-all duration-300
                             ${isCompleted
-                              ? "bg-[#fe8019] border-[#fe8019] scale-110"
-                              : "border-[#3c3836] hover:border-[#fe8019]/50"
+                              ? "bg-[#fe8019] border-[#fe8019] shadow-[0_0_12px_#fe8019]"
+                              : "border-[#3c3836] hover:border-[#fe8019] hover:shadow-[0_0_8px_rgba(254,128,25,0.3)]"
                             }
                           `}
                         >
                           {isCompleted && (
-                            <Check className="h-4 w-4 text-[#1d2021]" strokeWidth={3} />
+                            <Check className="h-5 w-5 text-[#1d2021]" strokeWidth={3} />
                           )}
-                        </div>
+                        </motion.div>
                       </motion.div>
                     );
                   })
                 )}
 
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="mt-5 p-4 rounded-lg border border-[#3c3836]/50 bg-[#1d2021]/40"
-                >
-                  <h3 className="text-[#ebdbb2] font-medium mb-2 flex items-center gap-2 text-sm">
-                    <span className="inline-block w-1 h-1 rounded-full bg-[#fe8019] mr-2"></span>
-                    Reflection
-                  </h3>
-                  <p className="text-xs text-[#a89984] leading-relaxed">
-                    {selectedDateTasks.length === 0
-                      ? "Rest in stillness. Not every day needs doing."
-                      : completedTasks.length === selectedDateTasks.length
-                      ? "Harmony achieved. Your discipline honors your path."
-                      : completedTasks.length / selectedDateTasks.length >= 0.6
-                      ? "Good rhythm today. You stayed aligned with intention."
-                      : completedTasks.length > 0
-                      ? "You showed up. That is enough. Forgive the gaps."
-                      : "A quiet day. Breathe. Tomorrow is a new offering."}
-                  </p>
-                </motion.div>
+                {hasTasks && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="mt-5 p-4 rounded-xl border border-[#3c3836]/50 bg-gradient-to-r from-[#3c3836]/30 to-transparent"
+                  >
+                    <h3 className="text-[#ebdbb2] font-medium mb-1 text-sm flex items-center gap-1">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#fe8019]"></span>
+                      Insight
+                    </h3>
+                    <p className="text-xs text-[#a89984] leading-relaxed">
+                      {completedTasks.length === selectedDateTasks.length
+                        ? "Perfect harmony. Your energy is aligned."
+                        : completedTasks.length / selectedDateTasks.length >= 0.7
+                        ? "Strong flow today. Keep honoring your rhythm."
+                        : completedTasks.length > 0
+                        ? "You showed up. That’s the first step."
+                        : "Rest is part of the journey. Breathe."}
+                    </p>
+                  </motion.div>
+                )}
               </motion.div>
             </AnimatePresence>
           </CardContent>
