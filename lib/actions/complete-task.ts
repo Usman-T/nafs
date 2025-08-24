@@ -2,6 +2,7 @@
 
 import prisma from "@/prisma";
 import { requireAuth } from "@/lib/utils/auth";
+import { revalidatePath } from "next/cache";
 
 export const completeTask = async (taskId: string) => {
   try {
@@ -64,6 +65,7 @@ export const completeTask = async (taskId: string) => {
       }
     });
 
+    revalidatePath("/dashboard");
     return { success: true };
   } catch (error) {
     console.error("error completing task:", error);
