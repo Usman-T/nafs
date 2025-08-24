@@ -1,15 +1,14 @@
 import { Suspense } from "react";
 import { Sparkles } from "lucide-react";
-import Search from "@/components/custom/guidance/search-surahs/search";
 import StatsOverviewWrapper from "@/components/custom/guidance/wrappers/stats-overview-wrapper";
 import DailyAyahSectionWrapper from "@/components/custom/guidance/wrappers/daily-ayah-wrapper";
 import QuickActions from "@/components/custom/guidance/main/quick-actions";
 import FeaturedSurahsSectionWrapper from "@/components/custom/guidance/wrappers/featured-surah-wrapper";
-import { CommandPaletteProvider } from "@/lib/context/command-palette-context";
-import CommandPaletteWrapper from "@/components/custom/guidance/wrappers/command-palette-wrapper";
 import StatsOverviewSkeleton from "@/components/custom/guidance/skeletons/stats-overview";
 import DailyAyahSectionSkeleton from "@/components/custom/guidance/skeletons/daily-ayah";
 import FeaturedSurahsSkeleton from "@/components/custom/guidance/skeletons/feature-surahs-skeleton";
+import SearchInputWrapper from "@/components/custom/guidance/wrappers/search-input-wrapper";
+import SearchInputSkeleton from "@/components/custom/guidance/skeletons/search-input.skeleton";
 
 const GuidancePage = async () => {
   return (
@@ -20,10 +19,9 @@ const GuidancePage = async () => {
         </h1>
         <p className="text-[#a89984] text-sm">Your journey through the Quran</p>
       </div>
-      <CommandPaletteProvider>
-        <Search />
-        <CommandPaletteWrapper />
-      </CommandPaletteProvider>
+      <Suspense fallback={<SearchInputSkeleton />}>
+        <SearchInputWrapper />
+      </Suspense>
       <Suspense fallback={<StatsOverviewSkeleton />}>
         <StatsOverviewWrapper />
       </Suspense>

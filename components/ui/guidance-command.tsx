@@ -18,117 +18,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-const searchData = [
-  {
-    id: 1,
-    type: "surah",
-    title: "Al-Fatihah",
-    subtitle: "The Opening • 7 verses",
-    icon: BookOpen,
-    route: "/dashboard/guidance/surah/1",
-  },
-  {
-    id: 2,
-    type: "surah",
-    title: "Al-Baqarah",
-    subtitle: "The Cow • 286 verses",
-    icon: BookOpen,
-    route: "/dashboard/guidance/surah/2",
-  },
-  {
-    id: 3,
-    type: "surah",
-    title: "Aal-Imran",
-    subtitle: "Family of Imran • 200 verses",
-    icon: BookOpen,
-    route: "/dashboard/guidance/surah/3",
-  },
-
-  {
-    id: 101,
-    type: "verse",
-    title: "Ayat al-Kursi",
-    subtitle: "Al-Baqarah 2:255 • The Throne Verse",
-    icon: Quote,
-    route: "/dashboard/guidance/surah/2#verse-255",
-  },
-  {
-    id: 102,
-    type: "verse",
-    title: "Last two verses of Al-Baqarah",
-    subtitle: "Al-Baqarah 2:285-286",
-    icon: Quote,
-    route: "/dashboard/guidance/surah/2#verse-285",
-  },
-  {
-    id: 103,
-    type: "verse",
-    title: "Bismillah",
-    subtitle: "In the name of Allah",
-    icon: Quote,
-    route: "/dashboard/guidance/surah/1#verse-1",
-  },
-
-  {
-    id: 201,
-    type: "topic",
-    title: "Prayer (Salah)",
-    subtitle: "Verses about prayer and worship",
-    icon: MessageSquare,
-    route: "/dashboard/guidance/topics/prayer",
-  },
-  {
-    id: 202,
-    type: "topic",
-    title: "Patience (Sabr)",
-    subtitle: "Verses about patience and perseverance",
-    icon: MessageSquare,
-    route: "/dashboard/guidance/topics/patience",
-  },
-  {
-    id: 203,
-    type: "topic",
-    title: "Gratitude (Shukr)",
-    subtitle: "Verses about thankfulness",
-    icon: MessageSquare,
-    route: "/dashboard/guidance/topics/gratitude",
-  },
-
-  {
-    id: 301,
-    type: "tafsir",
-    title: "Tafsir Ibn Kathir",
-    subtitle: "Classical commentary",
-    icon: Scroll,
-    route: "/dashboard/guidance/tafsir/ibn-kathir",
-  },
-  {
-    id: 302,
-    type: "tafsir",
-    title: "Tafsir Al-Jalalayn",
-    subtitle: "Concise commentary",
-    icon: Scroll,
-    route: "/dashboard/guidance/tafsir/jalalayn",
-  },
-
-  {
-    id: 401,
-    type: "recent",
-    title: "Surah Al-Fatihah",
-    subtitle: "Recently read",
-    icon: Clock,
-    route: "/dashboard/guidance/surah/1",
-  },
-  {
-    id: 402,
-    type: "recent",
-    title: "Ayat al-Kursi",
-    subtitle: "Recently bookmarked",
-    icon: Clock,
-    route: "/dashboard/guidance/surah/2#verse-255",
-  },
-];
-
 const typeConfig = {
   surah: { label: "Surahs", color: "#fe8019", icon: BookOpen },
   verse: { label: "Verses", color: "#fabd2f", icon: Quote },
@@ -140,11 +29,13 @@ const typeConfig = {
 interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
+  searchData: any[];
 }
 
 export default function CommandPalette({
   isOpen,
   onClose,
+  searchData,
 }: CommandPaletteProps) {
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
