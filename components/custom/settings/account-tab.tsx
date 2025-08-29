@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { updateAccountSettings } from "@/lib/actions/settings";
 
 const AccountSettingsTab = () => {
   const { data: session, status } = useSession();
@@ -31,20 +32,40 @@ const AccountSettingsTab = () => {
     }
   }, [status, router]);
 
-  const updateSettings = () => {
-    toast.promise(
-      new Promise((resolve) => {
-        setLoading(true);
-        setTimeout(() => {
-          setLoading(false); // reset after operation
-          resolve();
-        }, 2000);
-      }),
-      {
-        loading: "Saving...",
-        success: <b>Settings saved!</b>,
-      }
-    );
+  const [username, setUsername] = useState(session?.user?.name || "");
+  const [email, setEmail] = useState(session?.user?.email || "");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+
+  const updateSettings = async () => {
+    setLoading(true);
+    try {
+      toast.promise(
+        new Promise(async (resolve, reject) => {
+          const result = await updateAccountSettings({
+            username,
+            email,
+            currentPassword,
+            newPassword,
+          });
+          if (result.success) {
+            resolve(result);
+          } else {
+            reject(result.error);
+          }
+        }),
+        {
+          loading: "Saving settings...",
+          success: "Settings saved successfully!",
+          error: (error) => `Failed to save settings: ${error}`,
+        }
+      );
+    } catch (e) {
+      toast.error("Failed to save settings");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -75,7 +96,8 @@ const AccountSettingsTab = () => {
                   </Label>
                   <Input
                     id="account-email"
-                    defaultValue={session?.user?.email}
+                    defaultValue={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] text-sm"
                   />
                 </div>
@@ -88,7 +110,8 @@ const AccountSettingsTab = () => {
                   </Label>
                   <Input
                     id="account-username"
-                    defaultValue={session?.user?.name}
+                    defaultValue={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] text-sm"
                   />
                 </div>
@@ -113,6 +136,8 @@ const AccountSettingsTab = () => {
                   <Input
                     id="current-password"
                     type="password"
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    value={currentPassword}
                     placeholder="••••••••"
                     className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] text-sm"
                   />
@@ -127,6 +152,8 @@ const AccountSettingsTab = () => {
                   <Input
                     id="new-password"
                     type="password"
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    value={newPassword}
                     placeholder="••••••••"
                     className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] text-sm"
                   />
@@ -140,6 +167,8 @@ const AccountSettingsTab = () => {
                   </Label>
                   <Input
                     id="confirm-password"
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    value={confirmPassword}
                     type="password"
                     placeholder="••••••••"
                     className="bg-[#1d2021] border-[#3c3836] text-[#ebdbb2] text-sm"
