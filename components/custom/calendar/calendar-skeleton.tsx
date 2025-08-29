@@ -13,7 +13,7 @@ const CalendarLoading = () => {
         </CardHeader>
         <CardContent>
           <div className="w-full rounded border border-[#3c3836] bg-[#282828] p-4">
-            <div className="h-6 w-40 bg-[#3c3836] rounded mb-3 mx-auto"></div>
+            <div className="h-6 w-40 bg-[#3c3836] rounded-2xl mb-3 mx-auto"></div>
             <div className="grid grid-cols-7 gap-2 mt-2">
               {Array.from({ length: 7 }).map((_, i) => (
                 <div
@@ -33,20 +33,25 @@ const CalendarLoading = () => {
       </Card>
 
       {/* Tasks skeleton */}
-      <Card className="bg-[#1d2021] border-none shadow-none mt-6">
+      <Card className="bg-[#1d2021] border-none shadow-none mt-3">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <div className="h-5 w-24 bg-[#3c3836] rounded"></div>
-            <div className="h-4 w-12 bg-[#3c3836] rounded"></div>
+            <div className="space-y-2">
+              <div className="h-5 w-24 bg-[#3c3836] rounded"></div>
+              <div className="h-5 w-10 bg-[#3c3836] rounded"></div>
+            </div>
+            <div className="h-12 bg-[#3c3836] rounded"></div>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={`task-${i}`}
-              className="h-12 bg-[#282828] rounded-lg border border-[#3c3836]"
-            ></div>
-          ))}
+        <CardContent>
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={`task-${i}`}
+                className="h-14 bg-[#282828] rounded-lg border border-[#3c3836]"
+              ></div>
+            ))}
+          </div>
           <div className="h-16 bg-[#282828] rounded-lg border border-[#3c3836]" />
         </CardContent>
       </Card>

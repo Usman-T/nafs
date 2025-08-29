@@ -108,9 +108,13 @@ const CalendarMain = ({
     (date: Date) => {
       const tasks = getDailyTasks(date);
       if (tasks.length === 0) return "none";
-      const all = tasks.every((t) => t.completions.length > 0);
-      const some = tasks.some((t) => t.completions.length > 0);
-      return all ? "complete" : some ? "partial" : "none";
+
+      const completedCount = tasks.filter(
+        (t) => t.completions.length > 0
+      ).length;
+
+      if (completedCount === tasks.length) return "complete";
+      return "partial";
     },
     [getDailyTasks]
   );
@@ -130,73 +134,75 @@ const CalendarMain = ({
   }, []);
 
   // Memoized month rendering
-  const renderMonth = useCallback(
-    (month: Date) => {
-      const y = month.getFullYear();
-      const m = month.getMonth();
-      const daysInMonth = new Date(y, m + 1, 0).getDate();
-      const firstDay = new Date(y, m, 1).getDay(); // 0 = Sunday
+const renderMonth = useCallback(
+  (month: Date) => {
+    const y = month.getFullYear();
+    const m = month.getMonth();
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+    const firstDay = new Date(y, m, 1).getDay(); // 0 = Sunday
 
-      const days = [];
-      for (let i = 0; i < firstDay; i++) days.push(null);
-      for (let day = 1; day <= daysInMonth; day++) {
-        days.push(new Date(y, m, day));
-      }
+    const days = [];
+    for (let i = 0; i < firstDay; i++) days.push(null);
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(new Date(y, m, day));
+    }
 
-      return (
-        <div className="grid grid-cols-7 gap-2 mt-2">
-          {["S", "M", "T", "W", "T", "F", "S"].map((day) => (
-            <div
-              key={day}
-              className="text-[#a89984] text-xs font-medium text-center py-1"
+    return (
+      <div className="grid grid-cols-7 gap-2 mt-2">
+        {["S", "M", "T", "W", "T", "F", "S"].map((day) => (
+          <div
+            key={day}
+            className="text-[#a89984] text-xs font-medium text-center py-1"
+          >
+            {day}
+          </div>
+        ))}
+
+        {days.map((date, idx) => {
+          if (!date) return <div key={`empty-${idx}`} className="h-10" />;
+
+          const status = getStatus(date); 
+          const isSel = isSelected(date);
+          const isTod = isToday(date);
+
+          const base =
+            "h-10 w-10 mx-auto rounded-md flex items-center justify-center text-sm font-medium transition-all duration-200 relative";
+
+          const styles = isSel
+            ? "border-2 border-[#fe8019] bg-[#3c3836] shadow-[0_0_10px_#fe8019] text-[#ebdbb2]"
+            : isTod && status === "complete"
+            ? "bg-[#fe8019] text-[#1d2021] shadow-[0_0_10px_#fe8019]"
+            : isTod && status === "partial"
+            ? "bg-[#3c3836] text-[#ebdbb2] shadow-[0_0_10px_#3c3836]"
+            : isTod
+            ? "border-2 border-[#fe8019] text-[#ebdbb2]"
+            : status === "complete"
+            ? "bg-[#fe8019] text-[#1d2021]"
+            : status === "partial"
+            ? "bg-[#3c3836] text-[#ebdbb2]"
+            : "text-[#a89984]";
+
+          return (
+            <motion.div
+              key={date.toISOString()}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.08 }}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              className="cursor-pointer"
+              onClick={() => handleDateClick(date)}
             >
-              {day}
-            </div>
-          ))}
-          {days.map((date, idx) => {
-            if (!date) return <div key={`empty-${idx}`} className="h-10" />;
-            const status = getStatus(date);
-            const isSel = isSelected(date);
-            const isTod = isToday(date);
+              <div className={`${base} ${styles}`}>{date.getDate()}</div>
+            </motion.div>
+          );
+        })}
+      </div>
+    );
+  },
+  [getStatus, isSelected, isToday, handleDateClick]
+);
 
-            return (
-              <motion.div
-                key={date.toISOString()}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                whileTap={{ scale: 0.95 }}
-                whileHover={{ scale: 1.08 }}
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                className="cursor-pointer"
-                onClick={() => handleDateClick(date)}
-              >
-                <div
-                  className={`
-                    h-10 w-10 mx-auto rounded-lg flex items-center justify-center text-sm font-medium
-                    transition-all duration-200 relative
-                    ${
-                      isSel
-                        ? "bg-[#3c3836] border-2 border-[#fe8019] shadow-[0_0_16px_#fe8019] text-[#ebdbb2] z-10"
-                        : isTod
-                        ? "border-2 border-[#fe8019] text-[#ebdbb2] bg-[#282828]"
-                        : status === "complete"
-                        ? "border border-[#fe8019]/50 bg-[#fe8019]/20 text-[#ebdbb2]"
-                        : status === "partial"
-                        ? "border border-[#3c3836]/50 bg-[#3c3836]/20 text-[#ebdbb2]"
-                        : "border border-[#3c3836]/40 text-[#a89984] hover:border-[#504945]"
-                    }
-                  `}
-                >
-                  {date.getDate()}
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      );
-    },
-    [getStatus, isSelected, isToday, handleDateClick]
-  );
 
   // Tasks for selected date
   const selectedDateTasks = useMemo(
@@ -222,7 +228,6 @@ const CalendarMain = ({
     return "Rest is not failure. Breathe. Begin again.";
   }, [hasTasks, selectedDateTasks, completedTasks]);
 
-  // Mount + loading
   useEffect(() => {
     setIsMounted(true);
     const timer = setTimeout(() => setIsLoading(false), 100);
@@ -230,7 +235,6 @@ const CalendarMain = ({
   }, []);
 
   if (!isMounted || isLoading) return <CalendarLoading />;
-
   return (
     <div className="bg-[#1d2021] min-h-screen text-[#ebdbb2]">
       {/* Calendar */}
@@ -249,7 +253,7 @@ const CalendarMain = ({
               variant="outline"
               size="sm"
               onClick={goToToday}
-              className="h-9 border-[#3c3836] bg-[#282828] text-[#a89984] hover:bg-[#3c3836] hover:text-[#ebdbb2] font-medium text-sm"
+              className="h-9 border-[#3c3836]  bg-[#282828] text-[#a89984] hover:bg-[#3c3836] hover:text-[#ebdbb2] font-medium text-sm"
             >
               Today
             </Button>
@@ -266,7 +270,7 @@ const CalendarMain = ({
                     key={month.toISOString()}
                     className="min-w-[280px] sm:min-w-[300px] md:min-w-[340px] lg:min-w-[380px] max-w-[480px]"
                   >
-                    <div className="bg-[#282828] rounded p-4 h-full border border-[#3c3836]">
+                    <div className="bg-[#282828] p-4 rounded-xl h-full border border-[#3c3836]">
                       <h2 className="text-[#ebdbb2] text-lg font-semibold text-center mb-3">
                         {month.toLocaleDateString("en-US", {
                           month: "long",

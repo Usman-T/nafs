@@ -290,3 +290,11 @@ Only a few things are there that need to be done
 Basically, 
 We check at the same exact TIME DOWN TO THE SECONDS to check for missed tasks when in reality it is a spectrum from that day to the end of that day
 If any tasks within that SPECTRUM are not completed, we break the streak em else we dont...
+
+Brother last things:
+- Settings page finalize it (1 hour max)
+- Surah page, make the tafsir and reflectoin and saving work, thats all
+- Clicking ayah should take to specified ayah page
+- Polish the search thing (30 minutes max no more)
+- Bundle apk and push
+
