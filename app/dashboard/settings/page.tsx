@@ -1,9 +1,12 @@
 import SettingsMain from "@/components/custom/settings/main";
+import { fetchGeneralSettingsTabContent } from "@/lib/data";
 
-const SettingsPage = () => {
+const SettingsPage = async () => {
+  const userSettings = await fetchGeneralSettingsTabContent();
+
   return (
     <div className="space-y-8 p-8">
-        <SettingsMain />
+      <SettingsMain settings={userSettings}/>
     </div>
   );
 };

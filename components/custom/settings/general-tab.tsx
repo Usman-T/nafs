@@ -23,11 +23,25 @@ import { useState } from "react";
 import { updateGeneralSettings } from "@/lib/actions";
 import { useLocalStorage } from "@/lib/hooks/use-local-storage";
 
-const GeneralSettingsTab = () => {
+type GeneralSettingsProps = {
+  settings: {
+    emailNotifications: boolean;
+    analyticsEnabled: boolean;
+    personalizationEnabled: boolean;
+  };
+};
+
+const GeneralSettingsTab = ({ settings }: GeneralSettingsProps) => {
   const [loading, setLoading] = useState(false);
-  const [emailNotifications, setEmailNotifications] = useState(false);
-  const [analyticsEnabled, setAnalyticsEnabled] = useState(true);
-  const [personalizationEnabled, setPersonalizationEnabled] = useState(true);
+  const [emailNotifications, setEmailNotifications] = useState(
+    settings?.emailNotifications
+  );
+  const [analyticsEnabled, setAnalyticsEnabled] = useState(
+    settings?.analyticsEnabled
+  );
+  const [personalizationEnabled, setPersonalizationEnabled] = useState(
+    settings?.personalizationEnabled
+  );
   const [reduceAnimations, setReduceAnimations] = useLocalStorage(
     "reduceAnimations",
     false

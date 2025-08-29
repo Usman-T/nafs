@@ -15,7 +15,7 @@ const tabs = [
   },
 ];
 
-const SettingsMain = () => {
+const SettingsMain = ({ settings }) => {
   return (
     <Tabs defaultValue="general" className="w-full">
       <TabsList className="bg-[#1d2021] border border-[#3c3836] mb-4">
@@ -30,7 +30,7 @@ const SettingsMain = () => {
         ))}
       </TabsList>
 
-      <GeneralSettingsTab />
+      <GeneralSettingsTab settings={settings} />
       <AccountSettingsTab />
     </Tabs>
   );

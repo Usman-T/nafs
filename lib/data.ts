@@ -555,3 +555,21 @@ export const getReflections = async (): Promise<Reflection[]> => {
 
   return reflections;
 };
+
+export const fetchGeneralSettingsTabContent = async () => {
+  const session = await auth();
+
+  if (!session?.user) {
+    throw new Error("Not authenticated");
+  }
+
+  const userSettings = await prisma.userSettings.findUnique({
+    where: { userId: session.user.id },
+  });
+
+  return {
+    emailNotifications: userSettings?.emailNotifications ?? false,
+    analyticsEnabled: userSettings?.analyticsEnabled ?? true,
+    personalizationEnabled: userSettings?.personalizationEnabled ?? true,
+  };
+}
