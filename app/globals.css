@@ -3,10 +3,17 @@
 
 html,
 body {
-  overscroll-behavior: none;
-  overscroll-behavior-y: none;
+  overscroll-behavior-y: contain; /* Better than "none" */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  margin: 0;
+  padding: 0;
+  /* Do NOT set height or overflow here */
+}
+
+/* Let the app container control scrolling */
+#__next {
   height: 100%;
-  overflow: hidden;
+  /* Remove 100vh */
 }
 
 * {
@@ -17,10 +24,20 @@ body {
   user-select: none;
 }
 
-#__next {
-  height: 100vh;
+:root {
+  --vh: 1vh; /* fallback */
+}
+
+.fullscreen-layout {
+  height: calc(var(--vh, 1vh) * 100);
   overflow-y: auto;
-  overscroll-behavior: none;
+  overscroll-behavior-y: contain;
+
+  /* Safe areas */
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
 }
 
 /* Mobile Safari specific fixes */

@@ -76,15 +76,20 @@ export default function RootLayout({
       <body
         className={`${geist.className} bg-[#1d2021] text-[#ebdbb2] antialiased`}
       >
-        <div className="h-screen select-none overflow-y-auto overscroll-none">
+        <div
+          className="overflow-y-auto"
+          style={{
+            height: "calc(var(--vh, 1vh) * 100)",
+            paddingTop: "env(safe-area-inset-top, 0px)",
+            paddingBottom: "env(safe-area-inset-bottom, 0px)",
+          }}
+        >
+          <ViewportSetter />
           <DisablePinchZoom />
           <DisableContextMenu />
-          <ViewportSetter />
-
           <GlobalErrorWrapper>
             <SessionProvider>{children}</SessionProvider>
           </GlobalErrorWrapper>
-
           <Toaster />
         </div>
       </body>
