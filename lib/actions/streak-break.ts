@@ -50,7 +50,7 @@ export const resetTasks = async () => {
       where: { id: userId },
       data: {
         streakBrokenToday: false,
-        lastStreakBreakDate: Date.now(),
+        lastStreakBreakDate: today
       },
     });
 
