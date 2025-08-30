@@ -23,4 +23,4 @@ export {
 export { resetTasks, dimensionsReset } from "@/lib/actions/streak-break";
 
 // settings management
-export { updateGeneralSettings } from "@/lib/actions/settings";
+export { updateGeneralSettings, updateAccountSettings, deleteAccount } from "@/lib/actions/settings";
