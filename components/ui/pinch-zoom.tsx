@@ -4,37 +4,41 @@ import { useEffect } from "react";
 
 export default function DisablePinchZoom() {
   useEffect(() => {
-    const preventMultiTouch = (e: TouchEvent) => {
+    const handleTouchMove = (e: TouchEvent) => {
+      // Only prevent multi-touch (pinch zoom)
       if (e.touches.length > 1) {
         e.preventDefault();
       }
     };
 
-    let lastTouchEnd = 0;
-    const preventDoubleTapZoom = (e: TouchEvent) => {
+    const handleTouchEnd = (e: TouchEvent) => {
+      // Prevent double-tap zoom
       const now = Date.now();
-      if (now - lastTouchEnd <= 300) {
+      const lastTouchEnd = parseInt(
+        localStorage.getItem("lastTouchEnd") || "0"
+      );
+      if (now - lastTouchEnd < 300) {
         e.preventDefault();
       }
-      lastTouchEnd = now;
+      localStorage.setItem("lastTouchEnd", now.toString());
     };
 
-    const preventCtrlWheel = (e: WheelEvent) => {
-      if (e.ctrlKey) {
-        e.preventDefault();
-      }
+    const handleWheel = (e: WheelEvent) => {
+      // Prevent Ctrl+scroll zoom
+      if (e.ctrlKey) e.preventDefault();
     };
 
-    document.addEventListener("touchmove", preventMultiTouch, { passive: false });
-    document.addEventListener("touchend", preventDoubleTapZoom, { passive: false });
-    document.addEventListener("wheel", preventCtrlWheel, { passive: false });
+    // Add passive: false only where necessary
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
+    document.addEventListener("touchend", handleTouchEnd, { passive: false });
+    document.addEventListener("wheel", handleWheel, { passive: false });
 
     return () => {
-      document.removeEventListener("touchmove", preventMultiTouch);
-      document.removeEventListener("touchend", preventDoubleTapZoom);
-      document.removeEventListener("wheel", preventCtrlWheel);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
+      document.removeEventListener("wheel", handleWheel);
     };
-  }, []); 
+  }, []);
 
   return null;
 }
