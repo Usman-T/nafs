@@ -33,6 +33,8 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [hidden, setHidden] = useState(false);
+  const [isReady, setIsReady] = useState(false); // Add ready state
+  const [viewportHeight, setViewportHeight] = useState(0); // Track viewport height
   const pathname = usePathname();
 
   const navItems = [
@@ -48,18 +50,60 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     setHidden(hideNav);
   };
 
+  // Fix viewport height issues in PWA/TWA
+  const updateViewportHeight = () => {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+    setViewportHeight(window.innerHeight);
+  };
+
   useEffect(() => {
+    // Initial setup
     localStorage.removeItem("nafs-hide-mobile-nav");
     updateHiddenState();
+    updateViewportHeight();
+    
+    // Small delay to ensure everything is rendered properly
+    const readyTimer = setTimeout(() => {
+      setIsReady(true);
+    }, 100);
 
     const handleStorageChange = () => {
       updateHiddenState();
     };
 
+    const handleResize = () => {
+      updateViewportHeight();
+    };
+
+    const handleOrientationChange = () => {
+      // Force a reflow after orientation change
+      setTimeout(() => {
+        updateViewportHeight();
+      }, 100);
+    };
+
     window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleOrientationChange);
+
+    // PWA specific event listeners
+    window.addEventListener("load", updateViewportHeight);
+    
+    // Force reflow on visibility change (when app comes back to foreground)
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        setTimeout(updateViewportHeight, 50);
+      }
+    });
 
     return () => {
+      clearTimeout(readyTimer);
       window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleOrientationChange);
+      window.removeEventListener("load", updateViewportHeight);
+      document.removeEventListener("visibilitychange", updateViewportHeight);
     };
   }, []);
 
@@ -82,11 +126,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   const MobileNav = ({ hide }: { hide: boolean }) => {
-    if (hide) return null;
+    if (hide || !isReady) return null; // Don't render until ready
 
     return (
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#2e2e2e] bg-[#1d2021] shadow-lg md:hidden">
-        <div className="flex items-center justify-between px-2">
+      <div 
+        className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#2e2e2e] bg-[#1d2021] shadow-lg md:hidden"
+        style={{
+          // Use CSS custom property for dynamic viewport height
+          bottom: 'env(keyboard-inset-height, 0px)', // Handles virtual keyboard
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)', // Handles safe areas
+        }}
+      >
+        <div className="flex items-center justify-between px-2 py-2">
           {navItems.slice(0, 2).map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -94,7 +145,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex flex-1 flex-col items-center gap-1 p-2 text-xs",
+                  "flex flex-1 flex-col items-center gap-1 p-2 text-xs touch-manipulation", // Add touch-manipulation
                   isActive
                     ? "text-[#fe8019]"
                     : "text-[#909090] hover:text-[#fe8019]"
@@ -113,7 +164,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex flex-1 flex-col items-center gap-1 p-2 text-xs",
+                  "flex flex-1 flex-col items-center gap-1 p-2 text-xs touch-manipulation",
                   isActive
                     ? "text-[#fe8019]"
                     : "text-[#909090] hover:text-[#fe8019]"
@@ -151,7 +202,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <Settings className="mr-2 h-4 w-4" />
             Settings
           </DropdownMenuItem>
-        </Link>{" "}
+        </Link>
         <DropdownMenuSeparator className="bg-[#2e2e2e]" />
         <DropdownMenuItem className="text-red-500 hover:bg-[#2e2e2e] hover:text-red-400">
           <SignOutButton />
@@ -207,13 +258,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     pathname.startsWith("/dashboard/guidance/surah") ||
     pathname.startsWith("/dashboard/guidance/ayah/") ||
     pathname.startsWith("/dashboard/guidance/audio/") ||
-    pathname.startsWith("/dashboard/guidance/reflections")  ||
-    pathname.startsWith("/dashboard/guidance/saved") 
+    pathname.startsWith("/dashboard/guidance/reflections") ||
+    pathname.startsWith("/dashboard/guidance/saved");
+
+  // Don't render anything until ready to prevent glitches
+  if (!isReady) {
+    return (
+      <div className="bg-[#1d2021] min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#fe8019]"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="md:flex bg-[#1d2021] min-h-screen ">
-      {" "}
-      <DesktopSidebar />{" "}
+    <div 
+      className="md:flex bg-[#1d2021]"
+      style={{
+        minHeight: 'calc(var(--vh, 1vh) * 100)', // Use CSS custom property
+      }}
+    >
+      <DesktopSidebar />
       <div className="flex flex-col flex-1">
         {!isSurahPage && (
           <header className="sticky top-0 z-10 flex h-16 items-center border-b border-[#2e2e2e] bg-[#1d2021]/80 px-6 backdrop-blur-md md:px-8 shadow-lg">
@@ -228,7 +292,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
           </header>
         )}
-        <main className="flex-1 bg-[#1d2021] pb-16 md:pb-0 overflow-auto">
+        <main 
+          className="flex-1 bg-[#1d2021] md:pb-0 overflow-auto"
+          style={{
+            paddingBottom: !isSurahPage ? 'calc(64px + env(safe-area-inset-bottom, 0px))' : '0px', // Dynamic padding for mobile nav
+          }}
+        >
           <div>{children}</div>
         </main>
         {!isSurahPage && <MobileNav hide={hidden} />}

@@ -164,6 +164,7 @@ export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
     return { streakBroken: false };
   }
 };
+
 export const completeDayAndUpdateStreak = async () => {
   try {
     const userId = await requireAuth();
