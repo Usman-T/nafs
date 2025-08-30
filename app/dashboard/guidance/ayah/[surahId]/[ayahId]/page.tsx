@@ -6,6 +6,7 @@ import AyahContent from "@/components/custom/guidance/ayah/ayah-content";
 import Particles from "@/components/custom/guidance/ayah/particles";
 import Link from "next/link";
 import { fetchVerse } from "@/lib/utils/guidance";
+import AyahHeader from "@/components/custom/guidance/ayah/ayah-header";
 
 type AyahPageProps = {
   params: {
@@ -22,46 +23,15 @@ const AyahPage = async ({ params }: AyahPageProps) => {
 
     return (
       <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2] relative overflow-hidden">
-        {/* Background particles */}
         <Particles />
 
-        {/* Header */}
-        <div className="sticky top-0 z-10 flex h-16 items-center justify-between w-full border-b border-[#2e2e2e] bg-[#1d2021]/80 px-6 backdrop-blur-md md:px-8 shadow-lg">
-          <div className="flex items-center justify-between w-full">
-            <Link href={`/dashboard/guidance/`}>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-[#a89984] hover:text-[#ebdbb2]"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
-
-            <div className="text-center">
-              <h1 className="text-lg font-semibold">
-                {verse?.surahName} - Ayah {verse.ayahId}
-              </h1>
-              <p className="text-sm text-[#a89984]">{verse.reference}</p>
-            </div>
-
-            <Link href={`/dashboard/guidance/surah/${surahId}`}>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-[#a89984] hover:text-[#ebdbb2]"
-              >
-                <BookOpen className="h-5 w-5" />
-              </Button>
-            </Link>
-          </div>
-        </div>
+        <AyahHeader verse={verse} />
 
         <AyahContent verse={verse} ayahId={ayahId} />
       </div>
     );
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return (
       <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2] relative overflow-hidden flex items-center justify-center">
         <Particles />
