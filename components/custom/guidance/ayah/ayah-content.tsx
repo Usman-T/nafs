@@ -29,7 +29,6 @@ import { reflectAyah, saveAyah } from "@/lib/actions/manage-guidance";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { P } from "pino";
 
 type WordByWord = {
   arabic: string;
@@ -47,6 +46,7 @@ type Verse = {
   surahId: number;
   ayahId: number;
   reference: string;
+  surahName: string;
 };
 
 type AyahContentProps = {

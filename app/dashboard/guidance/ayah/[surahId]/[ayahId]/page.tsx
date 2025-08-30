@@ -40,7 +40,7 @@ const AyahPage = async ({ params }: AyahPageProps) => {
 
             <div className="text-center">
               <h1 className="text-lg font-semibold">
-                Surah {verse.surahId} - Ayah {verse.ayahId}
+                {verse?.surahName} - Ayah {verse.ayahId}
               </h1>
               <p className="text-sm text-[#a89984]">{verse.reference}</p>
             </div>
@@ -61,6 +61,7 @@ const AyahPage = async ({ params }: AyahPageProps) => {
       </div>
     );
   } catch (error) {
+    console.log(error)
     return (
       <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2] relative overflow-hidden flex items-center justify-center">
         <Particles />

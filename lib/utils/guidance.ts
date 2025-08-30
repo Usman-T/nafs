@@ -79,6 +79,12 @@ export async function fetchVerse(surahId: number, ayahId: number) {
       url: `https://apis.quran.foundation/content/api/v4/tafsirs/168/by_ayah/${verseKey}`,
     });
 
+    const surah = await axios({
+      ...config,
+      url: "https://apis.quran.foundation/content/api/v4/chapters/" + surahId,
+    });
+    console.log(surah.data)
+
     const wordByWord = verse.words
       .filter((w: any) => w.char_type_name === "word")
       .map((w: any) => ({
@@ -91,7 +97,7 @@ export async function fetchVerse(surahId: number, ayahId: number) {
     return {
       arabic: verse.text_uthmani,
       translation: verse.translations[0].text,
-      reference: `Surah ${verse.verse_key.split(":")[0]}, Ayah ${
+      reference: `${surah.data.chapter.name_simple}, Ayah ${
         verse.verse_key.split(":")[1]
       }`,
       transliteration: verse.text_indopak,
@@ -99,6 +105,7 @@ export async function fetchVerse(surahId: number, ayahId: number) {
       surahId: verse.verse_key.split(":")[0],
       tafsir: tafsirResponse.data.tafsir.text || "",
       wordByWord,
+      surahName: surah.data.chapter.name_simple || "Unknown"
     };
   } catch (error: any) {
     console.error("Error fetching verse:", error?.response || error);

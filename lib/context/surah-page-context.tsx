@@ -102,7 +102,7 @@ export function SurahProvider({
   initialVerses: Verse[];
 }) {
   const initialState: SurahState = {
-    currentVerse: 1,
+    currentVerse: 0,
     bookmarkedVerses: [],
     highlightedVerses: [],
     showTafsir: [],

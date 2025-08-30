@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const Loading = () => {
   return (
-    <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2] p-4 max-w-4xl mx-auto">
+    <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2] max-w-4xl mx-auto">
       <div className="sticky top-0 z-10 flex h-16 items-center justify-between w-full border-b border-[#2e2e2e] bg-[#1d2021]/80 px-6 backdrop-blur-md md:px-8 shadow-lg">
         <Skeleton className="h-8 w-8 rounded-full bg-[#3c3836]" />
         <div className="text-center">
@@ -13,7 +13,7 @@ const Loading = () => {
         <Skeleton className="h-8 w-8 rounded-full bg-[#3c3836]" />
       </div>
 
-      <div className="mt-8 mb-8">
+      <div className="mt-8 mb-8 p-4">
         <Card className="bg-gradient-to-br from-[#282828] to-[#1d2021] border-[#3c3836]">
           <CardContent className="sm:p-8">
             <div className="flex justify-center mb-6">
