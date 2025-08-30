@@ -46,13 +46,14 @@ export const resetTasks = async () => {
       });
     }
 
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: { id: userId },
       data: {
         streakBrokenToday: false,
         lastStreakBreakDate: today
       },
     });
+
 
     return { success: true };
   } catch (error) {

@@ -71,6 +71,7 @@ export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
           currentStreak: true,
           lastActiveDate: true,
           streakBrokenToday: true,
+          lastStreakBreakDate: true,
           dailyTasks: {
             where: {
               date: {
@@ -95,8 +96,13 @@ export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
         return { streakBroken: true };
       }
 
-      if (user.lastStreakBreakDate && isSameDay(user.lastStreakBreakDate, today)) {
-        console.log("User already active today → no streak check needed");
+      console.log("AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+      console.log({ lastStreakBreak: user.lastStreakBreakDate, today });
+      if (
+        user.lastStreakBreakDate &&
+        isSameDay(user.lastStreakBreakDate, today)
+      ) {
+        console.log("User already broke streak today → no streak check needed");
         return { streakBroken: false };
       }
 
