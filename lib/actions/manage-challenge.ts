@@ -17,7 +17,6 @@ export const startChallenge = async (challengeData: {
     if (!user) throw new Error("User not found!");
 
     return await prisma.$transaction(async (tx) => {
-      // determine dominant dimension
       const dimensionCount: Record<string, number> = {};
       challengeData.tasks.forEach((task) => {
         dimensionCount[task.dimensionId] =

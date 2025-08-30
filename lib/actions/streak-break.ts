@@ -11,7 +11,6 @@ export const resetTasks = async () => {
     const userId = await requireAuth();
     const today = startOfDay(new Date());
 
-    // Fetch only today's tasks
     const todayTasks = await prisma.dailyTask.findMany({
       where: {
         userId,
@@ -47,11 +46,11 @@ export const resetTasks = async () => {
       });
     }
 
-    // Reset streakBrokenToday flag
     await prisma.user.update({
       where: { id: userId },
       data: {
         streakBrokenToday: false,
+        lastStreakBreakDate: Date.now(),
       },
     });
 

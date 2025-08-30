@@ -9,6 +9,11 @@ export const spawnDailyTasksIfMissing = async () => {
   const userId = await requireAuth();
   const today = startOfDay(new Date());
 
+  await prisma.user.update({
+    where: { id: userId },
+    data: { streakBrokenToday: false },
+  });
+
   const existingCount = await prisma.dailyTask.count({
     where: { userId, date: today },
   });
@@ -47,11 +52,10 @@ export const spawnDailyTasksIfMissing = async () => {
     skipDuplicates: true,
   });
 
-  console.log("SPAWNED DAILY TASKS FOR USER IN CHECK USER STREAK CALL AHHHH");
+  console.log("SPAWNED DAILY TASKS AND RESET streakBrokenToday = false");
 
   return { spawned: true, count: todayTasks.length };
 };
-
 
 export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
   console.log("Checking user streak...");
@@ -71,7 +75,7 @@ export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
             where: {
               date: {
                 gte: yesterday,
-                lt: today, // only yesterday
+                lt: today,
               },
             },
             include: {
@@ -86,31 +90,32 @@ export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
         return { streakBroken: false };
       }
 
-      // If already marked as broken today, redirect
       if (user.streakBrokenToday) {
-        console.log("Streak already broken today");
+        console.log("Streak already broken today → redirect to /streak-break");
         return { streakBroken: true };
       }
 
-      // Get only yesterday's tasks (we already filtered in DB)
+      if (user.lastStreakBreakDate && isSameDay(user.lastStreakBreakDate, today)) {
+        console.log("User already active today → no streak check needed");
+        return { streakBroken: false };
+      }
+
       const yesterdayTasks = user.dailyTasks;
 
       if (yesterdayTasks.length === 0) {
-        console.log("No tasks assigned yesterday → streak NOT broken");
-        // Still update last active date
+        console.log("No tasks assigned yesterday → streak continues");
         await tx.user.update({
           where: { id: userId },
-          data: { lastActiveDate: today, streakBrokenToday: false },
+          data: { lastActiveDate: today },
         });
         return { streakBroken: false };
       }
 
-      // Check for any incomplete task yesterday
       const anyIncomplete = yesterdayTasks.some((task) => {
-        const completedToday = task.completions.some((c) =>
+        const completedYesterday = task.completions.some((c) =>
           isSameDay(new Date(c.completedAt), yesterday)
         );
-        return !completedToday;
+        return !completedYesterday;
       });
 
       if (anyIncomplete) {
@@ -121,7 +126,7 @@ export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
           data: {
             currentStreak: 0,
             lastActiveDate: today,
-            lastStreakBreakDate: yesterday,
+            lastStreakBreakDate: today,
             streakBrokenToday: true,
           },
         });
@@ -129,12 +134,10 @@ export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
         return { streakBroken: true };
       }
 
-      // All tasks completed → streak continues
       await tx.user.update({
         where: { id: userId },
         data: {
           lastActiveDate: today,
-          streakBrokenToday: false,
         },
       });
 
@@ -142,7 +145,7 @@ export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
     });
   } catch (error) {
     console.error("Error checking user streak:", error);
-    return { streakBroken: true }; 
+    return { streakBroken: true };
   }
 };
 
@@ -189,11 +192,11 @@ export const completeDayAndUpdateStreak = async () => {
 
     return { success: true, newStreak: updatedUser.currentStreak };
   } catch (error) {
-    console.error("error completing day:", error);
+    console.error("Error completing day:", error);
     return {
       success: false,
-      message: "failed to complete day",
-      error: error.message,
+      message: "Failed to complete day",
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 };
