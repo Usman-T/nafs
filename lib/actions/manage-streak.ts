@@ -52,6 +52,7 @@ export const spawnDailyTasksIfMissing = async () => {
   return { spawned: true, count: todayTasks.length };
 };
 
+
 export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
   console.log("Checking user streak...");
   try {
@@ -59,17 +60,20 @@ export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
     const today = startOfDay(new Date());
     const yesterday = startOfDay(subDays(today, 1));
 
-    // Use a transaction to ensure data consistency
     return await prisma.$transaction(async (tx) => {
       const user = await tx.user.findUnique({
         where: { id: userId },
         select: {
           currentStreak: true,
-          longestStreak: true,
           lastActiveDate: true,
           streakBrokenToday: true,
-          lastStreakBreakDate: true,
           dailyTasks: {
+            where: {
+              date: {
+                gte: yesterday,
+                lt: today, // only yesterday
+              },
+            },
             include: {
               completions: true,
             },
@@ -77,78 +81,55 @@ export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
         },
       });
 
-      console.log("User found:", user);
+      if (!user) {
+        console.log("User not found");
+        return { streakBroken: false };
+      }
 
-      if (!user) return { streakBroken: false };
-
-      // If streak already broken today, return early
+      // If already marked as broken today, redirect
       if (user.streakBrokenToday) {
-        console.log("Streak already broken today, skipping checks");
+        console.log("Streak already broken today");
         return { streakBroken: true };
       }
 
-      // Only check yesterday for streak breaking (not all historical dates)
-      const yesterdayTasks = user.dailyTasks.filter((task) =>
-        isSameDay(new Date(task.date), yesterday)
-      );
+      // Get only yesterday's tasks (we already filtered in DB)
+      const yesterdayTasks = user.dailyTasks;
 
-      // If no tasks were assigned yesterday, don't break streak
       if (yesterdayTasks.length === 0) {
-        console.log("No tasks assigned for yesterday, streak continues");
+        console.log("No tasks assigned yesterday → streak NOT broken");
+        // Still update last active date
         await tx.user.update({
           where: { id: userId },
-          data: {
-            lastActiveDate: today,
-            streakBrokenToday: false,
-          },
+          data: { lastActiveDate: today, streakBrokenToday: false },
         });
         return { streakBroken: false };
       }
 
-      // Check if any yesterday tasks were incomplete
-      const incompleteTasks = yesterdayTasks.filter((task) => {
-        return (
-          task.completions.length === 0 ||
-          task.completions.every(
-            (completion) =>
-              !isSameDay(new Date(completion.completedAt), yesterday)
-          )
+      // Check for any incomplete task yesterday
+      const anyIncomplete = yesterdayTasks.some((task) => {
+        const completedToday = task.completions.some((c) =>
+          isSameDay(new Date(c.completedAt), yesterday)
         );
+        return !completedToday;
       });
 
-      console.log({
-        yesterdayTasks: yesterdayTasks.length,
-        incompleteTasks: incompleteTasks.length,
-      });
+      if (anyIncomplete) {
+        console.log("MISSING TASK YESTERDAY → STREAK BROKEN");
 
-      // If all yesterday tasks were completed, streak continues
-      if (incompleteTasks.length === 0) {
-        await tx.user.update({
-          where: { id: userId },
-          data: {
-            lastActiveDate: today,
-            streakBrokenToday: false,
-          },
-        });
-        return { streakBroken: false };
-      }
-
-      // Break the streak only if user has a current streak and missed yesterday
-      if (user.currentStreak > 0) {
-        console.log("Breaking streak - missed tasks yesterday");
         await tx.user.update({
           where: { id: userId },
           data: {
             currentStreak: 0,
             lastActiveDate: today,
-            lastStreakBreakDate: yesterday, // Use yesterday, not the missedDay
+            lastStreakBreakDate: yesterday,
             streakBrokenToday: true,
           },
         });
+
         return { streakBroken: true };
       }
 
-      // If no current streak, just update last active date
+      // All tasks completed → streak continues
       await tx.user.update({
         where: { id: userId },
         data: {
@@ -161,7 +142,7 @@ export const checkUserStreak = async (): Promise<{ streakBroken: boolean }> => {
     });
   } catch (error) {
     console.error("Error checking user streak:", error);
-    return { streakBroken: false };
+    return { streakBroken: true }; 
   }
 };
 

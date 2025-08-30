@@ -51,7 +51,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning={false}>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#1d2021" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -59,32 +59,35 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Nafs" />
         <meta name="format-detection" content="telephone=no" />
+        <meta name="application-name" content="Nafs" />
+        <meta name="msapplication-TileColor" content="#1d2021" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+        />
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
         <link rel="apple-touch-icon" sizes="192x192" href="/icon-192x192.png" />
         <link rel="apple-touch-icon" sizes="512x512" href="/icon-512x512.png" />
-        <meta name="application-name" content="Nafs" />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1.0, user-scalable=no"
-        />
-        <meta name="msapplication-TileColor" content="#1d2021" />
-        <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body
-        className={`${geist.className} bg-[#1d2021] text-[#ebdbb2] antialiased`}
-      >
-        <div className="h-screen select-none overflow-y-auto overscroll-none">
+      <body className={`${geist.className} bg-[#1d2021] text-[#ebdbb2] antialiased`}>
+        <div
+          className="flex h-screen flex-col"
+          style={{
+            paddingTop: 'env(safe-area-inset-top, 0px)',
+            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+            paddingLeft: 'env(safe-area-inset-left, 0px)',
+            paddingRight: 'env(safe-area-inset-right, 0px)',
+          }}
+        >
           <DisablePinchZoom />
           <DisableContextMenu />
-          
+
           <GlobalErrorWrapper>
-            <SessionProvider>
-              {children}
-            </SessionProvider>
+            <SessionProvider>{children}</SessionProvider>
           </GlobalErrorWrapper>
-          
+
           <Toaster />
         </div>
       </body>
