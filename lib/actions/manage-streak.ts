@@ -9,10 +9,20 @@ export const spawnDailyTasksIfMissing = async () => {
   const userId = await requireAuth();
   const today = startOfDay(new Date());
 
-  await prisma.user.update({
+  const user = await prisma.user.findUnique({
     where: { id: userId },
-    data: { streakBrokenToday: false },
+    select: {
+      currentChallenge: true,
+    },
   });
+
+  const tasks = await prisma.challengeTask.findMany({
+    where: { challengeId: user?.currentChallenge.id || "" },
+  });
+
+  if (!user || !user.currentChallenge) {
+    return { spawned: false, reason: "No active challenge" };
+  }
 
   const existingCount = await prisma.dailyTask.count({
     where: { userId, date: today },
@@ -22,24 +32,13 @@ export const spawnDailyTasksIfMissing = async () => {
     return { spawned: false, existing: existingCount };
   }
 
-  const userChallenge = await prisma.userChallenge.findFirst({
-    where: { userId, completed: false },
-    include: {
-      challenge: {
-        include: {
-          tasks: { include: { task: true } },
-        },
-      },
-    },
-  });
-
-  if (!userChallenge) {
+  if (!tasks) {
     return { spawned: false, reason: "No active challenge" };
   }
 
-  const todayTasks = userChallenge.challenge.tasks.map((ct) => ({
+  const todayTasks = tasks.map((t) => ({
     userId,
-    taskId: ct.task.id,
+    taskId: t.taskId,
     date: today,
   }));
 

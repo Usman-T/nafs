@@ -121,7 +121,10 @@ export function StreakBreakProvider({
       tasks: [],
     });
 
-  // Utility functions
+  console.log("CHALLENGE SELECTION STATE");
+  console.log({ challengeSelection });
+
+  // utility functions
   const getDuration = useCallback(() => {
     const durationMap: Record<number, number> = {
       1: 3,
@@ -221,15 +224,12 @@ export function StreakBreakProvider({
 
   const goToCustom = useCallback(() => {
     setRestartFlowBranch("custom");
-    // Initialize with empty custom challenge if not already set
-    if (!challengeSelection.title && !challengeSelection.tasks.length) {
-      updateChallengeSelection({
-        title: "Custom Challenge",
-        description: "Your personalized challenge to get back on track",
-        tasks: [],
-      });
-    }
-  }, [challengeSelection, updateChallengeSelection]);
+    updateChallengeSelection({
+      title: "Custom Challenge",
+      description: "Your personalized challenge to get back on track",
+      tasks: [],
+    });
+  }, [updateChallengeSelection]);
 
   const goToChoose = useCallback(() => {
     setRestartFlowBranch("choose");

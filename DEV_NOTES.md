@@ -298,3 +298,17 @@ Brother last things:
 - Polish the search thing (30 minutes max no more)
 - Bundle apk and push
 
+Streak break restart screen does not work with custom challenge (just found this out)
+Just console log for like 15 minutes and you'll find it out ASAP (after bath)
+Make 3 3 screenshots and write some basic shi and submit for review (after this thing)
+Saved ayah thing is redirected to wrong page (2 minutes)
+Verse card needs to support saving ayah (10 minutes)
+Verse card needs to support reflecting upon ayah (10 minutes)
+Work on specific verse audio playback (will easily be done before zuhr)
+Show tafsir should open a modal? Nah just redirect for now
+Dude the modal would look so goddamn sick (we'll try)
+Work on full surah playback (30 minutes max)
+
+Next things:
+- Complete Challenge thing feels like a fucking wizard
+- Complete Challenge FLow doesnt work due to not being inside a streak break context or sm shit

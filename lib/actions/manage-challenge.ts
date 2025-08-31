@@ -90,7 +90,11 @@ export const startChallenge = async (challengeData: {
 
       await tx.user.update({
         where: { id: userId },
-        data: { challengeId: challenge.id, currentStreak: 0, streakBrokenToday: false },
+        data: {
+          challengeId: challenge.id,
+          currentStreak: 0,
+          streakBrokenToday: false,
+        },
       });
 
       revalidatePath("/dashboard");
