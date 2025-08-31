@@ -26,6 +26,7 @@ import SignOutButton from "../(auth)/register/SignOutButton";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import Logo from "@/components/custom/logo";
+import { useSession } from "next-auth/react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -34,6 +35,7 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [hidden, setHidden] = useState(false);
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   const navItems = [
     { name: "Home", href: "/dashboard", icon: Home },
@@ -183,15 +185,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="flex items-center gap-3">
               <Avatar className="h-8 w-8 border border-[#2e2e2e]">
                 <AvatarFallback className="bg-[#2e2e2e] text-[#e0e0e0]">
-                  U
+                  {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : "U"}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <p className="text-sm font-medium text-[#e0e0e0] truncate max-w-[120px]">
-                  User
+                  {session?.user?.name ? session.user.name : "User"}
                 </p>
                 <p className="text-xs text-[#909090] truncate max-w-[120px]">
-                  No email
+                  {session?.user?.email ? session.user.email : ""}
                 </p>
               </div>
             </div>
@@ -207,13 +209,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     pathname.startsWith("/dashboard/guidance/surah") ||
     pathname.startsWith("/dashboard/guidance/ayah/") ||
     pathname.startsWith("/dashboard/guidance/audio/") ||
-    pathname.startsWith("/dashboard/guidance/reflections")  ||
-    pathname.startsWith("/dashboard/guidance/saved") 
+    pathname.startsWith("/dashboard/guidance/reflections") ||
+    pathname.startsWith("/dashboard/guidance/saved");
 
   return (
     <div className="md:flex bg-[#1d2021] min-h-screen ">
       {" "}
-      <DesktopSidebar />{" "}
+      {!isSurahPage && <DesktopSidebar />}{" "}
       <div className="flex flex-col flex-1">
         {!isSurahPage && (
           <header className="sticky top-0 z-10 flex h-16 items-center border-b border-[#2e2e2e] bg-[#1d2021]/80 px-6 backdrop-blur-md md:px-8 shadow-lg">

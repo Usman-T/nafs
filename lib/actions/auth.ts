@@ -147,6 +147,7 @@ export const login = async (prevState: loginState, formData: FormData) => {
     await signIn("credentials", {
       email,
       password,
+      redirect: false
     });
 
     return { message: "Login successful!", errors: {} };

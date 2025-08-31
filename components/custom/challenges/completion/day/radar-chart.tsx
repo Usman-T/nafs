@@ -87,8 +87,8 @@ const RadarChart = ({
             cy={center}
             r={radius * level}
             fill="none"
-            stroke="#3c3836"
-            strokeWidth="1"
+            stroke="#504945"
+            strokeWidth="2.5"
             opacity={0.3}
             initial={animate ? { scale: 0, opacity: 0 } : {}}
             animate={animate ? { scale: 1, opacity: 0.3 } : {}}
@@ -103,7 +103,7 @@ const RadarChart = ({
             y1={center}
             x2={point.fullX}
             y2={point.fullY}
-            stroke="#3c3836"
+            stroke="#504945"
             strokeWidth="1"
             opacity={0.5}
             initial={animate ? { pathLength: 0, opacity: 0 } : {}}
@@ -115,7 +115,7 @@ const RadarChart = ({
         {animate ? (
           <motion.path
             d={path}
-            fill="rgba(254, 128, 25, 0.2)"
+            fill="rgba(254, 128, 25, 0.35)"
             stroke="#fe8019"
             strokeWidth="2"
             initial={{ pathLength: 0, opacity: 0 }}
@@ -144,9 +144,10 @@ const RadarChart = ({
         ) : (
           <path
             d={path}
-            fill="rgba(254, 128, 25, 0.2)"
             stroke="#fe8019"
-            strokeWidth="2"
+            strokeWidth="3"
+            opacity={0.6}
+            fill="none"
           />
         )}
 
