@@ -16,13 +16,14 @@ export const spawnDailyTasksIfMissing = async () => {
     },
   });
 
+  if (!user || !user.currentChallenge) {
+    return { spawned: false, reason: "No active challenge" };
+  }
+
   const tasks = await prisma.challengeTask.findMany({
     where: { challengeId: user?.currentChallenge.id || "" },
   });
 
-  if (!user || !user.currentChallenge) {
-    return { spawned: false, reason: "No active challenge" };
-  }
 
   const existingCount = await prisma.dailyTask.count({
     where: { userId, date: today },
