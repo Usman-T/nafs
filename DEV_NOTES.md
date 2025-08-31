@@ -299,8 +299,8 @@ Brother last things:
 - Bundle apk and push
 
 Streak break restart screen does not work with custom challenge (just found this out)
-Just console log for like 15 minutes and you'll find it out ASAP (after bath)
-Make 3 3 screenshots and write some basic shi and submit for review (after this thing)
+Just console log for like 15 minutes and you'll find it out ASAP (after bath) [done]
+Make 3 3 screenshots and write some basic shi and submit for review (after this thing) 
 Saved ayah thing is redirected to wrong page (2 minutes)
 Verse card needs to support saving ayah (10 minutes)
 Verse card needs to support reflecting upon ayah (10 minutes)

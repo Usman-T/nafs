@@ -45,13 +45,12 @@ const Register = () => {
     terms: false,
   });
 
-  // State for password visibility
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false)
 
   const [state, formAction, isPending] = useActionState(
     async (prevState: State, formData: FormData) => {
-      // Preserve form values before submission
       const currentValues = {
         name: formData.get("name") as string,
         email: formData.get("email") as string,
@@ -88,7 +87,6 @@ const Register = () => {
     <div className="min-h-screen bg-[#1d2021] text-[#ebdbb2] flex flex-col py-16">
       <div className="flex-1 flex flex-col justify-center items-center p-6">
         <div className="w-full max-w-md">
-          {/* Branding */}
           <div className="text-center mb-12">
             <Link href="/" className="inline-flex items-center gap-2">
               <Logo className="h-7 w-7 text-[#fe8019]" />
@@ -107,7 +105,6 @@ const Register = () => {
             </motion.div>
           </div>
 
-          {/* OAuth */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -115,12 +112,13 @@ const Register = () => {
           >
             <Button
               className="w-full bg-[#3c3836] hover:bg-[#504945] text-[#ebdbb2] flex items-center justify-center gap-2 h-11 mb-8"
-              disabled={isPending}
+              disabled={isPending || loading}
               onClick={() => {
+                setLoading(true)
                 signIn("google", { callbackUrl: "/dashboard" });
               }}
             >
-              {isPending ? (
+              {isPending || loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <svg className="h-5 w-5" viewBox="0 0 24 24">

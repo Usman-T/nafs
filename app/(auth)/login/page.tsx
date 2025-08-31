@@ -21,6 +21,7 @@ const Login = () => {
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
   const { data } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
 
   if (data?.user) {
     router.push("/dashboard");
@@ -59,12 +60,13 @@ const Login = () => {
           >
             <Button
               className="w-full bg-[#3c3836] hover:bg-[#504945] text-[#ebdbb2] flex items-center justify-center gap-2 h-11 mb-6"
-              disabled={isPending}
+              disabled={isPending || isLoading}
               onClick={() => {
+                setIsLoading(true);
                 signIn("google", { callbackUrl: "/dashboard" });
               }}
             >
-              {isPending ? (
+              {isPending || isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
