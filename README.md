@@ -138,10 +138,6 @@ bunx prisma migrate dev
 
 ---
 
-## License
-
-MIT — free to use, remix, and build with barakah.
-
 ---
 
 <p align="center">
